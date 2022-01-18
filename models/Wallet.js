@@ -5,6 +5,7 @@ const walletSchema = new mongoose.Schema({
 	walletDesc: { type: String },
 	userFullname: { type: String },
 	userEmail: { type: String },
+	qrCodeRedeemStatus: { type: Number },
 });
 
 module.exports = mongoose.model("Wallet", walletSchema);
