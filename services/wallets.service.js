@@ -29,31 +29,57 @@ module.exports = {
 		initiateTransactionToClientWallet: {
 			async handler(ctx) {
 				try {
-					return "aa";
-
 					let qrCodeStatus = await this.getQrCodeInfo(ctx);
 					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
-					if (parseObject) throw new ValidationError("Code is allready redeemed");
-					let updatedRedeemedQrCode = await this.updateRedeemStatus(ctx);
-					let transactionData = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5);
+					if (parseObject) return Promise.resolve({ rqcoderedeemstatus: "redeemed " });
 
-					return transactionData;
+					let transactionData = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5);
+					await this.updateRedeemStatus(ctx, transactionData.data);
+
+					console.log("transactionData.data");
+					console.log(transactionData.data);
+
+					return transactionData.data;
 				} catch (error) {
-					throw new ValidationError(error.message);
+					throw new ValidationError(error);
 				}
 			},
 		},
 
-		checkQrCodeInDb: {
+		// this will combine to Messages and store under one QR code
+		generateContract: {
+			async handler(ctx) {
+				try {
+					let qrCodeStatus = await this.getQrCodeInfo(ctx);
+					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
+					if (parseObject) return Promise.resolve({ rqcoderedeemstatus: "redeemed " });
+					return await this.generateContractUpdateDataWithMessages(ctx);
+				} catch (error) {
+					throw new ValidationError(error);
+				}
+			},
+		},
+
+		getQrCodeData: {
 			async handler(ctx) {
 				try {
 					await this.checkIfQrCodeExistIndb(ctx);
+					return await this.getQrCodeInfo(ctx);
+				} catch (error) {
+					throw new ValidationError(error);
+				}
+			},
+		},
 
-					let qrCodeStatus = await this.getQrCodeInfo(ctx);
-					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
-					if (parseObject) throw { message: "Code is already redeemed", internalErrorCode: 20 };
+		createTransactionCOPY: {
+			async handler(ctx) {
+				try {
+					let walletAddresses = await this.getWalletAddresses();
+					let unusedAddress = this.parseAddressesForUnused(walletAddresses.data);
+					let transactionData = await this.sendTransactionFromWalletToWallet(unusedAddress);
+					let insertedData = await this.insertDataIntoDb(ctx, unusedAddress, transactionData.data.id);
 
-					return qrCodeStatus;
+					return { insertedData, unusedAddress, txId: transactionData.data };
 				} catch (error) {
 					throw new ValidationError(error);
 				}
@@ -63,29 +89,21 @@ module.exports = {
 		createTransaction: {
 			async handler(ctx) {
 				try {
-					let insertedData = await this.insertDataIntoDb(ctx);
-					let walletAddresses = await this.getWalletAddresses();
-					let unusedAddress = this.parseAddressesForUnused(walletAddresses.data);
-					let transactionData = await this.sendTransactionFromWalletToWallet(unusedAddress);
-
-					return { insertedData, unusedAddress, txId: transactionData.data };
+					return await this.plainInsertDataIntoDb(ctx);
 				} catch (error) {
-					this.logger.error("createTransaction ERROR: ", error.message);
-					throw new ValidationError(error.message);
+					throw new ValidationError(error);
 				}
 			},
 		},
 
 		createWallet: {
 			async handler() {
-				this.logger.warn("CreateWallet");
-
 				try {
 					let walletAddresses = await this.getWalletAddresses();
 					let unusedAddress = this.parseAddressesForUnused(walletAddresses.data);
 					let transactionData = await this.sendTransactionFromWalletToWallet(unusedAddress);
 
-					return { unusedAddress, transactionData };
+					return { unusedAddress, txId: transactionData.data };
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -102,12 +120,28 @@ module.exports = {
 				.shift().id;
 		},
 
-		async updateRedeemStatus(ctx) {
+		async generateContractUpdateDataWithMessages(ctx) {
+			let entity = { walletQrId: ctx.params.qrcode };
+
+			let data = {
+				clientMessage: ctx.params.clientMessage,
+				clientName: ctx.params.clientName,
+			};
+
+			try {
+				return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
+			} catch (error) {
+				return Promise.reject(error);
+			}
+		},
+
+		async updateRedeemStatus(ctx, transaction) {
 			let entity = {
 				walletQrId: ctx.params.qrcode,
 			};
 			let data = {
 				qrCodeRedeemStatus: 1,
+				transactionId: transaction.id,
 			};
 			try {
 				let wallet = await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
@@ -134,8 +168,8 @@ module.exports = {
 			};
 			try {
 				let wallet = await Wallet.exists(entity);
-				if (!wallet) return Promise.reject({ message: "QR code doesn't exist in our system", internalErrorCode: 22 });
-
+				//if (!wallet) return Promise.reject({ message: "QR code doesn't exist in our system", internalErrorCode: 22 });
+				if (!wallet) throw { message: "QR code doesn't exist in our system", internalErrorCode: 21 };
 				//let wallet = await Wallet.find(entity);
 				return wallet;
 			} catch (error) {
@@ -143,15 +177,30 @@ module.exports = {
 			}
 		},
 
-		async insertDataIntoDb(ctx) {
+		async insertDataIntoDb(ctx, Address, transactionId) {
+			const entity = {
+				walletQrId: ctx.params.walletQrId,
+				walletDesc: ctx.params.walletDesc,
+				userFullname: ctx.params.userFullname,
+				userEmail: ctx.params.userEmail,
+				usedAddress: Address,
+				transactionId: transactionId,
+			};
+			try {
+				let wallet = new Wallet(entity);
+				return await wallet.save();
+			} catch (error) {
+				return Promise.reject(error);
+			}
+		},
+
+		async plainInsertDataIntoDb(ctx) {
 			const entity = {
 				walletQrId: ctx.params.walletQrId,
 				walletDesc: ctx.params.walletDesc,
 				userFullname: ctx.params.userFullname,
 				userEmail: ctx.params.userEmail,
 			};
-			this.logger.warn("== 1 == insertDataIntoDb ENTITY: ", entity);
-
 			try {
 				let wallet = new Wallet(entity);
 				return await wallet.save();
@@ -172,7 +221,6 @@ module.exports = {
 		},
 
 		async sendTransactionFromWalletToWallet(Address) {
-			this.logger.warn("== 3 == sendTransactionFromWalletToWallet");
 			this.logger.warn("== 3 == unusedAddress", Address);
 			try {
 				return await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, {
