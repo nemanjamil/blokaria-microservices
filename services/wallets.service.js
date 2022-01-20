@@ -71,22 +71,7 @@ module.exports = {
 			},
 		},
 
-		createTransactionCOPY: {
-			async handler(ctx) {
-				try {
-					let walletAddresses = await this.getWalletAddresses();
-					let unusedAddress = this.parseAddressesForUnused(walletAddresses.data);
-					let transactionData = await this.sendTransactionFromWalletToWallet(unusedAddress);
-					let insertedData = await this.insertDataIntoDb(ctx, unusedAddress, transactionData.data.id);
-
-					return { insertedData, unusedAddress, txId: transactionData.data };
-				} catch (error) {
-					throw new ValidationError(error);
-				}
-			},
-		},
-
-		createTransaction: {
+		generateQrCodeInSystem: {
 			async handler(ctx) {
 				try {
 					return await this.plainInsertDataIntoDb(ctx);
@@ -168,9 +153,7 @@ module.exports = {
 			};
 			try {
 				let wallet = await Wallet.exists(entity);
-				//if (!wallet) return Promise.reject({ message: "QR code doesn't exist in our system", internalErrorCode: 22 });
 				if (!wallet) throw { message: "QR code doesn't exist in our system", internalErrorCode: 21 };
-				//let wallet = await Wallet.find(entity);
 				return wallet;
 			} catch (error) {
 				return Promise.reject(error);
