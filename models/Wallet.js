@@ -11,6 +11,8 @@ const walletSchema = new mongoose.Schema({
 	createdAt: { type: Date, default: Date.now, index: true },
 	clientMessage: { type: String },
 	clientName: { type: String },
+	clientEmail: { type: String },
+	metaDataRandomNumber: { type: Number },
 });
 
 module.exports = mongoose.model("Wallet", walletSchema);

@@ -31,15 +31,12 @@ module.exports = {
 				try {
 					let qrCodeStatus = await this.getQrCodeInfo(ctx);
 					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
-					if (parseObject) return Promise.resolve({ rqcoderedeemstatus: "redeemed " });
+					if (parseObject) return Promise.resolve({ rqcoderedeemstatus: "redeemed" });
 
-					let transactionData = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5);
-					await this.updateRedeemStatus(ctx, transactionData.data);
+					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
+					await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 
-					console.log("transactionData.data");
-					console.log(transactionData.data);
-
-					return transactionData.data;
+					return cardanoRequest.data;
 				} catch (error) {
 					throw new ValidationError(error);
 				}
@@ -52,7 +49,7 @@ module.exports = {
 				try {
 					let qrCodeStatus = await this.getQrCodeInfo(ctx);
 					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
-					if (parseObject) return Promise.resolve({ rqcoderedeemstatus: "redeemed " });
+					if (parseObject) return Promise.resolve({ rqcoderedeemstatus: "redeemed" });
 					return await this.generateContractUpdateDataWithMessages(ctx);
 				} catch (error) {
 					throw new ValidationError(error);
@@ -110,9 +107,12 @@ module.exports = {
 
 			let data = {
 				clientMessage: ctx.params.clientMessage,
+				clientEmail: ctx.params.clientEmail,
 				clientName: ctx.params.clientName,
 			};
 
+			console.log(entity);
+			console.log(data);
 			try {
 				return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 			} catch (error) {
@@ -120,14 +120,16 @@ module.exports = {
 			}
 		},
 
-		async updateRedeemStatus(ctx, transaction) {
+		async updateRedeemStatus(ctx, transaction, metaDataRandomNumber) {
 			let entity = {
 				walletQrId: ctx.params.qrcode,
 			};
 			let data = {
 				qrCodeRedeemStatus: 1,
 				transactionId: transaction.id,
+				metaDataRandomNumber: metaDataRandomNumber,
 			};
+
 			try {
 				let wallet = await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 				return wallet;
@@ -203,22 +205,58 @@ module.exports = {
 			}
 		},
 
-		async sendTransactionFromWalletToWallet(Address) {
-			this.logger.warn("== 3 == unusedAddress", Address);
-			try {
-				return await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, {
-					passphrase: `${process.env.WALLET_PASSPHRASE_1}`,
-					payments: [
+		async sendTransactionFromWalletToWallet(Address, qrCodeDbData) {
+			let rndBr = "888000999" + Math.floor(Math.random() * 1000000);
+
+			let metaDataObj = {
+				[rndBr]: {
+					map: [
 						{
-							address: Address,
-							amount: {
-								quantity: 1000000,
-								unit: "lovelace",
+							k: {
+								string: "Product",
+							},
+							v: {
+								string: "Place For URL PICTURE",
+							},
+						},
+						{
+							k: {
+								string: `${qrCodeDbData[0].userFullname} - ${qrCodeDbData[0].userEmail}`,
+							},
+							v: {
+								string: qrCodeDbData[0].walletDesc,
+							},
+						},
+						{
+							k: {
+								string: `${qrCodeDbData[0].clientName} - ${qrCodeDbData[0].clientEmail}`,
+							},
+							v: {
+								string: qrCodeDbData[0].clientMessage,
 							},
 						},
 					],
-					withdrawal: "self",
-				});
+				},
+			};
+
+			let dataObject = {
+				passphrase: `${process.env.WALLET_PASSPHRASE_1}`,
+				payments: [
+					{
+						address: Address,
+						amount: {
+							quantity: 1000000,
+							unit: "lovelace",
+						},
+					},
+				],
+				withdrawal: "self",
+				metadata: metaDataObj,
+			};
+
+			try {
+				let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
+				return { rndBr, cardanoRequest };
 			} catch (error) {
 				return Promise.reject(error);
 			}
