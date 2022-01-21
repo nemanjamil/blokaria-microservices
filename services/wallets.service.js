@@ -111,8 +111,6 @@ module.exports = {
 				clientName: ctx.params.clientName,
 			};
 
-			console.log(entity);
-			console.log(data);
 			try {
 				return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 			} catch (error) {
