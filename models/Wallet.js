@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const walletSchema = new mongoose.Schema({
 	walletQrId: { type: String, index: true, required: true }, // unique: true
-	walletDesc: { type: String },
+	userDesc: { type: String },
 	userFullname: { type: String },
 	userEmail: { type: String },
 	qrCodeRedeemStatus: { type: Number },
@@ -13,6 +13,8 @@ const walletSchema = new mongoose.Schema({
 	clientName: { type: String },
 	clientEmail: { type: String },
 	metaDataRandomNumber: { type: Number },
+	productPicture: { type: String },
+	productVideo: { type: String },
 });
 
 module.exports = mongoose.model("Wallet", walletSchema);

@@ -26,6 +26,22 @@ module.exports = {
 			},
 		},
 
+		generateQrCodeInSystem: {
+			params: {
+				walletQrId: "string",
+			},
+
+			async handler(ctx) {
+				try {
+					if (ctx.params.productPicture)
+						await ctx.call("image.storePublicImageUrl", { walletQrId: ctx.params.walletQrId, productPicture: ctx.params.productPicture });
+					return await this.plainInsertDataIntoDb(ctx);
+				} catch (error) {
+					throw new ValidationError(error);
+				}
+			},
+		},
+
 		initiateTransactionToClientWallet: {
 			async handler(ctx) {
 				try {
@@ -62,16 +78,6 @@ module.exports = {
 				try {
 					await this.checkIfQrCodeExistIndb(ctx);
 					return await this.getQrCodeInfo(ctx);
-				} catch (error) {
-					throw new ValidationError(error);
-				}
-			},
-		},
-
-		generateQrCodeInSystem: {
-			async handler(ctx) {
-				try {
-					return await this.plainInsertDataIntoDb(ctx);
 				} catch (error) {
 					throw new ValidationError(error);
 				}
@@ -163,7 +169,7 @@ module.exports = {
 		async insertDataIntoDb(ctx, Address, transactionId) {
 			const entity = {
 				walletQrId: ctx.params.walletQrId,
-				walletDesc: ctx.params.walletDesc,
+				userDesc: ctx.params.userDesc,
 				userFullname: ctx.params.userFullname,
 				userEmail: ctx.params.userEmail,
 				usedAddress: Address,
@@ -180,10 +186,14 @@ module.exports = {
 		async plainInsertDataIntoDb(ctx) {
 			const entity = {
 				walletQrId: ctx.params.walletQrId,
-				walletDesc: ctx.params.walletDesc,
+				userDesc: ctx.params.userDesc,
 				userFullname: ctx.params.userFullname,
 				userEmail: ctx.params.userEmail,
 			};
+
+			if (ctx.params.productPicture) entity.productPicture = ctx.params.walletQrId;
+			if (ctx.params.productVideo) entity.productVideo = ctx.params.productVideo;
+
 			try {
 				let wallet = new Wallet(entity);
 				return await wallet.save();
@@ -194,8 +204,6 @@ module.exports = {
 
 		async getWalletAddresses() {
 			let wallet_url = `${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/addresses`;
-			this.logger.warn("== 2 == getWalletAddresses wallet_url ", wallet_url);
-
 			try {
 				return await this.axiosGet(wallet_url);
 			} catch (error) {
@@ -206,34 +214,91 @@ module.exports = {
 		async sendTransactionFromWalletToWallet(Address, qrCodeDbData) {
 			let rndBr = "888000999" + Math.floor(Math.random() * 1000000);
 
+			let merchantName = {
+				k: {
+					string: "MerchantName",
+				},
+				v: {
+					string: qrCodeDbData[0].userFullname,
+				},
+			};
+
+			let merchantEmail = {
+				k: {
+					string: "MerchantEmail",
+				},
+				v: {
+					string: qrCodeDbData[0].userEmail,
+				},
+			};
+
+			let productPicture = {
+				k: {
+					string: "ProductPicture",
+				},
+				v: {
+					string: "Place For URL PICTURE",
+				},
+			};
+
+			let productVideo = {
+				k: {
+					string: "ProductVideo",
+				},
+				v: {
+					string: "https://aaaaa.be/aEYlVBbb6GI",
+				},
+			};
+
+			let merchantMessage = {
+				k: {
+					string: "MerchantMessage",
+				},
+				v: {
+					string: qrCodeDbData[0].userDesc,
+				},
+			};
+
+			let clientName = {
+				k: {
+					string: "ClientName",
+				},
+				v: {
+					string: qrCodeDbData[0].clientName,
+				},
+			};
+
+			let clientEmail = {
+				k: {
+					string: "ClientEmail",
+				},
+				v: {
+					string: qrCodeDbData[0].clientEmail,
+				},
+			};
+
+			let clientMessage = {
+				k: {
+					string: "ClientMessage",
+				},
+				v: {
+					string: qrCodeDbData[0].clientMessage,
+				},
+			};
+
+			let finalArray = [];
+			finalArray.push(merchantName);
+			finalArray.push(merchantEmail);
+			finalArray.push(merchantMessage);
+			finalArray.push(clientName);
+			finalArray.push(clientEmail);
+			finalArray.push(clientMessage);
+			finalArray.push(productPicture);
+			finalArray.push(productVideo);
+
 			let metaDataObj = {
 				[rndBr]: {
-					map: [
-						{
-							k: {
-								string: "Product",
-							},
-							v: {
-								string: "Place For URL PICTURE",
-							},
-						},
-						{
-							k: {
-								string: `${qrCodeDbData[0].userFullname} - ${qrCodeDbData[0].userEmail}`,
-							},
-							v: {
-								string: qrCodeDbData[0].walletDesc,
-							},
-						},
-						{
-							k: {
-								string: `${qrCodeDbData[0].clientName} - ${qrCodeDbData[0].clientEmail}`,
-							},
-							v: {
-								string: qrCodeDbData[0].clientMessage,
-							},
-						},
-					],
+					map: finalArray,
 				},
 			};
 
@@ -251,6 +316,8 @@ module.exports = {
 				withdrawal: "self",
 				metadata: metaDataObj,
 			};
+
+			// console.dir(dataObject, { depth: null });
 
 			try {
 				let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);

@@ -16,7 +16,7 @@ broker.createService({
 		"Wallet",
 		mongoose.Schema({
 			walletQrId: { type: String, unique: true, required: true },
-			walletDesc: { type: String },
+			userDesc: { type: String },
 			userFullname: { type: String },
 			userEmail: { type: String },
 		})
@@ -29,7 +29,6 @@ broker.createService({
 // 	.then(() =>
 // 		broker.call("wallets.create", {
 // 			walletQrId: "gggrrrdsdd",
-// 			walletDesc: "Lorem ipsum...",
 // 		})
 // 	)
 
