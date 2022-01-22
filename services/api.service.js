@@ -7,6 +7,23 @@ const ApiGateway = require("moleculer-web");
  * @typedef {import('http').IncomingMessage} IncomingRequest Incoming HTTP Request
  * @typedef {import('http').ServerResponse} ServerResponse HTTP Server Response
  */
+// const Busboy = require("busboy");
+
+// function uploader(req, res, next) {
+// 	console.log(req.headers);
+// 	const busboy = new Busboy({ headers: req.headers });
+// 	busboy.on("file", function (fieldname, file, filename, encoding, mimetype) {
+// 		console.log("File [" + fieldname + "]: filename: " + filename + ", encoding: " + encoding + ", mimetype: " + mimetype);
+// 		file.on("data", function (data) {
+// 			console.log("File [" + fieldname + "] got " + data.length + " bytes");
+// 		});
+// 		file.on("end", function () {
+// 			console.log("File [" + fieldname + "] Finished");
+// 		});
+// 	});
+
+// 	res.end(next);
+// }
 
 module.exports = {
 	name: "api",
@@ -20,11 +37,7 @@ module.exports = {
 		cors: {
 			origin: "*",
 			methods: ["GET", "OPTIONS", "POST", "PUT", "DELETE"],
-			allowedHeaders: [
-				"Access-Control-Allow-Headers",
-				"Content-Type",
-				"Authorization",
-			],
+			allowedHeaders: ["Access-Control-Allow-Headers", "Content-Type", "Authorization"],
 			exposedHeaders: [],
 			credentials: false,
 			maxAge: 3600,
@@ -37,6 +50,52 @@ module.exports = {
 		use: [],
 
 		routes: [
+			{
+				path: "/upload",
+				use: [],
+				autoAliases: true,
+				aliases: {
+					//"POST /": "multipart:image.testiranje",
+					//"PUT /:id": "stream:image.testiranje",
+					"POST /multi": {
+						type: "multipart",
+						busboyConfig: {
+							limits: {
+								files: 1,
+								fileSize: 1 * 1024 * 1024,
+							},
+							onPartsLimit(busboy, alias, svc) {
+								this.logger.info("Busboy parts limit!", busboy);
+							},
+							onFilesLimit(busboy, alias, svc) {
+								this.logger.info("Busboy file limit!", busboy);
+							},
+							onFieldsLimit(busboy, alias, svc) {
+								this.logger.info("Busboy fields limit!", busboy);
+							},
+						},
+						action: "image.saveImageAndData",
+					},
+				},
+
+				// onAfterCall(ctx, route, req, res, data) {
+				// 	const fieldName = ctx.meta.fieldname;
+				// 	console.log("onAfterCall", fieldName);
+				// },
+
+				busboyConfig: {
+					limits: { files: 1 },
+				},
+				//callingOptions: {},
+				mappingPolicy: "restrict", // Available values: "all", "restrict"
+				logging: true,
+				callOptions: {
+					// meta: {
+					// 	a: 5,
+					// 	vidiMiki: "12312",
+					// },
+				},
+			},
 			{
 				path: "/api",
 
@@ -149,9 +208,7 @@ module.exports = {
 					return { id: 1, name: "John Doe" };
 				} else {
 					// Invalid token
-					throw new ApiGateway.Errors.UnAuthorizedError(
-						ApiGateway.Errors.ERR_INVALID_TOKEN
-					);
+					throw new ApiGateway.Errors.UnAuthorizedError(ApiGateway.Errors.ERR_INVALID_TOKEN);
 				}
 			} else {
 				// No token. Throw an error or do nothing if anonymous access is allowed.

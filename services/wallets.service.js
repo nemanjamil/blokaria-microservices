@@ -4,6 +4,7 @@ const MongooseAdapter = require("moleculer-db-adapter-mongoose");
 const { ValidationError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/wallet.js");
+const { MoleculerError } = require("moleculer").Errors;
 require("dotenv").config();
 
 module.exports = {
@@ -27,15 +28,13 @@ module.exports = {
 		},
 
 		generateQrCodeInSystem: {
-			params: {
-				walletQrId: "string",
-			},
+			// params: {
+			// 	walletQrId: "string",
+			// },
 
 			async handler(ctx) {
 				try {
-					if (ctx.params.productPicture)
-						await ctx.call("image.storePublicImageUrl", { walletQrId: ctx.params.walletQrId, productPicture: ctx.params.productPicture });
-					return await this.plainInsertDataIntoDb(ctx);
+					return await this.plainInsertDataIntoDb(ctx.meta.$multipart);
 				} catch (error) {
 					throw new ValidationError(error);
 				}
@@ -47,14 +46,15 @@ module.exports = {
 				try {
 					let qrCodeStatus = await this.getQrCodeInfo(ctx);
 					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
-					if (parseObject) return Promise.resolve({ rqcoderedeemstatus: "redeemed" });
-
+					if (parseObject) throw new MoleculerError("REDEEM_STATUS", 501, "ERR_DB_INSERTING", { message: "redeemed", internalErrorCode: "wallet10" });
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 					await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 
 					return cardanoRequest.data;
 				} catch (error) {
-					throw new ValidationError(error);
+					// throw new ValidationError(error);
+					// throw new MoleculerError(error, 501, "ERR_DB_INSERTING", { message: error.message, internalErrorCode: "wallet20" });
+					return Promise.reject(error);
 				}
 			},
 		},
@@ -185,15 +185,14 @@ module.exports = {
 
 		async plainInsertDataIntoDb(ctx) {
 			const entity = {
-				walletQrId: ctx.params.walletQrId,
-				userDesc: ctx.params.userDesc,
-				userFullname: ctx.params.userFullname,
-				userEmail: ctx.params.userEmail,
+				walletQrId: ctx.walletQrId,
+				userDesc: ctx.userDesc,
+				userFullname: ctx.userFullname,
+				userEmail: ctx.userEmail,
 			};
 
-			if (ctx.params.productPicture) entity.productPicture = ctx.params.walletQrId;
-			if (ctx.params.productVideo) entity.productVideo = ctx.params.productVideo;
-
+			// if (ctx.params.productPicture) entity.productPicture = ctx.params.walletQrId;
+			if (ctx.productVideo) entity.productVideo = ctx.productVideo;
 			try {
 				let wallet = new Wallet(entity);
 				return await wallet.save();

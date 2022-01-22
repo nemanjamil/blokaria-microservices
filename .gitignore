@@ -62,3 +62,7 @@ typings/
 
 # JetBrains IDE
 .idea
+
+#public images
+public/__uploads/
+public/images/
