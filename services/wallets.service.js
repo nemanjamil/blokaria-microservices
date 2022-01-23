@@ -52,8 +52,6 @@ module.exports = {
 
 					return cardanoRequest.data;
 				} catch (error) {
-					// throw new ValidationError(error);
-					// throw new MoleculerError(error, 501, "ERR_DB_INSERTING", { message: error.message, internalErrorCode: "wallet20" });
 					return Promise.reject(error);
 				}
 			},
@@ -77,7 +75,19 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					await this.checkIfQrCodeExistIndb(ctx);
-					return await this.getQrCodeInfo(ctx);
+					let productPicture = await ctx.call("image.getProductPicture", { walletQrId: ctx.params.qrcode });
+					let walletIdData = await this.getQrCodeInfo(ctx);
+
+					console.log("walletIdData", walletIdData);
+					console.log("productPicture", productPicture);
+
+					let walletIdDataNew = [...walletIdData];
+					if (productPicture) {
+						walletIdDataNew[0].productPicture = productPicture.productPicture;
+					}
+					console.log("walletIdDataNew", walletIdDataNew);
+
+					return walletIdDataNew;
 				} catch (error) {
 					throw new ValidationError(error);
 				}

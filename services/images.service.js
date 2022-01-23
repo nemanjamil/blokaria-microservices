@@ -2,7 +2,7 @@
 const DbService = require("moleculer-db");
 const MongooseAdapter = require("moleculer-db-adapter-mongoose");
 const Image = require("../models/Image");
-
+const slugify = require("slugify");
 const { MoleculerError } = require("moleculer").Errors;
 
 const fs = require("fs");
@@ -23,10 +23,10 @@ module.exports = {
 	model: Image,
 
 	actions: {
-		storePublicImageUrl: {
+		getProductPicture: {
 			async handler(ctx) {
 				try {
-					return await this.insertProductPicture(ctx);
+					return await Image.findOne({ walletQrId: ctx.params.walletQrId });
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -34,13 +34,20 @@ module.exports = {
 		},
 
 		saveImageAndData: {
+			// params: {
+			// 	article: { type: "string" },
+			// 	user: { type: "string" },
+			// },
 			async handler(ctx) {
+				// const { article, user } = ctx.params;
+
 				try {
-					let storedImage = await this.storeImage(ctx);
-					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: storedImage.meta });
-					return { storedImage, storedIntoDb };
+					let { meta, relativePath, filename } = await this.storeImage(ctx);
+					let { imageSave, imageRelativePath } = await this.insertProductPicture(meta, relativePath, filename);
+					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta });
+					return { meta, storedIntoDb, imageRelativePath, imageSave };
 				} catch (error) {
-					throw new MoleculerError(error, 501, "ERR_DB_INSERTING", { message: error.message, internalErrorCode: "image20" });
+					return Promise.reject(error);
 				}
 			},
 		},
@@ -55,10 +62,14 @@ module.exports = {
 	methods: {
 		async storeImage(ctx) {
 			return new Promise((resolve, reject) => {
-				const filePath = path.join(uploadDir, ctx.meta.filename || this.randomName());
+				let relativePath = `__uploads/${slugify(ctx.meta.$multipart.userEmail)}/${ctx.meta.$multipart.walletQrId}`;
+				let uploadDirMkDir = path.join(__dirname, `../public/${relativePath}`);
+				mkdir(uploadDirMkDir);
+
+				const filePath = path.join(uploadDirMkDir, ctx.meta.filename || this.randomName());
 				const f = fs.createWriteStream(filePath);
 				f.on("close", () => {
-					resolve({ filePath, meta: ctx.meta });
+					resolve({ meta: ctx.meta, relativePath, filename: ctx.meta.filename });
 				});
 
 				ctx.params.on("error", (err) => {
@@ -73,14 +84,16 @@ module.exports = {
 				ctx.params.pipe(f);
 			});
 		},
-		async insertProductPicture(ctx) {
+		async insertProductPicture(meta, relativePath, filename) {
+			let imageRelativePath = `${relativePath}/${filename}`;
 			const entity = {
-				walletQrId: ctx.params.walletQrId,
-				productPicture: ctx.params.productPicture,
+				walletQrId: meta.$multipart.walletQrId,
+				productPicture: imageRelativePath,
 			};
 			try {
 				let image = new Image(entity);
-				return await image.save();
+				let imageSave = await image.save();
+				return { imageSave, imageRelativePath };
 			} catch (error) {
 				throw new MoleculerError(error, 501, "ERR_DB_INSERTING", { message: error.message, internalErrorCode: "image10" });
 			}
