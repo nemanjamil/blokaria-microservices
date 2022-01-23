@@ -61,12 +61,10 @@ module.exports = {
 		generateContract: {
 			async handler(ctx) {
 				try {
-					let qrCodeStatus = await this.getQrCodeInfo(ctx);
-					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
-					if (parseObject) return Promise.resolve({ rqcoderedeemstatus: "redeemed" });
+					await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 					return await this.generateContractUpdateDataWithMessages(ctx);
 				} catch (error) {
-					throw new ValidationError(error);
+					return Promise.reject(error);
 				}
 			},
 		},
@@ -74,22 +72,9 @@ module.exports = {
 		getQrCodeData: {
 			async handler(ctx) {
 				try {
-					await this.checkIfQrCodeExistIndb(ctx);
-					let productPicture = await ctx.call("image.getProductPicture", { walletQrId: ctx.params.qrcode });
-					let walletIdData = await this.getQrCodeInfo(ctx);
-
-					console.log("walletIdData", walletIdData);
-					console.log("productPicture", productPicture);
-
-					let walletIdDataNew = [...walletIdData];
-					if (productPicture) {
-						walletIdDataNew[0].productPicture = productPicture.productPicture;
-					}
-					console.log("walletIdDataNew", walletIdDataNew);
-
-					return walletIdDataNew;
+					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
 				} catch (error) {
-					throw new ValidationError(error);
+					return Promise.reject(error);
 				}
 			},
 		},
@@ -110,6 +95,28 @@ module.exports = {
 	},
 
 	methods: {
+		async getQrCodeDataMethod({ ctx, qrRedeemCheck }) {
+			try {
+				await this.checkIfQrCodeExistIndb(ctx);
+				let qrCodeStatus = await this.getQrCodeInfo(ctx);
+				if (qrRedeemCheck) {
+					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
+					if (parseObject) throw new MoleculerError("REDEEM_STATUS", 501, "ERR_DB_INSERTING", { message: "redeemed", internalErrorCode: "wallet10" });
+				}
+
+				let productPicture = await ctx.call("image.getProductPicture", { walletQrId: ctx.params.qrcode });
+				let walletIdData = await this.getQrCodeInfo(ctx);
+
+				let walletIdDataNew = [...walletIdData];
+				if (productPicture) {
+					walletIdDataNew[0].productPicture = productPicture.productPicture;
+				}
+
+				return walletIdDataNew;
+			} catch (error) {
+				throw new MoleculerError("Get_QR_CODE_ERROR", 501, "ERR_DB_GETTING", { message: error.message, internalErrorCode: "wallet30" });
+			}
+		},
 		parseAddressesForUnused(queryAddresses) {
 			return queryAddresses
 				.filter((el) => {
@@ -222,6 +229,8 @@ module.exports = {
 
 		async sendTransactionFromWalletToWallet(Address, qrCodeDbData) {
 			let rndBr = "888000999" + Math.floor(Math.random() * 1000000);
+
+			console.log("qrCodeDbData", qrCodeDbData);
 
 			let merchantName = {
 				k: {
