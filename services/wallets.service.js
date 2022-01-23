@@ -1,10 +1,10 @@
 "use strict";
 const DbService = require("moleculer-db");
 const MongooseAdapter = require("moleculer-db-adapter-mongoose");
-const { ValidationError } = require("moleculer").Errors;
+const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/wallet.js");
-const { MoleculerError } = require("moleculer").Errors;
+
 require("dotenv").config();
 
 module.exports = {
@@ -28,25 +28,24 @@ module.exports = {
 		},
 
 		generateQrCodeInSystem: {
-			// params: {
-			// 	walletQrId: "string",
-			// },
-
+			rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
 				try {
 					return await this.plainInsertDataIntoDb(ctx.meta.$multipart);
 				} catch (error) {
-					throw new ValidationError(error);
+					return Promise.reject(error);
 				}
 			},
 		},
 
 		initiateTransactionToClientWallet: {
+			rest: "POST /initiateTransactionToClientWallet",
 			async handler(ctx) {
 				try {
 					let qrCodeStatus = await this.getQrCodeInfo(ctx);
 					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
-					if (parseObject) throw new MoleculerError("REDEEM_STATUS", 501, "ERR_DB_INSERTING", { message: "redeemed", internalErrorCode: "wallet10" });
+					if (parseObject)
+						throw new MoleculerError("REDEEM_STATUS", 501, "ERR_DB_INSERTING", { message: "redeemed", internalErrorCode: "walletAction10" });
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 					await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 
@@ -57,8 +56,8 @@ module.exports = {
 			},
 		},
 
-		// this will combine to Messages and store under one QR code
 		generateContract: {
+			rest: "POST /generateContract",
 			async handler(ctx) {
 				try {
 					await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
@@ -70,6 +69,7 @@ module.exports = {
 		},
 
 		getQrCodeData: {
+			rest: "POST /getQrCodeData",
 			async handler(ctx) {
 				try {
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
@@ -80,6 +80,7 @@ module.exports = {
 		},
 
 		createWallet: {
+			// rest: "POST /getQrCodeData", not allowed
 			async handler() {
 				try {
 					let walletAddresses = await this.getWalletAddresses();
@@ -95,17 +96,17 @@ module.exports = {
 	},
 
 	methods: {
+		// 10
 		async getQrCodeDataMethod({ ctx, qrRedeemCheck }) {
 			try {
 				await this.checkIfQrCodeExistIndb(ctx);
-				let qrCodeStatus = await this.getQrCodeInfo(ctx);
+				let walletIdData = await this.getQrCodeInfo(ctx);
 				if (qrRedeemCheck) {
-					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
+					let parseObject = walletIdData[0].qrCodeRedeemStatus;
 					if (parseObject) throw new MoleculerError("REDEEM_STATUS", 501, "ERR_DB_INSERTING", { message: "redeemed", internalErrorCode: "wallet10" });
 				}
 
 				let productPicture = await ctx.call("image.getProductPicture", { walletQrId: ctx.params.qrcode });
-				let walletIdData = await this.getQrCodeInfo(ctx);
 
 				let walletIdDataNew = [...walletIdData];
 				if (productPicture) {
@@ -114,9 +115,10 @@ module.exports = {
 
 				return walletIdDataNew;
 			} catch (error) {
-				throw new MoleculerError("Get_QR_CODE_ERROR", 501, "ERR_DB_GETTING", { message: error.message, internalErrorCode: "wallet30" });
+				return Promise.reject(error);
 			}
 		},
+
 		parseAddressesForUnused(queryAddresses) {
 			return queryAddresses
 				.filter((el) => {
@@ -125,6 +127,7 @@ module.exports = {
 				.shift().id;
 		},
 
+		// 30
 		async generateContractUpdateDataWithMessages(ctx) {
 			let entity = { walletQrId: ctx.params.qrcode };
 
@@ -137,10 +140,11 @@ module.exports = {
 			try {
 				return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 			} catch (error) {
-				return Promise.reject(error);
+				throw new MoleculerError("CODE_ERROR", 501, "ERR_GENERATING_CONTRACT", { message: error.message, internalErrorCode: "wallet30" });
 			}
 		},
 
+		// 40
 		async updateRedeemStatus(ctx, transaction, metaDataRandomNumber) {
 			let entity = {
 				walletQrId: ctx.params.qrcode,
@@ -155,10 +159,11 @@ module.exports = {
 				let wallet = await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 				return wallet;
 			} catch (error) {
-				return Promise.reject(error);
+				throw new MoleculerError("CODE_ERROR", 501, "ERROR_UPDATE_REEDEEM_STATUS", { message: error.message, internalErrorCode: "wallet40" });
 			}
 		},
 
+		// 50
 		async getQrCodeInfo(ctx) {
 			const entity = {
 				walletQrId: ctx.params.qrcode,
@@ -167,22 +172,29 @@ module.exports = {
 				let wallet = await Wallet.find(entity);
 				return wallet;
 			} catch (error) {
-				return Promise.reject(error);
+				throw new MoleculerError("CODE_ERROR", 501, "ERROR_GET_QR_CODE_DATA", { message: error.message, internalErrorCode: "wallet50" });
 			}
 		},
+
+		// 60
 		async checkIfQrCodeExistIndb(ctx) {
 			const entity = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
 				let wallet = await Wallet.exists(entity);
-				if (!wallet) throw { message: "QR code doesn't exist in our system", internalErrorCode: 21 };
+				if (!wallet)
+					throw new MoleculerError("CODE_ERROR", 501, "ERROR_GET_QR_CODE_DATA", {
+						message: "Code do not exist into db",
+						internalErrorCode: "wallet60",
+					});
 				return wallet;
 			} catch (error) {
-				return Promise.reject(error);
+				throw new MoleculerError("CODE_ERROR", 501, "ERROR_GET_QR_CODE_DATA", { message: "Code do not exist into db", internalErrorCode: "wallet61" });
 			}
 		},
 
+		// 70
 		async insertDataIntoDb(ctx, Address, transactionId) {
 			const entity = {
 				walletQrId: ctx.params.walletQrId,
@@ -196,10 +208,11 @@ module.exports = {
 				let wallet = new Wallet(entity);
 				return await wallet.save();
 			} catch (error) {
-				return Promise.reject(error);
+				throw new MoleculerError("CODE_ERROR", 501, "ERROR_INSERT_INTO_DB", { message: error.message, internalErrorCode: "wallet70" });
 			}
 		},
 
+		// 80
 		async plainInsertDataIntoDb(ctx) {
 			const entity = {
 				walletQrId: ctx.walletQrId,
@@ -208,25 +221,26 @@ module.exports = {
 				userEmail: ctx.userEmail,
 			};
 
-			// if (ctx.params.productPicture) entity.productPicture = ctx.params.walletQrId;
 			if (ctx.productVideo) entity.productVideo = ctx.productVideo;
 			try {
 				let wallet = new Wallet(entity);
 				return await wallet.save();
 			} catch (error) {
-				return Promise.reject(error);
+				throw new MoleculerError("CODE_ERROR", 501, "ERROR_PLAIN_INSERT_INTO_DB", { message: error.message, internalErrorCode: "wallet80" });
 			}
 		},
 
+		// 90
 		async getWalletAddresses() {
 			let wallet_url = `${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/addresses`;
 			try {
 				return await this.axiosGet(wallet_url);
 			} catch (error) {
-				return Promise.reject(error);
+				throw new MoleculerError("CODE_ERROR", 501, "ERROR_GET_WALLET_ADDRESS", { message: error.message, internalErrorCode: "wallet90" });
 			}
 		},
 
+		// 100
 		async sendTransactionFromWalletToWallet(Address, qrCodeDbData) {
 			let rndBr = "888000999" + Math.floor(Math.random() * 1000000);
 
@@ -341,7 +355,7 @@ module.exports = {
 				let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
 				return { rndBr, cardanoRequest };
 			} catch (error) {
-				return Promise.reject(error);
+				throw new MoleculerError("CODE_ERROR", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", { message: error.message, internalErrorCode: "wallet100" });
 			}
 		},
 	},

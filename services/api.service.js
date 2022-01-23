@@ -99,8 +99,6 @@ module.exports = {
 			{
 				path: "/api",
 
-				whitelist: ["**"],
-
 				// Route-level Express middlewares. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Middlewares
 				use: [],
 
@@ -117,7 +115,15 @@ module.exports = {
 				// The gateway will dynamically build the full routes from service schema.
 				autoAliases: true,
 
-				aliases: {},
+				// Mapping policy setting. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Mapping-policy
+				// mappingPolicy: "all", // Available values: "all", "restrict"
+				whitelist: ["**"],
+
+				mappingPolicy: "restrict",
+				aliases: {
+					// "POST sendEmail": "email.sendEmail",
+					// "POST /getQrCodeData": "wallet.getQrCodeData",
+				},
 
 				/** 
 				 * Before call hook. You can check the request.
@@ -157,9 +163,6 @@ module.exports = {
 						limit: "1MB",
 					},
 				},
-
-				// Mapping policy setting. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Mapping-policy
-				mappingPolicy: "all", // Available values: "all", "restrict"
 
 				// Enable/disable logging
 				logging: true,
