@@ -19,13 +19,13 @@ module.exports = {
 	model: Wallet,
 
 	actions: {
-		wallets: {
-			async handler() {
-				let response = await this.axiosGet("https://wallet-testnet.blokaria.com/v2/wallets");
-				this.logger.warn(response);
-				return response.data;
-			},
-		},
+		// wallets: {
+		// 	async handler() {
+		// 		let response = await this.axiosGet("https://wallet-testnet.blokaria.com/v2/wallets");
+		// 		this.logger.warn(response);
+		// 		return response.data;
+		// 	},
+		// },
 
 		generateQrCodeInSystem: {
 			rest: "POST /generateQrCodeInSystem",

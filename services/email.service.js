@@ -1,14 +1,13 @@
 "use strict";
 const nodemailer = require("nodemailer");
 // const { MoleculerError } = require("moleculer").Errors;
-const { ADMIN_EMAIL, PASSW_EMAIL } = process.env;
 const fs = require("fs");
 const handlebars = require("handlebars");
 
 require("dotenv").config();
 
 module.exports = {
-	name: "mail",
+	name: "email",
 	version: 1,
 	settings: {
 		from: "sender@moleculer.services",
@@ -26,23 +25,31 @@ module.exports = {
 	},
 	actions: {
 		sendEmail: {
+			rest: "POST /registerUser",
+			params: {
+				userEmail: { type: "email" },
+				token: { type: "string" },
+			},
 			async handler(ctx) {
 				try {
 					const source = fs.readFileSync("./public/templates/welcome.html", "utf-8").toString();
 					const template = handlebars.compile(source);
 					const replacements = {
-						username: "Nemanja",
-						token: "TOKEN",
+						userEmail: ctx.params.userEmail,
+						token: ctx.params.token,
 					};
 					const htmlToSend = template(replacements);
+
+					let adminEmail = process.env.ADMIN_EMAIL;
+					let adminPassword = process.env.PASSW_EMAIL;
 
 					let transporter = nodemailer.createTransport({
 						host: "mail.blokaria.com",
 						port: 465,
 						secure: true, // true for 465, false for other ports
 						auth: {
-							user: ADMIN_EMAIL,
-							pass: PASSW_EMAIL,
+							user: adminEmail,
+							pass: adminPassword,
 						},
 					});
 
@@ -51,10 +58,12 @@ module.exports = {
 						from: '"Service Blokaria 👻" <service@blokaria.com>',
 						to: "nemanjamil@gmail.com, office@madeofwood.rs",
 						subject: "Hello ✔",
-						text: "Hello world PLAIN?",
+						// text: "",
 						html: htmlToSend,
 						//text: 'Hola,\n\n' + 'Por favor verifica tu cuenta dando clic al siguente enlace:\n' + VERIFICATION_URL + ctx.params.token
 					};
+
+					//console.log("mailOptions", mailOptions);
 
 					let info = await transporter.sendMail(mailOptions);
 

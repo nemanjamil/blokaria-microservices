@@ -39,8 +39,6 @@ module.exports = {
 			// 	user: { type: "string" },
 			// },
 			async handler(ctx) {
-				// const { article, user } = ctx.params;
-
 				try {
 					let { meta, relativePath, filename } = await this.storeImage(ctx);
 					let { imageSave, imageRelativePath } = await this.insertProductPicture(meta, relativePath, filename);
