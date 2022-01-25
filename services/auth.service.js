@@ -34,7 +34,7 @@ module.exports = {
 					if (!res) throw new MoleculerClientError("Password incorrect", 403, "", { message: "password do not match", internalErrorCode: "auth20" });
 					let expiresIn = "72h";
 					let response = {
-						token: jwt.sign({ userEmail: userEmail }, this.settings.JWT_SECRET, { expiresIn: expiresIn }),
+						token: jwt.sign({ userEmail: userEmail }, process.env.JWT_SECRET, { expiresIn: expiresIn }),
 						expiresIn: expiresIn,
 					};
 
@@ -48,6 +48,29 @@ module.exports = {
 				} catch (error) {
 					return Promise.reject(error);
 				}
+			},
+		},
+
+		resolveToken: {
+			rest: "GET /getByToken",
+			authorization: false,
+			cache: {
+				keys: ["token"],
+				ttl: 60 * 60, // 1 hour
+			},
+			params: {
+				token: "string",
+			},
+			async handler(ctx) {
+				return await new this.Promise((resolve, reject) => {
+					jwt.verify(ctx.params.token, process.env.JWT_SECRET, (err, decoded) => {
+						if (err) {
+							return reject(err);
+						} else {
+							resolve(decoded);
+						}
+					});
+				});
 			},
 		},
 

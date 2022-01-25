@@ -3,13 +3,12 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>USER REGISTRATION</title>
+		<title>Verificación de usuario</title>
 
 		<style type="text/css">
 			.container {
 				background-color: rgb(225, 225, 225);
 				padding: 1rem;
-				font-size: 1vw;
 				font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 			}
 			.title {
@@ -53,7 +52,7 @@
 				font-weight: bold;
 				text-decoration: none;
 				padding: 14px 20px;
-				color: #fefefe !important;
+				color: #ffffff;
 				border-radius: 5px;
 				display: inline-block;
 				mso-padding-alt: 0;
@@ -66,7 +65,7 @@
 				font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 			}
 			.explain p {
-				font-size: 100%;
+				font-size: 90%;
 				color: rgb(148, 148, 148);
 			}
 			.line {
@@ -93,25 +92,17 @@
 			<div class="line"></div>
 			<div class="main">
 				<div class="content">
-					<div class="hello">Hi @{{userFullName}}!</div>
-					<div class="instruction">Successfully registered:</div>
-					<a href="{{webSiteLocation}}/reg/log-in-user" target="_blank" class="abutton">
+					<div class="hello">Hi {{clientEmail}}!</div>
+					<div class="instruction">Click on this link to finish purchase:</div>
+					<a href="http://localhost:3011/generate-contract/{{walletQrId}}" target="_blank" class="abutton">
 						<span style="mso-text-raise: 15pt">GO &rarr;</span>
 					</a>
 				</div>
 				<div class="explain">
-					<b>Welcome Email</b>
+					<b>Email from - {{userEmail}}</b>
 					<p>
-						Open your Blokaria again and enter the code to activate your account. <br /><br />
-						Welcome a Blokaria!
-					</p>
-					<p>
-						This is your registrated email<br /><br />
-						{{userEmail}}
-					</p>
-					<p>
-						This is your password<br /><br />
-						{{userOrgPass}}
+						{{userFullname}} send you request to add your details to product <br /><br />
+						{{productName}}
 					</p>
 				</div>
 			</div>

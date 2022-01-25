@@ -1,6 +1,6 @@
 "use strict";
 const DbService = require("moleculer-db");
-const jwt = require("jsonwebtoken");
+//const jwt = require("jsonwebtoken");
 const { MoleculerClientError, EntityNotFoundError, MoleculerError } = require("moleculer").Errors;
 const Utils = require("../utils/Utils");
 const dbConnection = require("../utils/dbConnection");
@@ -41,9 +41,15 @@ module.exports = {
 					let clearPassword = Utils.generatePass();
 					ctx.meta.clearPassword = clearPassword;
 					await this.addUserToDB({ ctx, clearPassword });
-					// let generatedAuth = await this.actions.authenticate(ctx.params, { parentCtx: ctx });
-					const sendEmail = await ctx.call("v1.email.sendEmail", { userEmail: ctx.params.userEmail, token: "blabla" });
-					return { sendEmail };
+
+					let userEmail = ctx.params.userEmail;
+
+					const sendEmail = await ctx.call("v1.email.registerUser", {
+						userEmail: ctx.params.userEmail,
+						userOrgPass: ctx.params.userPassword,
+						userFullName: ctx.params.userFullName,
+					});
+					return { sendEmail, userEmail };
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -66,36 +72,6 @@ module.exports = {
 					return user;
 				} catch (error) {
 					return new EntityNotFoundError();
-				}
-			},
-		},
-
-		resolveToken: {
-			rest: "GET /getByToken",
-			authorization: true,
-			cache: {
-				keys: ["token"],
-				ttl: 60 * 60, // 1 hour
-			},
-			params: {
-				token: "string",
-			},
-			async handler(ctx) {
-				const decoded = await new this.Promise((resolve, reject) => {
-					jwt.verify(ctx.params.token, this.settings.JWT_SECRET, (err, decoded) => {
-						if (err) {
-							return reject(err);
-						} else {
-							resolve(decoded);
-						}
-					});
-				});
-				if (decoded.id) {
-					const id = decoded.id;
-					let users = await ctx.call("user.find", { query: { id } });
-					const user = users ? users[0] : null;
-					if (!user) throw new MoleculerClientError("Utilisateur introuvable", 500, "", []);
-					return user;
 				}
 			},
 		},

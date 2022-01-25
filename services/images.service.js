@@ -42,8 +42,12 @@ module.exports = {
 				try {
 					let { meta, relativePath, filename } = await this.storeImage(ctx);
 					let { imageSave, imageRelativePath } = await this.insertProductPicture(meta, relativePath, filename);
+
+					console.log("imageSave", imageSave);
+					console.log("imageRelativePath", imageRelativePath);
+
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta });
-					return { meta, storedIntoDb, imageRelativePath, imageSave };
+					return storedIntoDb;
 				} catch (error) {
 					return Promise.reject(error);
 				}

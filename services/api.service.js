@@ -53,6 +53,8 @@ module.exports = {
 			{
 				path: "/upload",
 				use: [],
+				authentication: true,
+				authorization: false,
 				autoAliases: true,
 				aliases: {
 					//"POST /": "multipart:image.testiranje",
@@ -199,24 +201,20 @@ module.exports = {
 		 * @returns {Promise}
 		 */
 		async authenticate(ctx, route, req) {
-			// Read the token from header
 			const auth = req.headers["authorization"];
 
 			if (auth && auth.startsWith("Bearer")) {
 				const token = auth.slice(7);
-
-				// Check the token. Tip: call a service which verify the token. E.g. `accounts.resolveToken`
-				if (token == "123456") {
+				try {
+					let tokenVerified = await ctx.call("v1.auth.resolveToken", { token });
+					let getUser = await ctx.call("user.userFind", { userEmail: tokenVerified.userEmail });
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
-					return { id: 1, name: "John Doe" };
-				} else {
-					// Invalid token
+					return { userEmail: getUser[0].userEmail, userFullName: getUser[0].userFullName, siki: "Bravo Miki" };
+				} catch (error) {
 					throw new ApiGateway.Errors.UnAuthorizedError(ApiGateway.Errors.ERR_INVALID_TOKEN);
 				}
 			} else {
-				// No token. Throw an error or do nothing if anonymous access is allowed.
-				// throw new E.UnAuthorizedError(E.ERR_NO_TOKEN);
-				return null;
+				return Promise.reject(new ApiGateway.Errors.UnAuthorizedError(ApiGateway.Errors.ERR_NO_TOKEN));
 			}
 		},
 

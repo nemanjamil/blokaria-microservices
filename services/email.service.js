@@ -1,6 +1,6 @@
 "use strict";
 const nodemailer = require("nodemailer");
-// const { MoleculerError } = require("moleculer").Errors;
+const { MoleculerError } = require("moleculer").Errors;
 const fs = require("fs");
 const handlebars = require("handlebars");
 
@@ -24,19 +24,26 @@ module.exports = {
 		priority: 5,
 	},
 	actions: {
-		sendEmail: {
+		registerUser: {
 			rest: "POST /registerUser",
 			params: {
 				userEmail: { type: "email" },
-				token: { type: "string" },
+				userOrgPass: { type: "string" },
+				userFullName: { type: "string" },
 			},
 			async handler(ctx) {
+				let userEmail = ctx.params.userEmail;
+				let userOrgPass = ctx.params.userOrgPass;
+				let userFullName = ctx.params.userFullName;
+
 				try {
 					const source = fs.readFileSync("./public/templates/welcome.html", "utf-8").toString();
 					const template = handlebars.compile(source);
 					const replacements = {
-						userEmail: ctx.params.userEmail,
-						token: ctx.params.token,
+						userEmail: userEmail,
+						userOrgPass: userOrgPass,
+						userFullName: userFullName,
+						webSiteLocation: process.env.BLOKARIA_WEBSITE,
 					};
 					const htmlToSend = template(replacements);
 
@@ -56,14 +63,74 @@ module.exports = {
 					const mailOptions = {
 						// eslint-disable-next-line quotes
 						from: '"Service Blokaria 👻" <service@blokaria.com>',
-						to: "nemanjamil@gmail.com, office@madeofwood.rs",
+						to: "nemanjamil@gmail.com", // ${userEmail}
 						subject: "Hello ✔",
-						// text: "",
 						html: htmlToSend,
-						//text: 'Hola,\n\n' + 'Por favor verifica tu cuenta dando clic al siguente enlace:\n' + VERIFICATION_URL + ctx.params.token
 					};
 
-					//console.log("mailOptions", mailOptions);
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
+		sendContractEmalForClient: {
+			rest: "GET /sendContractEmalForClient",
+			params: {
+				verificationId: { type: "number" },
+				clientEmail: { type: "email" },
+				walletQrId: { type: "string" },
+				userFullname: { type: "string" },
+				userEmail: { type: "email" },
+				productName: { type: "string" },
+				//data: { type: "object" }, // { type: "object", optional: true },
+			},
+			async handler(ctx) {
+				try {
+					if (ctx.params.verificationId !== 222333444)
+						throw new MoleculerError("VERIFICATION_ID", 501, "ERR_VERIFICATION_ID", {
+							message: "Verification email failed",
+							internalErrorCode: "email10",
+						});
+					const source = fs.readFileSync("./public/templates/contractEmail.html", "utf-8").toString();
+					const template = handlebars.compile(source);
+
+					let clientEmail = ctx.params.clientEmail;
+					const replacements = {
+						clientEmail: clientEmail,
+						walletQrId: ctx.params.walletQrId,
+						userFullname: ctx.params.userFullname,
+						userEmail: ctx.params.userEmail,
+						productName: ctx.params.productName,
+					};
+
+					console.log("replacements", replacements);
+
+					const htmlToSend = template(replacements);
+
+					let adminEmail = process.env.ADMIN_EMAIL;
+					let adminPassword = process.env.PASSW_EMAIL;
+
+					let transporter = nodemailer.createTransport({
+						host: "mail.blokaria.com",
+						port: 465,
+						secure: true, // true for 465, false for other ports
+						auth: {
+							user: adminEmail,
+							pass: adminPassword,
+						},
+					});
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Service Blokaria 👻" <service@blokaria.com>',
+						to: `nemanjamil@gmail.com, ${clientEmail}`,
+						subject: "Hello ✔",
+						html: htmlToSend,
+					};
 
 					let info = await transporter.sendMail(mailOptions);
 

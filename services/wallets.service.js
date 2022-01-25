@@ -42,10 +42,7 @@ module.exports = {
 			rest: "POST /initiateTransactionToClientWallet",
 			async handler(ctx) {
 				try {
-					let qrCodeStatus = await this.getQrCodeInfo(ctx);
-					let parseObject = qrCodeStatus[0].qrCodeRedeemStatus;
-					if (parseObject)
-						throw new MoleculerError("REDEEM_STATUS", 501, "ERR_DB_INSERTING", { message: "redeemed", internalErrorCode: "walletAction10" });
+					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 					await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 
@@ -200,6 +197,7 @@ module.exports = {
 				walletQrId: ctx.params.walletQrId,
 				userDesc: ctx.params.userDesc,
 				userFullname: ctx.params.userFullname,
+				productName: ctx.params.productName,
 				userEmail: ctx.params.userEmail,
 				usedAddress: Address,
 				transactionId: transactionId,
@@ -219,6 +217,7 @@ module.exports = {
 				userDesc: ctx.userDesc,
 				userFullname: ctx.userFullname,
 				userEmail: ctx.userEmail,
+				productName: ctx.productName,
 			};
 
 			if (ctx.productVideo) entity.productVideo = ctx.productVideo;
@@ -244,14 +243,28 @@ module.exports = {
 		async sendTransactionFromWalletToWallet(Address, qrCodeDbData) {
 			let rndBr = "888000999" + Math.floor(Math.random() * 1000000);
 
-			console.log("qrCodeDbData", qrCodeDbData);
-
+			let internalCode = {
+				k: {
+					string: "internalCode",
+				},
+				v: {
+					string: qrCodeDbData[0].walletQrId,
+				},
+			};
 			let merchantName = {
 				k: {
 					string: "MerchantName",
 				},
 				v: {
 					string: qrCodeDbData[0].userFullname,
+				},
+			};
+			let productName = {
+				k: {
+					string: "ProductName",
+				},
+				v: {
+					string: qrCodeDbData[0].productName,
 				},
 			};
 
@@ -269,7 +282,7 @@ module.exports = {
 					string: "ProductPicture",
 				},
 				v: {
-					string: "Place For URL PICTURE",
+					string: `/picture/${qrCodeDbData[0].walletQrId}`,
 				},
 			};
 
@@ -320,13 +333,17 @@ module.exports = {
 
 			let finalArray = [];
 			finalArray.push(merchantName);
+			finalArray.push(productName);
 			finalArray.push(merchantEmail);
 			finalArray.push(merchantMessage);
 			finalArray.push(clientName);
 			finalArray.push(clientEmail);
 			finalArray.push(clientMessage);
-			finalArray.push(productPicture);
-			finalArray.push(productVideo);
+
+			if (qrCodeDbData[0].productPicture) finalArray.push(productPicture);
+			if (qrCodeDbData[0].productVideo) finalArray.push(productVideo);
+
+			finalArray.push(internalCode);
 
 			let metaDataObj = {
 				[rndBr]: {
