@@ -62,9 +62,9 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Service Blokaria 👻" <service@blokaria.com>',
+						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: "nemanjamil@gmail.com", // ${userEmail}
-						subject: "Hello ✔",
+						subject: "Register User ✔",
 						html: htmlToSend,
 					};
 
@@ -90,7 +90,7 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-					if (ctx.params.emailVerificationId !== 222333444)
+					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
 						throw new MoleculerError("VERIFICATION_ID", 501, "ERR_VERIFICATION_ID", {
 							message: "Verification email failed",
 							internalErrorCode: "email10",
@@ -124,9 +124,9 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Service Blokaria 👻" <service@blokaria.com>',
+						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `nemanjamil@gmail.com, ${clientEmail}`,
-						subject: "Hello ✔",
+						subject: "Contract Informations ✔",
 						html: htmlToSend,
 					};
 
@@ -149,8 +149,6 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-					console.log("ctx.ctx.params", ctx.params);
-
 					const source = fs.readFileSync("./public/templates/generatingQrCodeEmail.html", "utf-8").toString();
 					const template = handlebars.compile(source);
 
@@ -169,9 +167,64 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Service Blokaria 👻" <service@blokaria.com>',
+						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `nemanjamil@gmail.com, ${userEmail}`,
-						subject: "Hello ✔",
+						subject: "Generate QR Code ✔",
+						html: htmlToSend,
+					};
+
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+		sendTransactionEmail: {
+			rest: "POST /sendTransactionEmail",
+			params: {
+				emailVerificationId: { type: "number" },
+				walletQrId: { type: "string" },
+				userFullname: { type: "string" },
+				userEmail: { type: "email" },
+				productName: { type: "string" },
+				clientEmail: { type: "email" },
+				clientName: { type: "string" },
+			},
+			async handler(ctx) {
+				try {
+					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
+						throw new MoleculerError("VERIFICATION_ID", 501, "ERR_VERIFICATION_ID", {
+							message: "Verification email failed",
+							internalErrorCode: "sendTransactionEmail10",
+						});
+
+					const source = fs.readFileSync("./public/templates/transactionConfirmationEmail.html", "utf-8").toString();
+					const template = handlebars.compile(source);
+
+					let userEmail = ctx.params.userEmail;
+					let clientEmail = ctx.params.clientEmail;
+
+					const replacements = {
+						walletQrId: ctx.params.walletQrId,
+						userFullname: ctx.params.userFullname,
+						userEmail: userEmail,
+						productName: ctx.params.productName,
+						clientEmail: clientEmail,
+						clientName: ctx.params.clientName,
+						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+					};
+
+					const htmlToSend = template(replacements);
+
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Blokaria 👻" <service@blokaria.com>',
+						to: `${clientEmail}, ${userEmail}`,
+						subject: "Transaction Email ✔",
 						html: htmlToSend,
 					};
 

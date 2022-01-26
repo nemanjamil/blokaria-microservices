@@ -1,6 +1,7 @@
 "use strict";
 
 const ApiGateway = require("moleculer-web");
+const { MoleculerError } = require("moleculer").Errors;
 
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
@@ -213,10 +214,17 @@ module.exports = {
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
 					return { userEmail: getUser[0].userEmail, userFullName: getUser[0].userFullName, siki: "Bravo Miki" };
 				} catch (error) {
-					throw new ApiGateway.Errors.UnAuthorizedError(ApiGateway.Errors.ERR_INVALID_TOKEN);
+					throw new MoleculerError(ApiGateway.Errors.ERR_INVALID_TOKEN, 401, ApiGateway.Errors.ERR_INVALID_TOKEN, {
+						message: "Token is not Valid. Please Log in",
+						internalErrorCode: "token10",
+					});
 				}
 			} else {
-				return Promise.reject(new ApiGateway.Errors.UnAuthorizedError(ApiGateway.Errors.ERR_NO_TOKEN));
+				throw new MoleculerError(ApiGateway.Errors.ERR_INVALID_TOKEN, 401, ApiGateway.Errors.ERR_INVALID_TOKEN, {
+					message: "Token is not present. Please Log in",
+					internalErrorCode: "token20",
+				});
+				//new ApiGateway.Errors.UnAuthorizedError(ApiGateway.Errors.ERR_NO_TOKEN);
 			}
 		},
 

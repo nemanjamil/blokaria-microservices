@@ -19,14 +19,6 @@ module.exports = {
 	model: Wallet,
 
 	actions: {
-		// wallets: {
-		// 	async handler() {
-		// 		let response = await this.axiosGet("https://wallet-testnet.blokaria.com/v2/wallets");
-		// 		this.logger.warn(response);
-		// 		return response.data;
-		// 	},
-		// },
-
 		generateQrCodeInSystem: {
 			rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
@@ -43,8 +35,14 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
+
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 					await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
+
+					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
+					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
+
+					console.log("sendEmail", sendEmail);
 
 					return cardanoRequest.data;
 				} catch (error) {
@@ -69,7 +67,7 @@ module.exports = {
 			rest: "POST /getQrCodeData",
 			async handler(ctx) {
 				try {
-					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
+					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -100,7 +98,11 @@ module.exports = {
 				let walletIdData = await this.getQrCodeInfo(ctx);
 				if (qrRedeemCheck) {
 					let parseObject = walletIdData[0].qrCodeRedeemStatus;
-					if (parseObject) throw new MoleculerError("REDEEM_STATUS", 501, "ERR_DB_INSERTING", { message: "redeemed", internalErrorCode: "wallet10" });
+					if (parseObject)
+						throw new MoleculerError("REDEEM_STATUS", 501, "ERR_DB_INSERTING", {
+							message: "QR code is allready redeemed",
+							internalErrorCode: "wallet10",
+						});
 				}
 
 				let productPicture = await ctx.call("image.getProductPicture", { walletQrId: ctx.params.qrcode });

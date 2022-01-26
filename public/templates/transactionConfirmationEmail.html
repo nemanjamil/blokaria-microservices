@@ -8,7 +8,7 @@
 		<style type="text/css">
 			.container {
 				background-color: rgb(225, 225, 225);
-				padding: 24px;
+				padding: 20px;
 				font-size: 1vw;
 				font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 			}
@@ -48,7 +48,7 @@
 			}
 			.abutton {
 				background-color: #4a4b91;
-				font-size: 14px;
+				font-size: 1rem;
 				font-family: Helvetica, Arial, sans-serif;
 				font-weight: bold;
 				text-decoration: none;
@@ -60,7 +60,7 @@
 			}
 			.gbutton {
 				background-color: #189607;
-				font-size: 14px;
+				font-size: 1rem;
 				font-family: Helvetica, Arial, sans-serif;
 				font-weight: bold;
 				text-decoration: none;
@@ -71,14 +71,14 @@
 				mso-padding-alt: 0;
 			}
 			.explain {
-				text-align: left;
+				text-align: center;
 				padding: 10px;
 				background-color: white;
 				color: rgb(65, 65, 65);
 				font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 			}
 			.explain p {
-				font-size: 100%;
+				font-size: 1rem;
 				color: rgb(148, 148, 148);
 				padding: 10px;
 			}
@@ -120,38 +120,16 @@
 			<div class="main">
 				<div class="content">
 					<div class="hello">Hi {{userFullname}}! {{userEmail}}</div>
-					<div class="instruction">Successfully created QR code for product {{productName}}</div>
-				</div>
-				<div class="explain">
-					<b>What are next steps - Important !</b>
-					<p>
-						Now that you created QR code and added your details,
-						<b class="green">send this url</b> {{webSiteLocation}}/generate-contract/{{walletQrId}} to your client to
-						<b class="green">finish purchasing</b>.
-					</p>
+					<div class="hello">Hi {{clientName}}! {{clientEmail}}</div>
+					<div class="instruction">Successfully created Transaction for : {{productName}}</div>
 				</div>
 
 				<div class="explain">
-					<b>Generate Printable QR code in PDF.</b>
-
-					<ul>
-						<li>
-							You will have to print QR code. On this <a href="https://www.qrcode-monkey.com/#url" target="_blank" class="gbutton"> link </a> you
-							can generate printable PDF version.
-						</li>
-						<li>Add in field "<b>Your url</b>" this address -> {{webSiteLocation}}/status/{{walletQrId}}.</li>
-						<li>Click on <b>green button</b> "Create QR Code" to download PDV version.</li>
-						<li>You can print or engrave QR code on your product.</li>
-					</ul>
+					<h1>Product name : {{productName}}</h1>
 				</div>
-
 				<div class="explain">
-					<b>Take a look of Use Case presentations on our web site.</b>
-					<ul class="no-bullets">
-						<li><a href="https://www.qrcode-monkey.com/#url" target="_blank" class="abutton"> Presentation 1 </a></li>
-						<li><a href="https://www.qrcode-monkey.com/#url" target="_blank" class="abutton"> Presentation 2</a></li>
-						<li><a href="https://www.qrcode-monkey.com/#url" target="_blank" class="abutton"> Presentation 3 </a></li>
-					</ul>
+					<h1 class="green">Purchase is done !!!</h1>
+					<h1>Check this link for confirmation on blockchain {{webSiteLocation}}/status/{{walletQrId}}</h1>
 				</div>
 			</div>
 			<div class="line"></div>

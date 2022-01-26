@@ -6,7 +6,7 @@ const walletSchema = new mongoose.Schema({
 	userFullname: { type: String },
 	userEmail: { type: String },
 	productName: { type: String },
-	qrCodeRedeemStatus: { type: Number },
+	qrCodeRedeemStatus: { type: Number, required: true, default: 0 },
 	transactionId: { type: String },
 	usedAddress: { type: String },
 	createdAt: { type: Date, default: Date.now, index: true },
