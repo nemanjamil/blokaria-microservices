@@ -207,7 +207,9 @@ module.exports = {
 				const token = auth.slice(7);
 				try {
 					let tokenVerified = await ctx.call("v1.auth.resolveToken", { token });
+
 					let getUser = await ctx.call("user.userFind", { userEmail: tokenVerified.userEmail });
+
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
 					return { userEmail: getUser[0].userEmail, userFullName: getUser[0].userFullName, siki: "Bravo Miki" };
 				} catch (error) {

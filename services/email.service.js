@@ -80,7 +80,7 @@ module.exports = {
 		sendContractEmalForClient: {
 			rest: "GET /sendContractEmalForClient",
 			params: {
-				verificationId: { type: "number" },
+				emailVerificationId: { type: "number" },
 				clientEmail: { type: "email" },
 				walletQrId: { type: "string" },
 				userFullname: { type: "string" },
@@ -90,7 +90,7 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-					if (ctx.params.verificationId !== 222333444)
+					if (ctx.params.emailVerificationId !== 222333444)
 						throw new MoleculerError("VERIFICATION_ID", 501, "ERR_VERIFICATION_ID", {
 							message: "Verification email failed",
 							internalErrorCode: "email10",
@@ -106,8 +106,6 @@ module.exports = {
 						userEmail: ctx.params.userEmail,
 						productName: ctx.params.productName,
 					};
-
-					console.log("replacements", replacements);
 
 					const htmlToSend = template(replacements);
 
@@ -140,6 +138,51 @@ module.exports = {
 				}
 			},
 		},
+		generateQrCodeEmail: {
+			rest: "POST /generateQrCodeEmail",
+			params: {
+				emailVerificationId: { type: "number" },
+				walletQrId: { type: "string" },
+				userFullname: { type: "string" },
+				userEmail: { type: "email" },
+				productName: { type: "string" },
+			},
+			async handler(ctx) {
+				try {
+					console.log("ctx.ctx.params", ctx.params);
+
+					const source = fs.readFileSync("./public/templates/generatingQrCodeEmail.html", "utf-8").toString();
+					const template = handlebars.compile(source);
+
+					let userEmail = ctx.params.userEmail;
+					const replacements = {
+						walletQrId: ctx.params.walletQrId,
+						userFullname: ctx.params.userFullname,
+						userEmail: userEmail,
+						productName: ctx.params.productName,
+						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+					};
+
+					const htmlToSend = template(replacements);
+
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Service Blokaria 👻" <service@blokaria.com>',
+						to: `nemanjamil@gmail.com, ${userEmail}`,
+						subject: "Hello ✔",
+						html: htmlToSend,
+					};
+
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
 	},
 	// events: {
 	// 	"main.sendEmail"(ctx) {
@@ -152,6 +195,22 @@ module.exports = {
 		sendMailMethod: {
 			async handler() {
 				return "sendMailMethod";
+			},
+		},
+		getTransporter: {
+			async handler() {
+				let adminEmail = process.env.ADMIN_EMAIL;
+				let adminPassword = process.env.PASSW_EMAIL;
+
+				return nodemailer.createTransport({
+					host: "mail.blokaria.com",
+					port: 465,
+					secure: true, // true for 465, false for other ports
+					auth: {
+						user: adminEmail,
+						pass: adminPassword,
+					},
+				});
 			},
 		},
 	},

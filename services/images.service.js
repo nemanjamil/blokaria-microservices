@@ -47,6 +47,10 @@ module.exports = {
 					console.log("imageRelativePath", imageRelativePath);
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta });
+
+					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
+					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
+
 					return storedIntoDb;
 				} catch (error) {
 					return Promise.reject(error);
@@ -97,7 +101,10 @@ module.exports = {
 				let imageSave = await image.save();
 				return { imageSave, imageRelativePath };
 			} catch (error) {
-				throw new MoleculerError(error, 501, "ERR_DB_INSERTING", { message: error.message, internalErrorCode: "image10" });
+				throw new MoleculerError("Error in Inserting Picture link into DB", 501, "ERR_PICTURE_DB_INSERTING", {
+					message: error.message,
+					internalErrorCode: "image10",
+				});
 			}
 		},
 

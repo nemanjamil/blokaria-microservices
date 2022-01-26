@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Contract Generation</title>
+		<title>Generating Qr Code</title>
 
 		<style type="text/css">
 			.container {
@@ -48,25 +48,37 @@
 			}
 			.abutton {
 				background-color: #4a4b91;
-				font-size: 18px;
+				font-size: 14px;
 				font-family: Helvetica, Arial, sans-serif;
 				font-weight: bold;
 				text-decoration: none;
-				padding: 14px 20px;
-				color: #ffffff;
+				padding: 8px 10px;
+				color: #fefefe !important;
 				border-radius: 5px;
 				display: inline-block;
 				mso-padding-alt: 0;
 			}
+			.gbutton {
+				background-color: #189607;
+				font-size: 14px;
+				font-family: Helvetica, Arial, sans-serif;
+				font-weight: bold;
+				text-decoration: none;
+				padding: 6px 6px;
+				color: #fefefe !important;
+				border-radius: 3px;
+				display: inline-block;
+				mso-padding-alt: 0;
+			}
 			.explain {
-				text-align: center;
-				padding: 1rem;
+				text-align: left;
+				padding: 1rem 1rem 1rem 5rem;
 				background-color: white;
 				color: rgb(65, 65, 65);
 				font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 			}
 			.explain p {
-				font-size: 90%;
+				font-size: 100%;
 				color: rgb(148, 148, 148);
 			}
 			.line {
@@ -85,6 +97,13 @@
 				border: solid white;
 				border-radius: 10px;
 			}
+			ul.no-bullets {
+				list-style-type: none;
+			}
+			ul li {
+				margin: 5px;
+				color: rgb(148, 148, 148);
+			}
 		</style>
 	</head>
 	<body>
@@ -93,18 +112,33 @@
 			<div class="line"></div>
 			<div class="main">
 				<div class="content">
-					<div class="hello">Hi {{clientEmail}}!</div>
-					<div class="instruction">Click on this link to finish purchase:</div>
-					<a href="http://localhost:3011/generate-contract/{{walletQrId}}" target="_blank" class="abutton">
-						<span style="mso-text-raise: 15pt">GO &rarr;</span>
-					</a>
+					<div class="hello">Hi {{userFullname}}! {{userEmail}}</div>
+					<div class="instruction">Successfully created QR code for product {{productName}}</div>
 				</div>
 				<div class="explain">
-					<b>Email from - {{userEmail}}</b>
+					<b>What are next steps</b>
 					<p>
-						{{userFullname}} send you request to add your details to product <br /><br />
-						{{productName}}
+						1. Now that you created QR code and added your details, <b>send this url</b> {{webSiteLocation}}/generate-contract/{{walletQrId}} to
+						your client to <b>finish purchasing</b>.
 					</p>
+					<p>2. Generate Printable QR code in PDF.</p>
+					<ul>
+						<li>
+							You will have to print QR code. On this <a href="https://www.qrcode-monkey.com/#url" target="_blank" class="gbutton"> link </a> you
+							can generate printable PDF version.
+						</li>
+						<li>Add in field "<b>Your url</b>" this address -> {{webSiteLocation}}/status/{{walletQrId}}.</li>
+						<li>Click on <b>green button</b> "Create QR Code" to download PDV version.</li>
+						<li>You can print or engrave QR code on your product.</li>
+					</ul>
+				</div>
+				<div class="explain">
+					<p>4. Take a look of Use Case presentations on our web site.</p>
+					<ul class="no-bullets">
+						<li><a href="https://www.qrcode-monkey.com/#url" target="_blank" class="abutton"> Presentation 1 </a></li>
+						<li><a href="https://www.qrcode-monkey.com/#url" target="_blank" class="abutton"> Presentation 2</a></li>
+						<li><a href="https://www.qrcode-monkey.com/#url" target="_blank" class="abutton"> Presentation 3 </a></li>
+					</ul>
 				</div>
 			</div>
 			<div class="line"></div>

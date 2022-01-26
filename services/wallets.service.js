@@ -221,6 +221,7 @@ module.exports = {
 			};
 
 			if (ctx.productVideo) entity.productVideo = ctx.productVideo;
+
 			try {
 				let wallet = new Wallet(entity);
 				return await wallet.save();

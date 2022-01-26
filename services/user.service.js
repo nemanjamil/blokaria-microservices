@@ -117,7 +117,7 @@ module.exports = {
 				let user = new User(userEntity);
 				return await user.save();
 			} catch (error) {
-				throw new MoleculerError("CODE_ERROR", 501, "ERROR_INSERT_INTO_DB", { message: error.message, internalErrorCode: "user10" });
+				throw new MoleculerError("Error Inserting User", 501, "ERROR_INSERT_INTO_DB", { message: error.message, internalErrorCode: "user10" });
 			}
 		},
 	},
