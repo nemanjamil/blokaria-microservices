@@ -77,6 +77,7 @@ module.exports = {
 			},
 		},
 
+		// za sada ga nigde ne koristimo
 		sendContractEmalForClient: {
 			rest: "GET /sendContractEmalForClient",
 			params: {
@@ -99,11 +100,12 @@ module.exports = {
 					const template = handlebars.compile(source);
 
 					let clientEmail = ctx.params.clientEmail;
+					let userEmail = ctx.params.userEmail;
 					const replacements = {
 						clientEmail: clientEmail,
 						walletQrId: ctx.params.walletQrId,
 						userFullname: ctx.params.userFullname,
-						userEmail: ctx.params.userEmail,
+						userEmail: userEmail,
 						productName: ctx.params.productName,
 					};
 
@@ -125,7 +127,8 @@ module.exports = {
 					const mailOptions = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
-						to: `nemanjamil@gmail.com, ${clientEmail}`,
+						to: `${clientEmail}`,
+						cc: `${userEmail}`,
 						subject: "Contract Informations ✔",
 						html: htmlToSend,
 					};
@@ -168,7 +171,7 @@ module.exports = {
 					const mailOptions = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
-						to: `nemanjamil@gmail.com, ${userEmail}`,
+						to: `${userEmail}`,
 						subject: "Generate QR Code ✔",
 						html: htmlToSend,
 					};

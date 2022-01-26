@@ -36,13 +36,18 @@ module.exports = {
 				try {
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
+					console.log("sendTransactionFromWalletToWallet START");
+
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
+
+					console.log("sendTransactionFromWalletToWallet FINISH");
+
 					await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
 
-					console.log("sendEmail", sendEmail);
+					console.log("sendTransactionFromWalletToWallet sendEmail", sendEmail);
 
 					return cardanoRequest.data;
 				} catch (error) {
@@ -68,6 +73,17 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
+		getQrCodeDataNoRedeem: {
+			rest: "POST /getQrCodeDataNoRedeem",
+			async handler(ctx) {
+				try {
+					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -101,7 +117,7 @@ module.exports = {
 					if (parseObject)
 						throw new MoleculerError("REDEEM_STATUS", 501, "ERR_DB_INSERTING", {
 							message: "QR code is allready redeemed",
-							internalErrorCode: "wallet10",
+							internalErrorCode: "walletredeem10",
 						});
 				}
 
@@ -375,7 +391,7 @@ module.exports = {
 				let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
 				return { rndBr, cardanoRequest };
 			} catch (error) {
-				throw new MoleculerError("CODE_ERROR", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", { message: error.message, internalErrorCode: "wallet100" });
+				throw new MoleculerError("CODE_ERROR", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", { message: error.message, internalErrorCode: "wallet202" });
 			}
 		},
 	},
