@@ -57,6 +57,7 @@ module.exports = {
 				authentication: true,
 				authorization: false,
 				autoAliases: true,
+				mappingPolicy: "restrict", // Available values: "all", "restrict"
 				aliases: {
 					//"POST /": "multipart:image.testiranje",
 					//"PUT /:id": "stream:image.testiranje",
@@ -90,7 +91,7 @@ module.exports = {
 					limits: { files: 1 },
 				},
 				//callingOptions: {},
-				mappingPolicy: "restrict", // Available values: "all", "restrict"
+				
 				logging: true,
 				callOptions: {
 					// meta: {
@@ -99,61 +100,19 @@ module.exports = {
 					// },
 				},
 			},
+
 			{
-				path: "/api",
-
-				// Route-level Express middlewares. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Middlewares
+				path: "/nrapi",
 				use: [],
-
-				// Enable/disable parameter merging method. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Disable-merging
 				mergeParams: true,
-
-				// Enable authentication. Implement the logic into `authenticate` method. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Authentication
 				authentication: false,
-
-				// Enable authorization. Implement the logic into `authorize` method. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Authorization
 				authorization: false,
-
-				// The auto-alias feature allows you to declare your route alias directly in your services.
-				// The gateway will dynamically build the full routes from service schema.
 				autoAliases: true,
-
-				// Mapping policy setting. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Mapping-policy
-				// mappingPolicy: "all", // Available values: "all", "restrict"
 				whitelist: ["**"],
-
-				mappingPolicy: "restrict",
+				mappingPolicy: "restrict",  // all restrict 
 				aliases: {
-					// "POST sendEmail": "email.sendEmail",
-					// "POST /getQrCodeData": "wallet.getQrCodeData",
+					"POST getQrCodeDataNoRedeem": "wallet.getQrCodeDataNoRedeem",
 				},
-
-				/** 
-				 * Before call hook. You can check the request.
-				 * @param {Context} ctx 
-				 * @param {Object} route 
-				 * @param {IncomingRequest} req 
-				 * @param {ServerResponse} res 
-				 * @param {Object} data
-				 * 
-				onBeforeCall(ctx, route, req, res) {
-					// Set request headers to context meta
-					ctx.meta.userAgent = req.headers["user-agent"];
-				}, */
-
-				/**
-				 * After call hook. You can modify the data.
-				 * @param {Context} ctx 
-				 * @param {Object} route 
-				 * @param {IncomingRequest} req 
-				 * @param {ServerResponse} res 
-				 * @param {Object} data
-				onAfterCall(ctx, route, req, res, data) {
-					// Async function which return with Promise
-					return doSomething(ctx, res, data);
-				}, */
-
-				// Calling options. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Calling-options
 				callingOptions: {},
 
 				bodyParsers: {
@@ -166,9 +125,47 @@ module.exports = {
 						limit: "1MB",
 					},
 				},
+				
+			},
 
-				// Enable/disable logging
+			{
+				path: "/api",
+				use: [],
+				mergeParams: true,
+				authentication: true,
+				authorization: false,
+				autoAliases: true,
+				whitelist: ["**"],
+				mappingPolicy: "all",  // restrict 
+				aliases: {
+					// "POST sendEmail": "email.sendEmail",
+					// "POST /getQrCodeData": "wallet.getQrCodeData",
+				},
+				callingOptions: {},
+
+				bodyParsers: {
+					json: {
+						strict: false,
+						limit: "1MB",
+					},
+					urlencoded: {
+						extended: true,
+						limit: "1MB",
+					},
+				},
 				logging: true,
+				/** 
+				onBeforeCall(ctx, route, req, res) {
+					// https://github.com/teezzan/commitSpy-Core/blob/ed14a9aa28f166bc7e1482086728b64e696fcf28/services/api.service.js
+					// Set request headers to context meta
+					ctx.meta.userAgent = req.headers["user-agent"];
+				}, */
+
+				/**
+				onAfterCall(ctx, route, req, res, data) {
+					// Async function which return with Promise
+					return doSomething(ctx, res, data);
+				}, */
 			},
 		],
 
@@ -214,10 +211,11 @@ module.exports = {
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
 					return { userEmail: getUser[0].userEmail, userFullName: getUser[0].userFullName, siki: "Bravo Miki" };
 				} catch (error) {
-					throw new MoleculerError(ApiGateway.Errors.ERR_INVALID_TOKEN, 401, ApiGateway.Errors.ERR_INVALID_TOKEN, {
-						message: "Token is not Valid. Please Log in",
-						internalErrorCode: "token10",
-					});
+					// throw new MoleculerError(ApiGateway.Errors.ERR_INVALID_TOKEN, 401, ApiGateway.Errors.ERR_INVALID_TOKEN, {
+					// 	message: "Token is not Valid. Please Log in",
+					// 	internalErrorCode: "token10",
+					// });
+					return Promise.reject(error);
 				}
 			} else {
 				throw new MoleculerError(ApiGateway.Errors.ERR_INVALID_TOKEN, 401, ApiGateway.Errors.ERR_INVALID_TOKEN, {
@@ -241,6 +239,9 @@ module.exports = {
 		async authorize(ctx, route, req) {
 			// Get the authenticated user.
 			const user = ctx.meta.user;
+
+			console.log("authorize !!!");
+			
 
 			// It check the `auth` property in action schema.
 			if (req.$action.auth == "required" && !user) {

@@ -47,23 +47,12 @@ module.exports = {
 					};
 					const htmlToSend = template(replacements);
 
-					let adminEmail = process.env.ADMIN_EMAIL;
-					let adminPassword = process.env.PASSW_EMAIL;
-
-					let transporter = nodemailer.createTransport({
-						host: "mail.blokaria.com",
-						port: 465,
-						secure: true, // true for 465, false for other ports
-						auth: {
-							user: adminEmail,
-							pass: adminPassword,
-						},
-					});
+					let transporter = await this.getTransporter();
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
-						to: "nemanjamil@gmail.com", // ${userEmail}
+						to: `${userEmail}`, // 
 						subject: "Register User ✔",
 						html: htmlToSend,
 					};
@@ -92,7 +81,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
-						throw new MoleculerError("VERIFICATION_ID", 501, "ERR_VERIFICATION_ID", {
+						throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
 							message: "Verification email failed",
 							internalErrorCode: "email10",
 						});
@@ -111,18 +100,7 @@ module.exports = {
 
 					const htmlToSend = template(replacements);
 
-					let adminEmail = process.env.ADMIN_EMAIL;
-					let adminPassword = process.env.PASSW_EMAIL;
-
-					let transporter = nodemailer.createTransport({
-						host: "mail.blokaria.com",
-						port: 465,
-						secure: true, // true for 465, false for other ports
-						auth: {
-							user: adminEmail,
-							pass: adminPassword,
-						},
-					});
+					let transporter = await this.getTransporter();
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
@@ -198,7 +176,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
-						throw new MoleculerError("VERIFICATION_ID", 501, "ERR_VERIFICATION_ID", {
+						throw new MoleculerError("VErification Id is not correct", 501, "ERR_VERIFICATION_ID", {
 							message: "Verification email failed",
 							internalErrorCode: "sendTransactionEmail10",
 						});

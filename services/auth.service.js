@@ -1,5 +1,5 @@
 "use strict";
-const { MoleculerClientError } = require("moleculer").Errors;
+const { MoleculerClientError, MoleculerError } = require("moleculer").Errors;
 const jwt = require("jsonwebtoken");
 const Utils = require("../utils/utils");
 
@@ -29,9 +29,9 @@ module.exports = {
 				try {
 					let users = await ctx.call("user.userFind", { userEmail });
 					const user = users ? users[0] : null;
-					if (!user) throw new MoleculerClientError("Email introuvable", 422, "", { message: "email is not found", internalErrorCode: "auth10" });
+					// if (!user) throw new MoleculerClientError("User does not exist", 422, "USER_FIND_ERROR", { message: "email is not found", internalErrorCode: "auth10" });
 					const res = await Utils.compare(userPassword, users[0].userPassword);
-					if (!res) throw new MoleculerClientError("Password incorrect", 403, "", { message: "password do not match", internalErrorCode: "auth20" });
+					if (!res) throw new MoleculerClientError("Password incorrect", 403, "COMPARE_PASSWORDS_ERROR", { message: "password do not match", internalErrorCode: "auth20" });
 					let expiresIn = "72h";
 					let response = {
 						token: jwt.sign({ userEmail: userEmail }, process.env.JWT_SECRET, { expiresIn: expiresIn }),
@@ -62,15 +62,24 @@ module.exports = {
 				token: "string",
 			},
 			async handler(ctx) {
-				return await new this.Promise((resolve, reject) => {
-					jwt.verify(ctx.params.token, process.env.JWT_SECRET, (err, decoded) => {
-						if (err) {
-							return reject(err);
-						} else {
-							resolve(decoded);
-						}
+				try {
+					return jwt.verify(ctx.params.token, process.env.JWT_SECRET);	
+				} catch (error) {
+					throw new MoleculerError("Token is not verified", 401, "ApiGateway.Errors.ERR_INVALID_TOKEN", {
+						message: "Token is not Valid. Please Log in",
+						internalErrorCode: "token10",
 					});
-				});
+				}
+				
+				// return await new this.Promise((resolve, reject) => {
+				// 	jwt.verify(ctx.params.token, process.env.JWT_SECRET, (err, decoded) => {
+				// 		if (err) {
+				// 			return reject(err);
+				// 		} else {
+				// 			resolve(decoded);
+				// 		}
+				// 	});
+				// });
 			},
 		},
 

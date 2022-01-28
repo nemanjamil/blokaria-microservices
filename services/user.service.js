@@ -15,7 +15,7 @@ module.exports = {
 	mixins: [DbService],
 	adapter: dbConnection.getMongooseAdapter(),
 	settings: {
-		JWT_SECRET: process.env.JWT_SECRET,
+		JWT_SECRET: process.env.JWT_SECRET
 	},
 	model: User,
 	hooks: {
@@ -30,6 +30,7 @@ module.exports = {
 	actions: {
 		registerUser: {
 			rest: "POST /registerUser",
+			// authorization: true,
 			params: {
 				userEmail: { type: "email" },
 				userFullName: { type: "string" },
@@ -71,37 +72,15 @@ module.exports = {
 					let user = await User.find(entity);
 					return user;
 				} catch (error) {
-					return new EntityNotFoundError();
-				}
-			},
-		},
-
-		getByEmail: {
-			rest: "GET /getByEmail",
-			authorization: true,
-			params: {
-				email: { type: "email" },
-			},
-			async handler(ctx) {
-				return await ctx
-					.call("user.find", {
-						query: {
-							email: ctx.params.email ? ctx.params.email : "",
-						},
-					})
-					.then((res) => {
-						if (res.length == 1) {
-							const user = res[0];
-							delete user.password;
-							return user;
-						} else if (res.length > 1) {
-							return new MoleculerClientError("Plusieurs utilisateurs trouvés avec ce mail");
-						} else {
-							return new EntityNotFoundError();
-						}
+					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
+						message: "User Not Found",
+						internalErrorCode: "user20",
 					});
+					// return new EntityNotFoundError();
+				}
+
 			},
-		},
+		}
 	},
 
 	methods: {
@@ -119,6 +98,6 @@ module.exports = {
 			} catch (error) {
 				throw new MoleculerError("Error Inserting User", 501, "ERROR_INSERT_INTO_DB", { message: error.message, internalErrorCode: "user10" });
 			}
-		},
+		}
 	},
 };
