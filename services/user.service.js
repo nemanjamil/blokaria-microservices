@@ -29,8 +29,7 @@ module.exports = {
 	},
 	actions: {
 		registerUser: {
-			rest: "POST /registerUser",
-			// authorization: true,
+			//rest: "POST /registerUser",
 			params: {
 				userEmail: { type: "email" },
 				userFullName: { type: "string" },
@@ -44,7 +43,6 @@ module.exports = {
 					await this.addUserToDB({ ctx, clearPassword });
 
 					let userEmail = ctx.params.userEmail;
-
 					const sendEmail = await ctx.call("v1.email.registerUser", {
 						userEmail: ctx.params.userEmail,
 						userOrgPass: ctx.params.userPassword,

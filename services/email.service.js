@@ -37,7 +37,7 @@ module.exports = {
 				let userFullName = ctx.params.userFullName;
 
 				try {
-					const source = fs.readFileSync("./public/templates/welcome.html", "utf-8").toString();
+					const source = fs.readFileSync("./public/templates/registrateUser.html", "utf-8").toString();
 					const template = handlebars.compile(source);
 					const replacements = {
 						userEmail: userEmail,
@@ -52,7 +52,7 @@ module.exports = {
 					const mailOptions = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
-						to: `${userEmail}`, // 
+						to: "nemanjamil@gmail.com", //  ${userEmail}
 						subject: "Register User ✔",
 						html: htmlToSend,
 					};

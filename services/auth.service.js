@@ -17,8 +17,8 @@ module.exports = {
 	actions: {
 		// auth10
 		authenticate: {
-			rest: "POST /authenticate",
-			authorization: false,
+			//rest: "POST /authenticate",
+			//authentication: false,
 			params: {
 				userEmail: { type: "email" },
 				userPassword: { type: "string", min: 1 },

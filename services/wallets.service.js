@@ -80,7 +80,7 @@ module.exports = {
 		},
 
 		getQrCodeDataNoRedeem: {
-			rest: "POST /getQrCodeDataNoRedeem",
+			//rest: "POST /getQrCodeDataNoRedeem",
 			async handler(ctx) {
 				try {
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
@@ -106,7 +106,7 @@ module.exports = {
 		},
 
 		getListQrCodesByUser: {
-			rest: "GET /getListQrCodesByUser",
+			rest: "POST /getListQrCodesByUser",
 			async handler(ctx) {
 
 				try {

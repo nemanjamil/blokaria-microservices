@@ -107,11 +107,13 @@ module.exports = {
 				mergeParams: true,
 				authentication: false,
 				authorization: false,
-				autoAliases: true,
 				whitelist: ["**"],
-				mappingPolicy: "restrict",  // all restrict 
+				mappingPolicy: "restrict", 
+				autoAliases: false,
 				aliases: {
-					"POST getQrCodeDataNoRedeem": "wallet.getQrCodeDataNoRedeem",
+					"POST user/registerUser": "user.registerUser",
+					"POST v1/auth/authenticate": "v1.auth.authenticate",
+					"POST wallet/getQrCodeDataNoRedeem": "wallet.getQrCodeDataNoRedeem",
 				},
 				callingOptions: {},
 
@@ -136,9 +138,9 @@ module.exports = {
 				authorization: false,
 				autoAliases: true,
 				whitelist: ["**"],
-				mappingPolicy: "all",  // restrict 
+				mappingPolicy: "restrict",  // restrict 
 				aliases: {
-					// "POST sendEmail": "email.sendEmail",
+					"POST getQrCodeData": "wallet.getQrCodeData",
 					// "POST /getQrCodeData": "wallet.getQrCodeData",
 				},
 				callingOptions: {},
@@ -238,9 +240,11 @@ module.exports = {
 		 */
 		async authorize(ctx, route, req) {
 			// Get the authenticated user.
+			console.log("authorize !!!");
+			
 			const user = ctx.meta.user;
 
-			console.log("authorize !!!");
+			
 			
 
 			// It check the `auth` property in action schema.
