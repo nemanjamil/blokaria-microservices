@@ -43,10 +43,8 @@ module.exports = {
 					let { meta, relativePath, filename } = await this.storeImage(ctx);
 					let { imageSave, imageRelativePath } = await this.insertProductPicture(meta, relativePath, filename);
 
-					console.log("imageSave", imageSave);
-					console.log("imageRelativePath", imageRelativePath);
 
-					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta });
+					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
 
 					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);

@@ -66,7 +66,7 @@ module.exports = {
 						busboyConfig: {
 							limits: {
 								files: 1,
-								fileSize: 1 * 1024 * 1024,
+								fileSize: 12 * 1024 * 1024, // 6MB - ADD RESIZE IN CODE
 							},
 							onPartsLimit(busboy, alias, svc) {
 								this.logger.info("Busboy parts limit!", busboy);
@@ -114,6 +114,7 @@ module.exports = {
 					"POST user/registerUser": "user.registerUser",
 					"POST v1/auth/authenticate": "v1.auth.authenticate",
 					"POST wallet/getQrCodeDataNoRedeem": "wallet.getQrCodeDataNoRedeem",
+					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
 				},
 				callingOptions: {},
 
@@ -211,7 +212,7 @@ module.exports = {
 					let getUser = await ctx.call("user.userFind", { userEmail: tokenVerified.userEmail });
 
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
-					return { userEmail: getUser[0].userEmail, userFullName: getUser[0].userFullName, siki: "Bravo Miki" };
+					return { userEmail: getUser[0].userEmail, userFullName: getUser[0].userFullName, userId: getUser[0]._id };
 				} catch (error) {
 					// throw new MoleculerError(ApiGateway.Errors.ERR_INVALID_TOKEN, 401, ApiGateway.Errors.ERR_INVALID_TOKEN, {
 					// 	message: "Token is not Valid. Please Log in",

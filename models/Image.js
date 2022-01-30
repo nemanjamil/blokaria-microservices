@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ObjectId = mongoose.ObjectId;
 
 const imageSchema = new mongoose.Schema({
 	walletQrId: {
@@ -11,6 +12,10 @@ const imageSchema = new mongoose.Schema({
 		type: String,
 		required: [true, "Missing Picture Link"],
 	},
+	wallets :[{
+		type: ObjectId,
+		ref: "Wallet"
+	}]
 });
 
 module.exports = mongoose.model("Image", imageSchema);

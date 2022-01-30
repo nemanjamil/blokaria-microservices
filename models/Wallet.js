@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const ObjectId = mongoose.ObjectId;
 const walletSchema = new mongoose.Schema({
 	walletQrId: { type: String, index: true, required: true }, // unique: true
 	userDesc: { type: String },
@@ -16,6 +16,14 @@ const walletSchema = new mongoose.Schema({
 	metaDataRandomNumber: { type: Number },
 	productPicture: { type: String },
 	productVideo: { type: String },
+	_creator: { 
+		type: ObjectId, 
+		ref: "User" 
+	},
+	_image: [{ 
+		type: ObjectId, 
+		ref: "Image" 
+	}],
 });
 
 module.exports = mongoose.model("Wallet", walletSchema);
