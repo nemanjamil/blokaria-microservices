@@ -12,7 +12,7 @@ const imageSchema = new mongoose.Schema({
 		type: String,
 		required: [true, "Missing Picture Link"],
 	},
-	wallets :[{
+	_wallets :[{
 		type: ObjectId,
 		ref: "Wallet"
 	}]

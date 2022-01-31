@@ -23,7 +23,7 @@ module.exports = {
 			rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
 				try {
-					return await this.plainInsertDataIntoDb({user: ctx.params.data.user, wallet : ctx.params.data.$multipart, image: ctx.params.imageSave});
+					return await this.plainInsertDataIntoDb({ctx, user: ctx.params.data.user, wallet : ctx.params.data.$multipart, image: ctx.params.imageSave});
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -36,18 +36,12 @@ module.exports = {
 				try {
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
-					console.log("sendTransactionFromWalletToWallet START");
-
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
-
-					console.log("sendTransactionFromWalletToWallet FINISH");
 
 					await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
-
-					console.log("sendTransactionFromWalletToWallet sendEmail", sendEmail);
 
 					return cardanoRequest.data;
 				} catch (error) {
@@ -139,14 +133,14 @@ module.exports = {
 						});
 				}
 
-				let productPicture = await ctx.call("image.getProductPicture", { walletQrId: ctx.params.qrcode });
+				// let productPicture = await ctx.call("image.getProductPicture", { walletQrId: ctx.params.qrcode });
 
-				let walletIdDataNew = [...walletIdData];
-				if (productPicture) {
-					walletIdDataNew[0].productPicture = productPicture.productPicture;
-				}
+				// let walletIdDataNew = [...walletIdData];
+				// if (productPicture) {
+				// 	walletIdDataNew[0].productPicture = productPicture.productPicture;
+				// }
 
-				return walletIdDataNew;
+				return walletIdData;
 			} catch (error) {
 				return Promise.reject(error);
 			}
@@ -202,7 +196,7 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
-				let wallet = await Wallet.find(entity);
+				let wallet = await Wallet.find(entity).populate("_image", {productPicture:1});
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Error in Reading Qr Code", 501, "ERROR_GET_QR_CODE_DATA", { message: error.message, internalErrorCode: "wallet50" });
@@ -247,7 +241,7 @@ module.exports = {
 		},
 
 		// 80
-		async plainInsertDataIntoDb({user, wallet, image}) {
+		async plainInsertDataIntoDb({ctx, user, wallet, image}) {
 			const entity = {
 				walletQrId: wallet.walletQrId,
 				userDesc: wallet.userDesc,
@@ -265,8 +259,8 @@ module.exports = {
 				await wallet.save();
 				await wallet.populate("_creator").populate(String(user.userId)).execPopulate();
 				await wallet.populate("_image").populate(String(image._id)).execPopulate();
-
-				// sendRequest to User to populate User Id
+				await ctx.call("user.populateUserTable", wallet);
+				
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Plain Inerting Data into DB Error", 501, "ERROR_PLAIN_INSERT_INTO_DB", { message: error.message, internalErrorCode: "wallet80" });

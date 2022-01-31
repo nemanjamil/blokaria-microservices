@@ -137,11 +137,11 @@ module.exports = {
 				mergeParams: true,
 				authentication: true,
 				authorization: false,
-				autoAliases: true,
 				whitelist: ["**"],
 				mappingPolicy: "restrict",  // restrict 
+				autoAliases: true,
 				aliases: {
-					"POST getQrCodeData": "wallet.getQrCodeData",
+					// "POST getQrCodeData": "wallet.getQrCodeData",
 					// "POST /getQrCodeData": "wallet.getQrCodeData",
 				},
 				callingOptions: {},
@@ -208,16 +208,10 @@ module.exports = {
 				const token = auth.slice(7);
 				try {
 					let tokenVerified = await ctx.call("v1.auth.resolveToken", { token });
-
 					let getUser = await ctx.call("user.userFind", { userEmail: tokenVerified.userEmail });
-
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
 					return { userEmail: getUser[0].userEmail, userFullName: getUser[0].userFullName, userId: getUser[0]._id };
 				} catch (error) {
-					// throw new MoleculerError(ApiGateway.Errors.ERR_INVALID_TOKEN, 401, ApiGateway.Errors.ERR_INVALID_TOKEN, {
-					// 	message: "Token is not Valid. Please Log in",
-					// 	internalErrorCode: "token10",
-					// });
 					return Promise.reject(error);
 				}
 			} else {
@@ -241,12 +235,7 @@ module.exports = {
 		 */
 		async authorize(ctx, route, req) {
 			// Get the authenticated user.
-			console.log("authorize !!!");
-			
 			const user = ctx.meta.user;
-
-			
-			
 
 			// It check the `auth` property in action schema.
 			if (req.$action.auth == "required" && !user) {

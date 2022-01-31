@@ -28,6 +28,41 @@ module.exports = {
 		// },
 	},
 	actions: {
+
+		populateUserTable : {
+			// params: {
+			// 	_id: { type: Object },
+			// },
+			async handler(ctx) {
+				
+				const entity = {
+					userEmail: ctx.params.userEmail,	
+				};
+
+				let data = {
+					$push: { "_wallets": String(ctx.params._id)}
+				};
+
+
+				try {
+
+					return await User.findOneAndUpdate(entity, data, { new: true }) // upsert: true
+						.populate("_wallets");
+
+					/* let userFind = await User.findOne(entity);
+					let _wallets = userFind._wallets || []; 
+					_wallets.push(ctx.params._id);
+				    const updatedPost = await User.findOneAndUpdate(entity, {_wallets: _wallets}).populate({path : "_wallets"}); */
+
+
+				} catch (error) {
+					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {
+						message: "User Not Found",
+						internalErrorCode: "user30",
+					});
+				}
+			}
+		},
 		registerUser: {
 			//rest: "POST /registerUser",
 			params: {

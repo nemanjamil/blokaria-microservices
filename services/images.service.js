@@ -46,7 +46,7 @@ module.exports = {
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
 
-					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
+				    meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
 
 					return storedIntoDb;
