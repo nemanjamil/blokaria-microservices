@@ -29,6 +29,35 @@ module.exports = {
 	},
 	actions: {
 
+		reduceUserCoupons : {
+
+			async handler(ctx) {
+
+				const entity = {
+					userEmail: ctx.params.userEmail,	
+					numberOfTransaction:{ $gte: 0 }
+				};
+
+				let data = {
+					$inc: { numberOfTransaction: -1 }
+				};
+
+				try {
+					let resultFromReducting =  await User.findOneAndUpdate(entity, data, { new: true });
+					if (!resultFromReducting) {
+						throw new MoleculerError("User has negative number of coupons", 401, "USER_HAS_NEGATIVE_NUMBER_OF_COUPONS", {
+							message: "User has negative number of coupons",
+							internalErrorCode: "user41",
+						});
+					}
+				} catch (error) {
+					throw new MoleculerError("Error in reducing coupons", 401, "ERROR_REDUCING_COUPONS", {
+						message: "Error in reducing coupons",
+						internalErrorCode: "user40",
+					});
+				}
+			}
+		}, 
 		populateUserTable : {
 			// params: {
 			// 	_id: { type: Object },

@@ -38,12 +38,14 @@ module.exports = {
 
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 
-					await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
+					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
+					let reducingStatus = await ctx.call("user.reduceUserCoupons", ctx);
+				
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
 
-					return cardanoRequest.data;
+					return { qrCodeStatus, cardanoStatus : cardanoRequest.data, redeemStatus, reducingStatus, sendEmail };
 				} catch (error) {
 					return Promise.reject(error);
 				}
