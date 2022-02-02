@@ -101,13 +101,30 @@ module.exports = {
 			},
 		},
 
+		getListQrCodesByUserPrivate: {
+			rest: "POST /getListQrCodesByUserPrivate",
+			meta: {
+				user : {
+					userEmail: { type: "email" },
+				} 
+			},
+			async handler(ctx) {	
+				ctx.params.userEmail = ctx.meta.user.userEmail;
+				try {
+					let listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
+					return listQrCodesByUser;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
 		getListQrCodesByUser: {
 			// rest: "POST /getListQrCodesByUser",
 			params: {
 				userEmail: { type: "email" },
 			},
 			async handler(ctx) {
-
 				try {
 					let listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
 					return listQrCodesByUser;

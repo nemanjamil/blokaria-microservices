@@ -141,8 +141,7 @@ module.exports = {
 				mappingPolicy: "restrict",  // restrict 
 				autoAliases: true,
 				aliases: {
-					// "POST getQrCodeData": "wallet.getQrCodeData",
-					// "POST /getQrCodeData": "wallet.getQrCodeData",
+					//"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
 				},
 				callingOptions: {},
 
