@@ -23,7 +23,7 @@ module.exports = {
 			rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
 				try {
-					return await this.plainInsertDataIntoDb({ctx, user: ctx.params.data.user, wallet : ctx.params.data.$multipart, image: ctx.params.imageSave});
+					return await this.plainInsertDataIntoDb({ ctx, user: ctx.params.data.user, wallet: ctx.params.data.$multipart, image: ctx.params.imageSave });
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -40,12 +40,12 @@ module.exports = {
 
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", ctx);
-				
+
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
 
-					return { qrCodeStatus, cardanoStatus : cardanoRequest.data, redeemStatus, reducingStatus, sendEmail };
+					return { qrCodeStatus, cardanoStatus: cardanoRequest.data, redeemStatus, reducingStatus, sendEmail };
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -104,11 +104,11 @@ module.exports = {
 		getListQrCodesByUserPrivate: {
 			rest: "POST /getListQrCodesByUserPrivate",
 			meta: {
-				user : {
+				user: {
 					userEmail: { type: "email" },
-				} 
+				}
 			},
-			async handler(ctx) {	
+			async handler(ctx) {
 				ctx.params.userEmail = ctx.meta.user.userEmail;
 				try {
 					let listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
@@ -134,7 +134,18 @@ module.exports = {
 			},
 		},
 
-		
+		getListQrCodesGeneral: {
+			async handler(ctx) {
+				try {
+					let listQrCodesByUser = await this.getListQrCodesGeneral(ctx);
+					return listQrCodesByUser;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
+
 	},
 
 	methods: {
@@ -215,7 +226,7 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
-				let wallet = await Wallet.find(entity).populate("_image", {productPicture:1});
+				let wallet = await Wallet.find(entity).populate("_image", { productPicture: 1 });
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Error in Reading Qr Code", 501, "ERROR_GET_QR_CODE_DATA", { message: error.message, internalErrorCode: "wallet50" });
@@ -260,7 +271,7 @@ module.exports = {
 		},
 
 		// 80
-		async plainInsertDataIntoDb({ctx, user, wallet, image}) {
+		async plainInsertDataIntoDb({ ctx, user, wallet, image }) {
 			const entity = {
 				walletQrId: wallet.walletQrId,
 				userDesc: wallet.userDesc,
@@ -279,7 +290,7 @@ module.exports = {
 				await wallet.populate("_creator").populate(String(user.userId)).execPopulate();
 				await wallet.populate("_image").populate(String(image._id)).execPopulate();
 				await ctx.call("user.populateUserTable", wallet);
-				
+
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Plain Inerting Data into DB Error", 501, "ERROR_PLAIN_INSERT_INTO_DB", { message: error.message, internalErrorCode: "wallet80" });
@@ -434,15 +445,15 @@ module.exports = {
 		},
 
 		// wallet110
-		async getListQrCodesByUserMethod( ctx ) {
-		
+		async getListQrCodesByUserMethod(ctx) {
+
 			const entity = {
 				userEmail: ctx.params.userEmail,
 			};
 			try {
 				return await Wallet.find(entity)
-				  .populate("_creator", {userFullName:1, userEmail: 1})
-				  .populate("_image", {productPicture:1});
+					.populate("_creator", { userFullName: 1, userEmail: 1 })
+					.populate("_image", { productPicture: 1 });
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
 			}
@@ -453,6 +464,21 @@ module.exports = {
 			// } catch (error) {
 			// 	throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
 			// }
+		},
+
+		// wallet120
+		async getListQrCodesGeneral(ctx) {
+			console.log("ctx.params", ctx.params);
+		
+			const entity = {};
+		
+			try {
+				return await Wallet.find(entity).skip(ctx.params.skip).limit(ctx.params.limit).sort({ createdAt: -1 })
+					.populate("_creator", { userFullName: 1, userEmail: 1 })
+					.populate("_image", { productPicture: 1 });
+			} catch (error) {
+				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
+			}
 		},
 	},
 };
