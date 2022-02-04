@@ -38,7 +38,7 @@ module.exports = {
 	logger: {
 		type: "Console",
 		options: {
-			level: "warn",
+			level: "info",
 			// Using colors on the output
 			colors: true,
 			// Print module names with different colors (like docker-compose for containers)
@@ -53,7 +53,7 @@ module.exports = {
 	},
 	// Default log level for built-in console logger. It can be overwritten in logger options above.
 	// Available values: trace, debug, info, warn, error, fatal
-	logLevel: "warn",
+	logLevel: "info",
 
 	// Define transporter.
 	// More info: https://moleculer.services/docs/0.14/networking.html

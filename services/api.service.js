@@ -210,7 +210,11 @@ module.exports = {
 					let tokenVerified = await ctx.call("v1.auth.resolveToken", { token });
 					let getUser = await ctx.call("user.userFind", { userEmail: tokenVerified.userEmail });
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
-					return { userEmail: getUser[0].userEmail, userFullName: getUser[0].userFullName, userId: getUser[0]._id };
+					return { 
+						userEmail: getUser[0].userEmail, 
+						userFullName: getUser[0].userFullName, 
+						userId: getUser[0]._id 
+					};
 				} catch (error) {
 					return Promise.reject(error);
 				}

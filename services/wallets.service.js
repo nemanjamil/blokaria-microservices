@@ -157,8 +157,8 @@ module.exports = {
 				if (qrRedeemCheck) {
 					let parseObject = walletIdData[0].qrCodeRedeemStatus;
 					if (parseObject)
-						throw new MoleculerError("QR code is allready redeemed", 501, "ERR_DB_INSERTING", {
-							message: "QR code is allready redeemed",
+						throw new MoleculerError("QR code is already redeemed", 501, "ERR_DB_INSERTING", {
+							message: "QR code is already redeemed",
 							internalErrorCode: "walletredeem10",
 						});
 				}
@@ -278,6 +278,7 @@ module.exports = {
 				userFullname: wallet.userFullname,
 				userEmail: wallet.userEmail,
 				productName: wallet.productName,
+				publicQrCode: wallet.publicQrCode,
 				_creator: user.userId,
 				_image: image._id
 			};
@@ -468,10 +469,7 @@ module.exports = {
 
 		// wallet120
 		async getListQrCodesGeneral(ctx) {
-			console.log("ctx.params", ctx.params);
-		
 			const entity = {};
-		
 			try {
 				return await Wallet.find(entity).skip(ctx.params.skip).limit(ctx.params.limit).sort({ createdAt: -1 })
 					.populate("_creator", { userFullName: 1, userEmail: 1 })

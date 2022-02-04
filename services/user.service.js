@@ -35,11 +35,11 @@ module.exports = {
 
 				const entity = {
 					userEmail: ctx.params.userEmail,	
-					numberOfTransaction:{ $gte: 0 }
+					numberOfCoupons:{ $gte: 0 }
 				};
 
 				let data = {
-					$inc: { numberOfTransaction: -1 }
+					$inc: { numberOfCoupons: -1 }
 				};
 
 				try {
@@ -118,8 +118,7 @@ module.exports = {
 				}
 			},
 		},
-
-		userFind: {
+		userFind: {  // this is for LogIn 
 			rest: "POST /userfind",
 			params: {
 				userEmail: { type: "email" },
@@ -138,7 +137,35 @@ module.exports = {
 						message: "User Not Found",
 						internalErrorCode: "user20",
 					});
-					// return new EntityNotFoundError();
+				}
+
+			},
+		}, 
+		userGet: {  
+			rest: "POST /userGet",
+			params: {
+				userEmail: { type: "email" },
+			},
+			async handler(ctx) {
+				const entity = {
+					userEmail: ctx.params.userEmail,
+					userVerified: 1,
+				};
+
+				try {
+					let user = await User.find(entity, { 
+						numberOfTransaction: 1, 
+						userEmail: 1, 
+						userFullName: 1, 
+						numberOfCoupons: 1, 
+						userVerified: 1 
+					});
+					return user;
+				} catch (error) {
+					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
+						message: "User Not Found",
+						internalErrorCode: "user20",
+					});
 				}
 
 			},
