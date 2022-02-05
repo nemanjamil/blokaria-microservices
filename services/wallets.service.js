@@ -36,16 +36,19 @@ module.exports = {
 				try {
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
+					console.log("qrCodeStatus", qrCodeStatus);
+					console.log("ctx", ctx.params);
+					
+					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
+					
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 
-					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
-					let reducingStatus = await ctx.call("user.reduceUserCoupons", ctx);
+					//let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
+					//qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
+					//let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
+					return "AAA";
 
-
-					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
-					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
-
-					return { qrCodeStatus, cardanoStatus: cardanoRequest.data, redeemStatus, reducingStatus, sendEmail };
+					return { qrCodeStatus, cardanoStatus: cardanoRequest.data, reducingStatus }; // sendEmail, redeemStatus
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -279,10 +282,12 @@ module.exports = {
 				userEmail: wallet.userEmail,
 				productName: wallet.productName,
 				publicQrCode: wallet.publicQrCode,
+				costOfProduct: wallet.costOfProduct,
 				_creator: user.userId,
 				_image: image._id
 			};
 
+			
 			if (wallet.productVideo) entity.productVideo = wallet.productVideo;
 
 			try {
@@ -346,24 +351,7 @@ module.exports = {
 				},
 			};
 
-			let productPicture = {
-				k: {
-					string: "ProductPicture",
-				},
-				v: {
-					string: `/picture/${qrCodeDbData[0].walletQrId}`,
-				},
-			};
-
-			let productVideo = {
-				k: {
-					string: "ProductVideo",
-				},
-				v: {
-					string: "https://aaaaa.be/aEYlVBbb6GI",
-				},
-			};
-
+			
 			let merchantMessage = {
 				k: {
 					string: "MerchantMessage",
@@ -399,7 +387,16 @@ module.exports = {
 					string: qrCodeDbData[0].clientMessage,
 				},
 			};
+			let productLink = {
+				k: {
+					string: "productLink",
+				},
+				v: {
+					string: `${process.env.BLOKARIA_WEBSITE}/status/${qrCodeDbData[0].walletQrId}`,
+				},
+			};
 
+			
 			let finalArray = [];
 			finalArray.push(merchantName);
 			finalArray.push(productName);
@@ -408,10 +405,7 @@ module.exports = {
 			finalArray.push(clientName);
 			finalArray.push(clientEmail);
 			finalArray.push(clientMessage);
-
-			if (qrCodeDbData[0].productPicture) finalArray.push(productPicture);
-			if (qrCodeDbData[0].productVideo) finalArray.push(productVideo);
-
+			finalArray.push(productLink);
 			finalArray.push(internalCode);
 
 			let metaDataObj = {
@@ -435,7 +429,9 @@ module.exports = {
 				metadata: metaDataObj,
 			};
 
-			// console.dir(dataObject, { depth: null });
+			console.dir(dataObject, { depth: null });
+
+			return "GGG";
 
 			try {
 				let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);

@@ -1,7 +1,7 @@
 "use strict";
 const DbService = require("moleculer-db");
 //const jwt = require("jsonwebtoken");
-const { MoleculerClientError, EntityNotFoundError, MoleculerError } = require("moleculer").Errors;
+const { MoleculerError } = require("moleculer").Errors;
 const Utils = require("../utils/Utils");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
@@ -34,15 +34,17 @@ module.exports = {
 			async handler(ctx) {
 
 				const entity = {
-					userEmail: ctx.params.userEmail,	
+					userEmail: ctx.params[0].clientEmail,	
 					numberOfCoupons:{ $gte: 0 }
 				};
-
+				
 				let data = {
-					$inc: { numberOfCoupons: -1 }
+					$inc: { numberOfCoupons: -Number(ctx.params[0].costOfProduct) }
 				};
 
+				
 				try {
+					
 					let resultFromReducting =  await User.findOneAndUpdate(entity, data, { new: true });
 					if (!resultFromReducting) {
 						throw new MoleculerError("User has negative number of coupons", 401, "USER_HAS_NEGATIVE_NUMBER_OF_COUPONS", {
@@ -50,6 +52,7 @@ module.exports = {
 							internalErrorCode: "user41",
 						});
 					}
+					return resultFromReducting;
 				} catch (error) {
 					throw new MoleculerError("Error in reducing coupons", 401, "ERROR_REDUCING_COUPONS", {
 						message: "Error in reducing coupons",
