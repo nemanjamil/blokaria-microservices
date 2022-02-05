@@ -34,13 +34,14 @@ module.exports = {
 			async handler(ctx) {
 
 				const entity = {
-					userEmail: ctx.params[0].clientEmail,	
-					numberOfCoupons:{ $gte: 0 }
+					userEmail: ctx.params[0].clientEmail,		
 				};
-				
+				(ctx.params.publicQrCode) ?  ""   :  entity.numberOfCoupons = { $gte: 0 };
+
 				let data = {
-					$inc: { numberOfCoupons: -Number(ctx.params[0].costOfProduct) }
+					//$inc: { numberOfCoupons: -Number(ctx.params[0].costOfProduct) }
 				};
+				(ctx.params.publicQrCode) ?  ""   :  data.$inc = { numberOfCoupons: -Number(ctx.params[0].costOfProduct) };
 
 				
 				try {

@@ -37,18 +37,27 @@ module.exports = {
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
 					console.log("qrCodeStatus", qrCodeStatus);
-					console.log("ctx", ctx.params);
 					
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
+
+					console.log("reducingStatus", reducingStatus);
 					
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 
-					//let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
-					//qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
-					//let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
-					return "AAA";
+					
+					console.log("cardanoRequest", cardanoRequest);
+					console.log("rndBr", rndBr);
+					
+					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 
-					return { qrCodeStatus, cardanoStatus: cardanoRequest.data, reducingStatus }; // sendEmail, redeemStatus
+					console.log("redeemStatus", redeemStatus);
+					
+					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
+					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
+
+					console.log("sendEmail", sendEmail);
+					
+					return { qrCodeStatus, cardanoStatus: cardanoRequest.data, reducingStatus, sendEmail, redeemStatus };  
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -392,7 +401,15 @@ module.exports = {
 					string: "productLink",
 				},
 				v: {
-					string: `${process.env.BLOKARIA_WEBSITE}/status/${qrCodeDbData[0].walletQrId}`,
+					string: `/status/${qrCodeDbData[0].walletQrId}`,
+				},
+			};
+			let webSite = {
+				k: {
+					string: "webSite",
+				},
+				v: {
+					string: process.env.BLOKARIA_WEBSITE
 				},
 			};
 
@@ -406,6 +423,7 @@ module.exports = {
 			finalArray.push(clientEmail);
 			finalArray.push(clientMessage);
 			finalArray.push(productLink);
+			finalArray.push(webSite);
 			finalArray.push(internalCode);
 
 			let metaDataObj = {
@@ -431,12 +449,13 @@ module.exports = {
 
 			console.dir(dataObject, { depth: null });
 
-			return "GGG";
-
 			try {
 				let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
 				return { rndBr, cardanoRequest };
 			} catch (error) {
+
+				console.log(error);
+				
 				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", { message: error.message, internalErrorCode: "wallet202" });
 			}
 		},
