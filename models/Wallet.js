@@ -18,6 +18,7 @@ const walletSchema = new mongoose.Schema({
 	productVideo: { type: String },
 	publicQrCode: { type: Boolean, default: true },
 	costOfProduct: { type: Number, default: 0 },
+	accessCode: { type: String, required: true }, 
 	_creator: { 
 		type: ObjectId, 
 		ref: "User" 

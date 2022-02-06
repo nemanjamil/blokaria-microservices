@@ -4,7 +4,7 @@ const MongooseAdapter = require("moleculer-db-adapter-mongoose");
 const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/wallet.js");
-
+const Utils = require("../utils/Utils");
 require("dotenv").config();
 
 module.exports = {
@@ -37,27 +37,27 @@ module.exports = {
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
 					console.log("qrCodeStatus", qrCodeStatus);
-					
+
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 
 					console.log("reducingStatus", reducingStatus);
-					
+
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 
-					
+
 					console.log("cardanoRequest", cardanoRequest);
 					console.log("rndBr", rndBr);
-					
+
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 
 					console.log("redeemStatus", redeemStatus);
-					
+
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
 
 					console.log("sendEmail", sendEmail);
-					
-					return { qrCodeStatus, cardanoStatus: cardanoRequest.data, reducingStatus, sendEmail, redeemStatus };  
+
+					return { qrCodeStatus, cardanoStatus: cardanoRequest.data, reducingStatus, sendEmail, redeemStatus };
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -166,14 +166,38 @@ module.exports = {
 			try {
 				await this.checkIfQrCodeExistIndb(ctx);
 				let walletIdData = await this.getQrCodeInfo(ctx);
-				if (qrRedeemCheck) {
-					let parseObject = walletIdData[0].qrCodeRedeemStatus;
-					if (parseObject)
-						throw new MoleculerError("QR code is already redeemed", 501, "ERR_DB_INSERTING", {
+
+				switch (true) {
+					case (!qrRedeemCheck):
+						return walletIdData;
+						break;
+					case (qrRedeemCheck && walletIdData[0].qrCodeRedeemStatus):
+						throw new MoleculerError("QR code is already redeemed", 501, "ERR_DB_GETTING", {
 							message: "QR code is already redeemed",
 							internalErrorCode: "walletredeem10",
 						});
+						break;
+					case (ctx.meta.user.userEmail === walletIdData[0].userEmail):
+					case (ctx.params.accessCode === walletIdData[0].accessCode):
+						return walletIdData;
+						break;
+					case (!walletIdData[0].publicQrCode):
+						throw new MoleculerError("QR code is not publicly accessible", 501, "ERR_DB_GETTING", {
+							message: "QR code is not publicly accessible",
+							internalErrorCode: "walletredeem11",
+						});
+						break;
+					
+					default:
+						throw new MoleculerError("Something happened on getQrCodeDataMethod", 501, "ERR_DB_GETTING", {
+							message: "Something happened on getQrCodeDataMethod",
+							internalErrorCode: "walletredeem12",
+						});
+						break;
 				}
+
+
+
 
 				// let productPicture = await ctx.call("image.getProductPicture", { walletQrId: ctx.params.qrcode });
 
@@ -182,7 +206,6 @@ module.exports = {
 				// 	walletIdDataNew[0].productPicture = productPicture.productPicture;
 				// }
 
-				return walletIdData;
 			} catch (error) {
 				return Promise.reject(error);
 			}
@@ -292,11 +315,11 @@ module.exports = {
 				productName: wallet.productName,
 				publicQrCode: wallet.publicQrCode,
 				costOfProduct: wallet.costOfProduct,
+				accessCode: Utils.generatePass(),
 				_creator: user.userId,
 				_image: image._id
 			};
 
-			
 			if (wallet.productVideo) entity.productVideo = wallet.productVideo;
 
 			try {
@@ -360,7 +383,6 @@ module.exports = {
 				},
 			};
 
-			
 			let merchantMessage = {
 				k: {
 					string: "MerchantMessage",
@@ -413,7 +435,6 @@ module.exports = {
 				},
 			};
 
-			
 			let finalArray = [];
 			finalArray.push(merchantName);
 			finalArray.push(productName);
@@ -454,8 +475,6 @@ module.exports = {
 				return { rndBr, cardanoRequest };
 			} catch (error) {
 
-				console.log(error);
-				
 				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", { message: error.message, internalErrorCode: "wallet202" });
 			}
 		},
@@ -467,7 +486,7 @@ module.exports = {
 				userEmail: ctx.params.userEmail,
 			};
 			try {
-				return await Wallet.find(entity)
+				return await Wallet.find(entity).sort("-createdAt")
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 });
 			} catch (error) {

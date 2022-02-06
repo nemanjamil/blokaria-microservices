@@ -127,6 +127,7 @@ module.exports = {
 				userFullname: { type: "string" },
 				userEmail: { type: "email" },
 				productName: { type: "string" },
+				accessCode: { type: "string" },
 			},
 			async handler(ctx) {
 				try {
@@ -139,6 +140,8 @@ module.exports = {
 						userFullname: ctx.params.userFullname,
 						userEmail: userEmail,
 						productName: ctx.params.productName,
+						accessCode: ctx.params.accessCode,
+						publicQrCode: ctx.params.publicQrCode,
 						webSiteLocation: process.env.BLOKARIA_WEBSITE,
 					};
 

@@ -47,12 +47,12 @@
 				background-color: #0a701b;
 			}
 			.abutton {
-				background-color: #4a4b91;
-				font-size: 3vh;
+				background-color: #0a701b;
+				font-size: 2vh;
 				font-family: Helvetica, Arial, sans-serif;
 				font-weight: bold;
 				text-decoration: none;
-				padding: 14px 20px;
+				padding: 10px 12px;
 				color: #fefefe !important;
 				border-radius: 5px;
 				display: inline-block;
@@ -77,7 +77,7 @@
 				background-color: rgb(51, 84, 145);
 				color: rgb(238, 238, 238);
 				padding: 1rem;
-				font-size: 1vh;
+				font-size: 2vh;
 				text-align: center;
 			}
 			.main {
@@ -125,7 +125,14 @@
 					<b>What are next steps - Important !</b>
 					<p>
 						Now that you created QR code and added your details,
-						<b class="green">send this url</b> {{webSiteLocation}}/generate-contract/{{walletQrId}} to your client to
+
+						{{#if publicQrCode}}
+							<b class="green">send this url</b> {{webSiteLocation}}/generate-contract/{{walletQrId}} to your client to
+						{{else}}
+							<b class="green">send this url</b> {{webSiteLocation}}/generate-contract/{{walletQrId}}/{{accessCode}} to your client to
+						{{/if}}
+
+						
 						<b class="green">finish purchasing</b>.
 					</p>
 				</div>
@@ -133,7 +140,7 @@
 				<div class="explain">
 					<b>Generate Printable QR code in PDF.</b>
 
-					<ul>
+					<ul class="no-bullets">
 						<li>
 							You will have to print QR code. On this <a href="https://www.qrcode-monkey.com/#url" target="_blank" class="gbutton"> link </a> you
 							can generate printable PDF version.
@@ -148,7 +155,7 @@
 					<b>Take a look of Use Case presentations on our web site.</b>
 					<ul class="no-bullets">
 						<li><a href="http://localhost:3011/doc/use-case-general" target="_blank" class="abutton"> How To </a></li>
-						<li><a href="http://localhost:3011/doc/use-case-vine-rakija" target="_blank" class="abutton"> Add QR code to a Product </a></li>
+						<li><a href="http://localhost:3011/doc/use-case-product" target="_blank" class="abutton"> Add QR code to a Product </a></li>
 						<li><a href="http://localhost:3011/doc/use-case-planting-tree" target="_blank" class="abutton"> Plant a tree </a></li>
 					</ul>
 				</div>

@@ -213,7 +213,9 @@ module.exports = {
 					return { 
 						userEmail: getUser[0].userEmail, 
 						userFullName: getUser[0].userFullName, 
-						userId: getUser[0]._id 
+						userId: getUser[0]._id,
+						numberOfTransaction: getUser[0].numberOfTransaction, 
+						numberOfCoupons: getUser[0].numberOfCoupons 
 					};
 				} catch (error) {
 					return Promise.reject(error);

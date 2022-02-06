@@ -42,6 +42,8 @@ module.exports = {
 						userEmail: user.userEmail,
 						userFullName: user.userFullName,
 						userVerified: user.userVerified,
+						numberOfTransaction: user.numberOfTransaction, 
+						numberOfCoupons: user.numberOfCoupons 
 					};
 
 					return { tokenData: response, user: copyUser };
@@ -65,7 +67,7 @@ module.exports = {
 				try {
 					return jwt.verify(ctx.params.token, process.env.JWT_SECRET);	
 				} catch (error) {
-					throw new MoleculerError("Token is not verified. Please Log in.", 401, "ApiGateway.Errors.ERR_INVALID_TOKEN", {
+					throw new MoleculerError("Token is not verified or exired. Please Log Out and Log in Again.", 401, "ApiGateway.Errors.ERR_INVALID_TOKEN", {
 						message: "Token is not Valid. Please Log in.",
 						internalErrorCode: "token10",
 					});
