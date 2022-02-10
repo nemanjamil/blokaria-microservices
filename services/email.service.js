@@ -83,7 +83,7 @@ module.exports = {
 					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
 						throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
 							message: "Verification email failed",
-							internalErrorCode: "email10",
+							internalErrorCode: "email20",
 						});
 					const source = fs.readFileSync("./public/templates/contractEmail.html", "utf-8").toString();
 					const template = handlebars.compile(source);
@@ -119,6 +119,7 @@ module.exports = {
 				}
 			},
 		},
+
 		generateQrCodeEmail: {
 			rest: "POST /generateQrCodeEmail",
 			params: {
@@ -165,6 +166,7 @@ module.exports = {
 				}
 			},
 		},
+
 		sendTransactionEmail: {
 			rest: "POST /sendTransactionEmail",
 			params: {
@@ -220,6 +222,48 @@ module.exports = {
 				}
 			},
 		},
+
+		resetEmail: {
+			params: {
+				userEmail: { type: "email" },
+				clearPassword: { type: "string" },
+			},
+			async handler(ctx) {
+				const { userEmail, clearPassword, userFullname } = ctx.params;
+
+				const source = fs.readFileSync("./public/templates/resetEmail.html", "utf-8").toString();
+				const template = handlebars.compile(source);
+
+				const replacements = {
+					userFullname,
+					userEmail,
+					clearPassword,
+					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+				};
+
+				const htmlToSend = template(replacements);
+
+				try {
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Blokaria 👻" <service@blokaria.com>',
+						to: `${userEmail}`,
+						subject: "Reset Email ✔",
+						html: htmlToSend,
+					};
+
+					return await transporter.sendMail(mailOptions);
+
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
+						message: error.message,
+						internalErrorCode: "email20",
+					});
+				}
+			}
+		}
 	},
 	// events: {
 	// 	"main.sendEmail"(ctx) {

@@ -84,31 +84,6 @@ module.exports = {
 				// });
 			},
 		},
-
-		// registerUser: {
-		// 	rest: "POST /registerUser",
-		// 	authorization: false,
-		// 	params: {
-		// 		email: { type: "email" },
-		// 		password: { type: "string", min: 1 },
-		// 	},
-		// 	async handler(ctx) {
-		// 		try {
-		// 			const { email, password } = ctx.params;
-		// 			const user = await ctx.call("users.find", { email });
-		// 			if (!user) throw new MoleculerClientError("Email or password is invalid!", 422, "", [{ field: "email", message: "is not found" }]);
-		// 			const res = await utils.compare(password, user.password);
-		// 			if (!res) throw new MoleculerClientError("Wrong password!", 422, "", [{ field: "email", message: "is not found" }]);
-		// 			let expiresIn = "24h";
-		// 			return {
-		// 				token: jwt.sign({ id: user.id }, this.settings.JWT_SECRET, { expiresIn: expiresIn }),
-		// 				expiresIn: expiresIn,
-		// 			};
-		// 		} catch (error) {
-		// 			return Promise.reject(error);
-		// 		}
-		// 	},
-		// },
 	},
 	// events: {
 	// 	"main.sendEmail"(ctx) {

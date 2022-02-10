@@ -29,24 +29,25 @@ module.exports = {
 	},
 	actions: {
 
-		reduceUserCoupons : {
+		// user40
+		reduceUserCoupons: {
 
 			async handler(ctx) {
 
 				const entity = {
-					userEmail: ctx.params[0].clientEmail,		
+					userEmail: ctx.params[0].clientEmail,
 				};
-				(ctx.params.publicQrCode) ?  ""   :  entity.numberOfCoupons = { $gte: 0 };
+				(ctx.params.publicQrCode) ? "" : entity.numberOfCoupons = { $gte: 0 };
 
 				let data = {
 					//$inc: { numberOfCoupons: -Number(ctx.params[0].costOfProduct) }
 				};
-				(ctx.params.publicQrCode) ?  ""   :  data.$inc = { numberOfCoupons: -Number(ctx.params[0].costOfProduct) };
+				(ctx.params.publicQrCode) ? "" : data.$inc = { numberOfCoupons: -Number(ctx.params[0].costOfProduct) };
 
-				
+
 				try {
-					
-					let resultFromReducting =  await User.findOneAndUpdate(entity, data, { new: true });
+
+					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
 					if (!resultFromReducting) {
 						throw new MoleculerError("User has negative number of coupons. Please add coupons on profile page", 401, "USER_HAS_NEGATIVE_NUMBER_OF_COUPONS", {
 							message: "User has negative number of coupons",
@@ -61,19 +62,19 @@ module.exports = {
 					});
 				}
 			}
-		}, 
-		populateUserTable : {
+		},
+		populateUserTable: {
 			// params: {
 			// 	_id: { type: Object },
 			// },
 			async handler(ctx) {
-				
+
 				const entity = {
-					userEmail: ctx.params.userEmail,	
+					userEmail: ctx.params.userEmail,
 				};
 
 				let data = {
-					$push: { "_wallets": String(ctx.params._id)}
+					$push: { "_wallets": String(ctx.params._id) }
 				};
 
 
@@ -85,7 +86,7 @@ module.exports = {
 					/* let userFind = await User.findOne(entity);
 					let _wallets = userFind._wallets || []; 
 					_wallets.push(ctx.params._id);
-				    const updatedPost = await User.findOneAndUpdate(entity, {_wallets: _wallets}).populate({path : "_wallets"}); */
+					const updatedPost = await User.findOneAndUpdate(entity, {_wallets: _wallets}).populate({path : "_wallets"}); */
 
 
 				} catch (error) {
@@ -144,8 +145,8 @@ module.exports = {
 				}
 
 			},
-		}, 
-		userGet: {  
+		},
+		userGet: {
 			rest: "POST /userGet",
 			params: {
 				userEmail: { type: "email" },
@@ -157,12 +158,12 @@ module.exports = {
 				};
 
 				try {
-					let user = await User.find(entity, { 
-						numberOfTransaction: 1, 
-						userEmail: 1, 
-						userFullName: 1, 
-						numberOfCoupons: 1, 
-						userVerified: 1 
+					let user = await User.find(entity, {
+						numberOfTransaction: 1,
+						userEmail: 1,
+						userFullName: 1,
+						numberOfCoupons: 1,
+						userVerified: 1
 					});
 					return user;
 				} catch (error) {
@@ -173,6 +174,74 @@ module.exports = {
 				}
 
 			},
+		},
+		// user60
+		resetPassword: {
+			params: {
+				userEmail: { type: "email" }
+			},
+			async handler(ctx) {
+				const { userEmail } = ctx.params;
+
+				try {
+					let getUserData = await this.actions.userFind(ctx.params);
+					
+					if (getUserData.length < 1) {
+						throw new MoleculerError("User does not exist", 401, "USER_DOES_NOT_EXIST", {
+							message: "User does not exist",
+							internalErrorCode: "user60",
+						});
+					}
+					// here we should add updateUser availableForPassChange boolean
+
+					let sentResetEmail = await ctx.call("v1.email.resetEmail", {
+						userEmail: userEmail,
+						clearPassword: getUserData[0].clearPassword
+					});
+					
+					return sentResetEmail;
+
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			}
+		},
+		// user50
+		resetPasswordCode: {
+			params: {
+				clearPassword: { type: "string" },
+				userEmail: { type: "email" },
+				userPassword: { type: "string" }
+			},
+			async handler(ctx) {
+				
+				const entity = {
+					userEmail: ctx.params.userEmail,
+					clearPassword: ctx.params.clearPassword,
+				};
+
+				let data = {
+					"userPassword": Utils.salt(ctx.params.userPassword),
+					"clearPassword": Utils.generatePass()
+				};
+
+				try {
+
+					let userFind = await User.findOneAndUpdate(entity, data, { new: true });
+					if (!userFind) {
+						throw new MoleculerError("User and Hash do not match", 401, "UPDATE_PASSWORD_FAIL_HASH", {
+							message: "User and Hash do not match",
+							internalErrorCode: "user51",
+						});
+					}
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "UPDATE_PASSWORD_FAIL", {
+						message: error.message,
+						internalErrorCode: "user50",
+					});
+				}
+
+			}
 		}
 	},
 
