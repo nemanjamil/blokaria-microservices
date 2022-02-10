@@ -48,7 +48,7 @@ module.exports = {
 					
 					let resultFromReducting =  await User.findOneAndUpdate(entity, data, { new: true });
 					if (!resultFromReducting) {
-						throw new MoleculerError("User has negative number of coupons", 401, "USER_HAS_NEGATIVE_NUMBER_OF_COUPONS", {
+						throw new MoleculerError("User has negative number of coupons. Please add coupons on profile page", 401, "USER_HAS_NEGATIVE_NUMBER_OF_COUPONS", {
 							message: "User has negative number of coupons",
 							internalErrorCode: "user41",
 						});
@@ -56,7 +56,7 @@ module.exports = {
 					return resultFromReducting;
 				} catch (error) {
 					throw new MoleculerError("Error in reducing coupons", 401, "ERROR_REDUCING_COUPONS", {
-						message: "Error in reducing coupons",
+						message: error.message,
 						internalErrorCode: "user40",
 					});
 				}

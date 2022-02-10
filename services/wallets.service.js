@@ -44,7 +44,6 @@ module.exports = {
 
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 
-
 					console.log("cardanoRequest", cardanoRequest);
 					console.log("rndBr", rndBr);
 
@@ -168,9 +167,6 @@ module.exports = {
 				let walletIdData = await this.getQrCodeInfo(ctx);
 
 				switch (true) {
-					case (!qrRedeemCheck):
-						return walletIdData;
-						break;
 					case (qrRedeemCheck && walletIdData[0].qrCodeRedeemStatus):
 						throw new MoleculerError("QR code is already redeemed", 501, "ERR_DB_GETTING", {
 							message: "QR code is already redeemed",
@@ -187,7 +183,9 @@ module.exports = {
 							internalErrorCode: "walletredeem11",
 						});
 						break;
-					
+					case (!qrRedeemCheck):
+						return walletIdData;
+						break;
 					default:
 						throw new MoleculerError("Something happened on getQrCodeDataMethod", 501, "ERR_DB_GETTING", {
 							message: "Something happened on getQrCodeDataMethod",
