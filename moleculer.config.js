@@ -153,13 +153,13 @@ module.exports = {
 
 	// Enable/disable built-in metrics function. More info: https://moleculer.services/docs/0.14/metrics.html
 	metrics: {
-		enabled: false,
+		enabled: true,
 		// Available built-in reporters: "Console", "CSV", "Event", "Prometheus", "Datadog", "StatsD"
 		reporter: {
 			type: "Prometheus",
 			options: {
 				// HTTP port
-				port: 3030,
+				port: 3032,
 				// HTTP URL path
 				path: "/metrics",
 				// Default labels which are appended to all metrics labels
@@ -173,7 +173,7 @@ module.exports = {
 
 	// Enable built-in tracing function. More info: https://moleculer.services/docs/0.14/tracing.html
 	tracing: {
-		enabled: false,
+		enabled: true,
 		// Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
 		exporter: {
 			type: "Console", // Console exporter is only for development!
@@ -197,11 +197,17 @@ module.exports = {
 	replCommands: null,
 
 	// Called after broker created.
-	//created(broker) {},
+	created(broker) {
+
+	},
 
 	// Called after broker started.
-	//async started(broker) {},
+	async started(broker) {
+
+	},
 
 	// Called after broker stopped.
-	//async stopped(broker) {},
+	async stopped(broker) {
+
+	}
 };
