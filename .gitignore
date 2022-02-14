@@ -66,3 +66,5 @@ typings/
 #public images
 public/__uploads/
 public/images/
+
+docker-compose-local.yml

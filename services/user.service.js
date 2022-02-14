@@ -2,7 +2,7 @@
 const DbService = require("moleculer-db");
 //const jwt = require("jsonwebtoken");
 const { MoleculerError } = require("moleculer").Errors;
-const Utils = require("../utils/Utils");
+const Utils = require("../utils/utils");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
 //const Date = require("../utils/Date");
@@ -185,7 +185,7 @@ module.exports = {
 
 				try {
 					let getUserData = await this.actions.userFind(ctx.params);
-					
+
 					if (getUserData.length < 1) {
 						throw new MoleculerError("User does not exist", 401, "USER_DOES_NOT_EXIST", {
 							message: "User does not exist",
@@ -198,7 +198,7 @@ module.exports = {
 						userEmail: userEmail,
 						clearPassword: getUserData[0].clearPassword
 					});
-					
+
 					return sentResetEmail;
 
 				} catch (error) {
@@ -214,7 +214,7 @@ module.exports = {
 				userPassword: { type: "string" }
 			},
 			async handler(ctx) {
-				
+
 				const entity = {
 					userEmail: ctx.params.userEmail,
 					clearPassword: ctx.params.clearPassword,
