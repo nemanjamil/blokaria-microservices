@@ -153,7 +153,7 @@ module.exports = {
 
 	// Enable/disable built-in metrics function. More info: https://moleculer.services/docs/0.14/metrics.html
 	metrics: {
-		enabled: true,
+		enabled: false,
 		// Available built-in reporters: "Console", "CSV", "Event", "Prometheus", "Datadog", "StatsD"
 		reporter: {
 			type: "Prometheus",
@@ -197,11 +197,11 @@ module.exports = {
 	replCommands: null,
 
 	// Called after broker created.
-	created(broker) {},
+	created(broker) { },
 
 	// Called after broker started.
-	async started(broker) {},
+	async started(broker) { },
 
 	// Called after broker stopped.
-	async stopped(broker) {},
+	async stopped(broker) { },
 };

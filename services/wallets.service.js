@@ -3,7 +3,7 @@ const DbService = require("moleculer-db");
 const MongooseAdapter = require("moleculer-db-adapter-mongoose");
 const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
-const Wallet = require("../models/wallet.js");
+const Wallet = require("../models/Wallet.js");
 const Utils = require("../utils/utils");
 require("dotenv").config();
 
