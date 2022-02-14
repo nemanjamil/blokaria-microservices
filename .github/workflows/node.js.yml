@@ -25,13 +25,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run build --if-present
-      env:
-        REACT_APP_WEB_SITE: ${{ secrets.REACT_APP_WEB_SITE }}
-        REACT_APP_MOLECULER_SERVICE: ${{ secrets.REACT_APP_MOLECULER_SERVICE }}
-        REACT_APP_TESTNET: ${{ secrets.REACT_APP_MOLECURLER_SERVICE }}
-    - run: |
-        echo ${REACT_APP_MOLECULER_SERVICE}
-        echo $REACT_APP_MOLECULER_SERVICE
+    
     - name: Copy repository contents via scp
       uses: appleboy/scp-action@master
       env:
@@ -40,5 +34,17 @@ jobs:
         PORT: 22
         KEY: ${{ secrets.SSH_KEY }}
       with:
-        source: "./build/*"
-        target: "/var/www/fe-blokaria"
+        source: "."
+        target: "/var/www/be-blokaria"
+        
+    - name: SSH and deploy node app
+      uses: appleboy/ssh-action@master
+      with:
+        host: '185.193.66.140'
+        username: 'admin'
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        script: |
+          cd /var/www/be-blokaria
+          npm install
+          npm run start 
