@@ -1,4 +1,5 @@
-FROM node:current-alpine
+#FROM node:current-alpine
+FROM node:16.5.0-alpine
 
 ENV NODE_ENV=production
 
