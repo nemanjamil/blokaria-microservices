@@ -91,7 +91,7 @@ module.exports = {
 					limits: { files: 1 },
 				},
 				//callingOptions: {},
-				
+
 				logging: true,
 				callOptions: {
 					// meta: {
@@ -108,7 +108,7 @@ module.exports = {
 				authentication: false,
 				authorization: false,
 				whitelist: ["**"],
-				mappingPolicy: "restrict", 
+				mappingPolicy: "restrict",
 				autoAliases: false,
 				aliases: {
 					"POST user/registerUser": "user.registerUser",
@@ -131,7 +131,7 @@ module.exports = {
 						limit: "1MB",
 					},
 				},
-				
+
 			},
 
 			{
@@ -212,12 +212,12 @@ module.exports = {
 					let tokenVerified = await ctx.call("v1.auth.resolveToken", { token });
 					let getUser = await ctx.call("user.userFind", { userEmail: tokenVerified.userEmail });
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
-					return { 
-						userEmail: getUser[0].userEmail, 
-						userFullName: getUser[0].userFullName, 
+					return {
+						userEmail: getUser[0].userEmail,
+						userFullName: getUser[0].userFullName,
 						userId: getUser[0]._id,
-						numberOfTransaction: getUser[0].numberOfTransaction, 
-						numberOfCoupons: getUser[0].numberOfCoupons 
+						numberOfTransaction: getUser[0].numberOfTransaction,
+						numberOfCoupons: getUser[0].numberOfCoupons
 					};
 				} catch (error) {
 					return Promise.reject(error);
