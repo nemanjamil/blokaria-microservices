@@ -3,6 +3,7 @@ const DbService = require("moleculer-db");
 //const jwt = require("jsonwebtoken");
 const { MoleculerError } = require("moleculer").Errors;
 const Utils = require("../utils/utils");
+const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
 //const Date = require("../utils/Date");
@@ -29,6 +30,45 @@ module.exports = {
 	},
 	actions: {
 
+		// user70
+		reduceNumberOfTransaction: {
+			params: {
+				user: {
+					type: "object",
+					userEmail: { type: "email" },
+				}
+			},
+			async handler(ctx) {
+
+				const entity = {
+					userEmail: ctx.params.user.userEmail,
+					numberOfTransaction: { $gt: 0 }
+				};
+
+
+				let data = {
+					$inc: { numberOfTransaction: -1 }
+				};
+
+				try {
+
+					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
+
+					if (!resultFromReducting) {
+						throw new MoleculerError(strings.userReduceTrx, 401, "USER_HAS_NEGATIVE_NUMBER_OF_AVAILABLE_TRANSACTIONS", {
+							message: strings.userReduceTrx,
+							internalErrorCode: "user71",
+						});
+					}
+					return resultFromReducting;
+				} catch (error) {
+					throw new MoleculerError(strings.userErrorTrx, 401, "ERROR_REDUCING_TRANSACTIONS", {
+						message: error.message,
+						internalErrorCode: "user70",
+					});
+				}
+			}
+		},
 		// user40
 		reduceUserCoupons: {
 
