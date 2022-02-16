@@ -45,18 +45,18 @@ module.exports = {
 
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
-
-					// ovde treba da ubacim User -1 numberOfTransaction
-
 					console.log("storedIntoDb", storedIntoDb);
-					
+
+					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
+					console.log("reducedNumberOfTransaction", reducedNumberOfTransaction);
+
 
 					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					meta.$multipart.accessCode = storedIntoDb.accessCode;
 					meta.$multipart.publicQrCode = storedIntoDb.publicQrCode;
 
 					console.log("meta.$multipart", meta.$multipart);
-					
+
 					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
 
 					return storedIntoDb;
