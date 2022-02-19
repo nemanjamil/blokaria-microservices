@@ -62,7 +62,7 @@ module.exports = {
 					}
 					return resultFromReducting;
 				} catch (error) {
-					throw new MoleculerError(strings.userErrorTrx, 401, "ERROR_REDUCING_TRANSACTIONS", {
+					throw new MoleculerError(strings.userReduceTrx, 401, "ERROR_REDUCING_TRANSACTIONS", {
 						message: error.message,
 						internalErrorCode: "user70",
 					});
