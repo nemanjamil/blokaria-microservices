@@ -12,6 +12,6 @@ RUN npm install --production
 
 COPY . .
 
-EXPOSE 3022
+#EXPOSE 3022
 
 CMD ["npm", "start"]
