@@ -68,3 +68,4 @@ public/__uploads/
 public/images/
 
 docker-compose-local.yml
+docker-compose-local.env

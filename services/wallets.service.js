@@ -1,6 +1,6 @@
 "use strict";
 const DbService = require("moleculer-db");
-const MongooseAdapter = require("moleculer-db-adapter-mongoose");
+const dbConnection = require("../utils/dbConnection");
 const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/Wallet.js");
@@ -11,11 +11,7 @@ module.exports = {
 	name: "wallet",
 	logger: true,
 	mixins: [DbService, axiosMixin],
-	adapter: new MongooseAdapter("mongodb://localhost/blokariawallet", {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-		useCreateIndex: true,
-	}),
+	adapter: dbConnection.getMongooseAdapter(),
 	model: Wallet,
 
 	actions: {

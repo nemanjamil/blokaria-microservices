@@ -1,6 +1,6 @@
 "use strict";
 const DbService = require("moleculer-db");
-const MongooseAdapter = require("moleculer-db-adapter-mongoose");
+const dbConnection = require("../utils/dbConnection");
 const Image = require("../models/Image");
 const slugify = require("slugify");
 const { MoleculerError } = require("moleculer").Errors;
@@ -15,11 +15,7 @@ mkdir(uploadDir);
 module.exports = {
 	name: "image",
 	mixins: [DbService],
-	adapter: new MongooseAdapter("mongodb://localhost/blokariawallet", {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-		useCreateIndex: true,
-	}),
+	adapter: dbConnection.getMongooseAdapter(),
 	model: Image,
 
 	actions: {
