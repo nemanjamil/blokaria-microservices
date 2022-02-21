@@ -165,7 +165,7 @@ module.exports = {
 				switch (true) {
 					case (!qrRedeemCheck):
 						return walletIdData;
-					case (qrRedeemCheck && walletIdData[0].qrCodeRedeemStatus):
+					case (qrRedeemCheck && walletIdData[0].qrCodeRedeemStatus > 0):
 						throw new MoleculerError("QR code is already redeemed", 501, "ERR_DB_GETTING", {
 							message: "QR code is already redeemed",
 							internalErrorCode: "walletredeem10",
