@@ -49,5 +49,5 @@ jobs:
           port: 22
           script: |
             cd /var/www/be-blokaria
-            docker-compose pull
-            docker-compose up --force-recreate -d
+            docker-compose -f docker-compose-local.yml pull
+            docker-compose -f docker-compose-local.yml up --force-recreate -d
