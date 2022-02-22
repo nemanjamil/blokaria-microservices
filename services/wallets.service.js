@@ -163,38 +163,38 @@ module.exports = {
 				await this.checkIfQrCodeExistIndb(ctx);
 				let walletIdData = await this.getQrCodeInfo(ctx);
 
+				console.log('qrRedeemCheck', qrRedeemCheck);
+				console.log('walletIdData', walletIdData);
+				console.log('ctx.meta.user', ctx.meta.user);
+				console.log('ctx.params', ctx.params);
+
 				switch (true) {
 					case (!qrRedeemCheck):
+						console.log('1');
 						return walletIdData;
 					case (qrRedeemCheck && walletIdData[0].qrCodeRedeemStatus > 0):
+						console.log('2');
 						throw new MoleculerError("QR code is already redeemed", 501, "ERR_DB_GETTING", {
 							message: "QR code is already redeemed",
 							internalErrorCode: "walletredeem10",
 						});
 					case (ctx.meta.user.userEmail === walletIdData[0].userEmail):
-					case (ctx.params.accessCode === walletIdData[0].accessCode):
+					case (ctx.params.accessCode && (ctx.params.accessCode === walletIdData[0].accessCode)):
+						console.log('3');
 						return walletIdData;
-					case (!walletIdData[0].publicQrCode):
+					case (walletIdData[0].publicQrCode === false):
+						console.log('4');
 						throw new MoleculerError("QR code is not publicly accessible", 501, "ERR_DB_GETTING", {
 							message: "QR code is not publicly accessible",
 							internalErrorCode: "walletredeem11",
 						});
 					default:
-						throw new MoleculerError("Something happened on getQrCodeDataMethod", 501, "ERR_DB_GETTING", {
-							message: "Something happened on getQrCodeDataMethod",
-							internalErrorCode: "walletredeem12",
-						});
+						return walletIdData;
+					// throw new MoleculerError("Something happened on getQrCodeDataMethod", 501, "ERR_DB_GETTING", {
+					// 	message: "Something happened on getQrCodeDataMethod",
+					// 	internalErrorCode: "walletredeem12",
+					// });
 				}
-
-
-
-
-				// let productPicture = await ctx.call("image.getProductPicture", { walletQrId: ctx.params.qrcode });
-
-				// let walletIdDataNew = [...walletIdData];
-				// if (productPicture) {
-				// 	walletIdDataNew[0].productPicture = productPicture.productPicture;
-				// }
 
 			} catch (error) {
 				return Promise.reject(error);
