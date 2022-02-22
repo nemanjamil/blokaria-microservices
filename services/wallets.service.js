@@ -119,7 +119,8 @@ module.exports = {
 				ctx.params.userEmail = ctx.meta.user.userEmail;
 				try {
 					let listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
-					return listQrCodesByUser;
+					let listQrCodesOwnedByUser = await this.getlistQrCodesOwnedByUserMethod(ctx);
+					return { listQrCodesByUser, listQrCodesOwnedByUser };
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -487,6 +488,21 @@ module.exports = {
 			// } catch (error) {
 			// 	throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
 			// }
+		},
+
+		// wallet130
+		async getlistQrCodesOwnedByUserMethod(ctx) {
+
+			const entity = {
+				clientEmail: ctx.params.userEmail,
+			};
+			try {
+				return await Wallet.find(entity).sort("-createdAt")
+					.populate("_creator", { userFullName: 1, userEmail: 1 })
+					.populate("_image", { productPicture: 1 });
+			} catch (error) {
+				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet130" });
+			}
 		},
 
 		// wallet120
