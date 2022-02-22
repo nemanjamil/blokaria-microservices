@@ -48,6 +48,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
-            cd /var/www/be-blokaria
+            cd /var/www/docker-compose
             docker-compose -f docker-compose-local.yml pull
             docker-compose -f docker-compose-local.yml up --force-recreate -d
