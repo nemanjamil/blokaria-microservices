@@ -30,6 +30,56 @@ module.exports = {
 	},
 	actions: {
 
+		// user80
+		addCouponsAndQrCodesToUser: {
+			rest: "POST /addCouponsAndQrCodesToUser",
+			params: {
+				userEmail: { type: "email" },
+				emailVerificationId: { type: "number" },
+				what: { type: "string" },
+				howmany: { type: "number" },
+			},
+			async handler(ctx) {
+
+				if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
+					throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
+						message: "Verification email failed",
+						internalErrorCode: "email20",
+					});
+
+				let what = ctx.params.what;
+				let howmany = ctx.params.howmany;
+
+				console.log(what, howmany);
+
+
+				const entity = {
+					userEmail: ctx.params.userEmail,
+				};
+
+				let data = {};
+				data[what] = howmany;
+
+				try {
+
+					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
+
+					if (!resultFromReducting) {
+						throw new MoleculerError(strings.userReduceTrx, 401, "USER_HAS_NEGATIVE_NUMBER_OF_AVAILABLE_TRANSACTIONS", {
+							message: strings.userReduceTrx,
+							internalErrorCode: "user81",
+						});
+					}
+					return resultFromReducting;
+				} catch (error) {
+					throw new MoleculerError(strings.userReduceTrx, 401, "ERROR_REDUCING_TRANSACTIONS", {
+						message: error.message,
+						internalErrorCode: "user80",
+					});
+				}
+			}
+		},
+
 		// user70
 		reduceNumberOfTransaction: {
 			params: {
