@@ -31,7 +31,7 @@ module.exports = {
 					if (!user) throw new MoleculerClientError("User does not exist", 422, "USER_FIND_ERROR", { message: "email is not found", internalErrorCode: "auth10" });
 					const res = await Utils.compare(userPassword, users[0].userPassword);
 					if (!res) throw new MoleculerClientError("Password incorrect", 403, "COMPARE_PASSWORDS_ERROR", { message: "password do not match", internalErrorCode: "auth20" });
-					let expiresIn = "1h";
+					let expiresIn = "72h";
 					let response = {
 						token: jwt.sign({ userEmail: userEmail }, process.env.JWT_SECRET, { expiresIn: expiresIn }),
 						expiresIn: expiresIn,
