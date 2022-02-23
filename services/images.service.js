@@ -28,6 +28,50 @@ module.exports = {
 				}
 			},
 		},
+		deleteQrCodeImage: {
+			async handler(ctx) {
+				try {
+
+					let imageLink = `./public/${ctx.params.allowedToDelete[0]._image[0].productPicture}`;
+					let imageLinkDir = `./public/__uploads/${ctx.params.allowedToDelete[0].userEmail}/${ctx.params.allowedToDelete[0].walletQrId}`;
+
+					let responseImageRemoval = "";
+					let responseDirRemoval = "";
+
+					return new Promise((resolve, reject) => {
+
+						fs.unlink(imageLink, function (err) {
+							if (err && err.code == 'ENOENT') {
+								responseImageRemoval = "File doesn't exist, won't remove it.";
+								reject(responseImageRemoval);
+							} else if (err) {
+								responseImageRemoval = "Error occurred while trying to remove file";
+								reject(responseImageRemoval);
+							} else {
+								console.log("Removed Image");
+
+								responseImageRemoval = "Removed Image";
+
+								fs.rmdir(imageLinkDir, (err) => {
+									if (err) {
+										responseDirRemoval = err;
+										console.log(responseDirRemoval);
+									} else {
+										responseDirRemoval = "IMAGE DIR REMOVED OK";
+										console.log(responseDirRemoval);
+									}
+								});
+
+								resolve(responseImageRemoval);
+							}
+						});
+					});
+
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
 
 		saveImageAndData: {
 			// params: {

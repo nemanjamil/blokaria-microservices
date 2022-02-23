@@ -25,6 +25,23 @@ module.exports = {
 				}
 			},
 		},
+		deleteQrCode: {
+			rest: "POST /deleteQrCode",
+			params: {
+				walletQrId: { type: "string" },
+			},
+			async handler(ctx) {
+				try {
+					let allowedToDelete = await this.allowedToDeleteModel(ctx);
+					let deleteQrCode = await this.deleteQrCodeModel(ctx);
+					let responseDeleteImage = await ctx.call("image.deleteQrCodeImage", { allowedToDelete });
+					return { allowedToDelete, deleteQrCode, responseDeleteImage };
+
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
 
 		generateQrCodeInSystem: {
 			rest: "POST /generateQrCodeInSystem",
@@ -501,6 +518,18 @@ module.exports = {
 			// }
 		},
 
+		// wallet120
+		async getListQrCodesGeneral(ctx) {
+			const entity = {};
+			try {
+				return await Wallet.find(entity).skip(ctx.params.skip).limit(ctx.params.limit).sort({ createdAt: -1 })
+					.populate("_creator", { userFullName: 1, userEmail: 1 })
+					.populate("_image", { productPicture: 1 });
+			} catch (error) {
+				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
+			}
+		},
+
 		// wallet130
 		async getlistQrCodesOwnedByUserMethod(ctx) {
 
@@ -513,18 +542,6 @@ module.exports = {
 					.populate("_image", { productPicture: 1 });
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet130" });
-			}
-		},
-
-		// wallet120
-		async getListQrCodesGeneral(ctx) {
-			const entity = {};
-			try {
-				return await Wallet.find(entity).skip(ctx.params.skip).limit(ctx.params.limit).sort({ createdAt: -1 })
-					.populate("_creator", { userFullName: 1, userEmail: 1 })
-					.populate("_image", { productPicture: 1 });
-			} catch (error) {
-				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
 			}
 		},
 
@@ -541,5 +558,35 @@ module.exports = {
 				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet140" });
 			}
 		},
+
+		// wallet150
+		async deleteQrCodeModel(ctx) {
+			let data = {
+				walletQrId: ctx.params.walletQrId
+			};
+			try {
+				return await Wallet.deleteOne(data);
+			} catch (error) {
+				throw new MoleculerError("Error Delete Qr codes", 501, "ERROR_DELETE_QR_CODES", { message: error.message, internalErrorCode: "wallet150" });
+			}
+		},
+
+		// wallet160
+		async allowedToDeleteModel(ctx) {
+			const entity = {
+				walletQrId: ctx.params.walletQrId,
+			};
+			try {
+				let qrCodeData = await Wallet.find(entity).populate("_image", { productPicture: 1 });
+				if (qrCodeData[0].userEmail === ctx.meta.user.userEmail) {
+					return qrCodeData;
+				} else {
+					throw new MoleculerError("Error Delete Qr codes check Parmissions", 501, "ERROR_DELETE_QR_CODES_PERMISSIONS", { message: "Data do not match", internalErrorCode: "wallet161" });
+				}
+			} catch (error) {
+				throw new MoleculerError("Error Delete Qr codes check Parmissions", 501, "ERROR_DELETE_QR_CODES_PERMISSIONS", { message: error.message, internalErrorCode: "wallet160" });
+			}
+		},
+
 	},
 };
