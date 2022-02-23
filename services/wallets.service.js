@@ -15,6 +15,17 @@ module.exports = {
 	model: Wallet,
 
 	actions: {
+
+		getListQrCodesOwners: {
+			async handler() {
+				try {
+					return await this.getListQrCodesOwnersModel();
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
 		generateQrCodeInSystem: {
 			rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
@@ -514,6 +525,20 @@ module.exports = {
 					.populate("_image", { productPicture: 1 });
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
+			}
+		},
+
+		// wallet140
+		async getListQrCodesOwnersModel() {
+			try {
+				return await Wallet.aggregate()
+					.group({ _id: "$userEmail", count: { $sum: 1 } })
+					.lookup({ from: "users", localField: "_id", foreignField: "userEmail", as: "userInfo" })
+					.match({ "userInfo": { "$exists": true, "$not": { $size: 0 } } })
+					.project({ _id: 0, count: "$count", userFullName: "$userInfo.userFullName", userEmail: "$userInfo.userEmail" })
+					.exec();
+			} catch (error) {
+				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet140" });
 			}
 		},
 	},

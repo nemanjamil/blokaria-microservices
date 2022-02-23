@@ -118,6 +118,7 @@ module.exports = {
 					"POST wallet/getQrCodeDataNoRedeem": "wallet.getQrCodeDataNoRedeem",
 					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
 					"POST wallet/getListQrCodesGeneral": "wallet.getListQrCodesGeneral",
+					"POST wallet/getListQrCodesOwners": "wallet.getListQrCodesOwners",
 				},
 				callingOptions: {},
 
