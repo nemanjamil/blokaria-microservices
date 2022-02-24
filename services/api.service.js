@@ -66,7 +66,7 @@ module.exports = {
 						busboyConfig: {
 							limits: {
 								files: 1,
-								fileSize: 12 * 1024 * 1024, // 6MB - ADD RESIZE IN CODE
+								fileSize: 2 * 1024 * 1024, // 2MB - ADD RESIZE IN CODE
 							},
 							onPartsLimit(busboy, alias, svc) {
 								this.logger.info("Busboy parts limit!", busboy);
