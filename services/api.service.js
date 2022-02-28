@@ -56,11 +56,9 @@ module.exports = {
 				use: [],
 				authentication: true,
 				authorization: false,
-				autoAliases: true,
+				autoAliases: false,
 				mappingPolicy: "restrict", // Available values: "all", "restrict"
 				aliases: {
-					//"POST /": "multipart:image.testiranje",
-					//"PUT /:id": "stream:image.testiranje",
 					"POST /multi": {
 						type: "multipart",
 						busboyConfig: {
@@ -143,9 +141,15 @@ module.exports = {
 				authorization: false,
 				whitelist: ["**"],
 				mappingPolicy: "restrict",  // restrict 
-				autoAliases: true,
+				autoAliases: false,
 				aliases: {
-					//"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
+					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
+					"POST user/registerUser": "user.registerUser",
+					"POST user/userGet": "user.userGet",
+					"POST wallet/getListQrCodesByUserPrivate": "wallet.getListQrCodesByUserPrivate",
+					"POST wallet/getQrCodeData": "wallet.getQrCodeData",
+					"POST wallet/generateContract": "wallet.generateContract",
+					"POST wallet/initiateTransactionToClientWallet": "wallet.initiateTransactionToClientWallet",
 				},
 				callingOptions: {},
 

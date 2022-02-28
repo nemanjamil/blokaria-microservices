@@ -84,12 +84,7 @@ module.exports = {
 			},
 		},
 	},
-	// events: {
-	// 	"main.sendEmail"(ctx) {
-	// 		this.logger.info("User created:", ctx.params);
-	// 		// Do something
-	// 	},
-	// },
+
 
 	methods: {
 		sendMailMethod: {
