@@ -5,6 +5,9 @@ const dbConnection = {
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
 			useCreateIndex: true,
+			user: process.env.MONGO_USERNAME,
+			pass: process.env.MONGO_PASSWORD,
+			keepAlive: true
 		});
 	},
 };
