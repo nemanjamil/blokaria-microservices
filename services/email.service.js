@@ -52,7 +52,7 @@ module.exports = {
 					const mailOptions = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
-						to: "nemanjamil@gmail.com", //  ${userEmail}
+						to: `${userEmail}`,
 						subject: "Register User ✔",
 						html: htmlToSend,
 					};
