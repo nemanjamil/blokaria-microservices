@@ -263,14 +263,54 @@ module.exports = {
 					});
 				}
 			}
+		},
+		sendContractEmail: {
+			async handler(ctx) {
+				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.meta.user;
+				const { userEmail, userFullname, clientEmail, clientName, productName, accessCode, walletQrId, } = ctx.params.walletIdData[0];
+
+				const source = fs.readFileSync("./public/templates/initiateProgressEmail.html", "utf-8").toString();
+				const template = handlebars.compile(source);
+
+				const replacements = {
+					walletQrId,
+					userEmailRegUser,
+					userFullNameRegUser,
+					userFullname,
+					userEmail,
+					clientEmail,
+					clientName,
+					productName,
+					accessCode,
+					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+				};
+
+				const htmlToSend = template(replacements);
+
+				try {
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Blokaria 👻" <service@blokaria.com>',
+						to: `${userEmail}`,
+						subject: "Product Confirmation Email ✔",
+						html: htmlToSend,
+					};
+
+					return await transporter.sendMail(mailOptions);
+
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
+						message: error.message,
+						internalErrorCode: "email50",
+					});
+				}
+
+			}
 		}
 	},
-	// events: {
-	// 	"main.sendEmail"(ctx) {
-	// 		this.logger.info("User created:", ctx.params);
-	// 		// Do something
-	// 	},
-	// },
+
 
 	methods: {
 		sendMailMethod: {

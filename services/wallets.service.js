@@ -25,6 +25,7 @@ module.exports = {
 				}
 			},
 		},
+
 		deleteQrCode: {
 			rest: "POST /deleteQrCode",
 			params: {
@@ -180,6 +181,24 @@ module.exports = {
 				}
 			},
 		},
+
+		sendContractEmail: {
+			params: {
+				qrcode: { type: "string" },
+				clientEmail: { type: "string" },
+			},
+			async handler(ctx) {
+				try {
+					let walletIdData = await this.getQrCodeInfo(ctx);
+					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmail", { ctx, walletIdData });
+					return sendContractEmailRes;
+
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		}
+
 
 
 	},

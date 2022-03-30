@@ -151,6 +151,7 @@ module.exports = {
 					"POST wallet/generateContract": "wallet.generateContract",
 					"POST wallet/initiateTransactionToClientWallet": "wallet.initiateTransactionToClientWallet",
 					"POST wallet/deleteQrCode": "wallet.deleteQrCode",
+					"POST wallet/sendContractEmail": "wallet.sendContractEmail",
 				},
 				callingOptions: {},
 
