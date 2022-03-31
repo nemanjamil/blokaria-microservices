@@ -118,20 +118,19 @@
 			<div class="line"></div>
 			<div class="main">
 				<div class="content">
-					<div class="hello">Hi {{userEmail}}!</div>
-					<div class="instruction">User {{userFullNameRegUser}} is interested in your product</div>
+					<div class="hello">Hi {{clientName}}!</div>
+					<div class="instruction">User {{userFullname}} has allowed you to start transaction</div>
 					
 
-                    <div class="instruction">Click on this link for approval :</div>
-					<a href="{{transactionApprovalLink}}" target="_blank" class="abutton">
-						<span style="mso-text-raise: 15pt">GO &rarr;</span>
+                    <div class="instruction">Click on this link :</div>
+					<a href="{{webSiteLocation}}/generate-contract/{{walletQrId}}/{{accessCode}}" target="_blank" class="abutton">
+						<span style="mso-text-raise: 15pt">Start &rarr;</span>
 					</a>
 
 
 					<div class="instruction">    
-                        <b class="green">Or you can send manualy this url</b> {{webSiteLocation}}/generate-contract/{{walletQrId}}/{{accessCode}} to your client
+                        <b class="green">Or you can copy this url</b> {{webSiteLocation}}/generate-contract/{{walletQrId}}/{{accessCode}} to your client
                     </div>
-					<div class="instruction">Client email: {{userEmailRegUser}}</div>
 					
 					
 				</div>

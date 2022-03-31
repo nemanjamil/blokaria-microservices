@@ -197,6 +197,24 @@ module.exports = {
 					return Promise.reject(error);
 				}
 			},
+		},
+
+		sendApprovalToClient: {
+			params: {
+				clientEmail: { type: "email" },
+				qrcode: { type: "string" },
+				clientName: { type: "string" }
+			},
+			async handler(ctx) {
+				const { clientEmail, clientName } = ctx.params;
+
+				let walletIdData = await this.getQrCodeInfo(ctx);
+				let sendApprovalToClientRes = await ctx.call("v1.email.sendApprovalToClient", { ctx, walletIdData, clientEmail, clientName });
+
+				return sendApprovalToClientRes;
+
+
+			}
 		}
 
 
@@ -210,27 +228,22 @@ module.exports = {
 				await this.checkIfQrCodeExistIndb(ctx);
 				let walletIdData = await this.getQrCodeInfo(ctx);
 
-				console.log('qrRedeemCheck', qrRedeemCheck);
-				console.log('walletIdData', walletIdData);
-				console.log('ctx.meta.user', ctx.meta.user);
-				console.log('ctx.params', ctx.params);
-
 				switch (true) {
 					case (!qrRedeemCheck):
-						console.log('1');
+
 						return walletIdData;
 					case (qrRedeemCheck && walletIdData[0].qrCodeRedeemStatus > 0):
-						console.log('2');
+
 						throw new MoleculerError("QR code is already redeemed", 501, "ERR_DB_GETTING", {
 							message: "QR code is already redeemed",
 							internalErrorCode: "walletredeem10",
 						});
 					case (ctx.meta.user.userEmail === walletIdData[0].userEmail):
 					case (ctx.params.accessCode && (ctx.params.accessCode === walletIdData[0].accessCode)):
-						console.log('3');
+
 						return walletIdData;
 					case (walletIdData[0].publicQrCode === false):
-						console.log('4');
+
 						throw new MoleculerError("QR code is not publicly accessible", 501, "ERR_DB_GETTING", {
 							message: "QR code is not publicly accessible",
 							internalErrorCode: "walletredeem11",

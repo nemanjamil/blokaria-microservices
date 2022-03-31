@@ -283,6 +283,7 @@ module.exports = {
 					productName,
 					accessCode,
 					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+					transactionApprovalLink: `${process.env.BLOKARIA_WEBSITE}/creator-approval?walletQrId=${walletQrId}&clientEmail=${userEmailRegUser}&clientName=${userFullNameRegUser}`,
 				};
 
 				const htmlToSend = template(replacements);
@@ -306,6 +307,52 @@ module.exports = {
 						internalErrorCode: "email50",
 					});
 				}
+
+			}
+		},
+
+		sendApprovalToClient: {
+
+			async handler(ctx) {
+				const { userEmail, userFullname, productName, accessCode, walletQrId, } = ctx.params.walletIdData[0];
+				const clientEmail = ctx.params.clientEmail;
+				const clientName = ctx.params.clientName;
+
+				const source = fs.readFileSync("./public/templates/qrCodeApproval.html", "utf-8").toString();
+				const template = handlebars.compile(source);
+				const replacements = {
+					walletQrId,
+					userFullname,
+					userEmail,
+					clientEmail,
+					clientName,
+					productName,
+					accessCode,
+					webSiteLocation: process.env.BLOKARIA_WEBSITE
+				};
+
+				const htmlToSend = template(replacements);
+
+				try {
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Blokaria 👻" <service@blokaria.com>',
+						to: `${clientEmail}`,
+						subject: "Product Approval Email ✔",
+						html: htmlToSend,
+					};
+
+					return await transporter.sendMail(mailOptions);
+
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
+						message: error.message,
+						internalErrorCode: "email50",
+					});
+				}
+
 
 			}
 		}
