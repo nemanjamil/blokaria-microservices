@@ -18,7 +18,9 @@ module.exports = {
 	settings: {
 		JWT_SECRET: process.env.JWT_SECRET
 	},
+
 	model: User,
+
 	hooks: {
 		// before: {
 		// 	async create(ctx) {
@@ -28,6 +30,7 @@ module.exports = {
 		// 	},
 		// },
 	},
+
 	actions: {
 
 		// user80
@@ -119,6 +122,7 @@ module.exports = {
 				}
 			}
 		},
+
 		// user40
 		reduceUserCoupons: {
 
@@ -153,6 +157,7 @@ module.exports = {
 				}
 			}
 		},
+
 		populateUserTable: {
 			// params: {
 			// 	_id: { type: Object },
@@ -187,6 +192,7 @@ module.exports = {
 				}
 			}
 		},
+
 		registerUser: {
 			//rest: "POST /registerUser",
 			params: {
@@ -213,6 +219,7 @@ module.exports = {
 				}
 			},
 		},
+
 		userFind: {  // this is for LogIn 
 			rest: "POST /userfind",
 			params: {
@@ -236,6 +243,7 @@ module.exports = {
 
 			},
 		},
+
 		userGet: {
 			rest: "POST /userGet",
 			params: {
@@ -265,6 +273,7 @@ module.exports = {
 
 			},
 		},
+
 		// user60
 		resetPassword: {
 			params: {
@@ -296,6 +305,7 @@ module.exports = {
 				}
 			}
 		},
+
 		// user50
 		resetPasswordCode: {
 			params: {
