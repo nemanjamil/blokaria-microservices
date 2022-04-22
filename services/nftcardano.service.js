@@ -10,6 +10,7 @@ module.exports = {
     adapter: dbConnection.getMongooseAdapter(),
     model: Nftcardano,
 
+
     actions: {
         createCardanoNft: {
             async handler() {
