@@ -18,8 +18,8 @@ module.exports = {
                     let dataObject = {
                         test: "Test Obj"
                     };
-                    let cardanoRequest = await this.axiosPost("172.20.0.1:3333", dataObject);
-                    return cardanoRequest;
+                    let cardanoRequest = await this.axiosPost("http://172.20.0.1:3333", dataObject);
+                    return cardanoRequest.data;
                 } catch (error) {
                     return Promise.reject(error);
                 }
