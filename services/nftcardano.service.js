@@ -6,7 +6,7 @@ const Nftcardano = require("../models/Nftcardano");
 
 module.exports = {
     name: "nftcardano",
-    mixins: [DbService, axiosMixin], // Cardano
+    mixins: [DbService, axiosMixin],
     adapter: dbConnection.getMongooseAdapter(),
     model: Nftcardano,
 
@@ -14,21 +14,16 @@ module.exports = {
     actions: {
         createCardanoNft: {
             async handler() {
-                let dataObject = {
-                    opala: "jedan"
-                };
                 try {
-                    let cardanoNftRequest = await this.axiosPost("172.20.0.1:3333", dataObject);
-                    return cardanoNftRequest;
+                    let dataObject = {
+                        test: "Test Obj"
+                    };
+                    let cardanoRequest = await this.axiosPost("172.20.0.1:3333", dataObject);
+                    return cardanoRequest;
                 } catch (error) {
                     return Promise.reject(error);
                 }
             },
         }
-    },
-
-    methods: {},
-    settings: {},
-    dependencies: [],
-    events: {},
+    }
 };
