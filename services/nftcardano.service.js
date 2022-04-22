@@ -12,12 +12,18 @@ module.exports = {
 
     actions: {
         createCardanoNft: {
-            async handler() {
+            params: {
+                imageIPFS: { type: "string" },
+                assetName: { type: "string" },
+                description: { type: "string" },
+                authors: { type: "string", optional: true },
+                copyright: { type: "string", optional: true },
+            },
+
+            async handler(ctx) {
                 try {
-                    let dataObject = {
-                        test: "Test Obj"
-                    };
-                    let cardanoRequest = await this.axiosPost("http://172.20.0.1:3333", dataObject);
+                    console.log('ctx.params', ctx.params);
+                    let cardanoRequest = await this.axiosPost("http://172.20.0.1:3333", ctx.params);
                     return cardanoRequest.data;
                 } catch (error) {
                     return Promise.reject(error);
