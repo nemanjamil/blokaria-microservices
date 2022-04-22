@@ -16,7 +16,7 @@ module.exports = {
                 imageIPFS: { type: "string" },
                 assetName: { type: "string" },
                 description: { type: "string" },
-                authors: { type: "string", optional: true },
+                authors: { type: "array", optional: true },
                 copyright: { type: "string", optional: true },
             },
 
