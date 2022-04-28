@@ -89,7 +89,14 @@ module.exports = {
 		},
 
 		generateContract: {
-			rest: "POST /generateContract",
+			params: {
+				clientName: { type: "string" },
+				clientEmail: { type: "email" },
+				clientMessage: { type: "string" },
+				qrcode: { type: "string" },
+				nftimage: { type: "string", optional: true },
+				cbnftimage: { type: "boolean", default: false },
+			},
 			async handler(ctx) {
 				try {
 					await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
@@ -275,6 +282,8 @@ module.exports = {
 				clientMessage: ctx.params.clientMessage,
 				clientEmail: ctx.params.clientEmail,
 				clientName: ctx.params.clientName,
+				nftimage: ctx.params.nftimage ? ctx.params.nftimage : null,
+				cbnftimage: ctx.params.cbnftimage
 			};
 
 			try {
@@ -483,6 +492,15 @@ module.exports = {
 				},
 			};
 
+			let nftimage = {
+				k: {
+					string: "nftimage",
+				},
+				v: {
+					string: qrCodeDbData[0].nftimage,
+				},
+			};
+
 			let finalArray = [];
 			finalArray.push(merchantName);
 			finalArray.push(productName);
@@ -494,6 +512,7 @@ module.exports = {
 			finalArray.push(productLink);
 			finalArray.push(webSite);
 			finalArray.push(internalCode);
+			(qrCodeDbData[0].nftimage) ? finalArray.push(nftimage) : "";
 
 			let metaDataObj = {
 				[rndBr]: {

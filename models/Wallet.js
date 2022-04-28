@@ -18,14 +18,16 @@ const walletSchema = new mongoose.Schema({
 	productVideo: { type: String },
 	publicQrCode: { type: Boolean, default: true },
 	costOfProduct: { type: Number, default: 0 },
-	accessCode: { type: String, required: true }, 
-	_creator: { 
-		type: ObjectId, 
-		ref: "User" 
+	accessCode: { type: String, required: true },
+	nftimage: { type: String, default: null },
+	cbnftimage: { type: Boolean, default: false },
+	_creator: {
+		type: ObjectId,
+		ref: "User"
 	},
-	_image: [{ 
-		type: ObjectId, 
-		ref: "Image" 
+	_image: [{
+		type: ObjectId,
+		ref: "Image"
 	}],
 });
 
