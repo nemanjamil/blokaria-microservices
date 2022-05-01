@@ -18,6 +18,7 @@ module.exports = {
                 description: { type: "string" },
                 authors: { type: "array", optional: true },
                 copyright: { type: "string", optional: true },
+                walletName: { type: "string" }
             },
 
             async handler(ctx) {
