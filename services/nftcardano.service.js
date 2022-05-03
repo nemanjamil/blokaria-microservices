@@ -82,7 +82,7 @@ module.exports = {
                         assetId: ctx.params.assetId
                     };
                     console.log("payloadToWallet", payloadToWallet);
-                    let sendAssetToWallet = await this.axiosPost("http://172.20.0.1:3333/mintNFT", payloadToWallet);
+                    let sendAssetToWallet = await this.axiosPost("http://172.20.0.1:3333/sendAssetToWallet", payloadToWallet);
                     return { sendAssetToWallet: sendAssetToWallet.data };
 
                 } catch (error) {
