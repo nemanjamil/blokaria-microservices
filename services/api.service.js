@@ -154,6 +154,8 @@ module.exports = {
 					"POST wallet/deleteQrCode": "wallet.deleteQrCode",
 					"POST wallet/sendContractEmail": "wallet.sendContractEmail",
 					"POST nftcardano/createCardanoNft": "nftcardano.createCardanoNft",
+					"POST nftcardano/createCardanoNftWithAssigWallet": "nftcardano.createCardanoNftWithAssigWallet",
+					"POST nftcardano/sendAssetToWallet": "nftcardano.sendAssetToWallet",
 				},
 				callingOptions: {},
 
