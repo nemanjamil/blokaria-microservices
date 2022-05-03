@@ -54,7 +54,7 @@ module.exports = {
 
                     console.log("addressWallet", addressWallet);
 
-                    let mintNft = await this.axiosPost("http://172.20.0.1:3333", ctx.params);
+                    let mintNft = await this.axiosPost("http://172.20.0.1:3333/generateNFT", ctx.params);
 
                     console.log("mintNft", mintNft.data);
 
