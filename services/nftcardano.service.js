@@ -24,7 +24,7 @@ module.exports = {
             async handler(ctx) {
                 try {
                     console.log("ctx.params", ctx.params);
-                    let mintNft = await this.axiosPost("http://172.20.0.1:3333", ctx.params);
+                    let mintNft = await this.axiosPost("http://172.20.0.1:3333/generateNFT", ctx.params);
                     return { mintNFT: mintNft.data };
                 } catch (error) {
                     return Promise.reject(error);
