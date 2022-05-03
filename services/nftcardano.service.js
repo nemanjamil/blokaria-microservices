@@ -49,12 +49,14 @@ module.exports = {
                     let defaultAddressWallet = "addr_test1qrjvha8weh6uknz5mv4s8m8hjzvv2nmc9hap3mk9ddfgptl5nrlujs9z7afw0cguvjuzzxq6dtmhjhcz8auach6p7s7q8pur88";
 
                     console.log("ctx.params", ctx.params);
-
+                    let mintParams = { ...ctx.params };
+                    delete mintParams.addressWallet;
                     let addressWallet = (ctx.params.addressWallet) ? ctx.params.addressWallet : defaultAddressWallet;
 
                     console.log("addressWallet", addressWallet);
+                    console.log("mintParams", mintParams);
 
-                    let mintNft = await this.axiosPost("http://172.20.0.1:3333/generateNFT", ctx.params);
+                    let mintNft = await this.axiosPost("http://172.20.0.1:3333/generateNFT", mintParams);
 
                     console.log("mintNft USAO");
                     console.log("mintNft", mintNft.data);
