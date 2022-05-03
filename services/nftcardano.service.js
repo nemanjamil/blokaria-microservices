@@ -32,7 +32,7 @@ module.exports = {
             },
         },
 
-        createCardanoNftWithAssigWallet: {
+        createCardanoNftWithAssignWallet: {
             params: {
                 imageIPFS: { type: "string" },
                 assetName: { type: "string" },
@@ -45,12 +45,18 @@ module.exports = {
 
             async handler(ctx) {
                 try {
+
                     let defaultAddressWallet = "addr_test1qrjvha8weh6uknz5mv4s8m8hjzvv2nmc9hap3mk9ddfgptl5nrlujs9z7afw0cguvjuzzxq6dtmhjhcz8auach6p7s7q8pur88";
 
                     console.log("ctx.params", ctx.params);
 
                     let addressWallet = (ctx.params.addressWallet) ? ctx.params.addressWallet : defaultAddressWallet;
+
+                    console.log("addressWallet", addressWallet);
+
                     let mintNft = await this.axiosPost("http://172.20.0.1:3333", ctx.params);
+
+                    console.log("mintNft", mintNft.data);
 
                     let payloadToWallet = {
                         addressWallet,
