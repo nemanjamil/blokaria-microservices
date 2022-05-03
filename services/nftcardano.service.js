@@ -40,7 +40,8 @@ module.exports = {
                 authors: { type: "array", optional: true },
                 addressWallet: { type: "string", optional: true },
                 copyright: { type: "string", optional: true },
-                walletName: { type: "string" }
+                walletName: { type: "string" },
+                dalayCallToWalletAsset: { type: "number" }
             },
 
             async handler(ctx) {
@@ -50,6 +51,7 @@ module.exports = {
 
                     console.log("ctx.params", ctx.params);
                     let mintParams = { ...ctx.params };
+
                     delete mintParams.addressWallet;
                     let addressWallet = (ctx.params.addressWallet) ? ctx.params.addressWallet : defaultAddressWallet;
 
@@ -68,6 +70,12 @@ module.exports = {
                     };
 
                     console.log("payloadToWallet", payloadToWallet);
+
+                    console.log("start Delay", Date.now());
+
+                    await this.addDelay(ctx.params.dalayCallToWalletAsset);
+
+                    console.log("after Delay", Date.now());
 
                     let sendAssetToWallet = await this.axiosPost("http://172.20.0.1:3333/sendAssetToWallet", payloadToWallet);
 
@@ -107,5 +115,13 @@ module.exports = {
                 }
             },
         }
-    }
+    },
+
+    methods: {
+        async addDelay(time) {
+            return new Promise(res => setTimeout(res, time));
+        }
+    },
 };
+
+
