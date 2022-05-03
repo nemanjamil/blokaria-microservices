@@ -45,8 +45,11 @@ module.exports = {
 
             async handler(ctx) {
                 try {
+                    let defaultAddressWallet = "addr_test1qrjvha8weh6uknz5mv4s8m8hjzvv2nmc9hap3mk9ddfgptl5nrlujs9z7afw0cguvjuzzxq6dtmhjhcz8auach6p7s7q8pur88";
+
                     console.log("ctx.params", ctx.params);
-                    let addressWallet = (ctx.params.addressWallet) ? ctx.params.addressWallet : "";
+
+                    let addressWallet = (ctx.params.addressWallet) ? ctx.params.addressWallet : defaultAddressWallet;
                     let mintNft = await this.axiosPost("http://172.20.0.1:3333", ctx.params);
 
                     let payloadToWallet = {
@@ -54,11 +57,16 @@ module.exports = {
                         walletName: ctx.params.walletName,
                         assetId: mintNft.data.assetId
                     };
+
                     console.log("payloadToWallet", payloadToWallet);
 
-                    let sendAssetToWallet = await this.axiosPost("http://172.20.0.1:3333/mintNFT", payloadToWallet);
+                    let sendAssetToWallet = await this.axiosPost("http://172.20.0.1:3333/sendAssetToWallet", payloadToWallet);
 
-                    return { mintNFT: mintNft.data, sendAssetToWallet: sendAssetToWallet.data };
+                    return {
+                        payloadToWallet,
+                        mintNFT: mintNft.data,
+                        sendAssetToWallet: sendAssetToWallet.data
+                    };
                 } catch (error) {
                     return Promise.reject(error);
                 }
