@@ -11,6 +11,22 @@ module.exports = {
     model: Nftcardano,
 
     actions: {
+        checkWallet: {
+            params: {
+                walletName: { type: "string" },
+            },
+
+            async handler(ctx) {
+                try {
+                    console.log("ctx.params", ctx.params);
+                    let checkWallet = await this.axiosPost("http://172.20.0.1:3333/checkWallet", ctx.params);
+                    return checkWallet.data;
+                } catch (error) {
+                    return Promise.reject(error);
+                }
+            },
+        },
+
         createCardanoNft: {
             params: {
                 imageIPFS: { type: "string" },
