@@ -156,6 +156,7 @@ module.exports = {
 					"POST nftcardano/createCardanoNft": "nftcardano.createCardanoNft",
 					"POST nftcardano/createCardanoNftWithAssignWallet": "nftcardano.createCardanoNftWithAssignWallet",
 					"POST nftcardano/sendAssetToWallet": "nftcardano.sendAssetToWallet",
+					"POST nftcardano/checkWallet": "nftcardano.checkWallet",
 				},
 				callingOptions: {},
 
