@@ -11,6 +11,7 @@ module.exports = {
     model: Nftcardano,
 
     actions: {
+
         checkWallet: {
             params: {
                 walletName: { type: "string" },
