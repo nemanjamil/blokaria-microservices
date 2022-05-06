@@ -76,7 +76,7 @@ module.exports = {
 
 					console.log("redeemStatus", redeemStatus);
 
-					let mintNftAndAssignToWallet = {};
+					let mintNftAndAssignToWallet = { "data": {} };
 
 					if (qrCodeStatus.cbnftimage && qrCodeStatus.nftimage) {
 
