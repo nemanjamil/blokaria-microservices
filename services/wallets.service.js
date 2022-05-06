@@ -607,6 +607,7 @@ module.exports = {
 				let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
 				return { rndBr, cardanoRequest };
 			} catch (error) {
+				console.dir(error, { depth: null });
 				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", { message: error.message, internalErrorCode: "wallet202" });
 			}
 		},
