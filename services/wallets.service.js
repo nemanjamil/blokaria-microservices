@@ -76,12 +76,45 @@ module.exports = {
 
 					console.log("redeemStatus", redeemStatus);
 
+					let mintNftAndAssignToWallet = {};
+
+					if (qrCodeStatus.cbnftimage && qrCodeStatus.nftimage) {
+
+						console.log("minting and wallet assigining has started");
+
+						let mathRnd = Math.floor(Math.random() * 1000000);
+						let nftParams = {
+							"imageIPFS": qrCodeStatus.nftimage,
+							"assetName": qrCodeStatus.userDesc.replace(/\s/g, " ").trim() + "#" + mathRnd,
+							"description": "BlokariaNFT " + mathRnd,
+							"authors": ["Blokaria", "V1"],
+							"addressWallet": qrCodeStatus.nftsendaddress,
+							"copyright": "Copyright by Blokaria",
+							"walletName": "NFT_TEST",
+							"dalayCallToWalletAsset": 30000
+						};
+
+						console.log("nftParams", nftParams);
+
+						mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
+
+						console.log("minting and wallet assigining has finished");
+					}
+
+
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
 
 					console.log("sendEmail", sendEmail);
 
-					return { qrCodeStatus, cardanoStatus: cardanoRequest.data, reducingStatus, sendEmail, redeemStatus };
+					return {
+						qrCodeStatus,
+						mintNftAndAssignToWallet: mintNftAndAssignToWallet.data,
+						cardanoStatus: cardanoRequest.data,
+						reducingStatus,
+						sendEmail,
+						redeemStatus
+					};
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -94,8 +127,11 @@ module.exports = {
 				clientEmail: { type: "email" },
 				clientMessage: { type: "string" },
 				qrcode: { type: "string" },
+				nftsendaddress: { type: "string", optional: true },
 				nftimage: { type: "string", optional: true },
 				cbnftimage: { type: "boolean", default: false },
+				clientemailcb: { type: "boolean", default: true },
+				ownernamecb: { type: "boolean", default: true },
 			},
 			async handler(ctx) {
 				try {
@@ -282,8 +318,12 @@ module.exports = {
 				clientMessage: ctx.params.clientMessage,
 				clientEmail: ctx.params.clientEmail,
 				clientName: ctx.params.clientName,
+
+				nftsendaddress: ctx.params.nftsendaddress ? ctx.params.nftsendaddress : null,
 				nftimage: ctx.params.nftimage ? ctx.params.nftimage : null,
-				cbnftimage: ctx.params.cbnftimage
+				cbnftimage: ctx.params.cbnftimage,
+				clientemailcb: ctx.params.clientemailcb,
+				ownernamecb: ctx.params.ownernamecb
 			};
 
 			try {
@@ -372,6 +412,7 @@ module.exports = {
 				productName: wallet.productName,
 				publicQrCode: wallet.publicQrCode,
 				costOfProduct: wallet.costOfProduct,
+				contributorData: wallet.contributorData,
 				accessCode: Utils.generatePass(),
 				_creator: user.userId,
 				_image: image._id
@@ -416,7 +457,7 @@ module.exports = {
 			};
 			let merchantName = {
 				k: {
-					string: "MerchantName",
+					string: "CreatorName",
 				},
 				v: {
 					string: qrCodeDbData[0].userFullname,
@@ -433,7 +474,7 @@ module.exports = {
 
 			let merchantEmail = {
 				k: {
-					string: "MerchantEmail",
+					string: "CreatorEmail",
 				},
 				v: {
 					string: qrCodeDbData[0].userEmail,
@@ -442,7 +483,7 @@ module.exports = {
 
 			let merchantMessage = {
 				k: {
-					string: "MerchantMessage",
+					string: "CreatorMessage",
 				},
 				v: {
 					string: qrCodeDbData[0].userDesc,
@@ -451,7 +492,7 @@ module.exports = {
 
 			let clientName = {
 				k: {
-					string: "ClientName",
+					string: "OwnerName",
 				},
 				v: {
 					string: qrCodeDbData[0].clientName,
@@ -460,7 +501,7 @@ module.exports = {
 
 			let clientEmail = {
 				k: {
-					string: "ClientEmail",
+					string: "OwnerEmail",
 				},
 				v: {
 					string: qrCodeDbData[0].clientEmail,
@@ -469,7 +510,7 @@ module.exports = {
 
 			let clientMessage = {
 				k: {
-					string: "ClientMessage",
+					string: "OwnerMessage",
 				},
 				v: {
 					string: qrCodeDbData[0].clientMessage,
@@ -477,7 +518,7 @@ module.exports = {
 			};
 			let productLink = {
 				k: {
-					string: "productLink",
+					string: "WebSiteParams",
 				},
 				v: {
 					string: `/status/${qrCodeDbData[0].walletQrId}`,
@@ -485,7 +526,7 @@ module.exports = {
 			};
 			let webSite = {
 				k: {
-					string: "webSite",
+					string: "WebSiteDomain",
 				},
 				v: {
 					string: process.env.BLOKARIA_WEBSITE
@@ -494,25 +535,50 @@ module.exports = {
 
 			let nftimage = {
 				k: {
-					string: "nftimage",
+					string: "NftImageHash",
 				},
 				v: {
 					string: qrCodeDbData[0].nftimage,
 				},
 			};
+			let nftsendaddress = {
+				k: {
+					string: "NftWalletAddress",
+				},
+				v: {
+					string: qrCodeDbData[0].nftsendaddress,
+				},
+			};
+
+			let contributorData = {
+				k: {
+					string: "Contributor",
+				},
+				v: {
+					string: qrCodeDbData[0].contributorData,
+				},
+			};
 
 			let finalArray = [];
-			finalArray.push(merchantName);
 			finalArray.push(productName);
+
+			finalArray.push(merchantName);
 			finalArray.push(merchantEmail);
 			finalArray.push(merchantMessage);
-			finalArray.push(clientName);
-			finalArray.push(clientEmail);
+
+
+			(qrCodeDbData[0].ownernamecb) ? finalArray.push(clientName) : "";
+			(qrCodeDbData[0].clientemailcb) ? finalArray.push(clientEmail) : "";
+
 			finalArray.push(clientMessage);
+
 			finalArray.push(productLink);
 			finalArray.push(webSite);
 			finalArray.push(internalCode);
 			(qrCodeDbData[0].nftimage) ? finalArray.push(nftimage) : "";
+			(qrCodeDbData[0].nftsendaddress) ? finalArray.push(nftsendaddress) : "";
+
+			(qrCodeDbData[0].contributorData) ? finalArray.push(contributorData) : "";
 
 			let metaDataObj = {
 				[rndBr]: {

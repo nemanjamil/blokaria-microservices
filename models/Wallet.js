@@ -16,11 +16,17 @@ const walletSchema = new mongoose.Schema({
 	metaDataRandomNumber: { type: Number },
 	productPicture: { type: String },
 	productVideo: { type: String },
+	contributorData: { type: String, default: null },
 	publicQrCode: { type: Boolean, default: true },
 	costOfProduct: { type: Number, default: 0 },
 	accessCode: { type: String, required: true },
-	nftimage: { type: String, default: null },
+
 	cbnftimage: { type: Boolean, default: false },
+	nftimage: { type: String, default: null },
+	nftsendaddress: { type: String },
+
+	clientemailcb: { type: Boolean, default: true },
+	ownernamecb: { type: Boolean, default: true },
 	_creator: {
 		type: ObjectId,
 		ref: "User"
@@ -30,5 +36,6 @@ const walletSchema = new mongoose.Schema({
 		ref: "Image"
 	}],
 });
+
 
 module.exports = mongoose.model("Wallet", walletSchema);
