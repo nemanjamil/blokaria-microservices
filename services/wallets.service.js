@@ -71,7 +71,6 @@ module.exports = {
 
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 
-					console.log("CardanoRequest", cardanoRequest);
 					console.log("RndBr", rndBr);
 
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
@@ -80,17 +79,19 @@ module.exports = {
 
 					let mintNftAndAssignToWallet = { "data": {} };
 
-					if (qrCodeStatus.cbnftimage && qrCodeStatus.nftimage) {
+					console.log('Minting Start \n');
 
-						console.log("Minting and wallet assigining has started");
+					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0].nftimage) {
+
+						console.log("Minting and wallet assigining has started \n");
 
 						let mathRnd = Math.floor(Math.random() * 1000000);
 						let nftParams = {
-							"imageIPFS": qrCodeStatus.nftimage,
-							"assetName": qrCodeStatus.userDesc.replace(/\s/g, " ").trim() + "#" + mathRnd,
+							"imageIPFS": qrCodeStatus[0].nftimage,
+							"assetName": qrCodeStatus[0].userDesc.replace(/\s/g, " ").trim() + "#" + mathRnd,
 							"description": "BlokariaNFT " + mathRnd,
 							"authors": ["Blokaria", "V1"],
-							"addressWallet": qrCodeStatus.nftsendaddress,
+							"addressWallet": qrCodeStatus[0].nftsendaddress,
 							"copyright": "Copyright by Blokaria",
 							"walletName": "NFT_TEST",
 							"dalayCallToWalletAsset": 30000
@@ -100,7 +101,7 @@ module.exports = {
 
 						mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
 
-						console.log("Minting and wallet assigining has finished");
+						console.log("Minting and wallet assigining has finished \n");
 					}
 
 
