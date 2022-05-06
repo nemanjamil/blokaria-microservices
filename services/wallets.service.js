@@ -77,7 +77,7 @@ module.exports = {
 
 					console.log("RedeemStatus", redeemStatus);
 
-					let mintNftAndAssignToWallet = { "data": {} };
+					let mintNftAndAssignToWallet = {};
 
 					console.log('Minting Start \n');
 
@@ -101,6 +101,9 @@ module.exports = {
 
 						mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
 
+						console.log("\n");
+						console.log("MintNftAndAssignToWallet", mintNftAndAssignToWallet);
+						console.log("\n");
 						console.log("Minting and wallet assigining has finished \n");
 					}
 
@@ -112,7 +115,7 @@ module.exports = {
 
 					return {
 						qrCodeStatus,
-						mintNftAndAssignToWallet: mintNftAndAssignToWallet.data,
+						mintNftAndAssignToWallet,
 						cardanoStatus: cardanoRequest.data,
 						reducingStatus,
 						sendEmail,
