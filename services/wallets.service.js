@@ -59,31 +59,30 @@ module.exports = {
 			rest: "POST /initiateTransactionToClientWallet",
 			async handler(ctx) {
 				try {
-					console.log("Initiation Has Started");
+					console.log("Wallet Initiation Has Started");
 
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
-					console.log("qrCodeStatus", qrCodeStatus);
+					console.log("Wallet qrCodeStatus", qrCodeStatus);
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 
-					console.log("ReducingStatus", reducingStatus);
+					console.log("Wallet ReducingStatus", reducingStatus);
 
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 
-					console.log("RndBr", rndBr);
+					console.log("Wallet RndBr", rndBr);
 
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 
-					console.log("RedeemStatus", redeemStatus);
+					console.log("Wallet RedeemStatus", redeemStatus);
 
-					let mintNftAndAssignToWallet = {};
-
-					console.log('Minting Start \n');
+					let mintNftAndAssignToWallet;
 
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0].nftimage) {
 
-						console.log("Minting and wallet assigining has started \n");
+						console.log("Wallet Minting Start \n");
+						console.log("Wallet Minting and wallet assigining has started \n");
 
 						let mathRnd = Math.floor(Math.random() * 1000000);
 						let nftParams = {
@@ -97,21 +96,23 @@ module.exports = {
 							"dalayCallToWalletAsset": 30000
 						};
 
-						console.log("NftParams", nftParams);
+						console.log("Wallet NftParams", nftParams);
 
 						mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
 
+						console.log("Wallet Minting Has Finished \n");
+						console.log("Wallet MintNftAndAssignToWallet", mintNftAndAssignToWallet);
 						console.log("\n");
-						console.log("MintNftAndAssignToWallet", mintNftAndAssignToWallet);
-						console.log("\n");
-						console.log("Minting and wallet assigining has finished \n");
+						console.log("Wallet Minting and wallet assigining has finished \n");
+					} else {
+						console.log("Wallet Minting Skipped \n");
 					}
 
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
 
-					console.log("SendEmail", sendEmail);
+					console.log("Wallet SendEmail", sendEmail);
 
 					return {
 						qrCodeStatus,

@@ -66,19 +66,19 @@ module.exports = {
 
                     let defaultAddressWallet = "addr_test1qrjvha8weh6uknz5mv4s8m8hjzvv2nmc9hap3mk9ddfgptl5nrlujs9z7afw0cguvjuzzxq6dtmhjhcz8auach6p7s7q8pur88";
 
-                    console.log("ctx.params", ctx.params);
+                    console.log("MintNft ctx.params", ctx.params);
                     let generateNftParams = { ...ctx.params };
 
                     delete generateNftParams.addressWallet;
                     let addressWallet = (ctx.params.addressWallet) ? ctx.params.addressWallet : defaultAddressWallet;
 
-                    console.log("addressWallet", addressWallet);
-                    console.log("generateNftParams", generateNftParams);
+                    console.log("MintNft AddressWallet", addressWallet);
+                    console.log("MintNft GenerateNftParams", generateNftParams);
 
                     let mintNft = await this.axiosPost("http://172.20.0.1:3333/generateNFT", generateNftParams);
 
-                    console.log("mintNft USAO");
-                    console.log("mintNft", mintNft.data);
+                    console.log("MintNft USAO");
+                    console.log("MintNft", mintNft.data);
 
                     let payloadToWallet = {
                         addressWallet,
@@ -86,15 +86,17 @@ module.exports = {
                         assetId: mintNft.data.assetId
                     };
 
-                    console.log("payloadToWallet", payloadToWallet);
+                    console.log("MintNft PayloadToWallet", payloadToWallet);
 
-                    console.log("start Delay", Date.now());
+                    console.log("MintNft Start Delay", Date.now());
 
                     await this.addDelay(ctx.params.dalayCallToWalletAsset);
 
-                    console.log("after Delay", Date.now());
+                    console.log("MintNft After Delay", Date.now());
 
                     let sendAssetToWallet = await this.axiosPost("http://172.20.0.1:3333/sendAssetToWallet", payloadToWallet);
+
+                    console.log("MintNft Finished SendAssetToWallet", Date.now());
 
                     return {
                         payloadToWallet,
