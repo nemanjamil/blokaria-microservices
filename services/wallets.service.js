@@ -59,28 +59,30 @@ module.exports = {
 			rest: "POST /initiateTransactionToClientWallet",
 			async handler(ctx) {
 				try {
+					console.log("Initiation Has Started");
+
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
 					console.log("qrCodeStatus", qrCodeStatus);
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 
-					console.log("reducingStatus", reducingStatus);
+					console.log("ReducingStatus", reducingStatus);
 
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
 
-					console.log("cardanoRequest", cardanoRequest);
-					console.log("rndBr", rndBr);
+					console.log("CardanoRequest", cardanoRequest);
+					console.log("RndBr", rndBr);
 
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 
-					console.log("redeemStatus", redeemStatus);
+					console.log("RedeemStatus", redeemStatus);
 
 					let mintNftAndAssignToWallet = { "data": {} };
 
 					if (qrCodeStatus.cbnftimage && qrCodeStatus.nftimage) {
 
-						console.log("minting and wallet assigining has started");
+						console.log("Minting and wallet assigining has started");
 
 						let mathRnd = Math.floor(Math.random() * 1000000);
 						let nftParams = {
@@ -94,18 +96,18 @@ module.exports = {
 							"dalayCallToWalletAsset": 30000
 						};
 
-						console.log("nftParams", nftParams);
+						console.log("NftParams", nftParams);
 
 						mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
 
-						console.log("minting and wallet assigining has finished");
+						console.log("Minting and wallet assigining has finished");
 					}
 
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
 
-					console.log("sendEmail", sendEmail);
+					console.log("SendEmail", sendEmail);
 
 					return {
 						qrCodeStatus,
