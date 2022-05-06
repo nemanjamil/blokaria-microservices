@@ -541,14 +541,14 @@ module.exports = {
 					string: qrCodeDbData[0].nftimage,
 				},
 			};
-			let nftsendaddress = {
-				k: {
-					string: "NftWalletAddress",
-				},
-				v: {
-					string: qrCodeDbData[0].nftsendaddress,
-				},
-			};
+			// let nftsendaddress = {
+			// 	k: {
+			// 		string: "NftWalletAddress",
+			// 	},
+			// 	v: {
+			// 		string: qrCodeDbData[0].nftsendaddress,
+			// 	},
+			// };
 
 			let contributorData = {
 				k: {
@@ -576,7 +576,7 @@ module.exports = {
 			finalArray.push(webSite);
 			finalArray.push(internalCode);
 			(qrCodeDbData[0].nftimage) ? finalArray.push(nftimage) : "";
-			(qrCodeDbData[0].nftsendaddress) ? finalArray.push(nftsendaddress) : "";
+			// (qrCodeDbData[0].nftsendaddress) ? finalArray.push(nftsendaddress) : "";
 
 			(qrCodeDbData[0].contributorData) ? finalArray.push(contributorData) : "";
 
