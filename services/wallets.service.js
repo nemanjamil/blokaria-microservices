@@ -104,6 +104,14 @@ module.exports = {
 						console.log("Wallet MintNftAndAssignToWallet", mintNftAndAssignToWallet);
 						console.log("\n");
 						console.log("Wallet Minting and wallet assigining has finished \n");
+
+						// let updateNftTransaction = await this.findOneAndUpdate({
+						// 	   walletQrId : qrCodeStatus[0].walletQrId, 
+						// 	   data : {
+
+						// 	   }
+						// 	});
+
 					} else {
 						console.log("Wallet Minting Skipped \n");
 					}
@@ -711,5 +719,18 @@ module.exports = {
 			}
 		},
 
+		// wallet170
+		async findOneAndUpdate({ walletQrId, data }) {
+			let entity = { walletQrId: walletQrId };
+
+			console.log('Wallet findOneAndUpdate data', data);
+			console.log('Wallet walletQrId ', walletQrId);
+
+			try {
+				return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
+			} catch (error) {
+				throw new MoleculerError("Updating Data Error", 501, "ERR_UPDATING_DB", { message: error.message, internalErrorCode: "wallet170" });
+			}
+		},
 	},
 };

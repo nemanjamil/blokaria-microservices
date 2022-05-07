@@ -85,7 +85,7 @@ module.exports = {
 
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
-					console.log("storedIntoDb", storedIntoDb);
+					// console.log("storedIntoDb", storedIntoDb);
 
 					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
 					console.log("reducedNumberOfTransaction", reducedNumberOfTransaction);
