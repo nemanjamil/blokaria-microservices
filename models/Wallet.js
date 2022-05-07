@@ -27,6 +27,13 @@ const walletSchema = new mongoose.Schema({
 
 	clientemailcb: { type: Boolean, default: true },
 	ownernamecb: { type: Boolean, default: true },
+
+	nftSenderWalletName: { type: String },
+	nftReceiverAddressWallet: { type: String },
+	nftAssetId: { type: String },
+	nftMintTxHash: { type: String },
+	nftAssetToWalletTxHash: { type: String },
+
 	_creator: {
 		type: ObjectId,
 		ref: "User"

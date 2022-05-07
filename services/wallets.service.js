@@ -81,8 +81,8 @@ module.exports = {
 
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0].nftimage) {
 
-						console.log("Wallet Minting Start \n");
-						console.log("Wallet Minting and wallet assigining has started \n");
+						console.log("WalletMinting Start \n");
+						console.log("WalletMinting and wallet assigining has started \n");
 
 						let mathRnd = Math.floor(Math.random() * 1000000);
 						let nftParams = {
@@ -96,24 +96,34 @@ module.exports = {
 							"dalayCallToWalletAsset": 30000
 						};
 
-						console.log("Wallet NftParams", nftParams);
+						console.log("WalletMinting NftParams", nftParams);
 
 						mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
 
-						console.log("Wallet Minting Has Finished \n");
-						console.log("Wallet MintNftAndAssignToWallet", mintNftAndAssignToWallet);
+						console.log("WalletMinting Has Finished \n");
+						console.log("WalletMinting MintNftAndAssignToWallet", mintNftAndAssignToWallet);
 						console.log("\n");
-						console.log("Wallet Minting and wallet assigining has finished \n");
+						console.log("WalletMinting and wallet assigining has finished \n");
 
-						// let updateNftTransaction = await this.findOneAndUpdate({
-						// 	   walletQrId : qrCodeStatus[0].walletQrId, 
-						// 	   data : {
 
-						// 	   }
-						// 	});
+						let updateNftTransaction = await this.findOneAndUpdate({
+							walletQrId: qrCodeStatus[0].walletQrId,
+							dataIn: {
+								nftSenderWalletName: mintNftAndAssignToWallet.payloadToWallet.walletName,
+								nftReceiverAddressWallet: mintNftAndAssignToWallet.payloadToWallet.addressWallet,
+								nftAssetId: mintNftAndAssignToWallet.payloadToWallet.assetId,
+								nftMintTxHash: mintNftAndAssignToWallet.mintNFT.txHash,
+								nftAssetToWalletTxHash: mintNftAndAssignToWallet.sendAssetToWallet.txHash
+							}
+						});
+
+						console.log("\n");
+						console.log("WalletMinting updateNftTransaction ", updateNftTransaction);
+
+
 
 					} else {
-						console.log("Wallet Minting Skipped \n");
+						console.log("WalletMinting  Skipped \n");
 					}
 
 
@@ -720,14 +730,14 @@ module.exports = {
 		},
 
 		// wallet170
-		async findOneAndUpdate({ walletQrId, data }) {
+		async findOneAndUpdate({ walletQrId, dataIn }) {
 			let entity = { walletQrId: walletQrId };
 
-			console.log('Wallet findOneAndUpdate data', data);
+			console.log('Wallet findOneAndUpdate ', dataIn);
 			console.log('Wallet walletQrId ', walletQrId);
 
 			try {
-				return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
+				return await Wallet.findOneAndUpdate(entity, { $set: dataIn }, { new: true });
 			} catch (error) {
 				throw new MoleculerError("Updating Data Error", 501, "ERR_UPDATING_DB", { message: error.message, internalErrorCode: "wallet170" });
 			}
