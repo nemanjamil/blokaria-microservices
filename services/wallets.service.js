@@ -120,8 +120,6 @@ module.exports = {
 						console.log("\n");
 						console.log("WalletMinting updateNftTransaction ", updateNftTransaction);
 
-
-
 					} else {
 						console.log("WalletMinting  Skipped \n");
 					}
