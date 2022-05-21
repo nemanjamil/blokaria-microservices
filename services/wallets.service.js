@@ -77,8 +77,8 @@ module.exports = {
 
 					console.log("Wallet RedeemStatus", redeemStatus);
 
-					let mintNftAndAssignToWallet;
-
+					let mintNftAndAssignToWallet, updateNftTransaction;
+					// process.env.LOCALENV
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0].nftimage) {
 
 						console.log("WalletMinting Start \n");
@@ -98,27 +98,61 @@ module.exports = {
 
 						console.log("WalletMinting NftParams", nftParams);
 
-						mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
+						if (process.env.LOCALENV === true) {
 
-						console.log("WalletMinting Has Finished \n");
-						console.log("WalletMinting MintNftAndAssignToWallet", mintNftAndAssignToWallet);
-						console.log("\n");
-						console.log("WalletMinting and wallet assigining has finished \n");
+							mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
+
+							console.log("WalletMinting Has Finished \n");
+							console.log("WalletMinting MintNftAndAssignToWallet", mintNftAndAssignToWallet);
+							console.log("\n");
+							console.log("WalletMinting and wallet assigining has finished \n");
 
 
-						let updateNftTransaction = await this.findOneAndUpdate({
-							walletQrId: qrCodeStatus[0].walletQrId,
-							dataIn: {
-								nftSenderWalletName: mintNftAndAssignToWallet.payloadToWallet.walletName,
-								nftReceiverAddressWallet: mintNftAndAssignToWallet.payloadToWallet.addressWallet,
-								nftAssetId: mintNftAndAssignToWallet.payloadToWallet.assetId,
-								nftMintTxHash: mintNftAndAssignToWallet.mintNFT.txHash,
-								nftAssetToWalletTxHash: mintNftAndAssignToWallet.sendAssetToWallet.txHash
-							}
-						});
+							updateNftTransaction = await this.findOneAndUpdate({
+								walletQrId: qrCodeStatus[0].walletQrId,
+								dataIn: {
+									nftSenderWalletName: mintNftAndAssignToWallet.payloadToWallet.walletName,
+									nftReceiverAddressWallet: mintNftAndAssignToWallet.payloadToWallet.addressWallet,
+									nftAssetId: mintNftAndAssignToWallet.payloadToWallet.assetId,
+									nftMintTxHash: mintNftAndAssignToWallet.mintNFT.txHash,
+									nftAssetToWalletTxHash: mintNftAndAssignToWallet.sendAssetToWallet.txHash
+								}
+							});
 
-						console.log("\n");
-						console.log("WalletMinting updateNftTransaction ", updateNftTransaction);
+							console.log("\n");
+							console.log("WalletMinting updateNftTransaction ", updateNftTransaction);
+						} else {
+
+							mintNftAndAssignToWallet = {
+								"payloadToWallet": {
+									"addressWallet": "addr_test1qpmn8z5ath2kzmg6qff7sa8dz5hezf7lv9xw4va66j50uz8u63fededm3erzv32e56g5dp33tvcu8jpsxcanz75wzw7qtln9ml",
+									"walletName": "NFT_TEST",
+									"assetId": "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.53686f727423393935393339"
+								},
+								"mintNFT": {
+									"txHash": "a4125b55fcb01e099bb44378c12f4e7d5c78e5935c79db952184cf452b706627",
+									"assetId": "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.53686f727423393935393339"
+								},
+								"sendAssetToWallet": {
+									"txHash": "9152c947efb93421bc07b1554ef55f8e4b6dc3274c626ad5376c48b47f5420da"
+								}
+							};
+
+							updateNftTransaction = await this.findOneAndUpdate({
+								walletQrId: qrCodeStatus[0].walletQrId,
+								dataIn: {
+									nftSenderWalletName: "NFT_TEST",
+									nftReceiverAddressWallet: "addr_test1qpmn8z5ath2kzmg6qff7sa8dz5hezf7lv9xw4va66j50uz8u63fededm3erzv32e56g5dp33tvcu8jpsxcanz75wzw7qtln9ml",
+									nftAssetId: "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.53686f727423393935393339",
+									nftMintTxHash: "a4125b55fcb01e099bb44378c12f4e7d5c78e5935c79db952184cf452b706627",
+									nftAssetToWalletTxHash: "9152c947efb93421bc07b1554ef55f8e4b6dc3274c626ad5376c48b47f5420da"
+								}
+							});
+
+							console.log("\n");
+							console.log("WalletMinting TEST updateNftTransaction ", updateNftTransaction);
+
+						}
 
 					} else {
 						console.log("WalletMinting  Skipped \n");
