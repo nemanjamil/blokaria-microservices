@@ -97,8 +97,12 @@ module.exports = {
 						};
 
 						console.log("WalletMinting NftParams", nftParams);
+						console.log("WalletMinting process.env.LOCALENV", process.env.LOCALENV);
 
-						if (process.env.LOCALENV === true) {
+						if (process.env.LOCALENV === "false") {
+
+
+							console.log("WalletMinting SERVER ENV \n");
 
 							mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
 
@@ -123,6 +127,8 @@ module.exports = {
 							console.log("WalletMinting updateNftTransaction ", updateNftTransaction);
 						} else {
 
+							console.log("WalletMinting LOCAL  ENV \n");
+
 							mintNftAndAssignToWallet = {
 								"payloadToWallet": {
 									"addressWallet": "addr_test1qpmn8z5ath2kzmg6qff7sa8dz5hezf7lv9xw4va66j50uz8u63fededm3erzv32e56g5dp33tvcu8jpsxcanz75wzw7qtln9ml",
@@ -141,16 +147,16 @@ module.exports = {
 							updateNftTransaction = await this.findOneAndUpdate({
 								walletQrId: qrCodeStatus[0].walletQrId,
 								dataIn: {
-									nftSenderWalletName: "NFT_TEST",
-									nftReceiverAddressWallet: "addr_test1qpmn8z5ath2kzmg6qff7sa8dz5hezf7lv9xw4va66j50uz8u63fededm3erzv32e56g5dp33tvcu8jpsxcanz75wzw7qtln9ml",
-									nftAssetId: "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.53686f727423393935393339",
-									nftMintTxHash: "a4125b55fcb01e099bb44378c12f4e7d5c78e5935c79db952184cf452b706627",
-									nftAssetToWalletTxHash: "9152c947efb93421bc07b1554ef55f8e4b6dc3274c626ad5376c48b47f5420da"
+									nftSenderWalletName: mintNftAndAssignToWallet.payloadToWallet.walletName,
+									nftReceiverAddressWallet: mintNftAndAssignToWallet.payloadToWallet.addressWallet,
+									nftAssetId: mintNftAndAssignToWallet.payloadToWallet.assetId,
+									nftMintTxHash: mintNftAndAssignToWallet.mintNFT.txHash,
+									nftAssetToWalletTxHash: mintNftAndAssignToWallet.sendAssetToWallet.txHash
 								}
 							});
 
 							console.log("\n");
-							console.log("WalletMinting TEST updateNftTransaction ", updateNftTransaction);
+							console.log("WalletMinting LOCAL ENV TEST updateNftTransaction ", updateNftTransaction);
 
 						}
 
@@ -765,8 +771,8 @@ module.exports = {
 		async findOneAndUpdate({ walletQrId, dataIn }) {
 			let entity = { walletQrId: walletQrId };
 
-			console.log('Wallet findOneAndUpdate ', dataIn);
-			console.log('Wallet walletQrId ', walletQrId);
+			console.log("Wallet findOneAndUpdate ", dataIn);
+			console.log("Wallet walletQrId ", walletQrId);
 
 			try {
 				return await Wallet.findOneAndUpdate(entity, { $set: dataIn }, { new: true });
