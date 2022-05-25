@@ -3,6 +3,7 @@ const DbService = require("moleculer-db");
 const dbConnection = require("../utils/dbConnection");
 const axiosMixin = require("../mixins/axios.mixin");
 const Nftcardano = require("../models/Nftcardano");
+const { MoleculerError } = require("moleculer").Errors;
 
 module.exports = {
     name: "nftcardano",
@@ -109,9 +110,15 @@ module.exports = {
                     };
                 } catch (error) {
                     console.log("createCardanoNftWithAssignWallet error");
-                    console.log(error);
+                    console.log(error.data);
 
-                    return Promise.reject(error);
+                    // throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
+                    // 	message: "User Not Found",
+                    // 	internalErrorCode: "user20",
+                    // });
+
+
+                    return Promise.reject(error.data);
                 }
             },
         },
