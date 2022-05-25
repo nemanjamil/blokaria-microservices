@@ -94,7 +94,7 @@ module.exports = {
 
                     console.log("createCardanoNftWithAssignWallet PayloadToWallet", payloadToWallet);
 
-                    console.log("createCardanoNftWithAssignWallet Start Delay", Date.now());
+                    console.log("createCardanoNftWithAssignWallet Start Delay", Date.now(), ctx.params.dalayCallToWalletAsset);
 
                     await this.addDelay(ctx.params.dalayCallToWalletAsset);
 

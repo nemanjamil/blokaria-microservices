@@ -94,7 +94,7 @@ module.exports = {
 							"addressWallet": qrCodeStatus[0].nftsendaddress,
 							"copyright": "Copyright by Blokaria",
 							"walletName": "NFT_TEST",
-							"dalayCallToWalletAsset": 30000
+							"dalayCallToWalletAsset": 60000
 						};
 
 						console.log("WalletMinting NftParams", nftParams);
