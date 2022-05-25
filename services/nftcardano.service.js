@@ -110,7 +110,8 @@ module.exports = {
                     };
                 } catch (error) {
                     console.log("createCardanoNftWithAssignWallet error");
-                    console.log(error.data);
+                    console.log(error);
+                    console.log(error.message);
 
                     // throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
                     // 	message: "User Not Found",
@@ -118,7 +119,7 @@ module.exports = {
                     // });
 
 
-                    return Promise.reject(error.data);
+                    return Promise.reject(error.toString());
                 }
             },
         },
