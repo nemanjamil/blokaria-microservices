@@ -108,6 +108,9 @@ module.exports = {
                         sendAssetToWallet: sendAssetToWallet.data
                     };
                 } catch (error) {
+                    console.log("createCardanoNftWithAssignWallet error");
+                    console.log(error);
+
                     return Promise.reject(error);
                 }
             },
