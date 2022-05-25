@@ -109,9 +109,9 @@ module.exports = {
                         sendAssetToWallet: sendAssetToWallet.data
                     };
                 } catch (error) {
-                    console.log("createCardanoNftWithAssignWallet error");
+                    console.log("\n\n createCardanoNftWithAssignWallet error \n\n");
                     console.dir(error);
-                    console.log("Error MESSAGE : ", error.message);
+                    console.log("\n\n Error MESSAGE : ", error.message);
 
                     throw new MoleculerError("Error With NFT Generating", 401, "NFT_GENERATING_BUG", {
                         message: error.message
