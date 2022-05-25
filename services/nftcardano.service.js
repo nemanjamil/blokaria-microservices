@@ -64,21 +64,25 @@ module.exports = {
             async handler(ctx) {
                 try {
 
+                    console.log("createCardanoNftWithAssignWallet START \n\n");
+
                     let defaultAddressWallet = "addr_test1qrjvha8weh6uknz5mv4s8m8hjzvv2nmc9hap3mk9ddfgptl5nrlujs9z7afw0cguvjuzzxq6dtmhjhcz8auach6p7s7q8pur88";
 
-                    console.log("MintNft ctx.params", ctx.params);
+                    console.log("createCardanoNftWithAssignWallet ctx.params", ctx.params);
                     let generateNftParams = { ...ctx.params };
 
                     delete generateNftParams.addressWallet;
                     let addressWallet = (ctx.params.addressWallet) ? ctx.params.addressWallet : defaultAddressWallet;
 
-                    console.log("MintNft AddressWallet", addressWallet);
-                    console.log("MintNft GenerateNftParams", generateNftParams);
+                    console.log("createCardanoNftWithAssignWallet AddressWallet", addressWallet);
+                    console.log("createCardanoNftWithAssignWallet GenerateNftParams", generateNftParams);
+
+                    console.log("  ==== createCardanoNftWithAssignWallet START MINT CALL NATIVE FUNCTION \n\n");
 
                     let mintNft = await this.axiosPost("http://172.20.0.1:3333/generateNFT", generateNftParams);
 
-                    console.log("MintNft USAO");
-                    console.log("MintNft", mintNft.data);
+                    console.log("createCardanoNftWithAssignWallet USAO");
+                    console.log("createCardanoNftWithAssignWallet", mintNft.data);
 
                     let payloadToWallet = {
                         addressWallet,
@@ -86,17 +90,17 @@ module.exports = {
                         assetId: mintNft.data.assetId
                     };
 
-                    console.log("MintNft PayloadToWallet", payloadToWallet);
+                    console.log("createCardanoNftWithAssignWallet PayloadToWallet", payloadToWallet);
 
-                    console.log("MintNft Start Delay", Date.now());
+                    console.log("createCardanoNftWithAssignWallet Start Delay", Date.now());
 
                     await this.addDelay(ctx.params.dalayCallToWalletAsset);
 
-                    console.log("MintNft After Delay", Date.now());
+                    console.log("createCardanoNftWithAssignWallet After Delay GO TO sendAssetToWallet NATIVE ", Date.now(), "\n\n");
 
                     let sendAssetToWallet = await this.axiosPost("http://172.20.0.1:3333/sendAssetToWallet", payloadToWallet);
 
-                    console.log("MintNft Finished SendAssetToWallet", Date.now());
+                    console.log("createCardanoNftWithAssignWallet Finished SendAssetToWallet", Date.now());
 
                     return {
                         payloadToWallet,

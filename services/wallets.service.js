@@ -81,6 +81,7 @@ module.exports = {
 					// process.env.LOCALENV
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0].nftimage) {
 
+						console.log("\n\n ================ \n\n");
 						console.log("WalletMinting Start \n");
 						console.log("WalletMinting and wallet assigining has started \n");
 
@@ -102,14 +103,14 @@ module.exports = {
 						if (process.env.LOCALENV === "false") {
 
 
-							console.log("WalletMinting SERVER ENV \n");
+							console.log("	>>> WalletMinting SERVER ENV - krecemo na nftcardano.createCardanoNftWithAssignWallet \n");
 
 							mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
 
-							console.log("WalletMinting Has Finished \n");
-							console.log("WalletMinting MintNftAndAssignToWallet", mintNftAndAssignToWallet);
+							console.log("	>>> WalletMinting Has Finished \n");
+							console.log("	>>> WalletMinting MintNftAndAssignToWallet", mintNftAndAssignToWallet);
 							console.log("\n");
-							console.log("WalletMinting and wallet assigining has finished \n");
+							console.log("	>>> WalletMinting and wallet assigining has finished \n");
 
 
 							updateNftTransaction = await this.findOneAndUpdate({
@@ -124,7 +125,7 @@ module.exports = {
 							});
 
 							console.log("\n");
-							console.log("WalletMinting updateNftTransaction ", updateNftTransaction);
+							console.log(">>> WalletMinting updateNftTransaction ", updateNftTransaction);
 						} else {
 
 							console.log("WalletMinting LOCAL  ENV \n");
