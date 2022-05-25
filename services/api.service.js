@@ -113,6 +113,7 @@ module.exports = {
 					"POST v1/auth/authenticate": "v1.auth.authenticate",
 					"POST user/resetPassword": "user.resetPassword",
 					"POST user/resetPasswordCode": "user.resetPasswordCode",
+					"POST user/addCouponsAndQrCodesToUser": "user.addCouponsAndQrCodesToUser",
 					"POST wallet/getQrCodeDataNoRedeem": "wallet.getQrCodeDataNoRedeem",
 					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
 					"POST wallet/getListQrCodesGeneral": "wallet.getListQrCodesGeneral",
