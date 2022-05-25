@@ -66,6 +66,7 @@ module.exports = {
                 try {
 
                     console.log("createCardanoNftWithAssignWallet START \n\n");
+                    console.log("Moglo bi da potraje > 60 sec ", ctx.params.dalayCallToWalletAsset);
 
                     let defaultAddressWallet = "addr_test1qrjvha8weh6uknz5mv4s8m8hjzvv2nmc9hap3mk9ddfgptl5nrlujs9z7afw0cguvjuzzxq6dtmhjhcz8auach6p7s7q8pur88";
 
