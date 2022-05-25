@@ -113,13 +113,12 @@ module.exports = {
                     console.log(error);
                     console.log("Error MESSAGE : ", error.message);
 
-                    // throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
-                    // 	message: "User Not Found",
-                    // 	internalErrorCode: "user20",
-                    // });
+                    throw new MoleculerError("Error Wiht NFT Generating", 401, "NFT_GENERATING_BUG", {
+                        message: error.message
+                    });
 
 
-                    return Promise.reject("error.toString()");
+                    //return Promise.reject("error.toString()");
                 }
             },
         },
