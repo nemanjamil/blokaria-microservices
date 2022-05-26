@@ -100,6 +100,9 @@ module.exports = {
 
                     console.log("createCardanoNftWithAssignWallet After Delay GO TO sendAssetToWallet NATIVE ", Date.now(), "\n\n");
 
+                    // Ovde treba ubaciti {{site_url}}api/nftcardano/checkWallet da proverimo da li asset sleteo na wallet
+                    // Ako jeste onda mozemo da radimo sendAssetToAnotherWallet
+
                     let sendAssetToWallet = await this.axiosPost("http://172.20.0.1:3333/sendAssetToWallet", payloadToWallet);
 
                     console.log("createCardanoNftWithAssignWallet Finished SendAssetToWallet", Date.now());

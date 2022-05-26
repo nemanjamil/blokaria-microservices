@@ -91,6 +91,19 @@ module.exports = {
 					console.log("reducedNumberOfTransaction", reducedNumberOfTransaction);
 
 
+					// Check if CreateNFT CB is enabled 
+					// Upload Picture to IPFS
+					// Get CID
+					// Update DB 
+					// Add new Row to NFT cardanos
+					// Id Row
+					// Update Wallet Coll with Id from NftCardanos
+					// Mint NFT
+					// {{site_url}}api/nftcardano/createCardanoNft
+					// parametre "imageIPFS" : "blaBlaBlaBla" + Plus ostali po volji ,
+					// Update DB NftCardanos
+					// 	txHash	 assetId	
+
 					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					meta.$multipart.accessCode = storedIntoDb.accessCode;
 					meta.$multipart.publicQrCode = storedIntoDb.publicQrCode;
