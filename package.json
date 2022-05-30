@@ -25,6 +25,7 @@
     "moleculer-repl": "^0.6.6"
   },
   "dependencies": {
+    "web3.storage": "^3.1.0",
     "axios": "^0.24.0",
     "bcrypt": "^5.0.1",
     "busboy": "^1.4.0",

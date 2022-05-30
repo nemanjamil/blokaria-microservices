@@ -9,6 +9,8 @@ const fs = require("fs");
 const path = require("path");
 const mkdir = require("mkdirp").sync;
 
+const { Web3Storage, getFilesFromPath } = require("web3.storage");
+
 const uploadDir = path.join(__dirname, "../public/__uploads");
 mkdir(uploadDir);
 
@@ -31,7 +33,6 @@ module.exports = {
 		deleteQrCodeImage: {
 			async handler(ctx) {
 				try {
-
 					let imageLink = `./public/${ctx.params.allowedToDelete[0]._image[0].productPicture}`;
 					let imageLinkDir = `./public/__uploads/${ctx.params.allowedToDelete[0].userEmail}/${ctx.params.allowedToDelete[0].walletQrId}`;
 
@@ -39,9 +40,8 @@ module.exports = {
 					let responseDirRemoval = "";
 
 					return new Promise((resolve, reject) => {
-
 						fs.unlink(imageLink, function (err) {
-							if (err && err.code == 'ENOENT') {
+							if (err && err.code == "ENOENT") {
 								responseImageRemoval = "File doesn't exist, won't remove it.";
 								reject(responseImageRemoval);
 							} else if (err) {
@@ -66,7 +66,6 @@ module.exports = {
 							}
 						});
 					});
-
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -80,9 +79,12 @@ module.exports = {
 			// },
 			async handler(ctx) {
 				try {
-					let { meta, relativePath, filename } = await this.storeImage(ctx);
-					let { imageSave, imageRelativePath } = await this.insertProductPicture(meta, relativePath, filename);
+					let { meta, relativePath, filename, uploadDirMkDir } = await this.storeImage(ctx);
 
+					let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
+					console.log("cid: ", cid);
+
+					let { imageSave, imageRelativePath } = await this.insertProductPicture(meta, relativePath, filename);
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
 					// console.log("storedIntoDb", storedIntoDb);
@@ -90,11 +92,21 @@ module.exports = {
 					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
 					console.log("reducedNumberOfTransaction", reducedNumberOfTransaction);
 
-
-					// Check if CreateNFT CB is enabled 
+					let nftObj = {
+						imageIPFS: cid,
+						assetName: "Pera" + Math.floor(Math.random() * 1000000),
+						description: "Opis",
+						authors: { type: "array", optional: true },
+						copyright: { type: "string", optional: true },
+						walletName: "NFT_TEST",
+					};
+					console.log("NFT Object: ", nftObj);
+					let createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
+					console.log("Create Cardano NFT: ", createCardanoNft);
+					// Check if CreateNFT CB is enabled
 					// Upload Picture to IPFS
 					// Get CID
-					// Update DB 
+					// Update DB
 					// Add new Row to NFT cardanos
 					// Id Row
 					// Update Wallet Coll with Id from NftCardanos
@@ -102,7 +114,7 @@ module.exports = {
 					// {{site_url}}api/nftcardano/createCardanoNft
 					// parametre "imageIPFS" : "blaBlaBlaBla" + Plus ostali po volji ,
 					// Update DB NftCardanos
-					// 	txHash	 assetId	
+					// 	txHash	 assetId
 
 					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					meta.$multipart.accessCode = storedIntoDb.accessCode;
@@ -127,6 +139,31 @@ module.exports = {
 	},
 
 	methods: {
+		async uploadImagetoIPFS(imageDir) {
+			const web3Storage = this.createIPFSWeb3Storage();
+			if (web3Storage != false) {
+				try {
+					const web3Storage = new Web3Storage({ token: process.env.WEB3_TOKEN });
+					let file = await getFilesFromPath(imageDir);
+					console.log(file);
+					const cid = await web3Storage.put(file);
+					console.log(`Root cid: ${cid}`);
+					return cid;
+				} catch (error) {
+					console.log("Error occured while storing image to IPFS: " + error);
+				}
+			}
+		},
+		async createIPFSWeb3Storage() {
+			try {
+				const web3Storage = new Web3Storage({ token: process.env.WEB3_TOKEN });
+				console.log("Successfully created web3storage.");
+				return web3Storage;
+			} catch (error) {
+				console.log("Failed to create web3storage: " + error);
+				return false;
+			}
+		},
 		async storeImage(ctx) {
 			return new Promise((resolve, reject) => {
 				let relativePath = `__uploads/${slugify(ctx.meta.$multipart.userEmail)}/${ctx.meta.$multipart.walletQrId}`;
@@ -136,7 +173,7 @@ module.exports = {
 				const filePath = path.join(uploadDirMkDir, ctx.meta.filename || this.randomName());
 				const f = fs.createWriteStream(filePath);
 				f.on("close", () => {
-					resolve({ meta: ctx.meta, relativePath, filename: ctx.meta.filename });
+					resolve({ meta: ctx.meta, relativePath, filename: ctx.meta.filename, uploadDirMkDir });
 				});
 
 				ctx.params.on("error", (err) => {
