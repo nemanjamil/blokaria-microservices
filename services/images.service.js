@@ -99,8 +99,8 @@ module.exports = {
 						imageIPFS: cid,
 						assetName: "Pera" + Math.floor(Math.random() * 1000000),
 						description: "Opis",
-						authors: { type: "array", optional: true },
-						copyright: { type: "string", optional: true },
+						authors: ["Author", "Mihajlo"],
+						copyright: "Copyright Bla Bla",
 						walletName: "NFT_TEST",
 					};
 					console.log("saveImageAndData NFT Object: ", nftObj);

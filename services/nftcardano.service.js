@@ -41,7 +41,7 @@ module.exports = {
 
             async handler(ctx) {
                 try {
-                    console.log("ctx.params", ctx.params);
+                    console.log("createCardanoNft ctx.params: ", ctx.params);
                     let mintNft = await this.axiosPost("http://host.docker.internal:3333/generateNFT", ctx.params);
                     return { mintNFT: mintNft.data };
                 } catch (error) {
