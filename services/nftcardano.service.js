@@ -20,8 +20,8 @@ module.exports = {
 
             async handler(ctx) {
                 try {
-                    console.log("checkWallet ctx.params: call http://172.20.0.1:3333/checkWallet ", ctx.params);
-                    let checkWallet = await this.axiosPost("http://172.20.0.1:3333/checkWallet", ctx.params);
+                    console.log("checkWallet ctx.params: call ", ctx.params);
+                    let checkWallet = await this.axiosPost("http://172.17.0.1:3333/checkWallet", ctx.params);
                     return checkWallet.data;
                 } catch (error) {
                     return Promise.reject(error);
@@ -42,7 +42,7 @@ module.exports = {
             async handler(ctx) {
                 try {
                     console.log("ctx.params", ctx.params);
-                    let mintNft = await this.axiosPost("http://172.20.0.1:3333/generateNFT", ctx.params);
+                    let mintNft = await this.axiosPost("http://172.17.0.1:3333/generateNFT", ctx.params);
                     return { mintNFT: mintNft.data };
                 } catch (error) {
                     return Promise.reject(error);
@@ -103,7 +103,7 @@ module.exports = {
                     // Ovde treba ubaciti {{site_url}}api/nftcardano/checkWallet da proverimo da li asset sleteo na wallet
                     // Ako jeste onda mozemo da radimo sendAssetToAnotherWallet
 
-                    let sendAssetToWallet = await this.axiosPost("http://172.20.0.1:3333/sendAssetToWallet", payloadToWallet);
+                    let sendAssetToWallet = await this.axiosPost("http://172.17.0.1:3333/sendAssetToWallet", payloadToWallet);
 
                     console.log("createCardanoNftWithAssignWallet Finished SendAssetToWallet", Date.now());
 
@@ -144,7 +144,7 @@ module.exports = {
                         assetId: ctx.params.assetId
                     };
                     console.log("payloadToWallet", payloadToWallet);
-                    let sendAssetToWallet = await this.axiosPost("http://172.20.0.1:3333/sendAssetToWallet", payloadToWallet);
+                    let sendAssetToWallet = await this.axiosPost("http://172.17.0.1:3333/sendAssetToWallet", payloadToWallet);
                     return { sendAssetToWallet: sendAssetToWallet.data };
 
                 } catch (error) {
