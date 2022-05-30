@@ -6,7 +6,6 @@ const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/Wallet.js");
 const Utils = require("../utils/utils");
 require("dotenv").config();
-const { Web3Storage } = require("web3.storage");
 
 module.exports = {
 	name: "wallet",
