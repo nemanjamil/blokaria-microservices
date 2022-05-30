@@ -106,15 +106,23 @@ module.exports = {
 					console.log("saveImageAndData NFT Object: ", nftObj);
 
 					let createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
+					// let createCardanoNft = {
+					// 	"mintNFT": {
+					// 		"txHash": "a4589358f5bb431becd35c166d591dee0a4495f7b0bc4c895f7f936cb7d2b4ff",
+					// 		"assetId": "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.414142424343"
+					// 	}
+					// };
+
 
 					console.log("saveImageAndData Create Cardano NFT: ", createCardanoNft);
 					// Check if CreateNFT CB is enabled
 					// Upload Picture to IPFS
 					// Get CID
 					// Update DB
-					// Add new Row to NFT cardanos
+					// Add new Row to NFT cardanos - // cid txHash assetId meta.walletQrId
 					// Id Row
 					// Update Wallet Coll with Id from NftCardanos
+
 					// Mint NFT
 					// {{site_url}}api/nftcardano/createCardanoNft
 					// parametre "imageIPFS" : "blaBlaBlaBla" + Plus ostali po volji ,
