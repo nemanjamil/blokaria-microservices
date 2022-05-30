@@ -98,7 +98,7 @@ module.exports = {
 					let nftObj = {
 						imageIPFS: cid,
 						assetName: "Pera" + Math.floor(Math.random() * 1000000),
-						description: "Opis",
+						description: "OpisOpis Bla",
 						authors: ["Author", "Mihajlo"],
 						copyright: "Copyright Bla Bla",
 						walletName: "NFT_TEST",
