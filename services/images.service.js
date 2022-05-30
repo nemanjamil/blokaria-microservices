@@ -82,15 +82,18 @@ module.exports = {
 					let { meta, relativePath, filename, uploadDirMkDir } = await this.storeImage(ctx);
 
 					let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
-					console.log("cid: ", cid);
+					console.log("saveImageAndData cid: ", cid);
 
-					let { imageSave, imageRelativePath } = await this.insertProductPicture(meta, relativePath, filename);
+					let { imageSave } = await this.insertProductPicture(meta, relativePath, filename);
+
+					console.log(" saveImageAndData imageSave :", imageSave);
+
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
-					// console.log("storedIntoDb", storedIntoDb);
+					console.log("saveImageAndData storedIntoDb", storedIntoDb);
 
 					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
-					console.log("reducedNumberOfTransaction", reducedNumberOfTransaction);
+					console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
 
 					let nftObj = {
 						imageIPFS: cid,
@@ -100,9 +103,11 @@ module.exports = {
 						copyright: { type: "string", optional: true },
 						walletName: "NFT_TEST",
 					};
-					console.log("NFT Object: ", nftObj);
+					console.log("saveImageAndData NFT Object: ", nftObj);
+
 					let createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
-					console.log("Create Cardano NFT: ", createCardanoNft);
+
+					console.log("saveImageAndData Create Cardano NFT: ", createCardanoNft);
 					// Check if CreateNFT CB is enabled
 					// Upload Picture to IPFS
 					// Get CID
@@ -145,12 +150,13 @@ module.exports = {
 				try {
 					const web3Storage = new Web3Storage({ token: process.env.WEB3_TOKEN });
 					let file = await getFilesFromPath(imageDir);
-					console.log(file);
+					console.log("uploadImagetoIPFS file: ", file, "\n");
 					const cid = await web3Storage.put(file);
 					console.log(`Root cid: ${cid}`);
 					return cid;
 				} catch (error) {
 					console.log("Error occured while storing image to IPFS: " + error);
+					return Promise.reject(error);
 				}
 			}
 		},
