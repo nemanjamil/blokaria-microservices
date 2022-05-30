@@ -151,7 +151,7 @@ module.exports = {
 					const web3Storage = new Web3Storage({ token: process.env.WEB3_TOKEN });
 					let file = await getFilesFromPath(imageDir);
 					console.log("uploadImagetoIPFS file: ", file, "\n");
-					const cid = await web3Storage.put(file);
+					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
 					console.log(`Root cid: ${cid}`);
 					return cid;
 				} catch (error) {
