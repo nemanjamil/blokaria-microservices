@@ -10,6 +10,8 @@ const path = require("path");
 const mkdir = require("mkdirp").sync;
 
 const { Web3Storage, getFilesFromPath } = require("web3.storage");
+const Nftcardano = require("../models/Nftcardano");
+const Wallet = require("../models/Wallet");
 
 const uploadDir = path.join(__dirname, "../public/__uploads");
 mkdir(uploadDir);
@@ -88,7 +90,6 @@ module.exports = {
 
 					console.log(" saveImageAndData imageSave :", imageSave);
 
-
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
 					console.log("saveImageAndData storedIntoDb", storedIntoDb);
 
@@ -106,23 +107,27 @@ module.exports = {
 					console.log("saveImageAndData NFT Object: ", nftObj);
 
 					let createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
+					console.log("createCardano nft: ", createCardanoNft);
 					// let createCardanoNft = {
-					// 	"mintNFT": {
-					// 		"txHash": "a4589358f5bb431becd35c166d591dee0a4495f7b0bc4c895f7f936cb7d2b4ff",
-					// 		"assetId": "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.414142424343"
-					// 	}
+					// 	mintNFT: {
+					// 		txHash: "a4589358f5bb431becd35c166d591dee0a4495f7b0bc4c895f7f936cb7d2b4ff",
+					// 		assetId: "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.414142424343",
+					// 	},
 					// };
 
-
 					console.log("saveImageAndData Create Cardano NFT: ", createCardanoNft);
-					// Check if CreateNFT CB is enabled
-					// Upload Picture to IPFS
-					// Get CID
-					// Update DB
-					// Add new Row to NFT cardanos - // cid txHash assetId meta.walletQrId
-					// Id Row
-					// Update Wallet Coll with Id from NftCardanos
+					console.log("meta: ", meta);
+					let nftCardanoDbObj = {
+						walletQrId: meta.$multipart.walletQrId,
+						cid: cid,
+						transactionId: createCardanoNft.mintNFT.txHash,
+						assetId: createCardanoNft.mintNFT.assetId,
+					};
+					console.log("prepare nft cardano object: ", nftCardanoDbObj);
+					let saveToDb = await ctx.call("nftcardano.storeToDb", nftCardanoDbObj);
+					console.log("save nft to db: ", saveToDb);
 
+					// Update Wallet Coll with Id from NftCardanos
 					// Mint NFT
 					// {{site_url}}api/nftcardano/createCardanoNft
 					// parametre "imageIPFS" : "blaBlaBlaBla" + Plus ostali po volji ,
