@@ -81,13 +81,7 @@ module.exports = {
 			// },
 			async handler(ctx) {
 				try {
-					console.log(" ctx.params :", ctx.params);
-					console.log(" \n\n ctx.meta :", ctx.meta, "\n\n");
-
 					const { generatenft } = ctx.meta.$multipart;
-
-					console.log(" generatenft :", generatenft);
-
 
 					let { meta, relativePath, filename, uploadDirMkDir } = await this.storeImage(ctx);
 
@@ -101,9 +95,12 @@ module.exports = {
 					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
 					console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
 
-					let saveToDbRes, createCardanoNftRes, cidRes;
+					let saveToDbRes, createCardanoNftRes, cidRes = "";
 					if (generatenft === "true") {
-						let { saveToDb: saveToDbRes, createCardanoNft: createCardanoNftRes, cid: cidRes } = await this.generateNftMethod(uploadDirMkDir, meta, ctx);
+						let { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx);
+						saveToDbRes = saveToDb;
+						createCardanoNftRes = createCardanoNft;
+						cidRes = cid;
 					}
 
 					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
@@ -112,14 +109,13 @@ module.exports = {
 
 					console.log("meta.$multipart", meta.$multipart);
 
-
 					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
 
 					console.log("saveToDbRes", saveToDbRes);
 					console.log("createCardanoNftRes", createCardanoNftRes);
 					console.log("cidRes", cidRes);
 
-					return storedIntoDb;
+					return { storedIntoDb, cidRes, createCardanoNftRes };
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -152,7 +148,7 @@ module.exports = {
 					copyright: "Copyright Bla Bla",
 					walletName: "NFT_TEST",
 				};
-				console.log("generateNftMethod NFT Object: ", nftObj);
+				console.log("\n\n generateNftMethod NFT Object: ", nftObj);
 				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV);
 
 				let createCardanoNft;

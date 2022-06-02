@@ -192,10 +192,6 @@ module.exports = {
 					$push: { "_nfts": String(ctx.params._id) }
 				};
 
-				console.log('populateWalletTable \n\n ');
-				console.log('populateWalletTable entity ', entity);
-				console.log('populateWalletTable data ', data);
-
 				try {
 					return await Wallet.findOneAndUpdate(entity, data, { new: true }).populate("_wallets");
 				} catch (error) {
