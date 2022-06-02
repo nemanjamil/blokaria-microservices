@@ -181,6 +181,33 @@ module.exports = {
 			},
 		},
 
+		populateWalletTable: {
+			async handler(ctx) {
+
+				const entity = {
+					walletQrId: ctx.params.walletQrId,
+				};
+
+				let data = {
+					$push: { "_nfts": String(ctx.params._id) }
+				};
+
+				console.log('populateWalletTable \n\n ');
+				console.log('populateWalletTable entity ', entity);
+				console.log('populateWalletTable data ', data);
+
+				try {
+					return await Wallet.findOneAndUpdate(entity, data, { new: true }).populate("_wallets");
+				} catch (error) {
+					throw new MoleculerError("Can not populate Wallet table with NFT ids", 401, "POPULATE_BUG", {
+						message: "Wallet Not Found",
+						internalErrorCode: "wallet303_populate",
+					});
+				}
+			}
+		},
+
+
 		generateContract: {
 			params: {
 				clientName: { type: "string" },
@@ -492,6 +519,7 @@ module.exports = {
 				});
 			}
 		},
+
 
 		// 90
 		async getWalletAddresses() {

@@ -81,10 +81,15 @@ module.exports = {
 			// },
 			async handler(ctx) {
 				try {
-					let { meta, relativePath, filename, uploadDirMkDir } = await this.storeImage(ctx);
+					console.log(" ctx.params :", ctx.params);
+					console.log(" \n\n ctx.meta :", ctx.meta, "\n\n");
 
-					let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
-					console.log("saveImageAndData cid: ", cid);
+					const { generatenft } = ctx.meta.$multipart;
+
+					console.log(" generatenft :", generatenft);
+
+
+					let { meta, relativePath, filename, uploadDirMkDir } = await this.storeImage(ctx);
 
 					let { imageSave } = await this.insertProductPicture(meta, relativePath, filename);
 
@@ -96,43 +101,10 @@ module.exports = {
 					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
 					console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
 
-					let nftObj = {
-						imageIPFS: cid,
-						assetName: "Pera" + Math.floor(Math.random() * 1000000),
-						description: "OpisOpis Bla",
-						authors: ["Author", "Mihajlo"],
-						copyright: "Copyright Bla Bla",
-						walletName: "NFT_TEST",
-					};
-					console.log("saveImageAndData NFT Object: ", nftObj);
-
-					let createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
-					console.log("createCardano nft: ", createCardanoNft);
-					// let createCardanoNft = {
-					// 	mintNFT: {
-					// 		txHash: "a4589358f5bb431becd35c166d591dee0a4495f7b0bc4c895f7f936cb7d2b4ff",
-					// 		assetId: "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.414142424343",
-					// 	},
-					// };
-
-					console.log("saveImageAndData Create Cardano NFT: ", createCardanoNft);
-					console.log("meta: ", meta);
-					let nftCardanoDbObj = {
-						walletQrId: meta.$multipart.walletQrId,
-						cid: cid,
-						transactionId: createCardanoNft.mintNFT.txHash,
-						assetId: createCardanoNft.mintNFT.assetId,
-					};
-					console.log("prepare nft cardano object: ", nftCardanoDbObj);
-					let saveToDb = await ctx.call("nftcardano.storeToDb", nftCardanoDbObj);
-					console.log("save nft to db: ", saveToDb);
-
-					// Update Wallet Coll with Id from NftCardanos
-					// Mint NFT
-					// {{site_url}}api/nftcardano/createCardanoNft
-					// parametre "imageIPFS" : "blaBlaBlaBla" + Plus ostali po volji ,
-					// Update DB NftCardanos
-					// 	txHash	 assetId
+					let saveToDbRes, createCardanoNftRes, cidRes;
+					if (generatenft === "true") {
+						let { saveToDb: saveToDbRes, createCardanoNft: createCardanoNftRes, cid: cidRes } = await this.generateNftMethod(uploadDirMkDir, meta, ctx);
+					}
 
 					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					meta.$multipart.accessCode = storedIntoDb.accessCode;
@@ -140,7 +112,12 @@ module.exports = {
 
 					console.log("meta.$multipart", meta.$multipart);
 
+
 					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
+
+					console.log("saveToDbRes", saveToDbRes);
+					console.log("createCardanoNftRes", createCardanoNftRes);
+					console.log("cidRes", cidRes);
 
 					return storedIntoDb;
 				} catch (error) {
@@ -157,6 +134,61 @@ module.exports = {
 	},
 
 	methods: {
+
+		async generateNftMethod(uploadDirMkDir, meta, ctx) {
+
+			try {
+
+				console.log("\n\n ---- generateNftMethod STARTED ----- \n\n ");
+
+				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
+				console.log("generateNftMethod cid: ", cid);
+
+				let nftObj = {
+					imageIPFS: cid,
+					assetName: "Pera" + Math.floor(Math.random() * 1000000),
+					description: "OpisOpis Bla",
+					authors: ["Author", "Mihajlo"],
+					copyright: "Copyright Bla Bla",
+					walletName: "NFT_TEST",
+				};
+				console.log("generateNftMethod NFT Object: ", nftObj);
+				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV);
+
+				let createCardanoNft;
+				if (process.env.LOCALENV === "false") {
+					console.log("generateNftMethod createCardanoNft SERVER : \n\n");
+					createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
+					console.log("generateNftMethod createCardano nft: ", createCardanoNft);
+				} else {
+					console.log("generateNftMethod createCardanoNft LOCAL : \n\n");
+					createCardanoNft = {
+						mintNFT: {
+							txHash: "a4589358f5bb431becd35c166d591dee0a4495f7b0bc4c895f7f936cb7d2b4ff",
+							assetId: "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.414142424343",
+						},
+					};
+				}
+				console.log("generateNftMethod Create Cardano NFT: ", createCardanoNft);
+				let nftCardanoDbObj = {
+					walletQrId: meta.$multipart.walletQrId,
+					cid: cid,
+					transactionId: createCardanoNft.mintNFT.txHash,
+					assetId: createCardanoNft.mintNFT.assetId,
+				};
+				console.log("generateNft prepare nft cardano object: ", nftCardanoDbObj);
+				let saveToDb = await ctx.call("nftcardano.storeToDb", nftCardanoDbObj);
+				console.log("generateNft save nft to db: ", saveToDb);
+
+				console.log("\n\n --- generateNft FINISHED ---- \n\n ");
+
+				return { saveToDb, createCardanoNft, cid };
+
+			} catch (error) {
+				console.log("generateNft generateNft Error: ", error);
+				return Promise.reject(error);
+			}
+		},
 		async uploadImagetoIPFS(imageDir) {
 			const web3Storage = this.createIPFSWeb3Storage();
 			if (web3Storage != false) {

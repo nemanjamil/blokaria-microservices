@@ -42,6 +42,10 @@ const walletSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: "Image"
 	}],
+	_nfts: [{
+		type: ObjectId,
+		ref: "Nftcardano"
+	}]
 });
 
 

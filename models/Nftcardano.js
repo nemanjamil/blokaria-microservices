@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const ObjectId = mongoose.ObjectId;
+//const ObjectId = mongoose.ObjectId;
 
 const nftCardanoSchema = new mongoose.Schema({
 	walletQrId: { type: String, index: true, required: true }, // unique: true

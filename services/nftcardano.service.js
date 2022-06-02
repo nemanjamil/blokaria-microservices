@@ -24,6 +24,7 @@ module.exports = {
 				try {
 					let nftcardano = new Nftcardano(entity);
 					let nftSave = await nftcardano.save();
+					await ctx.call("wallet.populateWalletTable", nftSave);
 					return { nftSave };
 				} catch (error) {
 					return Promise.reject(error);
