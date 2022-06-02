@@ -95,10 +95,10 @@ module.exports = {
 					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
 					console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
 
-					let saveToDbRes, createCardanoNftRes, cidRes = "";
+					let saveToDbResNft, createCardanoNftRes, cidRes = "";
 					if (generatenft === "true") {
 						let { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx);
-						saveToDbRes = saveToDb;
+						saveToDbResNft = saveToDb;
 						createCardanoNftRes = createCardanoNft;
 						cidRes = cid;
 					}
@@ -108,14 +108,25 @@ module.exports = {
 					meta.$multipart.publicQrCode = storedIntoDb.publicQrCode;
 
 					console.log("meta.$multipart", meta.$multipart);
+					console.log("\n\n Send Email Started \n\n");
 
 					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
 
-					console.log("saveToDbRes", saveToDbRes);
+					console.log("\n\n Send Email FINISHED \n\n");
+
+					console.log("saveToDbResNft", saveToDbResNft);
 					console.log("createCardanoNftRes", createCardanoNftRes);
 					console.log("cidRes", cidRes);
 
-					return { storedIntoDb, cidRes, createCardanoNftRes };
+					console.log("\n storedIntoDb \n", storedIntoDb);
+
+					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
+						qrcode: meta.$multipart.walletQrId
+					});
+
+					console.log("\n getQrCodeInfo \n", getQrCodeInfo);
+
+					return getQrCodeInfo[0];
 				} catch (error) {
 					return Promise.reject(error);
 				}

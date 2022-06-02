@@ -203,7 +203,6 @@ module.exports = {
 			}
 		},
 
-
 		generateContract: {
 			params: {
 				clientName: { type: "string" },
@@ -231,6 +230,16 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
+		getQrCodeDataOnlyLocalCall: {
+			async handler(ctx) {
+				try {
+					return await this.getQrCodeInfo(ctx);
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -435,7 +444,9 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
-				let wallet = await Wallet.find(entity).populate("_image", { productPicture: 1 });
+				let wallet = await Wallet.find(entity)
+					.populate("_image", { productPicture: 1 })
+					.populate("_nfts");
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Error in Reading Qr Code", 501, "ERROR_GET_QR_CODE_DATA", { message: error.message, internalErrorCode: "wallet50" });
