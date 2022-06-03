@@ -147,6 +147,7 @@ module.exports = {
 				walletName: { type: "string" },
 				addressWallet: { type: "string" },
 				assetId: { type: "string" },
+				amountValue: { type: "number" },
 			},
 
 			async handler(ctx) {
@@ -157,8 +158,9 @@ module.exports = {
 						addressWallet: ctx.params.addressWallet,
 						walletName: ctx.params.walletName,
 						assetId: ctx.params.assetId,
+						amountValue: ctx.params.amountValue,
 					};
-					console.log("payloadToWallet", payloadToWallet);
+					console.log("sendAssetToWallet payloadToWallet", payloadToWallet);
 					let sendAssetToWallet = await this.axiosPost("http://host.docker.internal:3333/sendAssetToWallet", payloadToWallet);
 					return { sendAssetToWallet: sendAssetToWallet.data };
 				} catch (error) {
