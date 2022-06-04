@@ -7,6 +7,10 @@ const nftCardanoSchema = new mongoose.Schema({
 	assetId: { type: String, required: true },
 	cid: { type: String, required: true },
 	createdAt: { type: Date, default: Date.now, index: true },
+	addressClientWallet: { type: String },
+	clientTxHash: { type: String },
+	walletNameSource: { type: String },
+	initialAmountValue: { type: Number },
 });
 
 module.exports = mongoose.model("Nftcardano", nftCardanoSchema);
