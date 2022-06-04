@@ -106,8 +106,8 @@ module.exports = {
 
 							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });
 
-							console.log("	>>> updateDbSendingAssetDbRes  \n");
-							console.log("	>>> updateDbSendingAssetDbRes ", updateDbSendingAssetDbRes);
+							console.log("\n\n updateDbSendingAssetDbRes  \n");
+							console.log("updateDbSendingAssetDbRes ", updateDbSendingAssetDbRes);
 
 						} else {
 							console.log("WalletMinting LOCAL  ENV \n");
@@ -119,16 +119,16 @@ module.exports = {
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
 
-					console.log("Wallet SendEmail", sendEmail);
+					console.log("\n\n Wallet SendEmail", sendEmail);
 
 					return {
 						qrCodeStatus,
 						sendAssetToWallet,
-						// cardanoStatus: cardanoRequest.data,
-						// reducingStatus,
+						cardanoStatus: cardanoRequest.data,
+						reducingStatus,
 						sendEmail,
-						updateDbSendingAssetDbRes
-						// redeemStatus,
+						updateDbSendingAssetDbRes,
+						redeemStatus,
 					};
 				} catch (error) {
 					return Promise.reject(error);
