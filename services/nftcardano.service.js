@@ -31,6 +31,7 @@ module.exports = {
 				}
 			},
 		},
+
 		checkWallet: {
 			params: {
 				walletName: { type: "string" },
@@ -140,6 +141,39 @@ module.exports = {
 					//return Promise.reject("error.toString()");
 				}
 			},
+		},
+
+		updateDbSendingAssetDb: {
+			async handler(ctx) {
+				try {
+
+					const { sendAssetToWallet, qrCodeStatus, nftParams } = ctx.params;
+
+					console.log('\n\n\n ------ \n\n\n');
+					console.log('updateDbSendingAssetDb sendAssetToWallet', sendAssetToWallet);
+					console.log('updateDbSendingAssetDb qrCodeStatus', qrCodeStatus);
+					console.log('updateDbSendingAssetDb nftParams', nftParams);
+
+
+					let entity = { walletQrId: sendAssetToWallet[0].walletQrId };
+
+					// let data = {
+					// 	addressClientWallet: nftParams.addressWallet,
+					// };
+
+					// return await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
+
+					return "aaa";
+
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+
+
+
+
+
 		},
 
 		sendAssetToWallet: {

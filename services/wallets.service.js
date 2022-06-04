@@ -69,94 +69,48 @@ module.exports = {
 					console.log("Wallet qrCodeStatus", qrCodeStatus);
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
-
 					console.log("Wallet ReducingStatus", reducingStatus);
-
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
-
 					console.log("Wallet RndBr", rndBr);
-
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
-
 					console.log("Wallet RedeemStatus", redeemStatus);
 
-					let mintNftAndAssignToWallet, updateNftTransaction;
-					// process.env.LOCALENV
-					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0].nftimage) {
+
+					let sendAssetToWallet, updateDbSendingAssetDbRes;
+
+					console.log("qrCodeStatus", qrCodeStatus);
+					console.log("qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
+					console.log("qrCodeStatus[0]._nfts[0].length", qrCodeStatus[0]._nfts.length);
+
+					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
 						console.log("\n\n ================ \n\n");
 						console.log("WalletMinting Start \n");
 						console.log("WalletMinting and wallet assigining has started \n");
 
-						let mathRnd = Math.floor(Math.random() * 1000000);
 						let nftParams = {
-							imageIPFS: qrCodeStatus[0].nftimage,
-							assetName: qrCodeStatus[0].userDesc.replace(/\s/g, " ").trim() + "#" + mathRnd,
-							description: "BlokariaNFT " + mathRnd,
-							authors: ["Blokaria", "V1"],
-							addressWallet: qrCodeStatus[0].nftsendaddress,
-							copyright: "Copyright by Blokaria",
-							walletName: "NFT_TEST",
-							dalayCallToWalletAsset: 60000,
+							"assetId": qrCodeStatus[0]._nfts[0].assetId,
+							"addressWallet": qrCodeStatus[0].nftsendaddress,
+							"walletName": "NFT_TEST",
+							"amountValue": 1.7
 						};
 
 						console.log("WalletMinting NftParams", nftParams);
 						console.log("WalletMinting process.env.LOCALENV", process.env.LOCALENV);
 
 						if (process.env.LOCALENV === "false") {
-							console.log("	>>> WalletMinting SERVER ENV - krecemo na nftcardano.createCardanoNftWithAssignWallet \n");
+							console.log(" \n\n\n\n	>>> WalletMinting SERVER - krecemo na nftcardano sendAssetToWallet \n");
 
-							mintNftAndAssignToWallet = await ctx.call("nftcardano.createCardanoNftWithAssignWallet", nftParams);
+							sendAssetToWallet = await ctx.call("nftcardano.sendAssetToWallet", nftParams);
+							console.log("	>>> sendAssetToWallet Has Finished \n");
+							console.log("	>>> sendAssetToWallet ", sendAssetToWallet);
 
-							console.log("	>>> WalletMinting Has Finished \n");
-							console.log("	>>> WalletMinting MintNftAndAssignToWallet", mintNftAndAssignToWallet);
-							console.log("\n");
-							console.log("	>>> WalletMinting and wallet assigining has finished \n");
+							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });
 
-							updateNftTransaction = await this.findOneAndUpdate({
-								walletQrId: qrCodeStatus[0].walletQrId,
-								dataIn: {
-									nftSenderWalletName: mintNftAndAssignToWallet.payloadToWallet.walletName,
-									nftReceiverAddressWallet: mintNftAndAssignToWallet.payloadToWallet.addressWallet,
-									nftAssetId: mintNftAndAssignToWallet.payloadToWallet.assetId,
-									nftMintTxHash: mintNftAndAssignToWallet.mintNFT.txHash,
-									nftAssetToWalletTxHash: mintNftAndAssignToWallet.sendAssetToWallet.txHash,
-								},
-							});
+							console.log("	>>> updateDbSendingAssetDbRes  \n");
+							console.log("	>>> updateDbSendingAssetDbRes ", updateDbSendingAssetDbRes);
 
-							console.log("\n");
-							console.log(">>> WalletMinting updateNftTransaction ", updateNftTransaction);
 						} else {
 							console.log("WalletMinting LOCAL  ENV \n");
-
-							mintNftAndAssignToWallet = {
-								payloadToWallet: {
-									addressWallet:
-										"addr_test1qpmn8z5ath2kzmg6qff7sa8dz5hezf7lv9xw4va66j50uz8u63fededm3erzv32e56g5dp33tvcu8jpsxcanz75wzw7qtln9ml",
-									walletName: "NFT_TEST",
-									assetId: "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.53686f727423393935393339",
-								},
-								mintNFT: {
-									txHash: "a4125b55fcb01e099bb44378c12f4e7d5c78e5935c79db952184cf452b706627",
-									assetId: "b044e02d79be53ead0bc7ae3ae40a27ad191e44573c4cf6403319a50.53686f727423393935393339",
-								},
-								sendAssetToWallet: {
-									txHash: "9152c947efb93421bc07b1554ef55f8e4b6dc3274c626ad5376c48b47f5420da",
-								},
-							};
-
-							updateNftTransaction = await this.findOneAndUpdate({
-								walletQrId: qrCodeStatus[0].walletQrId,
-								dataIn: {
-									nftSenderWalletName: mintNftAndAssignToWallet.payloadToWallet.walletName,
-									nftReceiverAddressWallet: mintNftAndAssignToWallet.payloadToWallet.addressWallet,
-									nftAssetId: mintNftAndAssignToWallet.payloadToWallet.assetId,
-									nftMintTxHash: mintNftAndAssignToWallet.mintNFT.txHash,
-									nftAssetToWalletTxHash: mintNftAndAssignToWallet.sendAssetToWallet.txHash,
-								},
-							});
-
-							console.log("\n");
-							console.log("WalletMinting LOCAL ENV TEST updateNftTransaction ", updateNftTransaction);
 						}
 					} else {
 						console.log("WalletMinting  Skipped \n");
@@ -169,11 +123,12 @@ module.exports = {
 
 					return {
 						qrCodeStatus,
-						mintNftAndAssignToWallet,
-						cardanoStatus: cardanoRequest.data,
-						reducingStatus,
+						sendAssetToWallet,
+						// cardanoStatus: cardanoRequest.data,
+						// reducingStatus,
 						sendEmail,
-						redeemStatus,
+						updateDbSendingAssetDbRes
+						// redeemStatus,
 					};
 				} catch (error) {
 					return Promise.reject(error);
