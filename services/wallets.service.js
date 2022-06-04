@@ -62,7 +62,7 @@ module.exports = {
 			rest: "POST /initiateTransactionToClientWallet",
 			async handler(ctx) {
 				try {
-					console.log("Wallet Initiation Has Started");
+					console.log("\n\n Wallet Initiation Has Started");
 
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
@@ -78,14 +78,14 @@ module.exports = {
 
 					let sendAssetToWallet, updateDbSendingAssetDbRes;
 
-					console.log("qrCodeStatus", qrCodeStatus);
-					console.log("qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
-					console.log("qrCodeStatus[0]._nfts[0].length", qrCodeStatus[0]._nfts.length);
+					console.log("Wallet >  qrCodeStatus", qrCodeStatus);
+					console.log("Wallet >  qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
+					console.log("Wallet >  qrCodeStatus[0]._nfts[0].length", qrCodeStatus[0]._nfts.length);
 
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
 						console.log("\n\n ================ \n\n");
-						console.log("WalletMinting Start \n");
-						console.log("WalletMinting and wallet assigining has started \n");
+						console.log("Wallet >  WalletMinting Start \n");
+						console.log("Wallet >  WalletMinting and wallet assigining has started \n");
 
 						let nftParams = {
 							"assetId": qrCodeStatus[0]._nfts[0].assetId,
@@ -94,14 +94,14 @@ module.exports = {
 							"amountValue": 1.7
 						};
 
-						console.log("WalletMinting NftParams", nftParams);
-						console.log("WalletMinting process.env.LOCALENV", process.env.LOCALENV);
+						console.log("Wallet > WalletMinting NftParams", nftParams);
+						console.log("Wallet > WalletMinting process.env.LOCALENV", process.env.LOCALENV);
 
 						if (process.env.LOCALENV === "false") {
-							console.log(" \n\n\n\n	>>> WalletMinting SERVER - krecemo na nftcardano sendAssetToWallet \n");
+							console.log(" \n\n\n\n	>>> WalletMinting SERVER - STARTED sendAssetToWallet \n");
 
 							sendAssetToWallet = await ctx.call("nftcardano.sendAssetToWallet", nftParams);
-							console.log("	>>> sendAssetToWallet Has Finished \n");
+							console.log("\n\n	>>> SUCCESSFULL sendAssetToWallet Has Finished \n");
 							console.log("	>>> sendAssetToWallet ", sendAssetToWallet);
 
 							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });

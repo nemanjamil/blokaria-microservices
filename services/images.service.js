@@ -10,8 +10,6 @@ const path = require("path");
 const mkdir = require("mkdirp").sync;
 
 const { Web3Storage, getFilesFromPath } = require("web3.storage");
-const Nftcardano = require("../models/Nftcardano");
-const Wallet = require("../models/Wallet");
 
 const uploadDir = path.join(__dirname, "../public/__uploads");
 mkdir(uploadDir);
@@ -87,7 +85,7 @@ module.exports = {
 
 					let { imageSave } = await this.insertProductPicture(meta, relativePath, filename);
 
-					console.log(" saveImageAndData imageSave :", imageSave);
+					console.log("saveImageAndData imageSave :", imageSave);
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
 					console.log("saveImageAndData storedIntoDb", storedIntoDb);
