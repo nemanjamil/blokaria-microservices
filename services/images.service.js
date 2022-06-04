@@ -95,7 +95,9 @@ module.exports = {
 					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
 					console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
 
-					let saveToDbResNft, createCardanoNftRes, cidRes = "";
+					let saveToDbResNft,
+						createCardanoNftRes,
+						cidRes = "";
 					if (generatenft === "true") {
 						let { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx);
 						saveToDbResNft = saveToDb;
@@ -121,7 +123,7 @@ module.exports = {
 					console.log("\n storedIntoDb \n", storedIntoDb);
 
 					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
-						qrcode: meta.$multipart.walletQrId
+						qrcode: meta.$multipart.walletQrId,
 					});
 
 					console.log("\n getQrCodeInfo \n", getQrCodeInfo);
@@ -141,23 +143,24 @@ module.exports = {
 	},
 
 	methods: {
-
 		async generateNftMethod(uploadDirMkDir, meta, ctx) {
-
 			try {
-
 				console.log("\n\n ---- generateNftMethod STARTED ----- \n\n ");
 
 				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
 				console.log("generateNftMethod cid: ", cid);
 
+				console.log("meta: ", meta);
+				console.log("ctx ", ctx);
 				let nftObj = {
 					imageIPFS: cid,
-					assetName: "Pera" + Math.floor(Math.random() * 1000000),
-					description: "OpisOpis Bla",
-					authors: ["Author", "Mihajlo"],
-					copyright: "Copyright Bla Bla",
+					assetName: meta.$multipart.productName + Date.now(),
+					description: meta.$multipart.userDesc,
+					authors: [meta.$multipart.userFullname],
+					copyright: "Copyright Blokaria",
 					walletName: "NFT_TEST",
+					contributorData: meta.$multipart.contributorData,
+					productVideo: meta.$multipart.productVideo,
 				};
 				console.log("\n\n generateNftMethod NFT Object: ", nftObj);
 				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV);
@@ -190,7 +193,6 @@ module.exports = {
 				console.log("\n\n --- generateNft FINISHED ---- \n\n ");
 
 				return { saveToDb, createCardanoNft, cid };
-
 			} catch (error) {
 				console.log("generateNft generateNft Error: ", error);
 				return Promise.reject(error);
