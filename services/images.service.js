@@ -150,8 +150,6 @@ module.exports = {
 				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
 				console.log("generateNftMethod cid: ", cid);
 
-				console.log("meta: ", meta);
-				console.log("ctx ", ctx);
 				let nftObj = {
 					imageIPFS: cid,
 					assetName: meta.$multipart.productName + Date.now(),
@@ -159,8 +157,8 @@ module.exports = {
 					authors: [meta.$multipart.userFullname],
 					copyright: "Copyright Blokaria",
 					walletName: "NFT_TEST",
-					contributorData: meta.$multipart.contributorData,
-					productVideo: meta.$multipart.productVideo,
+					//contributorData: meta.$multipart.contributorData,
+					//productVideo: meta.$multipart.productVideo,
 				};
 				console.log("\n\n generateNftMethod NFT Object: ", nftObj);
 				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV);
@@ -169,7 +167,7 @@ module.exports = {
 				if (process.env.LOCALENV === "false") {
 					console.log("generateNftMethod createCardanoNft SERVER : \n\n");
 					createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
-					console.log("generateNftMethod createCardano nft: ", createCardanoNft);
+					console.log("\n\n\n SUCCESFULL generateNftMethod createCardano nft: ", createCardanoNft);
 				} else {
 					console.log("generateNftMethod createCardanoNft LOCAL : \n\n");
 					createCardanoNft = {
