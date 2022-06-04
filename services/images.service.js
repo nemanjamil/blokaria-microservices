@@ -167,7 +167,7 @@ module.exports = {
 				if (process.env.LOCALENV === "false") {
 					console.log("generateNftMethod createCardanoNft SERVER : \n\n");
 					createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
-					console.log("\n\n\n SUCCESFULL generateNftMethod createCardano nft: ", createCardanoNft);
+					console.log("\n\n\n SUCCESSFULL generateNftMethod createCardano nft: ", createCardanoNft);
 				} else {
 					console.log("generateNftMethod createCardanoNft LOCAL : \n\n");
 					createCardanoNft = {
