@@ -10,8 +10,6 @@ const path = require("path");
 const mkdir = require("mkdirp").sync;
 
 const { Web3Storage, getFilesFromPath } = require("web3.storage");
-const Nftcardano = require("../models/Nftcardano");
-const Wallet = require("../models/Wallet");
 
 const uploadDir = path.join(__dirname, "../public/__uploads");
 mkdir(uploadDir);
@@ -87,7 +85,7 @@ module.exports = {
 
 					let { imageSave } = await this.insertProductPicture(meta, relativePath, filename);
 
-					console.log(" saveImageAndData imageSave :", imageSave);
+					console.log("saveImageAndData imageSave :", imageSave);
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
 					console.log("saveImageAndData storedIntoDb", storedIntoDb);
@@ -150,8 +148,6 @@ module.exports = {
 				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
 				console.log("generateNftMethod cid: ", cid);
 
-				console.log("meta: ", meta);
-				console.log("ctx ", ctx);
 				let nftObj = {
 					imageIPFS: cid,
 					assetName: meta.$multipart.productName + "#" + Date.now(),
@@ -159,8 +155,8 @@ module.exports = {
 					authors: [meta.$multipart.userFullname],
 					copyright: "Copyright Blokaria",
 					walletName: "NFT_TEST",
-					contributorData: meta.$multipart.contributorData,
-					productVideo: meta.$multipart.productVideo,
+					//contributorData: meta.$multipart.contributorData,
+					//productVideo: meta.$multipart.productVideo,
 				};
 				console.log("\n\n generateNftMethod NFT Object: ", nftObj);
 				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV);
@@ -169,7 +165,7 @@ module.exports = {
 				if (process.env.LOCALENV === "false") {
 					console.log("generateNftMethod createCardanoNft SERVER : \n\n");
 					createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
-					console.log("generateNftMethod createCardano nft: ", createCardanoNft);
+					console.log("\n\n\n SUCCESSFULL generateNftMethod createCardano nft: ", createCardanoNft);
 				} else {
 					console.log("generateNftMethod createCardanoNft LOCAL : \n\n");
 					createCardanoNft = {
