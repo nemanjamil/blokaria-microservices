@@ -199,21 +199,23 @@ module.exports = {
 			if (web3Storage != false) {
 				try {
 					const web3Storage = new Web3Storage({ token: process.env.WEB3_TOKEN });
-					let file = await getFilesFromPath(imageDir);
-					console.log("uploadImagetoIPFS file: ", file, "\n");
-					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
-					console.log(`Root cid: ${cid}`);
 
-					console.log("\nReceived data from ipfs: ");
+					let file = await getFilesFromPath(imageDir);
+					console.log("UploadImagetoIPFS file: ", file, "\n");
+
+					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
+					console.log(`UploadImagetoIPFS Root cid: ${cid}`);
+
+					console.log("\n UploadImagetoIPFS Received data from ipfs: ");
 					const res = await web3Storage.get(cid);
-					console.log(`IPFS web3 response! [${res.status}] ${res.statusText}`);
-					if (!res.ok) {
-						throw new Error(`failed to get image ${cid} - [${res.status}] ${res.statusText}`);
-					}
-					// unpack File objects from the response
+					console.log(` UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
+
+					console.log("\n UploadImagetoIPFS Unpack File objects from the response: ");
 					const responseFiles = await res.files();
-					console.log(`${responseFiles.cid} -- ${responseFiles.path} -- ${responseFiles.size}`);
-					console.log(`Image url: https://${responseFiles.cid}.ipfs.dweb.link`);
+
+					console.log(`UploadImagetoIPFS ${responseFiles.cid} -- ${responseFiles.path} -- ${responseFiles.size}`);
+					console.log(`UploadImagetoIPFS Image url: https://${responseFiles.cid}.ipfs.dweb.link`);
+
 					return responseFiles[0].cid;
 				} catch (error) {
 					console.log("Error occured while storing image to IPFS: " + error);
