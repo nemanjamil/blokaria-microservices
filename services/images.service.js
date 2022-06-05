@@ -146,6 +146,8 @@ module.exports = {
 				console.log("\n\n ---- generateNftMethod STARTED ----- \n\n ");
 
 				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
+
+				console.log("\n\n");
 				console.log("generateNftMethod cid: ", cid);
 
 				let nftObj = {
@@ -158,14 +160,16 @@ module.exports = {
 					//contributorData: meta.$multipart.contributorData,
 					//productVideo: meta.$multipart.productVideo,
 				};
-				console.log("\n\n generateNftMethod NFT Object: ", nftObj);
-				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV);
+				console.log("generateNftMethod NFT Object: ", nftObj, "\n");
+				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV, "\n");
 
 				let createCardanoNft;
 				if (process.env.LOCALENV === "false") {
-					console.log("generateNftMethod createCardanoNft SERVER : \n\n");
+					console.log("generateNftMethod createCardanoNft SERVER \n\n");
 					createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
-					console.log("\n\n\n SUCCESSFULL generateNftMethod createCardano nft: ", createCardanoNft);
+
+					console.log("\n\n");
+					console.log("SUCCESSFULL generateNftMethod createCardano nft: ", createCardanoNft);
 				} else {
 					console.log("generateNftMethod createCardanoNft LOCAL : \n\n");
 					createCardanoNft = {
@@ -206,15 +210,17 @@ module.exports = {
 					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
 					console.log(`UploadImagetoIPFS Root cid: ${cid}`);
 
-					console.log("\n UploadImagetoIPFS Received data from ipfs: ");
+					console.log("UploadImagetoIPFS Received data from ipfs: ");
 					const res = await web3Storage.get(cid);
-					console.log(` UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
+					console.log(`UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
 
 					console.log("\n UploadImagetoIPFS Unpack File objects from the response: ");
 					const responseFiles = await res.files();
 
-					console.log(`UploadImagetoIPFS ${responseFiles.cid} -- ${responseFiles.path} -- ${responseFiles.size}`);
-					console.log(`UploadImagetoIPFS Image url: https://${responseFiles.cid}.ipfs.dweb.link`);
+					console.log("UploadImagetoIPFS responseFiles", responseFiles);
+
+					console.log(`UploadImagetoIPFS ${responseFiles[0].cid} -- ${responseFiles[0].path} -- ${responseFiles[0].size}`);
+					console.log(`UploadImagetoIPFS Image url: https://${responseFiles[0].cid}.ipfs.dweb.link`);
 
 					return responseFiles[0].cid;
 				} catch (error) {
