@@ -111,6 +111,13 @@ module.exports = {
 
 						} else {
 							console.log("WalletMinting LOCAL  ENV \n");
+							sendAssetToWallet = {
+								sendAssetToWallet: {
+									txHash: "dabc75e9b333dc728729fbb5c1ba68fcd1f24ad0cc4f164216cd086d66e76db0"
+								}
+							};
+
+							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });
 						}
 					} else {
 						console.log("WalletMinting  Skipped \n");
