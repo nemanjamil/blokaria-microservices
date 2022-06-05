@@ -154,7 +154,7 @@ module.exports = {
 				console.log("ctx ", ctx);
 				let nftObj = {
 					imageIPFS: cid,
-					assetName: meta.$multipart.productName + Date.now(),
+					assetName: meta.$multipart.productName + "#" + Date.now(),
 					description: meta.$multipart.userDesc,
 					authors: [meta.$multipart.userFullname],
 					copyright: "Copyright Blokaria",
