@@ -203,7 +203,18 @@ module.exports = {
 					console.log("uploadImagetoIPFS file: ", file, "\n");
 					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
 					console.log(`Root cid: ${cid}`);
-					return cid;
+
+					console.log("\nReceived data from ipfs: ");
+					const res = await web3Storage.get(cid);
+					console.log(`IPFS web3 response! [${res.status}] ${res.statusText}`);
+					if (!res.ok) {
+						throw new Error(`failed to get image ${cid} - [${res.status}] ${res.statusText}`);
+					}
+					// unpack File objects from the response
+					const responseFiles = await res.files();
+					console.log(`${responseFiles.cid} -- ${responseFiles.path} -- ${responseFiles.size}`);
+					console.log(`Image url: https://${responseFiles.cid}.ipfs.dweb.link`);
+					return responseFiles[0].cid;
 				} catch (error) {
 					console.log("Error occured while storing image to IPFS: " + error);
 					return Promise.reject(error);
