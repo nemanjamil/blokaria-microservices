@@ -88,10 +88,10 @@ module.exports = {
 					console.log("saveImageAndData imageSave :", imageSave);
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
-					console.log("saveImageAndData storedIntoDb", storedIntoDb);
+					//console.log("saveImageAndData storedIntoDb", storedIntoDb);
 
 					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
-					console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
+					//console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
 
 					let saveToDbResNft,
 						createCardanoNftRes,
@@ -118,7 +118,7 @@ module.exports = {
 					console.log("createCardanoNftRes", createCardanoNftRes);
 					console.log("cidRes", cidRes);
 
-					console.log("\n storedIntoDb \n", storedIntoDb);
+					// console.log("\n storedIntoDb \n", storedIntoDb);
 
 					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
 						qrcode: meta.$multipart.walletQrId,
