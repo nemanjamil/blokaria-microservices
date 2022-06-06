@@ -88,10 +88,10 @@ module.exports = {
 					console.log("saveImageAndData imageSave :", imageSave);
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
-					console.log("saveImageAndData storedIntoDb", storedIntoDb);
+					//console.log("saveImageAndData storedIntoDb", storedIntoDb);
 
 					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
-					console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
+					//console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
 
 					let saveToDbResNft,
 						createCardanoNftRes,
@@ -118,7 +118,7 @@ module.exports = {
 					console.log("createCardanoNftRes", createCardanoNftRes);
 					console.log("cidRes", cidRes);
 
-					console.log("\n storedIntoDb \n", storedIntoDb);
+					// console.log("\n storedIntoDb \n", storedIntoDb);
 
 					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
 						qrcode: meta.$multipart.walletQrId,
@@ -146,6 +146,8 @@ module.exports = {
 				console.log("\n\n ---- generateNftMethod STARTED ----- \n\n ");
 
 				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
+
+				console.log("\n\n");
 				console.log("generateNftMethod cid: ", cid);
 
 				let nftObj = {
@@ -158,14 +160,16 @@ module.exports = {
 					//contributorData: meta.$multipart.contributorData,
 					//productVideo: meta.$multipart.productVideo,
 				};
-				console.log("\n\n generateNftMethod NFT Object: ", nftObj);
-				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV);
+				console.log("generateNftMethod NFT Object: ", nftObj, "\n");
+				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV, "\n");
 
 				let createCardanoNft;
 				if (process.env.LOCALENV === "false") {
-					console.log("generateNftMethod createCardanoNft SERVER : \n\n");
+					console.log("generateNftMethod createCardanoNft SERVER \n\n");
 					createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
-					console.log("\n\n\n SUCCESSFULL generateNftMethod createCardano nft: ", createCardanoNft);
+
+					console.log("\n\n");
+					console.log("SUCCESSFULL generateNftMethod createCardano nft: ", createCardanoNft);
 				} else {
 					console.log("generateNftMethod createCardanoNft LOCAL : \n\n");
 					createCardanoNft = {
@@ -199,21 +203,25 @@ module.exports = {
 			if (web3Storage != false) {
 				try {
 					const web3Storage = new Web3Storage({ token: process.env.WEB3_TOKEN });
-					let file = await getFilesFromPath(imageDir);
-					console.log("uploadImagetoIPFS file: ", file, "\n");
-					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
-					console.log(`Root cid: ${cid}`);
 
-					console.log("\nReceived data from ipfs: ");
+					let file = await getFilesFromPath(imageDir);
+					console.log("UploadImagetoIPFS file: ", file, "\n");
+
+					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
+					console.log(`UploadImagetoIPFS Root cid: ${cid}`);
+
+					console.log("UploadImagetoIPFS Received data from ipfs: ");
 					const res = await web3Storage.get(cid);
-					console.log(`IPFS web3 response! [${res.status}] ${res.statusText}`);
-					if (!res.ok) {
-						throw new Error(`failed to get image ${cid} - [${res.status}] ${res.statusText}`);
-					}
-					// unpack File objects from the response
+					console.log(`UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
+
+					console.log("\n UploadImagetoIPFS Unpack File objects from the response: ");
 					const responseFiles = await res.files();
-					console.log(`${responseFiles.cid} -- ${responseFiles.path} -- ${responseFiles.size}`);
-					console.log(`Image url: https://${responseFiles.cid}.ipfs.dweb.link`);
+
+					console.log("UploadImagetoIPFS responseFiles", responseFiles);
+
+					console.log(`UploadImagetoIPFS ${responseFiles[0].cid} -- ${responseFiles[0].path} -- ${responseFiles[0].size}`);
+					console.log(`UploadImagetoIPFS Image url: https://${responseFiles[0].cid}.ipfs.dweb.link`);
+
 					return responseFiles[0].cid;
 				} catch (error) {
 					console.log("Error occured while storing image to IPFS: " + error);
