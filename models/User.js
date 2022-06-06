@@ -10,10 +10,18 @@ const userSchema = new mongoose.Schema({
 	date: { type: Date, default: Date.now },
 	numberOfTransaction: { type: Number, required: true, default: parseInt(process.env.NUMBER_OF_TRANSACTIONS) },
 	numberOfCoupons: { type: Number, required: true, default: parseInt(process.env.NUMBER_OF_COUPONS) },
-	_wallets :[{
-		type: ObjectId,
-		ref: "Wallet"
-	}]
+	_wallets: [
+		{
+			type: ObjectId,
+			ref: "Wallet",
+		},
+	],
+	_projects: [
+		{
+			type: ObjectId,
+			ref: "Project",
+		},
+	],
 });
 
 module.exports = mongoose.model("User", userSchema);

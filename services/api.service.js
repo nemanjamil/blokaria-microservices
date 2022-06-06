@@ -132,7 +132,6 @@ module.exports = {
 						limit: "1MB",
 					},
 				},
-
 			},
 
 			{
@@ -142,7 +141,7 @@ module.exports = {
 				authentication: true,
 				authorization: false,
 				whitelist: ["**"],
-				mappingPolicy: "restrict",  // restrict 
+				mappingPolicy: "restrict", // restrict
 				autoAliases: false,
 				aliases: {
 					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
@@ -158,6 +157,8 @@ module.exports = {
 					"POST nftcardano/createCardanoNftWithAssignWallet": "nftcardano.createCardanoNftWithAssignWallet",
 					"POST nftcardano/sendAssetToWallet": "nftcardano.sendAssetToWallet",
 					"POST nftcardano/checkWallet": "nftcardano.checkWallet",
+					"POST project/addNewProject": "project.addNewProject",
+					"PUT project/editProject": "project.editProject",
 				},
 				callingOptions: {},
 
@@ -230,7 +231,7 @@ module.exports = {
 						userFullName: getUser[0].userFullName,
 						userId: getUser[0]._id,
 						numberOfTransaction: getUser[0].numberOfTransaction,
-						numberOfCoupons: getUser[0].numberOfCoupons
+						numberOfCoupons: getUser[0].numberOfCoupons,
 					};
 				} catch (error) {
 					return Promise.reject(error);
