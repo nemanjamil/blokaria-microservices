@@ -17,7 +17,7 @@ module.exports = {
 		addNewProject: {
 			params: {
 				//odradi validaciju
-				projectName: { type: "string", min: 4, max: 30 },
+				projectName: { type: "string", min: 4, max: 60 },
 				//userId: { type: "string" },
 				//projectDescription: { type: "string", max: 255 },
 			},
