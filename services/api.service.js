@@ -159,6 +159,7 @@ module.exports = {
 					"POST nftcardano/checkWallet": "nftcardano.checkWallet",
 					"POST project/addNewProject": "project.addNewProject",
 					"PUT project/editProject": "project.editProject",
+					"GET user/listProjectByUser": "user.listProjectByUser",
 				},
 				callingOptions: {},
 

@@ -32,6 +32,26 @@ module.exports = {
 	},
 
 	actions: {
+		// meta: {
+		// 	userId: { type: "Number" },
+		// },
+		listProjectByUser: {
+			async handler(ctx) {
+				const { userId } = ctx.meta.user;
+
+				console.log("userId", userId);
+
+				try {
+					return await User.findOne({ _id: userId })
+						.populate("_projects");
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR Listing Projects", {
+						message: error.message,
+						internalErrorCode: "project101",
+					});
+				}
+			},
+		},
 
 		// user80
 		addCouponsAndQrCodesToUser: {
@@ -183,6 +203,34 @@ module.exports = {
 					_wallets.push(ctx.params._id);
 					const updatedPost = await User.findOneAndUpdate(entity, {_wallets: _wallets}).populate({path : "_wallets"}); */
 
+
+				} catch (error) {
+					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {
+						message: "User Not Found",
+						internalErrorCode: "user30",
+					});
+				}
+			}
+		},
+		addProjectToUser: {
+
+			params: {
+				userEmail: { type: "email" },
+				// project : {
+				// 	_id: {type: "Number"}
+				// }
+			},
+			async handler(ctx) {
+				const entity = {
+					userEmail: ctx.params.userEmail,
+				};
+				let data = {
+					$push: { "_projects": String(ctx.params.project._id) }
+				};
+
+				try {
+					return await User.findOneAndUpdate(entity, data, { new: true }) // upsert: true
+						.populate("_projects");
 
 				} catch (error) {
 					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {

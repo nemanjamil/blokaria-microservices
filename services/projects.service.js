@@ -13,12 +13,9 @@ module.exports = {
 	model: Project,
 
 	actions: {
-		//add, delete, update, get all nfts per project
 		addNewProject: {
 			params: {
-				//odradi validaciju
-				projectName: { type: "string", min: 4, max: 60 },
-				//userId: { type: "string" },
+				projectName: { type: "string", min: 2, max: 60 },
 				//projectDescription: { type: "string", max: 255 },
 			},
 			async handler(ctx) {
@@ -26,13 +23,20 @@ module.exports = {
 					let data = {
 						projectName: ctx.params.projectName,
 						userId: ctx.meta.userId,
+						_user: ctx.meta.user.userId
 						//	projectDescription: ctx.params.projectDescription,
 					};
+					const { userEmail } = ctx.meta.user;
 					let project = new Project(data);
 					await project.save();
-					await project.populate("_user").populate(String(ctx.params.userId)).execPopulate();
+					await ctx.call("user.addProjectToUser", { project, userEmail });
+					return project;
+
 				} catch (error) {
-					return Promise.reject(error);
+					throw new MoleculerError(error.message, 401, "ERROR CREATING PROJECT", {
+						message: error.message,
+						internalErrorCode: "project10",
+					});
 				}
 			},
 		},
