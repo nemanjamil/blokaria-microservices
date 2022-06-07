@@ -158,7 +158,7 @@ module.exports = {
 					"POST nftcardano/sendAssetToWallet": "nftcardano.sendAssetToWallet",
 					"POST nftcardano/checkWallet": "nftcardano.checkWallet",
 					"POST project/addNewProject": "project.addNewProject",
-					"PUT project/editProjectName": "project.editProjectName",
+					"POST project/editProjectName": "project.editProjectName",
 					"GET user/listProjectByUser": "user.listProjectByUser",
 					"POST project/deleteProject": "project.deleteProject",
 				},

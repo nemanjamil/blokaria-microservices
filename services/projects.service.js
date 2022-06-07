@@ -27,7 +27,7 @@ module.exports = {
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR EDITING PROJECT NAME", {
 						message: error.message,
-						internalErrorCode: "project10",
+						internalErrorCode: "project20",
 					});
 				}
 			},
@@ -60,7 +60,6 @@ module.exports = {
 					let _user = ctx.meta.user.userId;
 					let data = {
 						projectName: ctx.params.projectName,
-						userId: ctx.meta.userId,
 						_user,
 						//	projectDescription: ctx.params.projectDescription,
 					};
