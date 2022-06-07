@@ -11,13 +11,11 @@ const projectSchema = new mongoose.Schema({
 	// 		ref: "Wallet",
 	// 	},
 	// ],
-	_user: [
-		{
-			type: ObjectId,
-			ref: "User",
-			required: true,
-		},
-	],
+	_user: {
+		type: ObjectId,
+		ref: "User",
+		required: true,
+	}
 });
 
 module.exports = mongoose.model("Project", projectSchema);
