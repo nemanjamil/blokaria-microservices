@@ -13,6 +13,43 @@ module.exports = {
 	model: Project,
 
 	actions: {
+		editProjectName: {
+			params: {
+				projectId: { type: "string" },
+				projectNewName: { type: "string", min: 2, max: 60 },
+			},
+			async handler(ctx) {
+				try {
+					const filter = { _id: ctx.params.projectId };
+					const update = { projectName: ctx.params.projectNewName };
+
+					return await Project.findOneAndUpdate(filter, update);
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR EDITING PROJECT NAME", {
+						message: error.message,
+						internalErrorCode: "project10",
+					});
+				}
+			},
+		},
+		deleteProject: {
+			params: {
+				projectId: { type: "string" },
+			},
+			async handler(ctx) {
+				try {
+					//TODO select upit u bazu da proverimo da li postoji neki nft vezan za ovaj proj. ako postoji, delete nije moguc
+
+					//TODO ako ne postoji, slobodno brisi projekat iz baze
+					return await Project.deleteOne({ _id: ctx.params.projectId });
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR DELETING PROJECT", {
+						message: error.message,
+						internalErrorCode: "project10",
+					});
+				}
+			},
+		},
 		addNewProject: {
 			params: {
 				projectName: { type: "string", min: 2, max: 60 },
@@ -24,7 +61,7 @@ module.exports = {
 					let data = {
 						projectName: ctx.params.projectName,
 						userId: ctx.meta.userId,
-						_user
+						_user,
 						//	projectDescription: ctx.params.projectDescription,
 					};
 					const { userEmail } = ctx.meta.user;
@@ -32,7 +69,6 @@ module.exports = {
 					await project.save();
 					await ctx.call("user.addProjectToUser", { project, userEmail });
 					return project;
-
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR CREATING PROJECT", {
 						message: error.message,
