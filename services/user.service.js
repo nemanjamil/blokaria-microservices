@@ -32,15 +32,13 @@ module.exports = {
 	},
 
 	actions: {
+		// TODO Mihajlo
 		// meta: {
 		// 	userId: { type: "Number" },
 		// },
 		listProjectByUser: {
 			async handler(ctx) {
 				const { userId } = ctx.meta.user;
-
-				console.log("userId", userId);
-
 				try {
 					return await User.findOne({ _id: userId })
 						.populate("_projects");

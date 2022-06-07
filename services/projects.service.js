@@ -20,10 +20,11 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+					let _user = ctx.meta.user.userId;
 					let data = {
 						projectName: ctx.params.projectName,
 						userId: ctx.meta.userId,
-						_user: ctx.meta.user.userId
+						_user
 						//	projectDescription: ctx.params.projectDescription,
 					};
 					const { userEmail } = ctx.meta.user;
