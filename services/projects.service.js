@@ -66,6 +66,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { itemId, projectId } = ctx.params;
+					console.log("addQrCodeToProject ctx.params: ", ctx.params);
 
 					const entity = {
 						_id: projectId,
@@ -118,7 +119,7 @@ module.exports = {
 
 					return projectAdded;
 				} catch (error) {
-					throw new MoleculerError(error.message, 401, "ERROR DELETING PROJECT", {
+					throw new MoleculerError(error.message, 401, "ERROR ADDING QR CODE TO PROJECT", {
 						message: error.message,
 						internalErrorCode: "project10",
 					});
