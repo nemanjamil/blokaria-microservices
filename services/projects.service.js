@@ -38,10 +38,37 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-					//TODO select upit u bazu da proverimo da li postoji neki nft vezan za ovaj proj. ako postoji, delete nije moguc
-
-					//TODO ako ne postoji, slobodno brisi projekat iz baze
 					return await Project.deleteOne({ _id: ctx.params.projectId });
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR DELETING PROJECT", {
+						message: error.message,
+						internalErrorCode: "project10",
+					});
+				}
+			},
+		},
+		addQrCodeToProject: {
+			params: {
+				projectId: { type: "string" },
+				itemId: { type: "string" },
+			},
+			async handler(ctx) {
+				try {
+
+					const { itemId, projectId } = ctx.params;
+
+					const entity = {
+						_id: projectId,
+					};
+
+					let data = {
+						$addToSet: { "_wallets": String(itemId) }
+					};
+
+					await Project.findOneAndUpdate(entity, data, { new: true });
+					let projectAdded = await ctx.call("wallet.addProjectToWallet", { projectId, itemId });
+
+					return projectAdded;
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR DELETING PROJECT", {
 						message: error.message,

@@ -146,7 +146,7 @@ module.exports = {
 		populateWalletTable: {
 			async handler(ctx) {
 
-				const entity = {
+				let entity = {
 					walletQrId: ctx.params.walletQrId,
 				};
 
@@ -160,6 +160,22 @@ module.exports = {
 					throw new MoleculerError("Can not populate Wallet table with NFT ids", 401, "POPULATE_BUG", {
 						message: "Wallet Not Found",
 						internalErrorCode: "wallet303_populate",
+					});
+				}
+			}
+		},
+		addProjectToWallet: {
+			async handler(ctx) {
+				let entity = { _id: ctx.params.itemId };
+				let data = {
+					"_project": ctx.params.projectId,
+				};
+				try {
+					return await Wallet.findOneAndUpdate(entity, data, { new: true });
+				} catch (error) {
+					throw new MoleculerError("Can not populate Wallet table with Project ids", 401, "POPULATE_BUG", {
+						message: "P Not Found",
+						internalErrorCode: "wallet403_populate",
 					});
 				}
 			}

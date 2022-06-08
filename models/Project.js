@@ -5,12 +5,12 @@ const projectSchema = new mongoose.Schema({
 	projectName: { type: String, required: true },
 	//projectDesc: { type: String },
 	date: { type: Date, default: Date.now },
-	// _wallets: [
-	// 	{
-	// 		type: ObjectId,
-	// 		ref: "Wallet",
-	// 	},
-	// ],
+	_wallets: [
+		{
+			type: ObjectId,
+			ref: "Wallet",
+		},
+	],
 	_user: {
 		type: ObjectId,
 		ref: "User",

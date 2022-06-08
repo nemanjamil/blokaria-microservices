@@ -161,6 +161,7 @@ module.exports = {
 					"POST project/editProjectName": "project.editProjectName",
 					"GET user/listProjectByUser": "user.listProjectByUser",
 					"POST project/deleteProject": "project.deleteProject",
+					"POST project/addQrCodeToProject": "project.addQrCodeToProject",
 				},
 				callingOptions: {},
 

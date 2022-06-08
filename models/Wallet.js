@@ -33,7 +33,6 @@ const walletSchema = new mongoose.Schema({
 	nftAssetId: { type: String },
 	nftMintTxHash: { type: String },
 	nftAssetToWalletTxHash: { type: String },
-
 	_creator: {
 		type: ObjectId,
 		ref: "User"
@@ -45,7 +44,11 @@ const walletSchema = new mongoose.Schema({
 	_nfts: [{
 		type: ObjectId,
 		ref: "Nftcardano"
-	}]
+	}],
+	_project: {
+		type: ObjectId,
+		ref: "Project"
+	}
 });
 
 
