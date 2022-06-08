@@ -164,6 +164,7 @@ module.exports = {
 				}
 			}
 		},
+
 		addProjectToWallet: {
 			async handler(ctx) {
 				let entity = { _id: ctx.params.itemId };
@@ -171,11 +172,45 @@ module.exports = {
 					"_project": ctx.params.projectId,
 				};
 				try {
-					return await Wallet.findOneAndUpdate(entity, data, { new: true });
+					await Wallet.findOneAndUpdate(entity, data, { new: true });
+					return await Wallet.find(data);
 				} catch (error) {
 					throw new MoleculerError("Can not populate Wallet table with Project ids", 401, "POPULATE_BUG", {
 						message: "P Not Found",
 						internalErrorCode: "wallet403_populate",
+					});
+				}
+			}
+		},
+
+		getProjectIdFromQrCode: {
+			async handler(ctx) {
+
+				let data = {
+					"_id": ctx.params.itemId,
+				};
+				try {
+					return await Wallet.find(data);
+				} catch (error) {
+					throw new MoleculerError("Get Project From QrCode ", 401, "GET_BUG", {
+						message: "Not Found",
+						internalErrorCode: "wallet407_populate",
+					});
+				}
+			}
+		},
+		getAllQrCodesFromProject: {
+			async handler(ctx) {
+
+				let data = {
+					"_project": ctx.params.projectIdOld,
+				};
+				try {
+					return await Wallet.find(data);
+				} catch (error) {
+					throw new MoleculerError("Get All Qr Codes from Project ", 401, "GET_BUG", {
+						message: "Not Found",
+						internalErrorCode: "wallet409",
 					});
 				}
 			}

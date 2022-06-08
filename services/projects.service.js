@@ -65,10 +65,50 @@ module.exports = {
 						$addToSet: { "_wallets": String(itemId) }
 					};
 
+					// getCurrentProject
+					let getOldProjectId = await ctx.call("wallet.getProjectIdFromQrCode", { itemId });
+					let projectIdOld = getOldProjectId[0]._project;
+
+					// UPDATE NEW PROJECT
 					await Project.findOneAndUpdate(entity, data, { new: true });
 					let projectAdded = await ctx.call("wallet.addProjectToWallet", { projectId, itemId });
 
+					let arrayOfQrCodeObject = [];
+					if (projectAdded.length > 0) {
+						projectAdded.map((item) => {
+							arrayOfQrCodeObject.push(item._id);
+						});
+					}
+
+					let qrCodesInProject = {
+						"_wallets": arrayOfQrCodeObject
+					};
+
+					await Project.findOneAndUpdate(entity, qrCodesInProject, { new: true });
+
+
+					// UPDATE OLD PROJECT
+					let getAllQrCodesFromProjectRes = await ctx.call("wallet.getAllQrCodesFromProject", { projectIdOld });
+
+					let arrayOfQrCodeObjectOld = [];
+					if (getAllQrCodesFromProjectRes.length > 0) {
+						getAllQrCodesFromProjectRes.map((item) => {
+							arrayOfQrCodeObjectOld.push(item._id);
+						});
+					}
+
+					let qrCodesInProjectOld = {
+						"_wallets": arrayOfQrCodeObjectOld
+					};
+
+					const entityOld = {
+						_id: projectIdOld,
+					};
+
+					await Project.findOneAndUpdate(entityOld, qrCodesInProjectOld, { new: true });
+
 					return projectAdded;
+
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR DELETING PROJECT", {
 						message: error.message,

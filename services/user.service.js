@@ -41,7 +41,18 @@ module.exports = {
 				const { userId } = ctx.meta.user;
 				try {
 					return await User.findOne({ _id: userId })
-						.populate("_projects");
+						.populate(
+							{
+								path: "_projects",
+								populate: {
+									path: "_wallets",
+									// select: "productName _nfts",
+									populate: {
+										path: "_nfts"
+									}
+								}
+							},
+						);
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR Listing Projects", {
 						message: error.message,
