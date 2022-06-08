@@ -38,6 +38,14 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+					let projectObject = await Project.findOne({ _id: ctx.params.projectId });
+
+					if (projectObject.wallets[0].length > 0) {
+						throw new MoleculerError("error.message", 401, "CAN NOT DELETE PROJECT", {
+							message: "error.message",
+							internalErrorCode: "project1021",
+						});
+					}
 					return await Project.deleteOne({ _id: ctx.params.projectId });
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR DELETING PROJECT", {
