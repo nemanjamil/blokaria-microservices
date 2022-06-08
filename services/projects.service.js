@@ -39,13 +39,16 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					let projectObject = await Project.findOne({ _id: ctx.params.projectId });
+					console.log("Project to delete: ", projectObject);
 
-					if (projectObject.wallets[0].length > 0) {
-						throw new MoleculerError("error.message", 401, "CAN NOT DELETE PROJECT", {
+					if (projectObject._wallets.length > 0) {
+						console.log("deleteProject: CAN NOT DELETE PROJECT WITH ASSETS");
+						return new MoleculerError("error.message", 401, "CAN NOT DELETE PROJECT WITH ASSETS", {
 							message: "error.message",
-							internalErrorCode: "project1021",
+							internalErrorCode: "project100",
 						});
 					}
+
 					return await Project.deleteOne({ _id: ctx.params.projectId });
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR DELETING PROJECT", {
@@ -62,7 +65,6 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-
 					const { itemId, projectId } = ctx.params;
 
 					const entity = {
@@ -70,7 +72,7 @@ module.exports = {
 					};
 
 					let data = {
-						$addToSet: { "_wallets": String(itemId) }
+						$addToSet: { _wallets: String(itemId) },
 					};
 
 					// getCurrentProject
@@ -89,11 +91,10 @@ module.exports = {
 					}
 
 					let qrCodesInProject = {
-						"_wallets": arrayOfQrCodeObject
+						_wallets: arrayOfQrCodeObject,
 					};
 
 					await Project.findOneAndUpdate(entity, qrCodesInProject, { new: true });
-
 
 					// UPDATE OLD PROJECT
 					let getAllQrCodesFromProjectRes = await ctx.call("wallet.getAllQrCodesFromProject", { projectIdOld });
@@ -106,7 +107,7 @@ module.exports = {
 					}
 
 					let qrCodesInProjectOld = {
-						"_wallets": arrayOfQrCodeObjectOld
+						_wallets: arrayOfQrCodeObjectOld,
 					};
 
 					const entityOld = {
@@ -116,7 +117,6 @@ module.exports = {
 					await Project.findOneAndUpdate(entityOld, qrCodesInProjectOld, { new: true });
 
 					return projectAdded;
-
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR DELETING PROJECT", {
 						message: error.message,
