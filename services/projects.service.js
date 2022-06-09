@@ -152,6 +152,34 @@ module.exports = {
 				}
 			},
 		},
+		getOneProject: {
+			params: {
+				projectId: { type: "string", min: 2, max: 60 },
+			},
+			async handler(ctx) {
+				try {
+					const data = {
+						_id: ctx.params.projectId
+					};
+
+					return await Project.findOne(data)
+						.populate(
+							{
+								path: "_wallets",
+								populate: {
+									path: "_image _nfts"
+								},
+							},
+						);
+
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR GETTING PROJECT", {
+						message: error.message,
+						internalErrorCode: "project156",
+					});
+				}
+			}
+		}
 	},
 	methods: {},
 };

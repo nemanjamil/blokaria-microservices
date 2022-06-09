@@ -162,6 +162,7 @@ module.exports = {
 					"GET user/listProjectByUser": "user.listProjectByUser",
 					"POST project/deleteProject": "project.deleteProject",
 					"POST project/addQrCodeToProject": "project.addQrCodeToProject",
+					"GET project/getOneProject/:projectId": "project.getOneProject",
 				},
 				callingOptions: {},
 
