@@ -43,8 +43,8 @@ module.exports = {
 
 					if (projectObject._wallets.length > 0) {
 						console.log("deleteProject: CAN NOT DELETE PROJECT WITH ASSETS");
-						return new MoleculerError("error.message", 401, "CAN NOT DELETE PROJECT WITH ASSETS", {
-							message: "error.message",
+						throw new MoleculerError("CAN NOT DELETE PROJECT WITH ASSETS", 401, "CAN NOT DELETE PROJECT WITH ASSETS", {
+							message: "CAN NOT DELETE PROJECT WITH ASSETS",
 							internalErrorCode: "project100",
 						});
 					}
