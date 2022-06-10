@@ -60,7 +60,7 @@ module.exports = {
 		},
 		addQrCodeToProject: {
 			params: {
-				projectId: { type: "string" },
+				projectId: { type: "string", },
 				itemId: { type: "string" },
 			},
 			async handler(ctx) {
@@ -68,9 +68,6 @@ module.exports = {
 					const { itemId, projectId } = ctx.params;
 					console.log("addQrCodeToProject ctx.params: ", ctx.params);
 
-					const entity = {
-						_id: projectId,
-					};
 
 					let data = {
 						$addToSet: { _wallets: String(itemId) },
@@ -81,7 +78,14 @@ module.exports = {
 					let projectIdOld = getOldProjectId[0]._project;
 
 					// UPDATE NEW PROJECT
+					const entity = {
+						_id: (ctx.params.projectId === "noproject") ? projectIdOld : projectId
+					};
+
+					console.log("addQrCodeToProject UPDATE NEW PROJECT: ");
 					await Project.findOneAndUpdate(entity, data, { new: true });
+
+					console.log("addQrCodeToProject wallet.addProjectToWallet ");
 					let projectAdded = await ctx.call("wallet.addProjectToWallet", { projectId, itemId });
 
 					let arrayOfQrCodeObject = [];

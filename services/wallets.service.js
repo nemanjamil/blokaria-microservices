@@ -168,9 +168,13 @@ module.exports = {
 		addProjectToWallet: {
 			async handler(ctx) {
 				let entity = { _id: ctx.params.itemId };
+
 				let data = {
-					"_project": ctx.params.projectId,
+					"_project": (ctx.params.projectId === "noproject") ? "null" : ctx.params.projectId,
 				};
+
+				console.log("addProjectToWallet : ", data);
+
 				try {
 					await Wallet.findOneAndUpdate(entity, data, { new: true });
 					return await Wallet.find(data);
