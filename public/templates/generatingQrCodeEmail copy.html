@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Generating Qr Code</title>
+
+		<style type="text/css">
+			.container {
+				background-color: rgb(225, 225, 225);
+				padding: 1rem;
+				font-size: 3vh;
+				font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+			}
+			.title {
+				background-color: rgb(18, 35, 46);
+				color: #ec008c;
+				padding: 1rem;
+				text-align: center;
+				font-weight: bold;
+			}
+			.content {
+				background-color: rgb(18, 35, 46);
+				background-image: url("");
+				text-align: center;
+				padding: 1.5rem;
+			}
+			.hello {
+				color: #ec008c;
+				font-weight: bold;
+				font-size: 3vh;
+				text-align: center;
+			}
+			.instruction {
+				background-color: transparent;
+				color: rgb(163, 163, 163);
+				padding: 1rem;
+			}
+			
+			.abutton {
+				background-color: #0277be;
+				font-size: 2vh;
+				font-family: Helvetica, Arial, sans-serif;
+				font-weight: bold;
+				text-decoration: none;
+				padding: 10px 12px;
+				color: #fefefe !important;
+				border-radius: 5px;
+				display: inline-block;
+				mso-padding-alt: 0;
+			}
+			.explain {
+				text-align: center;
+				padding: 1rem;
+				background-color: rgb(18, 35, 46);
+				color: rgb(255, 255, 255);
+				font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+			}
+			.explain p {
+				font-size: 3vh;
+				color: rgb(148, 148, 148);
+			}
+			.line {
+				background-color: rgb(26, 54, 72);
+				height: 0.3rem;
+			}
+			.foot {
+				background-color: rgb(18, 35, 46);
+				color: #ec008c;
+				padding: 1rem;
+				font-size: 2vh;
+				text-align: center;
+			}
+			.main {
+				margin: 0.7rem 0 0.7rem 0;
+				border: solid  rgb(18, 35, 46);
+				border-radius: 10px;
+			}
+			ul.no-bullets {
+				list-style-type: none;
+			}
+			ul li {
+				margin: 5px;
+				color: rgb(148, 148, 148);
+			}
+			.gbutton {
+				background-color: #0277be;
+				font-size: 1rem;
+				font-family: Helvetica, Arial, sans-serif;
+				font-weight: bold;
+				text-decoration: none;
+				padding: 6px 6px;
+				color: #fefefe !important;
+				border-radius: 3px;
+				display: inline-block;
+				mso-padding-alt: 0;
+			}
+			.span_txt{
+				color: #a9a9a9;
+			}
+			.blokariaColor{
+				color: #ec008c;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="title">Blokaria</div>
+			<div class="line"></div>
+			<div class="main">
+				<div class="content">
+					<div class="hello">Hi {{userFullname}}!</div>
+					<div class="instruction">You have successfully created QR code for product: <span class="blokariaColor">{{productName}}</span></div>
+				</div>
+				<div class="explain">
+					<b>What are next steps? <i class="blokariaColor">(Important!)</i></b>
+					<p>
+						Now that you created QR code and added your details,
+
+						{{#if publicQrCode}}
+							<b class="blokariaColor">send this url</b> {{webSiteLocation}}/generate-contract/{{walletQrId}} to your client to
+						{{else}}
+							<b class="blokariaColor">send this url</b> {{webSiteLocation}}/generate-contract/{{walletQrId}}/{{accessCode}} to your client to
+						{{/if}}
+
+						
+						<b class="blokariaColor">finish purchasing</b>.
+					</p>
+				</div>
+
+				<div class="explain">
+					<b>Generate Printable QR code in PDF.</b>
+
+					<ul class="no-bullets">
+						<li>
+							You will have to print QR code. On this <a href="https://www.qrcode-monkey.com/#url" target="_blank" class="gbutton"> link </a> you
+							can generate printable PDF version.
+						</li>
+						<li>Add in field "<b>Your url</b>" this address -> {{webSiteLocation}}/status/{{walletQrId}}</li>
+						<li>Click on <b>green button</b> "Create QR Code" to download PDV version.</li>
+						<li>You can print or engrave QR code on your product.</li>
+					</ul>
+				</div>
+
+				<div class="explain">
+					<b>Take a look of Use Case presentations on our web site.</b>
+					<ul class="no-bullets">
+						<li><a href="https://testnet.blokaria.com/doc/use-case-general" target="_blank" class="abutton"> How To </a></li>
+						<li><a href="https://testnet.blokaria.com/doc/use-case-product" target="_blank" class="abutton"> Add QR code to a Product </a></li>
+						<li><a href="https://testnet.blokaria.com/doc/use-case-planting-tree" target="_blank" class="abutton"> Plant a tree </a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="line"></div>
+			<div class="foot">This email is sent by Blokaria. A Blokaria project - 2077</div>
+		</div>
+	</body>
+	<script></script>
+</html>
