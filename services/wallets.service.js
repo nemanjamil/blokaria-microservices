@@ -173,8 +173,6 @@ module.exports = {
 					"_project": (ctx.params.projectId === "noproject") ? "null" : ctx.params.projectId,
 				};
 
-				console.log("addProjectToWallet : ", data);
-
 				try {
 					await Wallet.findOneAndUpdate(entity, data, { new: true });
 					return await Wallet.find(data);
