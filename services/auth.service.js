@@ -41,6 +41,7 @@ module.exports = {
 						userEmail: user.userEmail,
 						userFullName: user.userFullName,
 						userVerified: user.userVerified,
+						userRole: user.userRole,
 						numberOfTransaction: user.numberOfTransaction,
 						numberOfCoupons: user.numberOfCoupons
 					};

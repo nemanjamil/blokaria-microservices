@@ -146,6 +146,7 @@ module.exports = {
 				aliases: {
 					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
 					"POST user/registerUser": "user.registerUser",
+					"POST user/updateUser": "user.updateUser",
 					"POST user/userGet": "user.userGet",
 					"POST wallet/getListQrCodesByUserPrivate": "wallet.getListQrCodesByUserPrivate",
 					"POST wallet/getQrCodeData": "wallet.getQrCodeData",
@@ -234,6 +235,7 @@ module.exports = {
 						userEmail: getUser[0].userEmail,
 						userFullName: getUser[0].userFullName,
 						userId: getUser[0]._id,
+						userRole: (("userRole" in getUser[0])) ? getUser[0].userRole : 1,
 						numberOfTransaction: getUser[0].numberOfTransaction,
 						numberOfCoupons: getUser[0].numberOfCoupons,
 					};

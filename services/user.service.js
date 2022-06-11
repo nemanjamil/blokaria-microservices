@@ -221,6 +221,7 @@ module.exports = {
 				}
 			}
 		},
+
 		addProjectToUser: {
 
 			params: {
@@ -316,6 +317,7 @@ module.exports = {
 					let user = await User.find(entity, {
 						numberOfTransaction: 1,
 						userEmail: 1,
+						userRole: 1,
 						userFullName: 1,
 						numberOfCoupons: 1,
 						userVerified: 1
@@ -325,6 +327,37 @@ module.exports = {
 					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
 						message: "User Not Found",
 						internalErrorCode: "user20",
+					});
+				}
+
+			},
+		},
+
+		updateUser: {
+			params: {
+				userEmail: { type: "email" },
+				keyName: { type: "any" },
+				valueName: { type: "any" },
+				emailVerificationId: { type: "number" },
+			},
+
+			async handler(ctx) {
+
+				const entity = { userEmail: ctx.params.userEmail };
+				let data = { [ctx.params.keyName]: ctx.params.valueName };
+
+				try {
+					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
+						throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
+							message: "Verification email failed",
+							internalErrorCode: "email20",
+						});
+
+					return await User.findOneAndUpdate(entity, data, { new: true });
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "FAIL UPDATE USER", {
+						message: error.message,
+						internalErrorCode: "user505",
 					});
 				}
 
