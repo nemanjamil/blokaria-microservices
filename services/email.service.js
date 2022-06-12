@@ -129,9 +129,11 @@ module.exports = {
 				userEmail: { type: "email" },
 				productName: { type: "string" },
 				accessCode: { type: "string" },
+				qrCodeImageForStatus: { type: "string" },
 			},
 			async handler(ctx) {
 				try {
+					const { qrCodeImageForStatus } = ctx.params;
 					const source = fs.readFileSync("./public/templates/generatingQrCodeEmail.html", "utf-8").toString();
 					const template = handlebars.compile(source);
 
@@ -156,6 +158,14 @@ module.exports = {
 						to: `${userEmail}`,
 						subject: "Generate QR Code ✔",
 						html: htmlToSend,
+						attachments: [
+							{   // encoded string as an attachment
+								filename: `qr-code-${ctx.params.walletQrId}.png`,
+								content: qrCodeImageForStatus.split("base64,")[1],
+								encoding: "base64"
+							}
+						]
+
 					};
 
 					let info = await transporter.sendMail(mailOptions);

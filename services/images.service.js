@@ -4,7 +4,7 @@ const dbConnection = require("../utils/dbConnection");
 const Image = require("../models/Image");
 const slugify = require("slugify");
 const { MoleculerError } = require("moleculer").Errors;
-
+const QRCode = require("qrcode");
 const fs = require("fs");
 const path = require("path");
 const mkdir = require("mkdirp").sync;
@@ -88,7 +88,8 @@ module.exports = {
 					console.log("saveImageAndData imageSave :", imageSave);
 
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
-					//console.log("saveImageAndData storedIntoDb", storedIntoDb);
+
+					let qrCodeImageForStatus = await this.generateQRCodeStatus(storedIntoDb);
 
 					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
 					//console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
@@ -106,6 +107,7 @@ module.exports = {
 					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					meta.$multipart.accessCode = storedIntoDb.accessCode;
 					meta.$multipart.publicQrCode = storedIntoDb.publicQrCode;
+					meta.$multipart.qrCodeImageForStatus = qrCodeImageForStatus;
 
 					console.log("meta.$multipart", meta.$multipart);
 					console.log("\n\n Send Email Started \n\n");
@@ -141,6 +143,21 @@ module.exports = {
 	},
 
 	methods: {
+		async generateQRCodeStatus(storedIntoDb) {
+			try {
+				let opts = {
+					errorCorrectionLevel: "M",
+					type: "png",
+					width: "500",
+					margin: 1
+				};
+				let QrCodeText = `${process.env.BLOKARIA_WEBSITE}/status/${storedIntoDb.walletQrId}`;
+				return await QRCode.toDataURL(QrCodeText, opts);
+			} catch (error) {
+				console.log("QrCode Pic Error: ", error);
+				return Promise.reject(error);
+			}
+		},
 		async generateNftMethod(uploadDirMkDir, meta, ctx) {
 			try {
 				console.log("\n\n ---- generateNftMethod STARTED ----- \n\n ");
