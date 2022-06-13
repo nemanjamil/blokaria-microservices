@@ -96,6 +96,7 @@ module.exports = {
 						userFullname: ctx.params.userFullname,
 						userEmail: userEmail,
 						productName: ctx.params.productName,
+						domainEmail: process.env.ADMIN_EMAIL,
 					};
 
 					const htmlToSend = template(replacements);
@@ -146,6 +147,7 @@ module.exports = {
 						accessCode: ctx.params.accessCode,
 						publicQrCode: ctx.params.publicQrCode,
 						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						domainEmail: process.env.ADMIN_EMAIL,
 					};
 
 					const htmlToSend = template(replacements);
@@ -159,13 +161,13 @@ module.exports = {
 						subject: "Generate QR Code ✔",
 						html: htmlToSend,
 						attachments: [
-							{   // encoded string as an attachment
+							{
+								// encoded string as an attachment
 								filename: `qr-code-${ctx.params.walletQrId}.png`,
 								content: qrCodeImageForStatus.split("base64,")[1],
-								encoding: "base64"
-							}
-						]
-
+								encoding: "base64",
+							},
+						],
 					};
 
 					let info = await transporter.sendMail(mailOptions);
@@ -210,6 +212,7 @@ module.exports = {
 						clientEmail: clientEmail,
 						clientName: ctx.params.clientName,
 						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						domainEmail: process.env.ADMIN_EMAIL,
 					};
 
 					const htmlToSend = template(replacements);
@@ -249,6 +252,7 @@ module.exports = {
 					userEmail,
 					clearPassword,
 					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+					domainEmail: process.env.ADMIN_EMAIL,
 				};
 
 				const htmlToSend = template(replacements);
@@ -265,19 +269,18 @@ module.exports = {
 					};
 
 					return await transporter.sendMail(mailOptions);
-
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
 						message: error.message,
 						internalErrorCode: "email20",
 					});
 				}
-			}
+			},
 		},
 		sendContractEmail: {
 			async handler(ctx) {
 				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.meta.user;
-				const { userEmail, userFullname, clientEmail, clientName, productName, accessCode, walletQrId, } = ctx.params.walletIdData[0];
+				const { userEmail, userFullname, clientEmail, clientName, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
 
 				const source = fs.readFileSync("./public/templates/initiateProgressEmail.html", "utf-8").toString();
 				const template = handlebars.compile(source);
@@ -294,6 +297,7 @@ module.exports = {
 					accessCode,
 					webSiteLocation: process.env.BLOKARIA_WEBSITE,
 					transactionApprovalLink: `${process.env.BLOKARIA_WEBSITE}/creator-approval?walletQrId=${walletQrId}&clientEmail=${userEmailRegUser}&clientName=${userFullNameRegUser}`,
+					domainEmail: process.env.ADMIN_EMAIL,
 				};
 
 				const htmlToSend = template(replacements);
@@ -310,21 +314,18 @@ module.exports = {
 					};
 
 					return await transporter.sendMail(mailOptions);
-
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
 						message: error.message,
 						internalErrorCode: "email50",
 					});
 				}
-
-			}
+			},
 		},
 
 		sendApprovalToClient: {
-
 			async handler(ctx) {
-				const { userEmail, userFullname, productName, accessCode, walletQrId, } = ctx.params.walletIdData[0];
+				const { userEmail, userFullname, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
 				const clientEmail = ctx.params.clientEmail;
 				const clientName = ctx.params.clientName;
 
@@ -338,7 +339,8 @@ module.exports = {
 					clientName,
 					productName,
 					accessCode,
-					webSiteLocation: process.env.BLOKARIA_WEBSITE
+					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+					domainEmail: process.env.ADMIN_EMAIL,
 				};
 
 				const htmlToSend = template(replacements);
@@ -355,19 +357,15 @@ module.exports = {
 					};
 
 					return await transporter.sendMail(mailOptions);
-
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
 						message: error.message,
 						internalErrorCode: "email50",
 					});
 				}
-
-
-			}
-		}
+			},
+		},
 	},
-
 
 	methods: {
 		sendMailMethod: {

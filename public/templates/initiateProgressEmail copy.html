@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Contract Generation</title>
+
+		<style type="text/css">
+			.container {
+				background-color: rgb(225, 225, 225);
+				padding: 1rem;
+				font-size: 3vh;
+				font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+			}
+			.title {
+				background-color: rgb(51, 84, 145);
+				color: rgb(238, 238, 238);
+				padding: 1rem;
+				text-align: center;
+				font-weight: bold;
+			}
+			.content {
+				background-color: rgb(255, 255, 255);
+				background-image: url("");
+				text-align: center;
+				padding: 1.5rem;
+			}
+			.hello {
+				color: rgb(103, 103, 103);
+				font-weight: bold;
+				font-size: 3vh;
+				text-align: center;
+			}
+			.instruction {
+				background-color: transparent;
+				color: rgb(148, 148, 148);
+				padding: 1rem;
+			}
+			button {
+				border: 1px solid transparent;
+				border-radius: 1rem;
+				padding: 0.5rem;
+				color: white;
+				font-weight: bold;
+				font-size: 3vh;
+				min-width: 20%;
+				background-color: #0a701b;
+			}
+			.abutton {
+				background-color: #4a4b91;
+				font-size: 3vh;
+				font-family: Helvetica, Arial, sans-serif;
+				font-weight: bold;
+				text-decoration: none;
+				padding: 14px 20px;
+				color: #fefefe !important;
+				border-radius: 5px;
+				display: inline-block;
+				mso-padding-alt: 0;
+			}
+			.explain {
+				text-align: center;
+				padding: 1rem;
+				background-color: white;
+				color: rgb(65, 65, 65);
+				font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+			}
+			.explain p {
+				font-size: 3vh;
+				color: rgb(148, 148, 148);
+			}
+			.line {
+				background-color: #597cbd;
+				height: 0.3rem;
+			}
+			.foot {
+				background-color: rgb(51, 84, 145);
+				color: rgb(238, 238, 238);
+				padding: 1rem;
+				font-size: 2vh;
+				text-align: center;
+			}
+			.main {
+				margin: 0.7rem 0 0.7rem 0;
+				border: solid white;
+				border-radius: 10px;
+			}
+			ul.no-bullets {
+				list-style-type: none;
+			}
+			ul li {
+				margin: 5px;
+				color: rgb(148, 148, 148);
+			}
+			.red {
+				color: red;
+			}
+			.green {
+				color: green;
+			}
+			.gbutton {
+				background-color: #189607;
+				font-size: 1rem;
+				font-family: Helvetica, Arial, sans-serif;
+				font-weight: bold;
+				text-decoration: none;
+				padding: 6px 6px;
+				color: #fefefe !important;
+				border-radius: 3px;
+				display: inline-block;
+				mso-padding-alt: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="title">BLOKARIA</div>
+			<div class="line"></div>
+			<div class="main">
+				<div class="content">
+					<div class="hello">Hi {{userEmail}}!</div>
+					<div class="instruction">User {{userFullNameRegUser}} is interested in your product</div>
+					
+
+                    <div class="instruction">Click on this link for approval :</div>
+					<a href="{{transactionApprovalLink}}" target="_blank" class="abutton">
+						<span style="mso-text-raise: 15pt">GO &rarr;</span>
+					</a>
+
+
+					<div class="instruction">    
+                        <b class="green">Or you can send manualy this url</b> {{webSiteLocation}}/generate-contract/{{walletQrId}}/{{accessCode}} to your client
+                    </div>
+					<div class="instruction">Client email: {{userEmailRegUser}}</div>
+					
+					
+				</div>
+				<div class="explain">
+					<b>Product</b>
+					<p>	{{productName}} </p>
+				</div>
+			</div>
+			<div class="line"></div>
+			<div class="foot">This email is sent by Blokaria. A Blokaria project - 2077</div>
+		</div>
+	</body>
+	<script></script>
+</html>
