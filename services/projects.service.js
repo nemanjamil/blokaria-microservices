@@ -80,7 +80,7 @@ module.exports = {
 					console.log("addQrCodeToProject projectIdOld: ", projectIdOld);
 					// UPDATE NEW PROJECT
 
-					console.log("\n\n addQrCodeToProject UPDATE NEW PROJECT: ");
+					console.log("\n\naddQrCodeToProject UPDATE NEW PROJECT: ");
 
 					const entity = {
 						_id: (ctx.params.projectId === "noproject") ? projectIdOld : projectId
@@ -92,13 +92,13 @@ module.exports = {
 
 					console.log("addQrCodeToProject findOneAndUpdateNew :  ", findOneAndUpdateNew);
 
-					console.log("\n\n addQrCodeToProject wallet.addProjectToWallet CALL WALLET SERVICE");
+					console.log("\n\naddQrCodeToProject wallet.addProjectToWallet CALL WALLET SERVICE");
 					console.log("addQrCodeToProject wallet.addProjectToWallet projectId ", projectId);
-					console.log("addQrCodeToProject wallet.addProjectToWallet itemId ", itemId);
+					console.log("addQrCodeToProject wallet.addProjectToWallet itemId ", itemId, "\n");
 
 					let projectAdded = await ctx.call("wallet.addProjectToWallet", { projectId, itemId });
 
-					console.log("addQrCodeToProject wallet.addProjectToWallet Response: ", projectAdded);
+					console.log("\n\naddQrCodeToProject wallet.addProjectToWallet Response: ", projectAdded);
 
 					let arrayOfQrCodeObject = [];
 					if (projectAdded.length > 0) {

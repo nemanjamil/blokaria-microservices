@@ -180,8 +180,9 @@ module.exports = {
 					return await Wallet.findOneAndUpdate(entity, data, { new: true });
 					// return await Wallet.find(data);
 				} catch (error) {
+					console.log("\n\n wallet addProjectToWallet Error ", error);
 					throw new MoleculerError("Can not populate Wallet table with Project ids", 401, "POPULATE_BUG", {
-						message: "P Not Found",
+						message: "Project Not Found",
 						internalErrorCode: "wallet403_populate",
 					});
 				}
