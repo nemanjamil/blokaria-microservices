@@ -170,7 +170,7 @@ module.exports = {
 				let entity = { _id: ctx.params.itemId };
 
 				let data = {
-					"_project": (ctx.params.projectId === "noproject") ? "null" : ctx.params.projectId,
+					"_project": (ctx.params.projectId === "noproject") ? null : ctx.params.projectId,
 				};
 
 				console.log("wallet addProjectToWallet entity ", entity);
