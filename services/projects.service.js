@@ -78,8 +78,12 @@ module.exports = {
 					let projectIdOld = getOldProjectId[0]._project;
 
 					console.log("addQrCodeToProject projectIdOld: ", projectIdOld);
-					// UPDATE NEW PROJECT
 
+
+
+
+
+					// ------------------ UPDATE NEW PROJECT - CHOOSEN - what user is selected ------------------------
 					console.log("\n\naddQrCodeToProject UPDATE NEW PROJECT: ");
 
 					const entity = {
@@ -96,8 +100,9 @@ module.exports = {
 					console.log("addQrCodeToProject wallet.addProjectToWallet projectId ", projectId);
 					console.log("addQrCodeToProject wallet.addProjectToWallet itemId ", itemId, "\n");
 
-					let projectAdded = await ctx.call("wallet.addProjectToWallet", { projectId, itemId });
 
+					// -------------------------------   UPDATE QR CODE -------------------------------
+					let projectAdded = await ctx.call("wallet.addProjectToWallet", { projectId, itemId });
 					console.log("\n\naddQrCodeToProject wallet.addProjectToWallet Response: ", projectAdded);
 
 					let arrayOfQrCodeObject = [];
@@ -117,7 +122,11 @@ module.exports = {
 
 					console.log("addQrCodeToProject findOneAndUpdateRes: ", findOneAndUpdateRes);
 
-					// UPDATE OLD PROJECT
+
+
+
+
+					// --------------------------- UPDATE OLD PROJECT - CURRENT  --------------------------------
 					console.log("\n\n addQrCodeToProject UPDATE OLD PROJECT : START ");
 					let getAllQrCodesFromProjectRes = await ctx.call("wallet.getAllQrCodesFromProject", { projectIdOld });
 
