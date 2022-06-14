@@ -207,6 +207,8 @@ module.exports = {
 				let data = {
 					"_project": ctx.params.projectIdOld,
 				};
+				console.log("Wallet getAllQrCodesFromProject data : ", data);
+
 				try {
 					return await Wallet.find(data);
 				} catch (error) {

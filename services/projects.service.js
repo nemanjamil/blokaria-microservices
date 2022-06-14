@@ -45,7 +45,7 @@ module.exports = {
 						console.log("deleteProject: CAN NOT DELETE PROJECT WITH ASSETS");
 						throw new MoleculerError("CAN NOT DELETE PROJECT WITH ASSETS", 401, "CAN NOT DELETE PROJECT WITH ASSETS", {
 							message: "CAN NOT DELETE PROJECT WITH ASSETS",
-							internalErrorCode: "project100",
+							internalErrorCode: "project210",
 						});
 					}
 
@@ -53,7 +53,7 @@ module.exports = {
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR DELETING PROJECT", {
 						message: error.message,
-						internalErrorCode: "project10",
+						internalErrorCode: "project200",
 					});
 				}
 			},
@@ -99,9 +99,14 @@ module.exports = {
 						_wallets: arrayOfQrCodeObject,
 					};
 
-					await Project.findOneAndUpdate(entity, qrCodesInProject, { new: true });
+					console.log("addQrCodeToProject qrCodesInProject ", qrCodesInProject);
+
+					let findOneAndUpdateRes = await Project.findOneAndUpdate(entity, qrCodesInProject, { new: true });
+
+					console.log("addQrCodeToProject findOneAndUpdateRes: ", findOneAndUpdateRes);
 
 					// UPDATE OLD PROJECT
+					console.log("\n\n addQrCodeToProject UPDATE OLD PROJECT : START ");
 					let getAllQrCodesFromProjectRes = await ctx.call("wallet.getAllQrCodesFromProject", { projectIdOld });
 
 					let arrayOfQrCodeObjectOld = [];
@@ -115,17 +120,23 @@ module.exports = {
 						_wallets: arrayOfQrCodeObjectOld,
 					};
 
+					console.log("addQrCodeToProject qrCodesInProjectOld ", qrCodesInProjectOld);
+
 					const entityOld = {
 						_id: projectIdOld,
 					};
 
-					await Project.findOneAndUpdate(entityOld, qrCodesInProjectOld, { new: true });
+					console.log("addQrCodeToProject entityOld ", entityOld);
+
+					let findOneAndUpdateResOld = await Project.findOneAndUpdate(entityOld, qrCodesInProjectOld, { new: true });
+
+					console.log("addQrCodeToProject findOneAndUpdateResOld ", findOneAndUpdateResOld);
 
 					return projectAdded;
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR ADDING QR CODE TO PROJECT", {
 						message: error.message,
-						internalErrorCode: "project10",
+						internalErrorCode: "project300",
 					});
 				}
 			},
@@ -151,7 +162,7 @@ module.exports = {
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR CREATING PROJECT", {
 						message: error.message,
-						internalErrorCode: "project10",
+						internalErrorCode: "project400",
 					});
 				}
 			},
