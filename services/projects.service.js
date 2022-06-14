@@ -77,16 +77,26 @@ module.exports = {
 					let getOldProjectId = await ctx.call("wallet.getProjectIdFromQrCode", { itemId });
 					let projectIdOld = getOldProjectId[0]._project;
 
+					console.log("addQrCodeToProject projectIdOld: ", projectIdOld);
 					// UPDATE NEW PROJECT
+
+					console.log("\n\n addQrCodeToProject UPDATE NEW PROJECT: ");
+
 					const entity = {
 						_id: (ctx.params.projectId === "noproject") ? projectIdOld : projectId
 					};
 
-					console.log("addQrCodeToProject UPDATE NEW PROJECT: ");
-					await Project.findOneAndUpdate(entity, data, { new: true });
+					console.log("addQrCodeToProject entity: ", entity);
 
-					console.log("addQrCodeToProject wallet.addProjectToWallet ");
+					let findOneAndUpdateNew = await Project.findOneAndUpdate(entity, data, { new: true });
+
+					console.log("addQrCodeToProject findOneAndUpdateNew :  ", findOneAndUpdateNew);
+
+					console.log("\n\n addQrCodeToProject wallet.addProjectToWallet CALL WALLET SERVICE");
+
 					let projectAdded = await ctx.call("wallet.addProjectToWallet", { projectId, itemId });
+
+					console.log("addQrCodeToProject wallet.addProjectToWallet Response: ", projectAdded);
 
 					let arrayOfQrCodeObject = [];
 					if (projectAdded.length > 0) {
