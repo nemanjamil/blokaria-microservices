@@ -173,9 +173,12 @@ module.exports = {
 					"_project": (ctx.params.projectId === "noproject") ? "null" : ctx.params.projectId,
 				};
 
+				console.log("wallet addProjectToWallet entity ", entity);
+				console.log("wallet addProjectToWallet data ", data);
+
 				try {
-					await Wallet.findOneAndUpdate(entity, data, { new: true });
-					return await Wallet.find(data);
+					return await Wallet.findOneAndUpdate(entity, data, { new: true });
+					// return await Wallet.find(data);
 				} catch (error) {
 					throw new MoleculerError("Can not populate Wallet table with Project ids", 401, "POPULATE_BUG", {
 						message: "P Not Found",

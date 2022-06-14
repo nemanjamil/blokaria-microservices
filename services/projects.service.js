@@ -93,6 +93,8 @@ module.exports = {
 					console.log("addQrCodeToProject findOneAndUpdateNew :  ", findOneAndUpdateNew);
 
 					console.log("\n\n addQrCodeToProject wallet.addProjectToWallet CALL WALLET SERVICE");
+					console.log("addQrCodeToProject wallet.addProjectToWallet projectId ", projectId);
+					console.log("addQrCodeToProject wallet.addProjectToWallet itemId ", itemId);
 
 					let projectAdded = await ctx.call("wallet.addProjectToWallet", { projectId, itemId });
 
