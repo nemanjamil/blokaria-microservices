@@ -195,7 +195,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
-						throw new MoleculerError("VErification Id is not correct", 501, "ERR_VERIFICATION_ID", {
+						throw new MoleculerError("Verification Id is not correct", 501, "ERR_VERIFICATION_ID", {
 							message: "Verification email failed",
 							internalErrorCode: "sendTransactionEmail10",
 						});
