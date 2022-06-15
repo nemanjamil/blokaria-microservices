@@ -44,6 +44,7 @@ module.exports = {
 						userOrgPass: userOrgPass,
 						userFullName: userFullName,
 						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						domainEmail: process.env.ADMIN_EMAIL,
 					};
 					const htmlToSend = template(replacements);
 
@@ -53,7 +54,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
-						subject: "Register User ✔",
+						subject: "Registracija korisnika ✔",
 						html: htmlToSend,
 					};
 
@@ -97,6 +98,7 @@ module.exports = {
 						userEmail: userEmail,
 						productName: ctx.params.productName,
 						domainEmail: process.env.ADMIN_EMAIL,
+						webSiteLocation: process.env.BLOKARIA_WEBSITE,
 					};
 
 					const htmlToSend = template(replacements);
@@ -108,7 +110,7 @@ module.exports = {
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}`,
 						cc: `${userEmail}`,
-						subject: "Contract Informations ✔",
+						subject: "Informacije o pametnom ugovoru ✔",
 						html: htmlToSend,
 					};
 
@@ -158,7 +160,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
-						subject: "Generate QR Code ✔",
+						subject: "Generisanje QR koda ✔",
 						html: htmlToSend,
 						attachments: [
 							{
@@ -223,7 +225,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}, ${userEmail}`,
-						subject: "Transaction Email ✔",
+						subject: "Email transakcije ✔",
 						html: htmlToSend,
 					};
 
@@ -264,7 +266,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
-						subject: "Reset Email ✔",
+						subject: "Resetovanje lozinke ✔",
 						html: htmlToSend,
 					};
 
@@ -309,7 +311,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
-						subject: "Product Confirmation Email ✔",
+						subject: "Korisnik je zainteresovan za Vaš proizvod ✔",
 						html: htmlToSend,
 					};
 
@@ -352,7 +354,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}`,
-						subject: "Product Approval Email ✔",
+						subject: "Zahtev odobren ✔",
 						html: htmlToSend,
 					};
 
