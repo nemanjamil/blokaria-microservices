@@ -53,7 +53,7 @@ jobs:
         with:
           host: '144.91.89.39'
           username: 'admin'
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_KEY_MAINNET }}
           port: 22
           script: |
             cd /var/www/docker-compose
