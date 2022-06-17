@@ -2,7 +2,8 @@
 const DbService = require("moleculer-db");
 //const jwt = require("jsonwebtoken");
 const { MoleculerError } = require("moleculer").Errors;
-const Utils = require("../utils/Utils");
+const Utils = require("../utils/utils");
+const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
 //const Date = require("../utils/Date");
@@ -17,7 +18,9 @@ module.exports = {
 	settings: {
 		JWT_SECRET: process.env.JWT_SECRET
 	},
+
 	model: User,
+
 	hooks: {
 		// before: {
 		// 	async create(ctx) {
@@ -27,7 +30,127 @@ module.exports = {
 		// 	},
 		// },
 	},
+
 	actions: {
+		// TODO Mihajlo
+		// meta: {
+		// 	userId: { type: "Number" },
+		// },
+		listProjectByUser: {
+			async handler(ctx) {
+				const { userId } = ctx.meta.user;
+				try {
+					return await User.findOne({ _id: userId })
+						.populate(
+							{
+								path: "_projects",
+								populate: {
+									path: "_wallets",
+									// select: "productName _nfts",
+									populate: {
+										path: "_nfts"
+									}
+								}
+							},
+						);
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR Listing Projects", {
+						message: error.message,
+						internalErrorCode: "project101",
+					});
+				}
+			},
+		},
+
+		// user80
+		addCouponsAndQrCodesToUser: {
+			rest: "POST /addCouponsAndQrCodesToUser",
+			params: {
+				userEmail: { type: "email" },
+				emailVerificationId: { type: "number" },
+				what: { type: "string" },
+				howmany: { type: "number" },
+			},
+			async handler(ctx) {
+
+				if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
+					throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
+						message: "Verification email failed",
+						internalErrorCode: "email20",
+					});
+
+				let what = ctx.params.what;
+				let howmany = ctx.params.howmany;
+
+				console.log(what, howmany);
+
+
+				const entity = {
+					userEmail: ctx.params.userEmail,
+				};
+
+				let data = {};
+				data[what] = howmany;
+
+				try {
+
+					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
+
+					if (!resultFromReducting) {
+						throw new MoleculerError(strings.userReduceTrx, 401, "USER_HAS_NEGATIVE_NUMBER_OF_AVAILABLE_TRANSACTIONS", {
+							message: strings.userReduceTrx,
+							internalErrorCode: "user81",
+						});
+					}
+					return resultFromReducting;
+				} catch (error) {
+					throw new MoleculerError(strings.userReduceTrx, 401, "ERROR_REDUCING_TRANSACTIONS", {
+						message: error.message,
+						internalErrorCode: "user80",
+					});
+				}
+			}
+		},
+
+		// user70
+		reduceNumberOfTransaction: {
+			params: {
+				user: {
+					type: "object",
+					userEmail: { type: "email" },
+				}
+			},
+			async handler(ctx) {
+
+				const entity = {
+					userEmail: ctx.params.user.userEmail,
+					numberOfTransaction: { $gt: 0 }
+				};
+
+
+				let data = {
+					$inc: { numberOfTransaction: -1 }
+				};
+
+				try {
+
+					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
+
+					if (!resultFromReducting) {
+						throw new MoleculerError(strings.userReduceTrx, 401, "USER_HAS_NEGATIVE_NUMBER_OF_AVAILABLE_TRANSACTIONS", {
+							message: strings.userReduceTrx,
+							internalErrorCode: "user71",
+						});
+					}
+					return resultFromReducting;
+				} catch (error) {
+					throw new MoleculerError(strings.userReduceTrx, 401, "ERROR_REDUCING_TRANSACTIONS", {
+						message: error.message,
+						internalErrorCode: "user70",
+					});
+				}
+			}
+		},
 
 		// user40
 		reduceUserCoupons: {
@@ -63,6 +186,7 @@ module.exports = {
 				}
 			}
 		},
+
 		populateUserTable: {
 			// params: {
 			// 	_id: { type: Object },
@@ -97,6 +221,36 @@ module.exports = {
 				}
 			}
 		},
+
+		addProjectToUser: {
+
+			params: {
+				userEmail: { type: "email" },
+				// project : {
+				// 	_id: {type: "Number"}
+				// }
+			},
+			async handler(ctx) {
+				const entity = {
+					userEmail: ctx.params.userEmail,
+				};
+				let data = {
+					$push: { "_projects": String(ctx.params.project._id) }
+				};
+
+				try {
+					return await User.findOneAndUpdate(entity, data, { new: true }) // upsert: true
+						.populate("_projects");
+
+				} catch (error) {
+					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {
+						message: "User Not Found",
+						internalErrorCode: "user30",
+					});
+				}
+			}
+		},
+
 		registerUser: {
 			//rest: "POST /registerUser",
 			params: {
@@ -123,6 +277,7 @@ module.exports = {
 				}
 			},
 		},
+
 		userFind: {  // this is for LogIn 
 			rest: "POST /userfind",
 			params: {
@@ -146,6 +301,7 @@ module.exports = {
 
 			},
 		},
+
 		userGet: {
 			rest: "POST /userGet",
 			params: {
@@ -161,6 +317,7 @@ module.exports = {
 					let user = await User.find(entity, {
 						numberOfTransaction: 1,
 						userEmail: 1,
+						userRole: 1,
 						userFullName: 1,
 						numberOfCoupons: 1,
 						userVerified: 1
@@ -175,6 +332,38 @@ module.exports = {
 
 			},
 		},
+
+		updateUser: {
+			params: {
+				userEmail: { type: "email" },
+				keyName: { type: "any" },
+				valueName: { type: "any" },
+				emailVerificationId: { type: "number" },
+			},
+
+			async handler(ctx) {
+
+				const entity = { userEmail: ctx.params.userEmail };
+				let data = { [ctx.params.keyName]: ctx.params.valueName };
+
+				try {
+					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
+						throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
+							message: "Verification email failed",
+							internalErrorCode: "email20",
+						});
+
+					return await User.findOneAndUpdate(entity, data, { new: true });
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "FAIL UPDATE USER", {
+						message: error.message,
+						internalErrorCode: "user505",
+					});
+				}
+
+			},
+		},
+
 		// user60
 		resetPassword: {
 			params: {
@@ -185,7 +374,7 @@ module.exports = {
 
 				try {
 					let getUserData = await this.actions.userFind(ctx.params);
-					
+
 					if (getUserData.length < 1) {
 						throw new MoleculerError("User does not exist", 401, "USER_DOES_NOT_EXIST", {
 							message: "User does not exist",
@@ -198,7 +387,7 @@ module.exports = {
 						userEmail: userEmail,
 						clearPassword: getUserData[0].clearPassword
 					});
-					
+
 					return sentResetEmail;
 
 				} catch (error) {
@@ -206,6 +395,7 @@ module.exports = {
 				}
 			}
 		},
+
 		// user50
 		resetPasswordCode: {
 			params: {
@@ -214,7 +404,7 @@ module.exports = {
 				userPassword: { type: "string" }
 			},
 			async handler(ctx) {
-				
+
 				const entity = {
 					userEmail: ctx.params.userEmail,
 					clearPassword: ctx.params.clearPassword,

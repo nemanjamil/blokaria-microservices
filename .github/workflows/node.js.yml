@@ -23,13 +23,13 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
+    #- run: npm ci
+    #- run: npm run build --if-present
     
     - name: Copy repository contents via scp
       uses: appleboy/scp-action@master
       env:
-        HOST: '185.193.66.140'
+        HOST: '144.91.89.39'
         USERNAME: 'admin'
         PORT: 22
         KEY: ${{ secrets.SSH_KEY }}
@@ -40,7 +40,7 @@ jobs:
     - name: SSH and deploy node app
       uses: appleboy/ssh-action@master
       with:
-        host: '185.193.66.140'
+        host: '144.91.89.39'
         username: 'admin'
         key: ${{ secrets.SSH_KEY }}
         port: 22

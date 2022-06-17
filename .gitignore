@@ -4,7 +4,7 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
+yarn.lock
 # Runtime data
 pids
 *.pid
@@ -66,3 +66,6 @@ typings/
 #public images
 public/__uploads/
 public/images/
+
+docker-compose-local.yml
+docker-compose-local.env

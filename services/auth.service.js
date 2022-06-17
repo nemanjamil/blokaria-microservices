@@ -17,8 +17,6 @@ module.exports = {
 	actions: {
 		// auth10
 		authenticate: {
-			//rest: "POST /authenticate",
-			//authentication: false,
 			params: {
 				userEmail: { type: "email" },
 				userPassword: { type: "string", min: 1 },
@@ -27,12 +25,21 @@ module.exports = {
 				const { userEmail, userPassword } = ctx.params;
 
 				try {
-					let users = await ctx.call("user.userFind", { userEmail });		
+					let users = await ctx.call("user.userFind", { userEmail });
 					const user = users ? users[0] : null;
-					// if (!user) throw new MoleculerClientError("User does not exist", 422, "USER_FIND_ERROR", { message: "email is not found", internalErrorCode: "auth10" });
+
+					if (!user)
+						throw new MoleculerClientError("Korisnik ne postoji.", 422, "USER_FIND_ERROR", {
+							message: "email is not found",
+							internalErrorCode: "auth10",
+						});
 					const res = await Utils.compare(userPassword, users[0].userPassword);
-					if (!res) throw new MoleculerClientError("Password incorrect", 403, "COMPARE_PASSWORDS_ERROR", { message: "password do not match", internalErrorCode: "auth20" });
-					let expiresIn = "1h";
+					if (!res)
+						throw new MoleculerClientError("Lozinka nije ispravna.", 403, "COMPARE_PASSWORDS_ERROR", {
+							message: "password do not match",
+							internalErrorCode: "auth20",
+						});
+					let expiresIn = "72h";
 					let response = {
 						token: jwt.sign({ userEmail: userEmail }, process.env.JWT_SECRET, { expiresIn: expiresIn }),
 						expiresIn: expiresIn,
@@ -42,8 +49,9 @@ module.exports = {
 						userEmail: user.userEmail,
 						userFullName: user.userFullName,
 						userVerified: user.userVerified,
-						numberOfTransaction: user.numberOfTransaction, 
-						numberOfCoupons: user.numberOfCoupons 
+						userRole: user.userRole,
+						numberOfTransaction: user.numberOfTransaction,
+						numberOfCoupons: user.numberOfCoupons,
 					};
 
 					return { tokenData: response, user: copyUser };
@@ -65,14 +73,19 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-					return jwt.verify(ctx.params.token, process.env.JWT_SECRET);	
+					return jwt.verify(ctx.params.token, process.env.JWT_SECRET);
 				} catch (error) {
-					throw new MoleculerError("Token is not verified or exired. Please Log Out and Log in Again.", 401, "ApiGateway.Errors.ERR_INVALID_TOKEN", {
-						message: "Token is not Valid. Please Log in.",
-						internalErrorCode: "token10",
-					});
+					throw new MoleculerError(
+						"Token nije verifikovan ili je istekao. Izlogujte se i ulogujte ponovo.",
+						401,
+						"ApiGateway.Errors.ERR_INVALID_TOKEN",
+						{
+							message: "Token is not Valid. Please Log in.",
+							internalErrorCode: "token10",
+						}
+					);
 				}
-				
+
 				// return await new this.Promise((resolve, reject) => {
 				// 	jwt.verify(ctx.params.token, process.env.JWT_SECRET, (err, decoded) => {
 				// 		if (err) {
@@ -85,12 +98,6 @@ module.exports = {
 			},
 		},
 	},
-	// events: {
-	// 	"main.sendEmail"(ctx) {
-	// 		this.logger.info("User created:", ctx.params);
-	// 		// Do something
-	// 	},
-	// },
 
 	methods: {
 		sendMailMethod: {

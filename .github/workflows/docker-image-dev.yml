@@ -2,7 +2,7 @@ name: Create and publish a Docker image
 
 on:
   push:
-    branches: dev
+    branches: main
   workflow_dispatch:
 
 env:
@@ -40,3 +40,22 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  deploy-to-server:
+    name: Deploy to server with docker-compose
+    needs: [build-and-push-image]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: SSH and deploy node app
+        uses: appleboy/ssh-action@master
+        with:
+          host: '144.91.89.39'
+          username: 'admin'
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            cd /var/www/docker-compose
+            docker-compose -f docker-compose-local.yml pull
+            docker-compose -f docker-compose-local.yml up --force-recreate -d

@@ -27,9 +27,9 @@
  */
 module.exports = {
 	// Namespace of nodes to segment your nodes on the same network.
-	namespace: "",
+	namespace: "BlokariaNameSpace",
 	// Unique node identifier. Must be unique in a namespace.
-	nodeID: null,
+	nodeID: "nemanja123",
 	// Custom metadata store. Store here what you want. Accessing: `this.broker.metadata`
 	metadata: {},
 
@@ -71,7 +71,7 @@ module.exports = {
 	serializer: "JSON",
 
 	// Number of milliseconds to wait before reject a request with a RequestTimeout error. Disabled: 0
-	requestTimeout: 10 * 1000,
+	requestTimeout: 100 * 1000,
 
 	// Retry policy settings. More info: https://moleculer.services/docs/0.14/fault-tolerance.html#Retry
 	retryPolicy: {
@@ -159,7 +159,7 @@ module.exports = {
 			type: "Prometheus",
 			options: {
 				// HTTP port
-				port: 3030,
+				port: 3032,
 				// HTTP URL path
 				path: "/metrics",
 				// Default labels which are appended to all metrics labels
@@ -197,11 +197,17 @@ module.exports = {
 	replCommands: null,
 
 	// Called after broker created.
-	created(broker) {},
+	created(broker) {
+
+	},
 
 	// Called after broker started.
-	async started(broker) {},
+	async started(broker) {
+
+	},
 
 	// Called after broker stopped.
-	async stopped(broker) {},
+	async stopped(broker) {
+
+	}
 };

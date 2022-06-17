@@ -33,7 +33,7 @@ a, a:hover {
  	</style>
 
 	<!-- MESSAGE SUBJECT -->
-	<title>Blokaria - Resetovanje lozinke</title>
+	<title>Blokaria - interesovanje za Vaš proizvod</title>
 
 </head>
 
@@ -100,7 +100,7 @@ a, a:hover {
 			padding-top: 5px;
 			color: #000000;
 			font-family: sans-serif;" class="subheader">
-				Poštovani {{userEmail}},
+				Poštovani {{userFullname}},
 		</td>
 	</tr>
 
@@ -133,10 +133,8 @@ a, a:hover {
 			padding-top: 25px; 
 			color: #000000;
 			font-family: sans-serif;" class="paragraph">
-			
-			<p>Kliknite na link ispod kako bi resetovali lozinku.</p>
-			
-		</td>
+				
+			Korisnik {{userFullNameRegUser}} je zainteresovan za Vaš proizvod ({{productName}}). <p>Kliknite na link ispod kako biste mu dozvolili pregled proizvoda:</p></td>
 
 		
 	</tr>
@@ -149,14 +147,14 @@ a, a:hover {
 			padding-bottom: 5px;" class="button">
 			
 			<a
-				href="{{webSiteLocation}}/reset-password/{{userEmail}}/{{clearPassword}}" 
+				href="{{transactionApprovalLink}}" 
 			target="_blank" style="text-decoration: underline;">
 
 				<table border="0" cellpadding="0" cellspacing="0" align="center" style="max-width: 240px; min-width: 120px; border-collapse: collapse; border-spacing: 0; padding: 0;"><tr><td align="center" valign="middle" style="padding: 12px 24px; margin: 0; text-decoration: underline; border-collapse: collapse; border-spacing: 0; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px;" bgcolor="#E9703E">
 					
 					<a target="_blank" style="text-decoration: underline; color: #FFFFFF; font-family: sans-serif; font-size: 17px; font-weight: 400; line-height: 120%;" 
-					    href="{{webSiteLocation}}/reset-password/{{userEmail}}/{{clearPassword}}">
-						Link
+					    href="{{transactionApprovalLink}}">
+						Link do proizvoda
 					</a>
 
 				
@@ -174,11 +172,47 @@ a, a:hover {
 		</td>
 	</tr>
 
+	<tr>
+		<td align="center" valign="top" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 17px; font-weight: 400; line-height: 160%;
+			padding-top: 25px; 
+			color: #000000;
+			font-family: sans-serif;" class="paragraph">
+				
+			Ili mu možete sami poslati ovaj link:
+			{{webSiteLocation}}/generate-contract/{{walletQrId}}/{{accessCode}}
+		</td>
+	</tr>
 
 
 
+	<tr>
+		<td align="center" valign="top" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 17px; font-weight: 400; line-height: 160%;
+			padding-top: 25px; 
+			color: #000000;
+			font-family: sans-serif;" class="paragraph">
+				
+		 Email korisnika: {{userEmailRegUser}}
+
+		</td>
+	</tr>
+
+	
 
 
+
+	<!-- LIST -->
+	
+
+
+
+	<!-- LINE -->
+	<!-- Set line color -->
+	<tr>
+		<td align="center" valign="top" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%;
+			padding-top: 25px;" class="line"><hr
+			color="#E0E0E0" align="center" width="100%" size="1" noshade style="margin: 0; padding: 0;" />
+		</td>
+	</tr>
 
 	<!-- PARAGRAPH -->
 	<!-- Set text color and font family ("sans-serif" or "Georgia, serif"). Duplicate all text styles in links, including line-height -->
@@ -189,7 +223,7 @@ a, a:hover {
 			color: #000000;
 			font-family: sans-serif;" class="paragraph">
 				Imate pitanje? <a href="mailto:{{domainName}}" target="_blank" style="color: #127DB3; font-family: sans-serif; font-size: 17px; font-weight: 400; line-height: 160%;">{{domainName}}</a>
-		</td>
+			</td>
 	</tr>
 
 <!-- End of WRAPPER -->

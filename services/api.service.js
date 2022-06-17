@@ -56,17 +56,15 @@ module.exports = {
 				use: [],
 				authentication: true,
 				authorization: false,
-				autoAliases: true,
+				autoAliases: false,
 				mappingPolicy: "restrict", // Available values: "all", "restrict"
 				aliases: {
-					//"POST /": "multipart:image.testiranje",
-					//"PUT /:id": "stream:image.testiranje",
 					"POST /multi": {
 						type: "multipart",
 						busboyConfig: {
 							limits: {
 								files: 1,
-								fileSize: 12 * 1024 * 1024, // 6MB - ADD RESIZE IN CODE
+								fileSize: 2 * 1024 * 1024, // 2MB - ADD RESIZE IN CODE
 							},
 							onPartsLimit(busboy, alias, svc) {
 								this.logger.info("Busboy parts limit!", busboy);
@@ -91,7 +89,7 @@ module.exports = {
 					limits: { files: 1 },
 				},
 				//callingOptions: {},
-				
+
 				logging: true,
 				callOptions: {
 					// meta: {
@@ -108,7 +106,7 @@ module.exports = {
 				authentication: false,
 				authorization: false,
 				whitelist: ["**"],
-				mappingPolicy: "restrict", 
+				mappingPolicy: "restrict",
 				autoAliases: false,
 				aliases: {
 					"POST user/registerUser": "user.registerUser",
@@ -118,6 +116,8 @@ module.exports = {
 					"POST wallet/getQrCodeDataNoRedeem": "wallet.getQrCodeDataNoRedeem",
 					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
 					"POST wallet/getListQrCodesGeneral": "wallet.getListQrCodesGeneral",
+					"POST wallet/getListQrCodesOwners": "wallet.getListQrCodesOwners",
+					"POST wallet/sendApprovalToClient": "wallet.sendApprovalToClient",
 				},
 				callingOptions: {},
 
@@ -131,7 +131,6 @@ module.exports = {
 						limit: "1MB",
 					},
 				},
-				
 			},
 
 			{
@@ -141,10 +140,30 @@ module.exports = {
 				authentication: true,
 				authorization: false,
 				whitelist: ["**"],
-				mappingPolicy: "restrict",  // restrict 
-				autoAliases: true,
+				mappingPolicy: "restrict", // restrict
+				autoAliases: false,
 				aliases: {
-					//"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
+					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
+					"POST user/registerUser": "user.registerUser",
+					"POST user/updateUser": "user.updateUser",
+					"POST user/addCouponsAndQrCodesToUser": "user.addCouponsAndQrCodesToUser",
+					"POST user/userGet": "user.userGet",
+					"POST wallet/getListQrCodesByUserPrivate": "wallet.getListQrCodesByUserPrivate",
+					"POST wallet/getQrCodeData": "wallet.getQrCodeData",
+					"POST wallet/generateContract": "wallet.generateContract",
+					"POST wallet/initiateTransactionToClientWallet": "wallet.initiateTransactionToClientWallet",
+					"POST wallet/deleteQrCode": "wallet.deleteQrCode",
+					"POST wallet/sendContractEmail": "wallet.sendContractEmail",
+					"POST nftcardano/createCardanoNft": "nftcardano.createCardanoNft",
+					"POST nftcardano/createCardanoNftWithAssignWallet": "nftcardano.createCardanoNftWithAssignWallet",
+					"POST nftcardano/sendAssetToWallet": "nftcardano.sendAssetToWallet",
+					"POST nftcardano/checkWallet": "nftcardano.checkWallet",
+					"POST project/addNewProject": "project.addNewProject",
+					"POST project/editProjectName": "project.editProjectName",
+					"GET user/listProjectByUser": "user.listProjectByUser",
+					"POST project/deleteProject": "project.deleteProject",
+					"POST project/addQrCodeToProject": "project.addQrCodeToProject",
+					"GET project/getOneProject/:projectId": "project.getOneProject",
 				},
 				callingOptions: {},
 
@@ -212,12 +231,13 @@ module.exports = {
 					let tokenVerified = await ctx.call("v1.auth.resolveToken", { token });
 					let getUser = await ctx.call("user.userFind", { userEmail: tokenVerified.userEmail });
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
-					return { 
-						userEmail: getUser[0].userEmail, 
-						userFullName: getUser[0].userFullName, 
+					return {
+						userEmail: getUser[0].userEmail,
+						userFullName: getUser[0].userFullName,
 						userId: getUser[0]._id,
-						numberOfTransaction: getUser[0].numberOfTransaction, 
-						numberOfCoupons: getUser[0].numberOfCoupons 
+						userRole: (("userRole" in getUser[0])) ? getUser[0].userRole : 1,
+						numberOfTransaction: getUser[0].numberOfTransaction,
+						numberOfCoupons: getUser[0].numberOfCoupons,
 					};
 				} catch (error) {
 					return Promise.reject(error);

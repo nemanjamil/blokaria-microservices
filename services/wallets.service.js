@@ -1,29 +1,57 @@
 "use strict";
 const DbService = require("moleculer-db");
-const MongooseAdapter = require("moleculer-db-adapter-mongoose");
+const dbConnection = require("../utils/dbConnection");
 const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
-const Wallet = require("../models/wallet.js");
-const Utils = require("../utils/Utils");
+const Wallet = require("../models/Wallet.js");
+const Utils = require("../utils/utils");
 require("dotenv").config();
 
 module.exports = {
 	name: "wallet",
 	logger: true,
 	mixins: [DbService, axiosMixin],
-	adapter: new MongooseAdapter("mongodb://localhost/blokariawallet", {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-		useCreateIndex: true,
-	}),
+	adapter: dbConnection.getMongooseAdapter(),
 	model: Wallet,
 
 	actions: {
+		getListQrCodesOwners: {
+			async handler() {
+				try {
+					return await this.getListQrCodesOwnersModel();
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
+		deleteQrCode: {
+			rest: "POST /deleteQrCode",
+			params: {
+				walletQrId: { type: "string" },
+			},
+			async handler(ctx) {
+				try {
+					let allowedToDelete = await this.allowedToDeleteModel(ctx);
+					let deleteQrCode = await this.deleteQrCodeModel(ctx);
+					let responseDeleteImage = await ctx.call("image.deleteQrCodeImage", { allowedToDelete });
+					return { allowedToDelete, deleteQrCode, responseDeleteImage };
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
 		generateQrCodeInSystem: {
 			rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
 				try {
-					return await this.plainInsertDataIntoDb({ ctx, user: ctx.params.data.user, wallet: ctx.params.data.$multipart, image: ctx.params.imageSave });
+					return await this.plainInsertDataIntoDb({
+						ctx,
+						user: ctx.params.data.user,
+						wallet: ctx.params.data.$multipart,
+						image: ctx.params.imageSave,
+					});
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -34,37 +62,180 @@ module.exports = {
 			rest: "POST /initiateTransactionToClientWallet",
 			async handler(ctx) {
 				try {
+					console.log("\n\n Wallet Initiation Has Started");
+
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
-					console.log("qrCodeStatus", qrCodeStatus);
+					console.log("Wallet qrCodeStatus", qrCodeStatus);
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
-
-					console.log("reducingStatus", reducingStatus);
-
+					console.log("Wallet ReducingStatus", reducingStatus);
 					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
-
-					console.log("cardanoRequest", cardanoRequest);
-					console.log("rndBr", rndBr);
-
+					console.log("Wallet RndBr", rndBr);
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
+					console.log("Wallet RedeemStatus", redeemStatus);
 
-					console.log("redeemStatus", redeemStatus);
+
+					let sendAssetToWallet, updateDbSendingAssetDbRes;
+
+					console.log("Wallet >  qrCodeStatus", qrCodeStatus);
+					console.log("Wallet >  qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
+					console.log("Wallet >  qrCodeStatus[0]._nfts[0].length", qrCodeStatus[0]._nfts.length);
+
+					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
+						console.log("\n\n ================ \n\n");
+						console.log("Wallet >  WalletMinting Start \n");
+						console.log("Wallet >  WalletMinting and wallet assigining has started \n");
+
+						let nftParams = {
+							"assetId": qrCodeStatus[0]._nfts[0].assetId,
+							"addressWallet": qrCodeStatus[0].nftsendaddress,
+							"walletName": "NFT_TEST",
+							"amountValue": 1.7
+						};
+
+						console.log("Wallet > WalletMinting NftParams", nftParams);
+						console.log("Wallet > WalletMinting process.env.LOCALENV", process.env.LOCALENV);
+
+						if (process.env.LOCALENV === "false") {
+							console.log(" \n\n\n\n	>>> WalletMinting SERVER - STARTED sendAssetToWallet \n");
+
+							sendAssetToWallet = await ctx.call("nftcardano.sendAssetToWallet", nftParams);
+							console.log("\n\n	>>> SUCCESSFULL sendAssetToWallet Has Finished \n");
+							console.log("	>>> sendAssetToWallet ", sendAssetToWallet);
+
+							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });
+
+							console.log("\n\n updateDbSendingAssetDbRes  \n");
+							console.log("updateDbSendingAssetDbRes ", updateDbSendingAssetDbRes);
+
+						} else {
+							console.log("WalletMinting LOCAL  ENV \n");
+							sendAssetToWallet = {
+								sendAssetToWallet: {
+									txHash: "dabc75e9b333dc728729fbb5c1ba68fcd1f24ad0cc4f164216cd086d66e76db0"
+								}
+							};
+
+							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });
+						}
+					} else {
+						console.log("WalletMinting  Skipped \n");
+					}
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
 
-					console.log("sendEmail", sendEmail);
+					console.log("\n\n Wallet SendEmail", sendEmail);
 
-					return { qrCodeStatus, cardanoStatus: cardanoRequest.data, reducingStatus, sendEmail, redeemStatus };
+					return {
+						qrCodeStatus,
+						sendAssetToWallet,
+						cardanoStatus: cardanoRequest.data,
+						reducingStatus,
+						sendEmail,
+						updateDbSendingAssetDbRes,
+						redeemStatus,
+					};
 				} catch (error) {
 					return Promise.reject(error);
 				}
 			},
 		},
 
+		populateWalletTable: {
+			async handler(ctx) {
+
+				let entity = {
+					walletQrId: ctx.params.walletQrId,
+				};
+
+				let data = {
+					$push: { "_nfts": String(ctx.params._id) }
+				};
+
+				try {
+					return await Wallet.findOneAndUpdate(entity, data, { new: true }).populate("_wallets");
+				} catch (error) {
+					throw new MoleculerError("Can not populate Wallet table with NFT ids", 401, "POPULATE_BUG", {
+						message: "Wallet Not Found",
+						internalErrorCode: "wallet303_populate",
+					});
+				}
+			}
+		},
+
+		addProjectToWallet: {
+			async handler(ctx) {
+				let entity = { _id: ctx.params.itemId };
+
+				let data = {
+					"_project": (ctx.params.projectId === "noproject") ? null : ctx.params.projectId,
+				};
+
+				console.log("wallet addProjectToWallet entity ", entity);
+				console.log("wallet addProjectToWallet data ", data);
+
+				try {
+					return await Wallet.findOneAndUpdate(entity, data, { new: true });
+					// return await Wallet.find(data);
+				} catch (error) {
+					console.log("\n\n wallet addProjectToWallet Error ", error);
+					throw new MoleculerError("Can not populate Wallet table with Project ids", 401, "POPULATE_BUG", {
+						message: "Project Not Found",
+						internalErrorCode: "wallet403_populate",
+					});
+				}
+			}
+		},
+
+		getProjectIdFromQrCode: {
+			async handler(ctx) {
+
+				let data = {
+					"_id": ctx.params.itemId,
+				};
+				try {
+					return await Wallet.find(data);
+				} catch (error) {
+					throw new MoleculerError("Get Project From QrCode ", 401, "GET_BUG", {
+						message: "Not Found",
+						internalErrorCode: "wallet407_populate",
+					});
+				}
+			}
+		},
+		getAllQrCodesFromProject: {
+			async handler(ctx) {
+
+				let data = {
+					"_project": ctx.params.projectIdOld,
+				};
+				console.log("Wallet getAllQrCodesFromProject data : ", data);
+
+				try {
+					return await Wallet.find(data);
+				} catch (error) {
+					throw new MoleculerError("Get All Qr Codes from Project ", 401, "GET_BUG", {
+						message: "Not Found",
+						internalErrorCode: "wallet409",
+					});
+				}
+			}
+		},
+
 		generateContract: {
-			rest: "POST /generateContract",
+			params: {
+				clientName: { type: "string" },
+				clientEmail: { type: "email" },
+				clientMessage: { type: "string" },
+				qrcode: { type: "string" },
+				nftsendaddress: { type: "string", optional: true },
+				nftimage: { type: "string", optional: true },
+				cbnftimage: { type: "boolean", default: false },
+				clientemailcb: { type: "boolean", default: true },
+				ownernamecb: { type: "boolean", default: true },
+			},
 			async handler(ctx) {
 				try {
 					await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
@@ -80,6 +251,16 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
+		getQrCodeDataOnlyLocalCall: {
+			async handler(ctx) {
+				try {
+					return await this.getQrCodeInfo(ctx);
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -117,13 +298,14 @@ module.exports = {
 			meta: {
 				user: {
 					userEmail: { type: "email" },
-				}
+				},
 			},
 			async handler(ctx) {
 				ctx.params.userEmail = ctx.meta.user.userEmail;
 				try {
 					let listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
-					return listQrCodesByUser;
+					let listQrCodesOwnedByUser = await this.getlistQrCodesOwnedByUserMethod(ctx);
+					return { listQrCodesByUser, listQrCodesOwnedByUser };
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -156,7 +338,37 @@ module.exports = {
 			},
 		},
 
+		sendContractEmail: {
+			params: {
+				qrcode: { type: "string" },
+				clientEmail: { type: "string" },
+			},
+			async handler(ctx) {
+				try {
+					let walletIdData = await this.getQrCodeInfo(ctx);
+					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmail", { ctx, walletIdData });
+					return sendContractEmailRes;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
 
+		sendApprovalToClient: {
+			params: {
+				clientEmail: { type: "email" },
+				qrcode: { type: "string" },
+				clientName: { type: "string" },
+			},
+			async handler(ctx) {
+				const { clientEmail, clientName } = ctx.params;
+
+				let walletIdData = await this.getQrCodeInfo(ctx);
+				let sendApprovalToClientRes = await ctx.call("v1.email.sendApprovalToClient", { ctx, walletIdData, clientEmail, clientName });
+
+				return sendApprovalToClientRes;
+			},
+		},
 	},
 
 	methods: {
@@ -167,43 +379,28 @@ module.exports = {
 				let walletIdData = await this.getQrCodeInfo(ctx);
 
 				switch (true) {
-					case (qrRedeemCheck && walletIdData[0].qrCodeRedeemStatus):
+					case !qrRedeemCheck:
+						return walletIdData;
+					case qrRedeemCheck && walletIdData[0].qrCodeRedeemStatus > 0:
 						throw new MoleculerError("QR code is already redeemed", 501, "ERR_DB_GETTING", {
 							message: "QR code is already redeemed",
 							internalErrorCode: "walletredeem10",
 						});
-						break;
-					case (ctx.meta.user.userEmail === walletIdData[0].userEmail):
-					case (ctx.params.accessCode === walletIdData[0].accessCode):
+					case ctx.meta.user.userEmail === walletIdData[0].userEmail:
+					case ctx.params.accessCode && ctx.params.accessCode === walletIdData[0].accessCode:
 						return walletIdData;
-						break;
-					case (!walletIdData[0].publicQrCode):
+					case walletIdData[0].publicQrCode === false:
 						throw new MoleculerError("QR code is not publicly accessible", 501, "ERR_DB_GETTING", {
 							message: "QR code is not publicly accessible",
 							internalErrorCode: "walletredeem11",
 						});
-						break;
-					case (!qrRedeemCheck):
-						return walletIdData;
-						break;
 					default:
-						throw new MoleculerError("Something happened on getQrCodeDataMethod", 501, "ERR_DB_GETTING", {
-							message: "Something happened on getQrCodeDataMethod",
-							internalErrorCode: "walletredeem12",
-						});
-						break;
+						return walletIdData;
+					// throw new MoleculerError("Something happened on getQrCodeDataMethod", 501, "ERR_DB_GETTING", {
+					// 	message: "Something happened on getQrCodeDataMethod",
+					// 	internalErrorCode: "walletredeem12",
+					// });
 				}
-
-
-
-
-				// let productPicture = await ctx.call("image.getProductPicture", { walletQrId: ctx.params.qrcode });
-
-				// let walletIdDataNew = [...walletIdData];
-				// if (productPicture) {
-				// 	walletIdDataNew[0].productPicture = productPicture.productPicture;
-				// }
-
 			} catch (error) {
 				return Promise.reject(error);
 			}
@@ -225,6 +422,12 @@ module.exports = {
 				clientMessage: ctx.params.clientMessage,
 				clientEmail: ctx.params.clientEmail,
 				clientName: ctx.params.clientName,
+
+				nftsendaddress: ctx.params.nftsendaddress ? ctx.params.nftsendaddress : null,
+				nftimage: ctx.params.nftimage ? ctx.params.nftimage : null,
+				cbnftimage: ctx.params.cbnftimage,
+				clientemailcb: ctx.params.clientemailcb,
+				ownernamecb: ctx.params.ownernamecb,
 			};
 
 			try {
@@ -249,7 +452,10 @@ module.exports = {
 				let wallet = await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 				return wallet;
 			} catch (error) {
-				throw new MoleculerError("Updating Redeem Status Error", 501, "ERROR_UPDATE_REEDEEM_STATUS", { message: error.message, internalErrorCode: "wallet40" });
+				throw new MoleculerError("Updating Redeem Status Error", 501, "ERROR_UPDATE_REEDEEM_STATUS", {
+					message: error.message,
+					internalErrorCode: "wallet40",
+				});
 			}
 		},
 
@@ -259,7 +465,9 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
-				let wallet = await Wallet.find(entity).populate("_image", { productPicture: 1 });
+				let wallet = await Wallet.find(entity)
+					.populate("_image", { productPicture: 1 })
+					.populate("_nfts");
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Error in Reading Qr Code", 501, "ERROR_GET_QR_CODE_DATA", { message: error.message, internalErrorCode: "wallet50" });
@@ -280,7 +488,10 @@ module.exports = {
 					});
 				return wallet;
 			} catch (error) {
-				throw new MoleculerError("Error reading exists Qr Code", 501, "ERROR_GET_QR_CODE_DATA", { message: "Code do not exist into db", internalErrorCode: "wallet61" });
+				throw new MoleculerError("Error reading exists Qr Code", 501, "ERROR_GET_QR_CODE_DATA", {
+					message: "Code do not exist into db",
+					internalErrorCode: "wallet61",
+				});
 			}
 		},
 
@@ -313,9 +524,10 @@ module.exports = {
 				productName: wallet.productName,
 				publicQrCode: wallet.publicQrCode,
 				costOfProduct: wallet.costOfProduct,
+				contributorData: wallet.contributorData,
 				accessCode: Utils.generatePass(),
 				_creator: user.userId,
-				_image: image._id
+				_image: image._id,
 			};
 
 			if (wallet.productVideo) entity.productVideo = wallet.productVideo;
@@ -329,9 +541,13 @@ module.exports = {
 
 				return wallet;
 			} catch (error) {
-				throw new MoleculerError("Plain Inerting Data into DB Error", 501, "ERROR_PLAIN_INSERT_INTO_DB", { message: error.message, internalErrorCode: "wallet80" });
+				throw new MoleculerError("Plain Inerting Data into DB Error", 501, "ERROR_PLAIN_INSERT_INTO_DB", {
+					message: error.message,
+					internalErrorCode: "wallet80",
+				});
 			}
 		},
+
 
 		// 90
 		async getWalletAddresses() {
@@ -357,7 +573,7 @@ module.exports = {
 			};
 			let merchantName = {
 				k: {
-					string: "MerchantName",
+					string: "CreatorName",
 				},
 				v: {
 					string: qrCodeDbData[0].userFullname,
@@ -374,7 +590,7 @@ module.exports = {
 
 			let merchantEmail = {
 				k: {
-					string: "MerchantEmail",
+					string: "CreatorEmail",
 				},
 				v: {
 					string: qrCodeDbData[0].userEmail,
@@ -383,7 +599,7 @@ module.exports = {
 
 			let merchantMessage = {
 				k: {
-					string: "MerchantMessage",
+					string: "CreatorMessage",
 				},
 				v: {
 					string: qrCodeDbData[0].userDesc,
@@ -392,7 +608,7 @@ module.exports = {
 
 			let clientName = {
 				k: {
-					string: "ClientName",
+					string: "OwnerName",
 				},
 				v: {
 					string: qrCodeDbData[0].clientName,
@@ -401,7 +617,7 @@ module.exports = {
 
 			let clientEmail = {
 				k: {
-					string: "ClientEmail",
+					string: "OwnerEmail",
 				},
 				v: {
 					string: qrCodeDbData[0].clientEmail,
@@ -410,7 +626,7 @@ module.exports = {
 
 			let clientMessage = {
 				k: {
-					string: "ClientMessage",
+					string: "OwnerMessage",
 				},
 				v: {
 					string: qrCodeDbData[0].clientMessage,
@@ -418,7 +634,7 @@ module.exports = {
 			};
 			let productLink = {
 				k: {
-					string: "productLink",
+					string: "WebSiteParams",
 				},
 				v: {
 					string: `/status/${qrCodeDbData[0].walletQrId}`,
@@ -426,24 +642,58 @@ module.exports = {
 			};
 			let webSite = {
 				k: {
-					string: "webSite",
+					string: "WebSiteDomain",
 				},
 				v: {
-					string: process.env.BLOKARIA_WEBSITE
+					string: process.env.BLOKARIA_WEBSITE,
+				},
+			};
+
+			let nftimage = {
+				k: {
+					string: "NftImageHash",
+				},
+				v: {
+					string: qrCodeDbData[0].nftimage,
+				},
+			};
+			// let nftsendaddress = {
+			// 	k: {
+			// 		string: "NftWalletAddress",
+			// 	},
+			// 	v: {
+			// 		string: qrCodeDbData[0].nftsendaddress,
+			// 	},
+			// };
+
+			let contributorData = {
+				k: {
+					string: "Contributor",
+				},
+				v: {
+					string: qrCodeDbData[0].contributorData,
 				},
 			};
 
 			let finalArray = [];
-			finalArray.push(merchantName);
 			finalArray.push(productName);
+
+			finalArray.push(merchantName);
 			finalArray.push(merchantEmail);
 			finalArray.push(merchantMessage);
-			finalArray.push(clientName);
-			finalArray.push(clientEmail);
+
+			qrCodeDbData[0].ownernamecb ? finalArray.push(clientName) : "";
+			qrCodeDbData[0].clientemailcb ? finalArray.push(clientEmail) : "";
+
 			finalArray.push(clientMessage);
+
 			finalArray.push(productLink);
 			finalArray.push(webSite);
 			finalArray.push(internalCode);
+			qrCodeDbData[0].nftimage ? finalArray.push(nftimage) : "";
+			// (qrCodeDbData[0].nftsendaddress) ? finalArray.push(nftsendaddress) : "";
+
+			qrCodeDbData[0].contributorData ? finalArray.push(contributorData) : "";
 
 			let metaDataObj = {
 				[rndBr]: {
@@ -472,19 +722,22 @@ module.exports = {
 				let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
 				return { rndBr, cardanoRequest };
 			} catch (error) {
-
-				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", { message: error.message, internalErrorCode: "wallet202" });
+				console.dir(error, { depth: null });
+				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
+					message: error.message,
+					internalErrorCode: "wallet202",
+				});
 			}
 		},
 
 		// wallet110
 		async getListQrCodesByUserMethod(ctx) {
-
 			const entity = {
 				userEmail: ctx.params.userEmail,
 			};
 			try {
-				return await Wallet.find(entity).sort("-createdAt")
+				return await Wallet.find(entity)
+					.sort("-createdAt")
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 });
 			} catch (error) {
@@ -503,11 +756,92 @@ module.exports = {
 		async getListQrCodesGeneral(ctx) {
 			const entity = {};
 			try {
-				return await Wallet.find(entity).skip(ctx.params.skip).limit(ctx.params.limit).sort({ createdAt: -1 })
+				return await Wallet.find(entity)
+					.skip(ctx.params.skip)
+					.limit(ctx.params.limit)
+					.sort({ createdAt: -1 })
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 });
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
+			}
+		},
+
+		// wallet130
+		async getlistQrCodesOwnedByUserMethod(ctx) {
+			const entity = {
+				clientEmail: ctx.params.userEmail,
+			};
+			try {
+				return await Wallet.find(entity)
+					.sort("-createdAt")
+					.populate("_creator", { userFullName: 1, userEmail: 1 })
+					.populate("_image", { productPicture: 1 });
+			} catch (error) {
+				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet130" });
+			}
+		},
+
+		// wallet140
+		async getListQrCodesOwnersModel() {
+			try {
+				return await Wallet.aggregate()
+					.group({ _id: "$userEmail", count: { $sum: 1 } })
+					.lookup({ from: "users", localField: "_id", foreignField: "userEmail", as: "userInfo" })
+					.match({ userInfo: { $exists: true, $not: { $size: 0 } } })
+					.project({ _id: 0, count: "$count", userFullName: "$userInfo.userFullName", userEmail: "$userInfo.userEmail" })
+					.exec();
+			} catch (error) {
+				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet140" });
+			}
+		},
+
+		// wallet150
+		async deleteQrCodeModel(ctx) {
+			let data = {
+				walletQrId: ctx.params.walletQrId,
+			};
+			try {
+				return await Wallet.deleteOne(data);
+			} catch (error) {
+				throw new MoleculerError("Error Delete Qr codes", 501, "ERROR_DELETE_QR_CODES", { message: error.message, internalErrorCode: "wallet150" });
+			}
+		},
+
+		// wallet160
+		async allowedToDeleteModel(ctx) {
+			const entity = {
+				walletQrId: ctx.params.walletQrId,
+			};
+			try {
+				let qrCodeData = await Wallet.find(entity).populate("_image", { productPicture: 1 });
+				if (qrCodeData[0].userEmail === ctx.meta.user.userEmail) {
+					return qrCodeData;
+				} else {
+					throw new MoleculerError("Error Delete Qr codes check Parmissions", 501, "ERROR_DELETE_QR_CODES_PERMISSIONS", {
+						message: "Data do not match",
+						internalErrorCode: "wallet161",
+					});
+				}
+			} catch (error) {
+				throw new MoleculerError("Error Delete Qr codes check Parmissions", 501, "ERROR_DELETE_QR_CODES_PERMISSIONS", {
+					message: error.message,
+					internalErrorCode: "wallet160",
+				});
+			}
+		},
+
+		// wallet170
+		async findOneAndUpdate({ walletQrId, dataIn }) {
+			let entity = { walletQrId: walletQrId };
+
+			console.log("Wallet findOneAndUpdate ", dataIn);
+			console.log("Wallet walletQrId ", walletQrId);
+
+			try {
+				return await Wallet.findOneAndUpdate(entity, { $set: dataIn }, { new: true });
+			} catch (error) {
+				throw new MoleculerError("Updating Data Error", 501, "ERR_UPDATING_DB", { message: error.message, internalErrorCode: "wallet170" });
 			}
 		},
 	},

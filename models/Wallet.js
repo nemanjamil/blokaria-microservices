@@ -16,17 +16,40 @@ const walletSchema = new mongoose.Schema({
 	metaDataRandomNumber: { type: Number },
 	productPicture: { type: String },
 	productVideo: { type: String },
+	contributorData: { type: String, default: null },
 	publicQrCode: { type: Boolean, default: true },
 	costOfProduct: { type: Number, default: 0 },
-	accessCode: { type: String, required: true }, 
-	_creator: { 
-		type: ObjectId, 
-		ref: "User" 
+	accessCode: { type: String, required: true },
+
+	cbnftimage: { type: Boolean, default: false },
+	nftimage: { type: String, default: null },
+	nftsendaddress: { type: String },
+
+	clientemailcb: { type: Boolean, default: true },
+	ownernamecb: { type: Boolean, default: true },
+
+	nftSenderWalletName: { type: String },
+	nftReceiverAddressWallet: { type: String },
+	nftAssetId: { type: String },
+	nftMintTxHash: { type: String },
+	nftAssetToWalletTxHash: { type: String },
+	_creator: {
+		type: ObjectId,
+		ref: "User"
 	},
-	_image: [{ 
-		type: ObjectId, 
-		ref: "Image" 
+	_image: [{
+		type: ObjectId,
+		ref: "Image"
 	}],
+	_nfts: [{
+		type: ObjectId,
+		ref: "Nftcardano"
+	}],
+	_project: {
+		type: ObjectId,
+		ref: "Project"
+	}
 });
+
 
 module.exports = mongoose.model("Wallet", walletSchema);
