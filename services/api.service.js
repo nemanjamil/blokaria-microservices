@@ -110,6 +110,7 @@ module.exports = {
 				autoAliases: false,
 				aliases: {
 					"POST user/registerUser": "user.registerUser",
+					"GET user/authenticate/:id/:userEmail": "user.authenticate",
 					"POST v1/auth/authenticate": "v1.auth.authenticate",
 					"POST user/resetPassword": "user.resetPassword",
 					"POST user/resetPasswordCode": "user.resetPasswordCode",

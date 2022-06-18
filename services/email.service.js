@@ -30,11 +30,13 @@ module.exports = {
 				userEmail: { type: "email" },
 				userOrgPass: { type: "string" },
 				userFullName: { type: "string" },
+				authenticateLink: { type: "string" },
 			},
 			async handler(ctx) {
 				let userEmail = ctx.params.userEmail;
 				let userOrgPass = ctx.params.userOrgPass;
 				let userFullName = ctx.params.userFullName;
+				let authenticateLink = ctx.params.authenticateLink;
 
 				try {
 					const source = fs.readFileSync("./public/templates/registrateUser.html", "utf-8").toString();
@@ -45,6 +47,8 @@ module.exports = {
 						userFullName: userFullName,
 						webSiteLocation: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL,
+						authenticateLink: authenticateLink,
+						backEnd: process.env.MOLECULER_SERVICE_LOCATION
 					};
 					const htmlToSend = template(replacements);
 

@@ -270,10 +270,35 @@ module.exports = {
 						userEmail: ctx.params.userEmail,
 						userOrgPass: ctx.params.userPassword,
 						userFullName: ctx.params.userFullName,
+						authenticateLink: clearPassword,
 					});
 					return { sendEmail, userEmail };
 				} catch (error) {
 					return Promise.reject(error);
+				}
+			},
+		},
+		authenticate: {
+			params: {
+				id: { type: "string", min: 2, max: 60 },
+				userEmail: { type: "email" },
+			},
+			async handler(ctx) {
+				const entity = {
+					userEmail: ctx.params.userEmail,
+					clearPassword: ctx.params.id
+				};
+				let data = { userVerified: 1 };
+				try {
+					await User.findOneAndUpdate(entity, data, { new: true });
+					ctx.meta.$statusCode = 302;
+					ctx.meta.$location = `${process.env.BLOKARIA_WEBSITE}/log-in-user`;
+					return;
+				} catch (error) {
+					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
+						message: "User Not Found",
+						internalErrorCode: "user9",
+					});
 				}
 			},
 		},
