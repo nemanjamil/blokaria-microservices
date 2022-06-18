@@ -424,6 +424,7 @@ module.exports = {
 							internalErrorCode: "user51",
 						});
 					}
+					return "Password Successfully reset";
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "UPDATE_PASSWORD_FAIL", {
 						message: error.message,
