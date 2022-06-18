@@ -1,4 +1,4 @@
-name: Create and publish a Docker MAINNET image
+name: Docker MAINNET image
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Create and publish a Docker TESTNET image
+name: Docker TESTNET image
 
 on:
   push:
