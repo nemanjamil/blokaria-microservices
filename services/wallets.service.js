@@ -609,12 +609,13 @@ module.exports = {
 
 			try {
 				//let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
-				let { rndBr, txHash } = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
+				let payLoadResponse = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
 
-				console.log("sendTransactionFromWalletToWallet txHash : ", txHash);
-				console.log("END sendTransactionFromWalletToWallet rndBr : ", rndBr);
+				console.log("sendTransactionFromWalletToWallet payLoadResponse : ", payLoadResponse);
+				console.log("sendTransactionFromWalletToWallet txHash : ", payLoadResponse);
+				console.log("END sendTransactionFromWalletToWallet rndBr : ", payLoadResponse);
 
-				return { rndBr, txHash };
+				return payLoadResponse;
 				//return { rndBr, cardanoRequest };
 			} catch (error) {
 
