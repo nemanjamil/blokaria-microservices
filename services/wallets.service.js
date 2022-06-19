@@ -62,13 +62,13 @@ module.exports = {
 			rest: "POST /initiateTransactionToClientWallet",
 			async handler(ctx) {
 				try {
-					console.log("\n\n Wallet Initiation Has Started");
+					console.log("\n\nWallet Initiation Has Started");
 
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
-					qrCodeStatus[0].walletName = process.env.WALLET_NAME;
-					qrCodeStatus[0].amountValue = 1;
-					delete qrCodeStatus[0].nftimage;
+					qrCodeStatus[0]["walletName"] = process.env.WALLET_NAME;
+					qrCodeStatus[0]["amountValue"] = 1;
+					delete qrCodeStatus[0]["nftimage"];
 					console.log("Wallet qrCodeStatus", qrCodeStatus);
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
