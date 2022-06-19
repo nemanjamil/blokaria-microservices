@@ -92,28 +92,12 @@ module.exports = {
 
 					console.log("Wallet newData ", newData);
 
-					/* console.log("Wallet qrCodeStatus BEFORE ", qrCodeStatus);
-					let newData = { ...qrCodeStatus[0]["_doc"] };
-
-					console.log("Wallet newData BEFORE ", newData);
-
-					newData["walletName"] = process.env.WALLET_NAME;
-					newData["amountValue"] = 1;
-					delete newData["nftimage"];
-					console.log("Wallet newData AFTER", newData); */
-
-					// qrCodeStatus[0]["_doc"]["walletName"] = process.env.WALLET_NAME;
-					// qrCodeStatus[0]["_doc"]["amountValue"] = 1;
-					// console.log("Wallet qrCodeStatus AFTER", qrCodeStatus);
-
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 					console.log("Wallet ReducingStatus", reducingStatus);
 
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
-					console.log("Wallet RndBr", rndBr);
-					console.log("Wallet txHash", txHash);
 
-					let redeemStatus = await this.updateRedeemStatus(ctx, txHash.data, rndBr);
+					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
 					console.log("Wallet RedeemStatus", redeemStatus);
 
 					let sendAssetToWallet, updateDbSendingAssetDbRes;
@@ -159,7 +143,7 @@ module.exports = {
 							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });
 						}
 					} else {
-						console.log("WalletMinting  Skipped \n");
+						console.warn("\n\n  === WalletMinting  Skipped ==== \n");
 					}
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
@@ -483,11 +467,13 @@ module.exports = {
 			};
 			let data = {
 				qrCodeRedeemStatus: 1,
-				transactionId: transaction.id,
+				transactionId: transaction,
 				metaDataRandomNumber: metaDataRandomNumber,
 			};
 
 			try {
+				console.log("Wallet updateRedeemStatus entity ", entity);
+				console.log("Wallet updateRedeemStatus data ", data);
 				let wallet = await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 				return wallet;
 			} catch (error) {
@@ -608,14 +594,11 @@ module.exports = {
 			console.log("sendTransactionFromWalletToWallet DOCKER_INTERNAL_URL : ", process.env.DOCKER_INTERNAL_URL);
 
 			try {
-				//let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
 				let payLoadResponse = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
 
-				console.log("sendTransactionFromWalletToWallet payLoadResponse : ", payLoadResponse);
-				console.log("sendTransactionFromWalletToWallet txHash : ", payLoadResponse);
-				console.log("END sendTransactionFromWalletToWallet rndBr : ", payLoadResponse);
+				console.log("END sendTransactionFromWalletToWallet payLoadResponse : ", payLoadResponse);
 
-				return payLoadResponse;
+				return { rndBr: payLoadResponse.data.rndBr, txHash: payLoadResponse.data.txHash };
 				//return { rndBr, cardanoRequest };
 			} catch (error) {
 
