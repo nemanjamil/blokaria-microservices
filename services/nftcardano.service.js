@@ -40,7 +40,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					console.log("checkWallet ctx.params: call ", ctx.params);
-					let checkWallet = await this.axiosPost("http://host.docker.internal:3333/checkWallet", ctx.params);
+					let checkWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}checkWallet`, ctx.params);
 					return checkWallet.data;
 				} catch (error) {
 					return Promise.reject(error);
@@ -61,7 +61,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					console.log("createCardanoNft ctx.params: ", ctx.params);
-					let mintNft = await this.axiosPost("http://host.docker.internal:3333/generateNFT", ctx.params);
+					let mintNft = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateNFT`, ctx.params);
 					return { mintNFT: mintNft.data };
 				} catch (error) {
 					return Promise.reject(error);
@@ -98,7 +98,7 @@ module.exports = {
 					console.log("createCardanoNftWithAssignWallet GenerateNftParams", generateNftParams);
 
 					console.log("  ==== createCardanoNftWithAssignWallet START MINT CALL NATIVE FUNCTION \n\n");
-					let mintNft = await this.axiosPost("http://host.docker.internal:3333/generateNFT", generateNftParams);
+					let mintNft = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateNFT`, generateNftParams);
 
 					console.log("createCardanoNftWithAssignWallet USAO");
 					console.log("createCardanoNftWithAssignWallet", mintNft.data);
@@ -120,7 +120,7 @@ module.exports = {
 					// Ovde treba ubaciti {{site_url}}api/nftcardano/checkWallet da proverimo da li asset sleteo na wallet
 					// Ako jeste onda mozemo da radimo sendAssetToAnotherWallet
 
-					let sendAssetToWallet = await this.axiosPost("http://host.docker.internal:3333/sendAssetToWallet", payloadToWallet);
+					let sendAssetToWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}sendAssetToWallet`, payloadToWallet);
 
 					console.log("createCardanoNftWithAssignWallet Finished SendAssetToWallet", Date.now());
 
@@ -200,7 +200,7 @@ module.exports = {
 						amountValue: ctx.params.amountValue,
 					};
 					console.log("sendAssetToWallet payloadToWallet", payloadToWallet);
-					let sendAssetToWallet = await this.axiosPost("http://host.docker.internal:3333/sendAssetToWallet", payloadToWallet);
+					let sendAssetToWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}sendAssetToWallet`, payloadToWallet);
 					return { sendAssetToWallet: sendAssetToWallet.data };
 				} catch (error) {
 					return Promise.reject(error);
