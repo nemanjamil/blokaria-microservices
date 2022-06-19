@@ -66,6 +66,9 @@ module.exports = {
 
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
+					console.log("Wallet qrCodeStatus BEFORE ", qrCodeStatus);
+
+
 					let newData = {
 						userDesc: qrCodeStatus[0].userDesc,
 						userFullname: qrCodeStatus[0].userFullname,
@@ -84,9 +87,12 @@ module.exports = {
 						clientemailcb: qrCodeStatus[0].clientemailcb,
 						ownernamecb: qrCodeStatus[0].clientemailcb,
 
-						walletName: qrCodeStatus[0].walletName,
-						amountValue: qrCodeStatus[0].amountValue,
+						walletName: process.env.WALLET_NAME,
+						amountValue: 1,
 					};
+
+					console.log("Wallet newData ", newData);
+
 					/* console.log("Wallet qrCodeStatus BEFORE ", qrCodeStatus);
 					let newData = { ...qrCodeStatus[0]["_doc"] };
 
@@ -97,9 +103,9 @@ module.exports = {
 					delete newData["nftimage"];
 					console.log("Wallet newData AFTER", newData); */
 
-					qrCodeStatus[0]["_doc"]["walletName"] = process.env.WALLET_NAME;
-					qrCodeStatus[0]["_doc"]["amountValue"] = 1;
-					console.log("Wallet qrCodeStatus AFTER", qrCodeStatus);
+					// qrCodeStatus[0]["_doc"]["walletName"] = process.env.WALLET_NAME;
+					// qrCodeStatus[0]["_doc"]["amountValue"] = 1;
+					// console.log("Wallet qrCodeStatus AFTER", qrCodeStatus);
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 					console.log("Wallet ReducingStatus", reducingStatus);
