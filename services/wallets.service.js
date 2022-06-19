@@ -579,6 +579,7 @@ module.exports = {
 				//console.dir(error, { depth: null });
 				console.log("\n\n\nerror 1 error.message", error.message);
 				console.log("\n\n\nerror 2 error.data", error.data);
+				console.log("\n\n\nerror 2 error", error);
 
 				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
 					message: error.message,
