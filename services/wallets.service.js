@@ -68,6 +68,7 @@ module.exports = {
 
 					qrCodeStatus[0].walletName = process.env.WALLET_NAME;
 					qrCodeStatus[0].amountValue = 1;
+					delete qrCodeStatus[0].nftimage;
 					console.log("Wallet qrCodeStatus", qrCodeStatus);
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
@@ -421,7 +422,7 @@ module.exports = {
 				clientName: ctx.params.clientName,
 
 				nftsendaddress: ctx.params.nftsendaddress ? ctx.params.nftsendaddress : null,
-				nftimage: ctx.params.nftimage ? ctx.params.nftimage : null,
+				nftimage: ctx.params.nftimage ? ctx.params.nftimage : "",
 				cbnftimage: ctx.params.cbnftimage,
 				clientemailcb: ctx.params.clientemailcb,
 				ownernamecb: ctx.params.ownernamecb,
@@ -575,7 +576,7 @@ module.exports = {
 				return { requestForTransaction };
 				//return { rndBr, cardanoRequest };
 			} catch (error) {
-				console.dir(error, { depth: null });
+				//console.dir(error, { depth: null });
 				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
 					message: error.message,
 					internalErrorCode: "wallet202",

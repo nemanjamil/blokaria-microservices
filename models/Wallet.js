@@ -22,7 +22,7 @@ const walletSchema = new mongoose.Schema({
 	accessCode: { type: String, required: true },
 
 	cbnftimage: { type: Boolean, default: false },
-	nftimage: { type: String, default: null },
+	nftimage: { type: String, default: "" },
 	nftsendaddress: { type: String },
 
 	clientemailcb: { type: Boolean, default: true },
