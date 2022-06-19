@@ -567,7 +567,8 @@ module.exports = {
 			console.log("sendTransactionFromWalletToWallet DOCKER_INTERNAL_URL : ", process.env.DOCKER_INTERNAL_URL);
 
 			try {
-				let requestForTransaction = await this.axiosPost("http://host.docker.internal:3333/generateTransaction", qrCodeDbData);
+				//let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
+				let requestForTransaction = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
 
 				return { requestForTransaction };
 				//return { rndBr, cardanoRequest };
