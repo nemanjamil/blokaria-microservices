@@ -563,7 +563,7 @@ module.exports = {
 		// 100
 		async sendTransactionFromWalletToWallet(qrCodeDbData) {
 
-			console.log('sendTransactionFromWalletToWallet qrCodeDbData : ', qrCodeDbData);
+			console.log("sendTransactionFromWalletToWallet qrCodeDbData : ", qrCodeDbData);
 
 			try {
 				//let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
