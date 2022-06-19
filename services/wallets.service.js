@@ -66,6 +66,27 @@ module.exports = {
 
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
+					let newData = {
+						userDesc: qrCodeStatus[0].userDesc,
+						userFullname: qrCodeStatus[0].userFullname,
+						userEmail: qrCodeStatus[0].userEmail,
+
+						productName: qrCodeStatus[0].productName,
+
+						clientEmail: qrCodeStatus[0].clientEmail,
+						clientMessage: qrCodeStatus[0].clientMessage,
+						clientName: qrCodeStatus[0].clientName,
+
+						walletQrId: qrCodeStatus[0].walletQrId,
+						//nftimage: qrCodeStatus[0].nftimage,
+
+						contributorData: qrCodeStatus[0].contributorData,
+						clientemailcb: qrCodeStatus[0].clientemailcb,
+						ownernamecb: qrCodeStatus[0].clientemailcb,
+
+						walletName: qrCodeStatus[0].walletName,
+						amountValue: qrCodeStatus[0].amountValue,
+					};
 					/* console.log("Wallet qrCodeStatus BEFORE ", qrCodeStatus);
 					let newData = { ...qrCodeStatus[0]["_doc"] };
 
@@ -82,7 +103,7 @@ module.exports = {
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 					console.log("Wallet ReducingStatus", reducingStatus);
-					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(qrCodeStatus[0]);
+					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(newData);
 					console.log("Wallet RndBr", rndBr);
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 					console.log("Wallet RedeemStatus", redeemStatus);
