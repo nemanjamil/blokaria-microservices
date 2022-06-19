@@ -66,6 +66,8 @@ module.exports = {
 
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
+					qrCodeStatus[0].walletName = process.env.WALLET_NAME;
+					qrCodeStatus[0].amountValue = 1;
 					console.log("Wallet qrCodeStatus", qrCodeStatus);
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
