@@ -564,6 +564,7 @@ module.exports = {
 		async sendTransactionFromWalletToWallet(qrCodeDbData) {
 
 			console.log("sendTransactionFromWalletToWallet qrCodeDbData : ", qrCodeDbData);
+			console.log("sendTransactionFromWalletToWallet DOCKER_INTERNAL_URL : ", process.env.DOCKER_INTERNAL_URL);
 
 			try {
 				let requestForTransaction = await this.axiosPost("http://host.docker.internal:3333/generateTransaction", qrCodeDbData);
