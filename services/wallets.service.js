@@ -66,14 +66,20 @@ module.exports = {
 
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
-					qrCodeStatus[0]["walletName"] = process.env.WALLET_NAME;
-					qrCodeStatus[0]["amountValue"] = 1;
-					delete qrCodeStatus[0]["nftimage"];
-					console.log("Wallet qrCodeStatus", qrCodeStatus);
+					console.log("Wallet qrCodeStatus BEFORE ", qrCodeStatus);
+					let newData = { ...qrCodeStatus[0] };
+
+					console.log("Wallet newData BEFORE ", newData);
+
+					newData["walletName"] = process.env.WALLET_NAME;
+					newData["amountValue"] = 1;
+					delete newData["nftimage"];
+
+					console.log("Wallet newData AFTER", newData);
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 					console.log("Wallet ReducingStatus", reducingStatus);
-					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
+					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(newData);
 					console.log("Wallet RndBr", rndBr);
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 					console.log("Wallet RedeemStatus", redeemStatus);
@@ -578,8 +584,9 @@ module.exports = {
 			} catch (error) {
 				//console.dir(error, { depth: null });
 				console.log("\n\n\nerror 1 error.message", error.message);
-				console.log("\n\n\nerror 2 error.data", error.data);
 				console.log("\n\n\nerror 2 error", error);
+				console.log("\n\n\nerror 3 error.config", error.config);
+				console.log("\n\n\nerror 4 error.response", error.response);
 
 				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
 					message: error.message,
