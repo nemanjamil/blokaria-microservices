@@ -168,6 +168,9 @@ module.exports = {
 				(ctx.params.publicQrCode) ? "" : data.$inc = { numberOfCoupons: -Number(ctx.params[0].costOfProduct) };
 
 
+				console.log("USER reduceUserCoupons entity: ", entity);
+				console.log("USER reduceUserCoupons data: ", data);
+
 				try {
 
 					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
