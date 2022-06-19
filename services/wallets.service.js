@@ -82,7 +82,7 @@ module.exports = {
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 					console.log("Wallet ReducingStatus", reducingStatus);
-					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
+					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(qrCodeStatus[0]);
 					console.log("Wallet RndBr", rndBr);
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 					console.log("Wallet RedeemStatus", redeemStatus);
