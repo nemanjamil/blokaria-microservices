@@ -70,7 +70,7 @@ module.exports = {
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 					console.log("Wallet ReducingStatus", reducingStatus);
-					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
+					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
 					console.log("Wallet RndBr", rndBr);
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 					console.log("Wallet RedeemStatus", redeemStatus);
@@ -561,7 +561,9 @@ module.exports = {
 		},
 
 		// 100
-		async sendTransactionFromWalletToWallet(Address, qrCodeDbData) {
+		async sendTransactionFromWalletToWallet(qrCodeDbData) {
+
+			console.log('sendTransactionFromWalletToWallet qrCodeDbData : ', qrCodeDbData);
 
 			try {
 				//let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
