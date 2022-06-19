@@ -70,7 +70,7 @@ module.exports = {
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 					console.log("Wallet ReducingStatus", reducingStatus);
-					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(process.env.WALLET_ADDRESS_5, qrCodeStatus);
+					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
 					console.log("Wallet RndBr", rndBr);
 					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
 					console.log("Wallet RedeemStatus", redeemStatus);
@@ -561,167 +561,16 @@ module.exports = {
 		},
 
 		// 100
-		async sendTransactionFromWalletToWallet(Address, qrCodeDbData) {
-			let rndBr = "888000999" + Math.floor(Math.random() * 1000000);
+		async sendTransactionFromWalletToWallet(qrCodeDbData) {
 
-			let internalCode = {
-				k: {
-					string: "internalCode",
-				},
-				v: {
-					string: qrCodeDbData[0].walletQrId,
-				},
-			};
-			let merchantName = {
-				k: {
-					string: "CreatorName",
-				},
-				v: {
-					string: qrCodeDbData[0].userFullname,
-				},
-			};
-			let productName = {
-				k: {
-					string: "ProductName",
-				},
-				v: {
-					string: qrCodeDbData[0].productName,
-				},
-			};
-
-			let merchantEmail = {
-				k: {
-					string: "CreatorEmail",
-				},
-				v: {
-					string: qrCodeDbData[0].userEmail,
-				},
-			};
-
-			let merchantMessage = {
-				k: {
-					string: "CreatorMessage",
-				},
-				v: {
-					string: qrCodeDbData[0].userDesc,
-				},
-			};
-
-			let clientName = {
-				k: {
-					string: "OwnerName",
-				},
-				v: {
-					string: qrCodeDbData[0].clientName,
-				},
-			};
-
-			let clientEmail = {
-				k: {
-					string: "OwnerEmail",
-				},
-				v: {
-					string: qrCodeDbData[0].clientEmail,
-				},
-			};
-
-			let clientMessage = {
-				k: {
-					string: "OwnerMessage",
-				},
-				v: {
-					string: qrCodeDbData[0].clientMessage,
-				},
-			};
-			let productLink = {
-				k: {
-					string: "WebSiteParams",
-				},
-				v: {
-					string: `/status/${qrCodeDbData[0].walletQrId}`,
-				},
-			};
-			let webSite = {
-				k: {
-					string: "WebSiteDomain",
-				},
-				v: {
-					string: process.env.BLOKARIA_WEBSITE,
-				},
-			};
-
-			let nftimage = {
-				k: {
-					string: "NftImageHash",
-				},
-				v: {
-					string: qrCodeDbData[0].nftimage,
-				},
-			};
-			// let nftsendaddress = {
-			// 	k: {
-			// 		string: "NftWalletAddress",
-			// 	},
-			// 	v: {
-			// 		string: qrCodeDbData[0].nftsendaddress,
-			// 	},
-			// };
-
-			let contributorData = {
-				k: {
-					string: "Contributor",
-				},
-				v: {
-					string: qrCodeDbData[0].contributorData,
-				},
-			};
-
-			let finalArray = [];
-			finalArray.push(productName);
-
-			finalArray.push(merchantName);
-			finalArray.push(merchantEmail);
-			finalArray.push(merchantMessage);
-
-			qrCodeDbData[0].ownernamecb ? finalArray.push(clientName) : "";
-			qrCodeDbData[0].clientemailcb ? finalArray.push(clientEmail) : "";
-
-			finalArray.push(clientMessage);
-
-			finalArray.push(productLink);
-			finalArray.push(webSite);
-			finalArray.push(internalCode);
-			qrCodeDbData[0].nftimage ? finalArray.push(nftimage) : "";
-			// (qrCodeDbData[0].nftsendaddress) ? finalArray.push(nftsendaddress) : "";
-
-			qrCodeDbData[0].contributorData ? finalArray.push(contributorData) : "";
-
-			let metaDataObj = {
-				[rndBr]: {
-					map: finalArray,
-				},
-			};
-
-			let dataObject = {
-				passphrase: `${process.env.WALLET_PASSPHRASE_1}`,
-				payments: [
-					{
-						address: Address,
-						amount: {
-							quantity: 1000000,
-							unit: "lovelace",
-						},
-					},
-				],
-				withdrawal: "self",
-				metadata: metaDataObj,
-			};
-
-			console.dir(dataObject, { depth: null });
+			console.log('sendTransactionFromWalletToWallet qrCodeDbData : ', qrCodeDbData);
 
 			try {
-				let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
-				return { rndBr, cardanoRequest };
+				//let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
+				let requestForTransaction = await this.axiosPost("http://host.docker.internal:3333/generateTransaction", qrCodeDbData);
+
+				return { requestForTransaction };
+				//return { rndBr, cardanoRequest };
 			} catch (error) {
 				console.dir(error, { depth: null });
 				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
