@@ -134,6 +134,49 @@ module.exports = {
 				}
 			},
 		},
+		generateQrCodeInSystemNoImage: {
+			// params: {
+			// 	article: { type: "string" },
+			// 	user: { type: "string" },
+			// },
+			async handler(ctx) {
+				try {
+
+					let meta = ctx.meta;
+					let imageSave = "";
+					meta.$multipart = ctx.params;
+					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
+
+					console.log("generateQRCodeStatus", storedIntoDb);
+					let qrCodeImageForStatus = await this.generateQRCodeStatus(storedIntoDb);
+
+					console.log("reduceNumberOfTransaction");
+					await ctx.call("user.reduceNumberOfTransaction", meta);
+
+					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
+					meta.$multipart.accessCode = storedIntoDb.accessCode;
+					meta.$multipart.publicQrCode = storedIntoDb.publicQrCode;
+					meta.$multipart.qrCodeImageForStatus = qrCodeImageForStatus;
+
+					console.log("meta.$multipart", meta.$multipart);
+					console.log("\n\n Send Email Started \n\n");
+
+					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
+
+					console.log("\n\n Send Email FINISHED \n\n");
+
+					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
+						qrcode: meta.$multipart.walletQrId,
+					});
+
+					console.log("\n getQrCodeInfo \n", getQrCodeInfo);
+
+					return getQrCodeInfo[0];
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
 
 		testiranje: {
 			async handler() {
@@ -152,7 +195,7 @@ module.exports = {
 					margin: 1
 				};
 				let QrCodeText = `${process.env.BLOKARIA_WEBSITE}/status/${storedIntoDb.walletQrId}`;
-				return await QRCode.toDataURL(QrCodeText, opts);
+				return QRCode.toDataURL(QrCodeText, opts);
 			} catch (error) {
 				console.log("QrCode Pic Error: ", error);
 				return Promise.reject(error);

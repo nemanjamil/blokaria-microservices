@@ -46,12 +46,16 @@ module.exports = {
 			rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
 				try {
-					return await this.plainInsertDataIntoDb({
+
+					let plainInsertObject = {
 						ctx,
 						user: ctx.params.data.user,
 						wallet: ctx.params.data.$multipart,
 						image: ctx.params.imageSave,
-					});
+					};
+
+					return await this.plainInsertDataIntoDb(plainInsertObject);
+
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -547,6 +551,7 @@ module.exports = {
 
 		// 80
 		async plainInsertDataIntoDb({ ctx, user, wallet, image }) {
+
 			const entity = {
 				walletQrId: wallet.walletQrId,
 				userDesc: wallet.userDesc,
@@ -558,16 +563,18 @@ module.exports = {
 				contributorData: wallet.contributorData,
 				accessCode: Utils.generatePass(),
 				_creator: user.userId,
-				_image: image._id,
+
 			};
+
+			(image) ? entity._image = image._id : "";
 
 			if (wallet.productVideo) entity.productVideo = wallet.productVideo;
 
 			try {
 				let wallet = new Wallet(entity);
 				await wallet.save();
-				await wallet.populate("_creator").populate(String(user.userId)).execPopulate();
-				await wallet.populate("_image").populate(String(image._id)).execPopulate();
+				//await wallet.populate("_creator").populate(String(user.userId)).execPopulate();
+				//await wallet.populate("_image").populate(String(image._id)).execPopulate();
 				await ctx.call("user.populateUserTable", wallet);
 
 				return wallet;
