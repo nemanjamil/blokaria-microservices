@@ -95,7 +95,9 @@ module.exports = {
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 					console.log("Wallet ReducingStatus", reducingStatus);
 
+					console.log("\n\n Wallet sendTransactionFromWalletToWallet START");
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
+					console.log("\n\n Wallet sendTransactionFromWalletToWallet DONE");
 
 					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
 					console.log("Wallet RedeemStatus", redeemStatus);
@@ -154,7 +156,7 @@ module.exports = {
 					return {
 						qrCodeStatus,
 						sendAssetToWallet,
-						cardanoStatus: txHash.data,
+						cardanoStatus: txHash,
 						reducingStatus,
 						sendEmail,
 						updateDbSendingAssetDbRes,
@@ -461,13 +463,13 @@ module.exports = {
 		},
 
 		// 40
-		async updateRedeemStatus(ctx, transaction, metaDataRandomNumber) {
+		async updateRedeemStatus(ctx, txHash, metaDataRandomNumber) {
 			let entity = {
 				walletQrId: ctx.params.qrcode,
 			};
 			let data = {
 				qrCodeRedeemStatus: 1,
-				transactionId: transaction,
+				transactionId: txHash,
 				metaDataRandomNumber: metaDataRandomNumber,
 			};
 
@@ -596,7 +598,8 @@ module.exports = {
 			try {
 				let payLoadResponse = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
 
-				console.log("END sendTransactionFromWalletToWallet payLoadResponse : ", payLoadResponse);
+				console.log("END sendTransactionFromWalletToWallet payLoadResponse rndBr : ", payLoadResponse.data.rndBr);
+				console.log("END sendTransactionFromWalletToWallet payLoadResponse txHash : ", payLoadResponse.data.txHash);
 
 				return { rndBr: payLoadResponse.data.rndBr, txHash: payLoadResponse.data.txHash };
 				//return { rndBr, cardanoRequest };
