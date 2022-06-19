@@ -71,15 +71,13 @@ module.exports = {
 
 					console.log("Wallet newData BEFORE ", newData);
 
-					qrCodeStatus[0]["_doc"]["walletName"] = process.env.WALLET_NAME;
-					newData[0]["_doc"]["amountValue"] = 1;
-
-
 					newData["walletName"] = process.env.WALLET_NAME;
 					newData["amountValue"] = 1;
 					delete newData["nftimage"];
-
 					console.log("Wallet newData AFTER", newData);
+
+					qrCodeStatus[0]["_doc"]["walletName"] = process.env.WALLET_NAME;
+					qrCodeStatus[0]["_doc"]["amountValue"] = 1;
 					console.log("Wallet qrCodeStatus AFTER", qrCodeStatus);
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
@@ -588,10 +586,9 @@ module.exports = {
 				//return { rndBr, cardanoRequest };
 			} catch (error) {
 				//console.dir(error, { depth: null });
-				console.log("\n\n\nerror 1 error.message", error.message);
 				console.log("\n\n\nerror 2 error", error);
-				console.log("\n\n\nerror 3 error.config", error.config);
-				console.log("\n\n\nerror 4 error.response", error.response);
+				//console.log("\n\n\nerror 3 error.config", error.config);
+				console.log("\n\n\nerror 4 error.response.data", error.response.data);
 
 				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
 					message: error.message,
