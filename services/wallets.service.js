@@ -81,7 +81,6 @@ module.exports = {
 						clientName: qrCodeStatus[0].clientName,
 
 						walletQrId: qrCodeStatus[0].walletQrId,
-						//nftimage: qrCodeStatus[0].nftimage,
 
 						contributorData: qrCodeStatus[0].contributorData,
 						clientemailcb: qrCodeStatus[0].clientemailcb,
@@ -109,9 +108,12 @@ module.exports = {
 
 					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
 					console.log("Wallet ReducingStatus", reducingStatus);
-					let { rndBr, cardanoRequest } = await this.sendTransactionFromWalletToWallet(newData);
+
+					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
 					console.log("Wallet RndBr", rndBr);
-					let redeemStatus = await this.updateRedeemStatus(ctx, cardanoRequest.data, rndBr);
+					console.log("Wallet txHash", txHash);
+
+					let redeemStatus = await this.updateRedeemStatus(ctx, txHash.data, rndBr);
 					console.log("Wallet RedeemStatus", redeemStatus);
 
 					let sendAssetToWallet, updateDbSendingAssetDbRes;
@@ -168,7 +170,7 @@ module.exports = {
 					return {
 						qrCodeStatus,
 						sendAssetToWallet,
-						cardanoStatus: cardanoRequest.data,
+						cardanoStatus: txHash.data,
 						reducingStatus,
 						sendEmail,
 						updateDbSendingAssetDbRes,
@@ -602,14 +604,17 @@ module.exports = {
 		// 100
 		async sendTransactionFromWalletToWallet(qrCodeDbData) {
 
-			console.log("sendTransactionFromWalletToWallet qrCodeDbData : ", qrCodeDbData);
+			console.log("\n\n START sendTransactionFromWalletToWallet qrCodeDbData : ", qrCodeDbData);
 			console.log("sendTransactionFromWalletToWallet DOCKER_INTERNAL_URL : ", process.env.DOCKER_INTERNAL_URL);
 
 			try {
 				//let cardanoRequest = await this.axiosPost(`${process.env.WALLET_SERVER}wallets/${process.env.WALLET_ID_1}/transactions`, dataObject);
-				let requestForTransaction = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
+				let { rndBr, txHash } = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
 
-				return { requestForTransaction };
+				console.log("sendTransactionFromWalletToWallet txHash : ", txHash);
+				console.log("END sendTransactionFromWalletToWallet rndBr : ", rndBr);
+
+				return { rndBr, txHash };
 				//return { rndBr, cardanoRequest };
 			} catch (error) {
 
