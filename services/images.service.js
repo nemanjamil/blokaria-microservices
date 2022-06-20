@@ -79,6 +79,11 @@ module.exports = {
 			// },
 			async handler(ctx) {
 				try {
+
+					const { user } = ctx.meta; // $multipart: qrCodeData
+
+					await this.checIfUseCanCreateNft(user);
+
 					const { generatenft } = ctx.meta.$multipart;
 
 					let { meta, relativePath, filename, uploadDirMkDir } = await this.storeImage(ctx);
@@ -91,8 +96,7 @@ module.exports = {
 
 					let qrCodeImageForStatus = await this.generateQRCodeStatus(storedIntoDb);
 
-					let reducedNumberOfTransaction = await ctx.call("user.reduceNumberOfTransaction", meta);
-					//console.log("saveImageAndData reducedNumberOfTransaction", reducedNumberOfTransaction);
+					await ctx.call("user.reduceNumberOfTransaction", meta);
 
 					let saveToDbResNft,
 						createCardanoNftRes,
@@ -109,7 +113,6 @@ module.exports = {
 					meta.$multipart.publicQrCode = storedIntoDb.publicQrCode;
 					meta.$multipart.qrCodeImageForStatus = qrCodeImageForStatus;
 
-					console.log("meta.$multipart", meta.$multipart);
 					console.log("\n\n Send Email Started \n\n");
 
 					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
@@ -225,13 +228,13 @@ module.exports = {
 
 				let createCardanoNft;
 				if (process.env.LOCALENV === "false") {
-					console.log("generateNftMethod createCardanoNft SERVER \n\n");
+					console.log("START generateNftMethod createCardanoNft SERVER \n\n");
 					createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
 
 					console.log("\n\n");
 					console.log("SUCCESSFULL generateNftMethod createCardano nft: ", createCardanoNft);
 				} else {
-					console.log("generateNftMethod createCardanoNft LOCAL : \n\n");
+					console.log("generateNftMethod createCardanoNft Local Dummy Data : \n\n");
 					createCardanoNft = {
 						mintNFT: {
 							txHash: "a4589358f5bb431becd35c166d591dee0a4495f7b0bc4c895f7f936cb7d2b4ff",
@@ -251,6 +254,11 @@ module.exports = {
 				console.log("generateNft save nft to db: ", saveToDb);
 
 				console.log("\n\n --- generateNft FINISHED ---- \n\n ");
+
+				console.log("reduceUserCoupons ");
+				await ctx.call("user.reduceUserCoupons", meta.user);
+
+				console.log("\n\n ---- generateNftMethod FINISHED ----- \n\n ");
 
 				return { saveToDb, createCardanoNft, cid };
 			} catch (error) {
@@ -337,6 +345,17 @@ module.exports = {
 				throw new MoleculerError("Error in Inserting Picture link into DB", 501, "ERR_PICTURE_DB_INSERTING", {
 					message: error.message,
 					internalErrorCode: "image10",
+				});
+			}
+		},
+
+		async checIfUseCanCreateNft(user) {
+			const { numberOfCoupons } = user;
+
+			if (numberOfCoupons < 1) {
+				throw new MoleculerError("User doesn't have enough coupons for creating NFT", 501, "ERR_NFT_COUPONS_LIMIT", {
+					message: "User doesn't have enough coupons for creating NFT",
+					internalErrorCode: "nftCoupons10",
 				});
 			}
 		},

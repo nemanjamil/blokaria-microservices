@@ -158,14 +158,15 @@ module.exports = {
 			async handler(ctx) {
 
 				const entity = {
-					userEmail: ctx.params[0].clientEmail,
+					userEmail: ctx.params.userEmail,
+					numberOfCoupons: { $gte: 0 }
 				};
-				(ctx.params.publicQrCode) ? "" : entity.numberOfCoupons = { $gte: 0 };
+				//(ctx.params.publicQrCode) ? "" : entity.numberOfCoupons = { $gte: 0 };
 
 				let data = {
-					//$inc: { numberOfCoupons: -Number(ctx.params[0].costOfProduct) }
+					$inc: { numberOfCoupons: -Number(1) }
 				};
-				(ctx.params.publicQrCode) ? "" : data.$inc = { numberOfCoupons: -Number(ctx.params[0].costOfProduct) };
+				//(ctx.params.publicQrCode) ? "" : data.$inc = { numberOfCoupons: -Number(ctx.params[0].costOfProduct) };
 
 
 				console.log("USER reduceUserCoupons entity: ", entity);

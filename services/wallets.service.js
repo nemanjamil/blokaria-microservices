@@ -66,7 +66,7 @@ module.exports = {
 			rest: "POST /initiateTransactionToClientWallet",
 			async handler(ctx) {
 				try {
-					console.log("\n\nWallet Initiation Has Started");
+					console.log("\n\nWallet Initiation Has Started : initiateTransactionToClientWallet");
 
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
@@ -96,8 +96,9 @@ module.exports = {
 
 					console.log("Wallet newData ", newData);
 
-					let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
-					console.log("Wallet ReducingStatus", reducingStatus);
+					// let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
+					// console.log("Wallet ReducingStatus", reducingStatus);
+
 
 					console.log("\n\n Wallet sendTransactionFromWalletToWallet START");
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
@@ -161,7 +162,6 @@ module.exports = {
 						qrCodeStatus,
 						sendAssetToWallet,
 						cardanoStatus: txHash,
-						reducingStatus,
 						sendEmail,
 						updateDbSendingAssetDbRes,
 						redeemStatus,
