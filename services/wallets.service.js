@@ -603,7 +603,17 @@ module.exports = {
 			console.log("sendTransactionFromWalletToWallet DOCKER_INTERNAL_URL : ", process.env.DOCKER_INTERNAL_URL);
 
 			try {
-				let payLoadResponse = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
+				let payLoadResponse;
+				if (process.env.LOCALENV) {
+					payLoadResponse = {
+						data: {
+							rndBr: Math.floor(Math.random() * 1000),
+							txHash: 'bla bla txHash'
+						}
+					};
+				} else {
+					payLoadResponse = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
+				}
 
 				console.log("END sendTransactionFromWalletToWallet payLoadResponse rndBr : ", payLoadResponse.data.rndBr);
 				console.log("END sendTransactionFromWalletToWallet payLoadResponse txHash : ", payLoadResponse.data.txHash);
