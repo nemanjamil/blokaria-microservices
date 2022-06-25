@@ -604,7 +604,8 @@ module.exports = {
 
 			try {
 				let payLoadResponse;
-				if (process.env.LOCALENV) {
+				if (process.env.LOCALENV === 'true') {
+					console.log('Local ENV');
 					payLoadResponse = {
 						data: {
 							rndBr: Math.floor(Math.random() * 1000),
@@ -612,6 +613,7 @@ module.exports = {
 						}
 					};
 				} else {
+					console.log('Server ENV');
 					payLoadResponse = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
 				}
 
