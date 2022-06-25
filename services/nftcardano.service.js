@@ -121,7 +121,7 @@ module.exports = {
 					// Ako jeste onda mozemo da radimo sendAssetToAnotherWallet
 
 					let sendAssetToWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}sendAssetToWallet`, payloadToWallet);
-
+					console.log("sendAssetToWallet: ", sendAssetToWallet);
 					console.log("createCardanoNftWithAssignWallet Finished SendAssetToWallet", Date.now());
 
 					return {
