@@ -122,7 +122,7 @@ module.exports = {
 							assetId: qrCodeStatus[0]._nfts[0].assetId,
 							addressWallet: qrCodeStatus[0].nftsendaddress,
 							walletName: "NFT_TEST",
-							amountValue: 1.7,
+							amountValue: 2,
 						};
 
 						console.log("Wallet > WalletMinting NftParams", nftParams);
