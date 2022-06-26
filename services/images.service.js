@@ -281,6 +281,12 @@ module.exports = {
 					console.log("UploadImagetoIPFS Received data from ipfs: ");
 					const res = await web3Storage.get(cid);
 					console.log(`UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
+					if (res.status !== 200) {
+						throw new MoleculerError("Došlo je do greške pri otpremanju NFT-a", 501, "ERR_IPFS", {
+							message: "Došlo je do greške pri otpremanju NFT-a",
+							internalErrorCode: "ipfs10",
+						});
+					}
 
 					console.log("\n UploadImagetoIPFS Unpack File objects from the response: ");
 					const responseFiles = await res.files();
@@ -342,8 +348,8 @@ module.exports = {
 				let imageSave = await image.save();
 				return { imageSave, imageRelativePath };
 			} catch (error) {
-				throw new MoleculerError("Error in Inserting Picture link into DB", 501, "ERR_PICTURE_DB_INSERTING", {
-					message: error.message,
+				throw new MoleculerError("Greška pri ubacivanju linka slike u bazu podataka", 501, "ERR_PICTURE_DB_INSERTING", {
+					message: "Greška pri ubacivanju linka slike u bazu podataka",
 					internalErrorCode: "image10",
 				});
 			}
@@ -353,8 +359,8 @@ module.exports = {
 			const { numberOfCoupons } = user;
 
 			if (numberOfCoupons < 1) {
-				throw new MoleculerError("User doesn't have enough coupons for creating NFT", 501, "ERR_NFT_COUPONS_LIMIT", {
-					message: "User doesn't have enough coupons for creating NFT",
+				throw new MoleculerError("Nemate dovoljno kupona za gerisanje NFT-a", 501, "ERR_NFT_COUPONS_LIMIT", {
+					message: "Nemate dovoljno kupona za gerisanje NFT-a",
 					internalErrorCode: "nftCoupons10",
 				});
 			}
