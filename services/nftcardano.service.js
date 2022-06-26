@@ -62,6 +62,7 @@ module.exports = {
 				try {
 					console.log("createCardanoNft ctx.params: ", ctx.params);
 					let mintNft = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateNFT`, ctx.params);
+					console.log("createCardanoNft-mintNft-generateNFT ", mintNft);
 					return { mintNFT: mintNft.data };
 				} catch (error) {
 					return Promise.reject(error);
@@ -201,6 +202,7 @@ module.exports = {
 					};
 					console.log("sendAssetToWallet payloadToWallet", payloadToWallet);
 					let sendAssetToWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}sendAssetToWallet`, payloadToWallet);
+					console.log("sendAssetToWallet-sendAssetToWallet-sendAssetToWallet ", sendAssetToWallet);
 					return { sendAssetToWallet: sendAssetToWallet.data };
 				} catch (error) {
 					return Promise.reject(error);
