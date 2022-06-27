@@ -115,8 +115,8 @@ module.exports = {
 
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
 						console.log("\n\n ================ \n\n");
-						console.log("Wallet >  WalletMinting Start \n");
-						console.log("Wallet >  WalletMinting and wallet assigining has started \n");
+						console.log("Wallet >  WalletSending Start \n");
+						console.log("Wallet >  WalletSending and wallet assigining has started \n");
 
 						let nftParams = {
 							assetId: qrCodeStatus[0]._nfts[0].assetId,
@@ -125,11 +125,11 @@ module.exports = {
 							amountValue: 1.7,
 						};
 
-						console.log("Wallet > WalletMinting NftParams", nftParams);
-						console.log("Wallet > WalletMinting process.env.LOCALENV", process.env.LOCALENV);
+						console.log("Wallet > WalletSending NftParams", nftParams);
+						console.log("Wallet > WalletSending process.env.LOCALENV", process.env.LOCALENV);
 
 						if (process.env.LOCALENV === "false") {
-							console.log(" \n\n\n\n	>>> WalletMinting SERVER - STARTED sendAssetToWallet \n");
+							console.log(" \n\n\n\n	>>> WalletSending SERVER - STARTED sendAssetToWallet \n");
 
 							sendAssetToWallet = await ctx.call("nftcardano.sendAssetToWallet", nftParams);
 							console.log("\n\n	>>> SUCCESSFULL sendAssetToWallet Has Finished \n");
