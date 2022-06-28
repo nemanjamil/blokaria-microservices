@@ -217,7 +217,6 @@ module.exports = {
 						});
 					}
 				} catch (error) {
-					//test resavanje baga-mihajlo
 					//return Promise.reject(error);
 					throw new MoleculerError("Došlo je do greške pri slanju NFT-a na klijentov novčanik", 401, "NFT_sendAssetToWallet_ERROR", {
 						message: "Došlo je do greške pri slanju NFT-a na klijentov novčanik",

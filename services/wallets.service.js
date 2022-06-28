@@ -626,8 +626,8 @@ module.exports = {
 
 				console.error("\n\n\nerror 4 error.response.data.error", error.response.data.error);
 
-				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
-					message: error.response.data.error,
+				throw new MoleculerError("Došlo je do greške pri slanju podataka na BlockChain", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
+					message: "Došlo je do greške pri slanju podataka na BlockChain",
 					internalErrorCode: "wallet202",
 				});
 			}
