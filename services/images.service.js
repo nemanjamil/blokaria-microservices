@@ -133,7 +133,11 @@ module.exports = {
 
 					return getQrCodeInfo[0];
 				} catch (error) {
-					return Promise.reject(error);
+
+					throw new MoleculerError("SAVE_IMAGE_AND_DATA", 501, "ERROR_SAVE_IMAGE", {
+						message: error.message,
+						internalErrorCode: "internal5055",
+					});
 				}
 			},
 		},
