@@ -62,7 +62,14 @@ module.exports = {
 				try {
 					console.log("createCardanoNft ctx.params: ", ctx.params);
 					let mintNft = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateNFT`, ctx.params);
-					return { mintNFT: mintNft.data };
+					//console.log("createCardanoNft-mintNft-generateNFT ", mintNft);
+					if (mintNft.data.txHash) {
+						return { mintNFT: mintNft.data };
+					} else {
+						throw new MoleculerError("Došlo je do greške pri generisanju NFT-a", 401, "NFT_GENERATING_ERROR", {
+							message: "Došlo je do greške pri generisanju NFT-a",
+						});
+					}
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -121,7 +128,7 @@ module.exports = {
 					// Ako jeste onda mozemo da radimo sendAssetToAnotherWallet
 
 					let sendAssetToWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}sendAssetToWallet`, payloadToWallet);
-
+					console.log("sendAssetToWallet: ", sendAssetToWallet);
 					console.log("createCardanoNftWithAssignWallet Finished SendAssetToWallet", Date.now());
 
 					return {
@@ -201,9 +208,19 @@ module.exports = {
 					};
 					console.log("sendAssetToWallet payloadToWallet", payloadToWallet);
 					let sendAssetToWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}sendAssetToWallet`, payloadToWallet);
-					return { sendAssetToWallet: sendAssetToWallet.data };
+					console.log("sendAssetToWallet-sendAssetToWallet-sendAssetToWallet ", sendAssetToWallet);
+					if (sendAssetToWallet.data.txHash) {
+						return { sendAssetToWallet: sendAssetToWallet.data };
+					} else {
+						throw new MoleculerError("Došlo je do greške pri slanju NFT-a na klijentov novčanik", 401, "NFT_sendAssetToWallet_ERROR", {
+							message: "Došlo je do greške pri slanju NFT-a na klijentov novčanik",
+						});
+					}
 				} catch (error) {
-					return Promise.reject(error);
+					//return Promise.reject(error);
+					throw new MoleculerError("Došlo je do greške pri slanju NFT-a na klijentov novčanik", 401, "NFT_sendAssetToWallet_ERROR", {
+						message: "Došlo je do greške pri slanju NFT-a na klijentov novčanik",
+					});
 				}
 			},
 		},

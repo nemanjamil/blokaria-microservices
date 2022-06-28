@@ -115,8 +115,8 @@ module.exports = {
 
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
 						console.log("\n\n ================ \n\n");
-						console.log("Wallet >  WalletMinting Start \n");
-						console.log("Wallet >  WalletMinting and wallet assigining has started \n");
+						console.log("Wallet >  WalletSending Start \n");
+						console.log("Wallet >  WalletSending and wallet assigining has started \n");
 
 						let nftParams = {
 							assetId: qrCodeStatus[0]._nfts[0].assetId,
@@ -125,11 +125,11 @@ module.exports = {
 							amountValue: 1.7,
 						};
 
-						console.log("Wallet > WalletMinting NftParams", nftParams);
-						console.log("Wallet > WalletMinting process.env.LOCALENV", process.env.LOCALENV);
+						console.log("Wallet > WalletSending NftParams", nftParams);
+						console.log("Wallet > WalletSending process.env.LOCALENV", process.env.LOCALENV);
 
 						if (process.env.LOCALENV === "false") {
-							console.log(" \n\n\n\n	>>> WalletMinting SERVER - STARTED sendAssetToWallet \n");
+							console.log(" \n\n\n\n	>>> WalletSending SERVER - STARTED sendAssetToWallet \n");
 
 							sendAssetToWallet = await ctx.call("nftcardano.sendAssetToWallet", nftParams);
 							console.log("\n\n	>>> SUCCESSFULL sendAssetToWallet Has Finished \n");
@@ -603,7 +603,19 @@ module.exports = {
 			console.log("sendTransactionFromWalletToWallet DOCKER_INTERNAL_URL : ", process.env.DOCKER_INTERNAL_URL);
 
 			try {
-				let payLoadResponse = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
+				let payLoadResponse;
+				if (process.env.LOCALENV === 'true') {
+					console.log('Local ENV');
+					payLoadResponse = {
+						data: {
+							rndBr: Math.floor(Math.random() * 1000),
+							txHash: 'bla bla txHash'
+						}
+					};
+				} else {
+					console.log('Server ENV');
+					payLoadResponse = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
+				}
 
 				console.log("END sendTransactionFromWalletToWallet payLoadResponse rndBr : ", payLoadResponse.data.rndBr);
 				console.log("END sendTransactionFromWalletToWallet payLoadResponse txHash : ", payLoadResponse.data.txHash);
@@ -614,8 +626,8 @@ module.exports = {
 
 				console.error("\n\n\nerror 4 error.response.data.error", error.response.data.error);
 
-				throw new MoleculerError("Inserting Transaction into BlockChain Error", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
-					message: error.response.data.error,
+				throw new MoleculerError("Došlo je do greške pri slanju podataka na BlockChain", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
+					message: "Došlo je do greške pri slanju podataka na BlockChain",
 					internalErrorCode: "wallet202",
 				});
 			}
