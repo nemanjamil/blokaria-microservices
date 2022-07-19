@@ -66,7 +66,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { itemId, projectId } = ctx.params;
-					console.log("addQrCodeToProject ctx.params: ", ctx.params);
+					console.log("\n\n START addQrCodeToProject ctx.params: ", ctx.params);
 
 
 					let data = {
@@ -77,58 +77,57 @@ module.exports = {
 					let getOldProjectId = await ctx.call("wallet.getProjectIdFromQrCode", { itemId });
 					let projectIdOld = getOldProjectId[0]._project;
 
-					console.log("addQrCodeToProject projectIdOld: ", projectIdOld);
+					console.log("0. addQrCodeToProject projectIdOld: ", projectIdOld);
 
 
 
 
 
 					// ------------------ UPDATE NEW PROJECT - CHOOSEN - what user is selected ------------------------
-					console.log("\n\naddQrCodeToProject UPDATE NEW PROJECT: ");
+					console.log("1. addQrCodeToProject UPDATE NEW PROJECT: ");
 
 					const entity = {
 						_id: (ctx.params.projectId === "noproject") ? projectIdOld : projectId
 					};
 
-					console.log("addQrCodeToProject entity: ", entity);
+					console.log("2. addQrCodeToProject UPDATE NEW PROJECT entity: ", entity);
+					console.log("3. addQrCodeToProject UPDATE NEW PROJECT data: ", data);
 
 					let findOneAndUpdateNew = await Project.findOneAndUpdate(entity, data, { new: true });
 
-					console.log("addQrCodeToProject findOneAndUpdateNew :  ", findOneAndUpdateNew);
+					console.log("4. addQrCodeToProject UPDATE NEW PROJECT findOneAndUpdateNew :  ", findOneAndUpdateNew);
 
-					console.log("\n\naddQrCodeToProject wallet.addProjectToWallet CALL WALLET SERVICE");
-					console.log("addQrCodeToProject wallet.addProjectToWallet projectId ", projectId);
-					console.log("addQrCodeToProject wallet.addProjectToWallet itemId ", itemId, "\n");
-
+					console.log("5. addQrCodeToProject UPDATE NEW PROJECT wallet.addProjectToWallet CALL WALLET SERVICE");
+					console.log("6. addQrCodeToProject UPDATE NEW PROJECT wallet.addProjectToWallet projectId ", projectId);
+					console.log("7. addQrCodeToProject UPDATE NEW PROJECT wallet.addProjectToWallet itemId ", itemId, "\n");
 
 					// -------------------------------   UPDATE QR CODE -------------------------------
 					let projectAdded = await ctx.call("wallet.addProjectToWallet", { projectId, itemId });
-					console.log("\n\naddQrCodeToProject wallet.addProjectToWallet Response: ", projectAdded);
+					console.log("8. addQrCodeToProject UPDATE QR CODE wallet.addProjectToWallet Response: ", projectAdded);
 
-					let arrayOfQrCodeObject = [];
-					if (projectAdded.length > 0) {
-						projectAdded.map((item) => {
-							arrayOfQrCodeObject.push(item._id);
-						});
-					}
+					// let arrayOfQrCodeObject = [];
+					// if (projectAdded.length > 0) {
+					// 	projectAdded.map((item) => {
+					// 		arrayOfQrCodeObject.push(item._id);
+					// 	});
+					// }
 
-					let qrCodesInProject = {
-						_wallets: arrayOfQrCodeObject,
-					};
+					// let qrCodesInProject = {
+					// 	_wallets: arrayOfQrCodeObject,
+					// };
 
-					console.log("addQrCodeToProject qrCodesInProject ", qrCodesInProject);
+					//console.log("9. addQrCodeToProject UPDATE QR CODE qrCodesInProject ", qrCodesInProject);
 
-					let findOneAndUpdateRes = await Project.findOneAndUpdate(entity, qrCodesInProject, { new: true });
+					//let findOneAndUpdateRes = await Project.findOneAndUpdate(entity, qrCodesInProject, { new: true });
 
-					console.log("addQrCodeToProject findOneAndUpdateRes: ", findOneAndUpdateRes);
-
-
-
+					//console.log("10. addQrCodeToProject UPDATE QR CODE findOneAndUpdateRes: ", findOneAndUpdateRes);
 
 
 					// --------------------------- UPDATE OLD PROJECT - CURRENT  --------------------------------
-					console.log("\n\n addQrCodeToProject UPDATE OLD PROJECT : START ");
+					console.log("11. addQrCodeToProject UPDATE OLD PROJECT : START ");
 					let getAllQrCodesFromProjectRes = await ctx.call("wallet.getAllQrCodesFromProject", { projectIdOld });
+
+					console.log("12. addQrCodeToProject getAllQrCodesFromProjectRes ", getAllQrCodesFromProjectRes);
 
 					let arrayOfQrCodeObjectOld = [];
 					if (getAllQrCodesFromProjectRes.length > 0) {
@@ -141,17 +140,17 @@ module.exports = {
 						_wallets: arrayOfQrCodeObjectOld,
 					};
 
-					console.log("addQrCodeToProject qrCodesInProjectOld ", qrCodesInProjectOld);
+					console.log("13. addQrCodeToProject UPDATE OLD PROJECT qrCodesInProjectOld ", qrCodesInProjectOld);
 
 					const entityOld = {
 						_id: projectIdOld,
 					};
 
-					console.log("addQrCodeToProject entityOld ", entityOld);
+					console.log("14. addQrCodeToProject UPDATE OLD PROJECT entityOld ", entityOld);
 
 					let findOneAndUpdateResOld = await Project.findOneAndUpdate(entityOld, qrCodesInProjectOld, { new: true });
 
-					console.log("addQrCodeToProject findOneAndUpdateResOld ", findOneAndUpdateResOld);
+					console.log("15. addQrCodeToProject UPDATE OLD PROJECT findOneAndUpdateResOld ", findOneAndUpdateResOld);
 
 					return projectAdded;
 				} catch (error) {
