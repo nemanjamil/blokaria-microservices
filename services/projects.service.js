@@ -79,10 +79,6 @@ module.exports = {
 
 					console.log("0. addQrCodeToProject projectIdOld: ", projectIdOld);
 
-
-
-
-
 					// ------------------ UPDATE NEW PROJECT - CHOOSEN - what user is selected ------------------------
 					console.log("1. addQrCodeToProject UPDATE NEW PROJECT: ");
 
