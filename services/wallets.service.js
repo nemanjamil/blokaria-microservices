@@ -121,7 +121,7 @@ module.exports = {
 						let nftParams = {
 							assetId: qrCodeStatus[0]._nfts[0].assetId,
 							addressWallet: qrCodeStatus[0].nftsendaddress,
-							walletName: "NFT_TEST",
+							walletName: process.env.WALLET_NAME,
 							amountValue: 1.7,
 						};
 

@@ -223,7 +223,7 @@ module.exports = {
 					description: meta.$multipart.userDesc,
 					authors: [meta.$multipart.userFullname],
 					copyright: "Copyright Blokaria",
-					walletName: "NFT_TEST",
+					walletName: process.env.WALLET_NAME,
 					//contributorData: meta.$multipart.contributorData,
 					//productVideo: meta.$multipart.productVideo,
 				};
