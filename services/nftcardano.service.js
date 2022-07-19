@@ -40,6 +40,8 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					console.log("checkWallet ctx.params: call ", ctx.params);
+					console.log("checkWallet process.env.DOCKER_INTERNAL_URL ", process.env.DOCKER_INTERNAL_URL);
+
 					let checkWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}checkWallet`, ctx.params);
 					return checkWallet.data;
 				} catch (error) {
