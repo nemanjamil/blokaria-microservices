@@ -4,6 +4,7 @@ const dbConnection = require("../utils/dbConnection");
 const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/Wallet.js");
+const Nftcardano = require("../models/Nftcardano");
 const Utils = require("../utils/utils");
 require("dotenv").config();
 
@@ -93,6 +94,16 @@ module.exports = {
 						walletName: process.env.WALLET_NAME,
 						amountValue: 1,
 					};
+
+					let assetFromDb = await Nftcardano.findOne({ walletQrId: qrCodeStatus[0].walletQrId });
+					console.log("assetFromDb ", assetFromDb);
+					const diffMinutes = Math.floor((Date.now() - assetFromDb.createdAt) / 60000);
+					if (diffMinutes < 10) {
+						throw new MoleculerError(`Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`, 401, "POPULATE_BUG", {
+							message: `Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`,
+							internalErrorCode: "wallet305_lessThen10MinElapsed",
+						});
+					}
 
 					console.log("Wallet newData ", newData);
 
