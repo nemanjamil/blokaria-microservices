@@ -406,6 +406,32 @@ module.exports = {
 				return sendApprovalToClientRes;
 			},
 		},
+
+		changeStatusOfQrCode: {
+			params: {
+				qrcode: { type: "string" },
+				status: { type: "boolean", default: true }
+			},
+			async handler(ctx) {
+				const { qrcode, status } = ctx.params;
+
+				let entity = { walletQrId: qrcode };
+
+				let data = {
+					publicQrCode: status
+				};
+
+				try {
+					return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
+				} catch (error) {
+					throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+						message: error.message,
+						internalErrorCode: "wallet330",
+					});
+				}
+
+			},
+		},
 	},
 
 	methods: {
@@ -647,7 +673,7 @@ module.exports = {
 		// wallet110
 		async getListQrCodesByUserMethod(ctx) {
 			const entity = {
-				userEmail: ctx.params.userEmail,
+				userEmail: ctx.params.userEmail
 			};
 			try {
 				return await Wallet.find(entity)
@@ -668,7 +694,9 @@ module.exports = {
 
 		// wallet120
 		async getListQrCodesGeneral(ctx) {
-			const entity = {};
+			const entity = {
+				publicQrCode: true
+			};
 			try {
 				return await Wallet.find(entity)
 					.skip(ctx.params.skip)

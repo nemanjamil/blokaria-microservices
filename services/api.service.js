@@ -167,6 +167,7 @@ module.exports = {
 					"POST project/deleteProject": "project.deleteProject",
 					"POST project/addQrCodeToProject": "project.addQrCodeToProject",
 					"GET project/getOneProject/:projectId": "project.getOneProject",
+					"POST wallet/changeStatusOfQrCode": "wallet.changeStatusOfQrCode",
 				},
 				callingOptions: {},
 

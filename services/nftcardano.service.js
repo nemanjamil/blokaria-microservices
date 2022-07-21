@@ -183,11 +183,6 @@ module.exports = {
 					return Promise.reject(error);
 				}
 			},
-
-
-
-
-
 		},
 
 		sendAssetToWallet: {
