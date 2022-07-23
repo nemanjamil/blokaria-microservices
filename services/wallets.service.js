@@ -429,7 +429,31 @@ module.exports = {
 						internalErrorCode: "wallet330",
 					});
 				}
+			},
+		},
 
+		updateQrCodeText: {
+			params: {
+				qrcode: { type: "string" },
+				longText: { type: "string", optional: true, empty: true, max: 1000 }
+			},
+			async handler(ctx) {
+				const { qrcode, longText } = ctx.params;
+
+				let entity = { walletQrId: qrcode };
+
+				let data = {
+					longText: longText
+				};
+
+				try {
+					return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
+				} catch (error) {
+					throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+						message: error.message,
+						internalErrorCode: "wallet430",
+					});
+				}
 			},
 		},
 	},
