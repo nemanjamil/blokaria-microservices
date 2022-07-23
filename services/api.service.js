@@ -169,6 +169,8 @@ module.exports = {
 					"GET project/getOneProject/:projectId": "project.getOneProject",
 					"POST wallet/changeStatusOfQrCode": "wallet.changeStatusOfQrCode",
 					"POST wallet/updateQrCodeText": "wallet.updateQrCodeText",
+					"POST nftcardano/updateQrCodeUrl": "nftcardano.updateQrCodeUrl",
+					"POST nftcardano/updateQrCodeUrlForward": "nftcardano.updateQrCodeUrlForward",
 				},
 				callingOptions: {},
 

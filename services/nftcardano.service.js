@@ -221,6 +221,56 @@ module.exports = {
 				}
 			},
 		},
+
+		updateQrCodeUrl: {
+			params: {
+				qrcode: { type: "string" },
+				nftlocation: { type: "url", optional: true, empty: true }
+			},
+			async handler(ctx) {
+				const { qrcode, nftlocation } = ctx.params;
+
+				let entity = { walletQrId: qrcode };
+
+				let data = {
+					nftlocation: nftlocation
+				};
+
+				try {
+					return await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
+				} catch (error) {
+					throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+						message: error.message,
+						internalErrorCode: "wallet530",
+					});
+				}
+			},
+		},
+
+		updateQrCodeUrlForward: {
+			params: {
+				qrcode: { type: "string" },
+				urlforwarding: { type: "boolean" }
+			},
+			async handler(ctx) {
+				const { qrcode, urlforwarding } = ctx.params;
+
+				let entity = { walletQrId: qrcode };
+
+				let data = {
+					urlforwarding: urlforwarding
+				};
+
+				try {
+					return await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
+				} catch (error) {
+					throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+						message: error.message,
+						internalErrorCode: "wallet530",
+					});
+				}
+			},
+		},
 	},
 
 	methods: {
