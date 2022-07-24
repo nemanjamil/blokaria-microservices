@@ -262,7 +262,18 @@ module.exports = {
 				};
 
 				try {
-					return await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
+					console.log("USAO u findOneAndUpdate entity", entity);
+					console.log("USAO u findOneAndUpdate data", data);
+
+					let getData = await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
+					if (!getData) {
+						throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+							message: "No Data",
+							internalErrorCode: "wallet530",
+						});
+					} else {
+						return getData;
+					}
 				} catch (error) {
 					throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
 						message: error.message,
