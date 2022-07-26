@@ -111,9 +111,9 @@ module.exports = {
 					// console.log("Wallet ReducingStatus", reducingStatus);
 
 
-					console.log("\n\n Wallet sendTransactionFromWalletToWallet START");
+					console.log("Wallet sendTransactionFromWalletToWallet START");
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
-					console.log("\n\n Wallet sendTransactionFromWalletToWallet DONE");
+					console.log("Wallet sendTransactionFromWalletToWallet DONE");
 
 
 					let sendAssetToWallet, updateDbSendingAssetDbRes;
@@ -123,7 +123,7 @@ module.exports = {
 					console.log("Wallet >  qrCodeStatus[0]._nfts[0].length", qrCodeStatus[0]._nfts.length);
 
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
-						console.log("\n\n ================ \n\n");
+						console.log("\n\n =======START NFT ASSET TO CLIENT WALLET========= \n\n");
 						console.log("Wallet >  WalletSending Start \n");
 						console.log("Wallet >  WalletSending and wallet assigining has started \n");
 
@@ -138,7 +138,7 @@ module.exports = {
 						console.log("Wallet > WalletSending process.env.LOCALENV", process.env.LOCALENV);
 
 						if (process.env.LOCALENV === "false") {
-							console.log(" \n\n\n\n	>>> WalletSending SERVER - STARTED sendAssetToWallet \n");
+							console.log(">>> WalletSending SERVER - STARTED sendAssetToWallet");
 
 							sendAssetToWallet = await ctx.call("nftcardano.sendAssetToWallet", nftParams);
 							console.log("\n\n	>>> SUCCESSFULL sendAssetToWallet Has Finished \n");
@@ -686,7 +686,7 @@ module.exports = {
 		// 100
 		async sendTransactionFromWalletToWallet(qrCodeDbData) {
 
-			console.log("\n\n START sendTransactionFromWalletToWallet qrCodeDbData : ", qrCodeDbData);
+			console.log("START sendTransactionFromWalletToWallet qrCodeDbData : ", qrCodeDbData);
 			console.log("sendTransactionFromWalletToWallet DOCKER_INTERNAL_URL : ", process.env.DOCKER_INTERNAL_URL);
 
 			try {
@@ -711,9 +711,9 @@ module.exports = {
 				//return { rndBr, cardanoRequest };
 			} catch (error) {
 
-				console.error("\n\n\nerror 4 error.response.data.error", error.response.data.error);
+				console.error("sendTransactionFromWalletToWallet error 4 error.response.data.error", error.response.data.error);
 
-				throw new MoleculerError("Došlo je do greške pri slanju podataka na BlockChain", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
+				throw new MoleculerError("Došlo je do greške pri slanju podataka na BlockChain : sendTransactionFromWalletToWallet", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
 					message: "Došlo je do greške pri slanju podataka na BlockChain",
 					internalErrorCode: "wallet202",
 				});
