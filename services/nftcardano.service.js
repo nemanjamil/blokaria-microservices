@@ -261,7 +261,7 @@ module.exports = {
 					};
 					console.log("sendAssetToWallet payloadToWallet", payloadToWallet);
 					let sendAssetToWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}sendAssetToWallet`, payloadToWallet);
-					console.log("sendAssetToWallet-sendAssetToWallet-sendAssetToWallet ", sendAssetToWallet);
+					//console.log("sendAssetToWallet-sendAssetToWallet-sendAssetToWallet ", sendAssetToWallet);
 					if (sendAssetToWallet.data.txHash) {
 						return { sendAssetToWallet: sendAssetToWallet.data };
 					} else {
