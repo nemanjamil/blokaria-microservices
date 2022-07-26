@@ -315,6 +315,31 @@ module.exports = {
 			},
 		},
 
+		getQrCodeFromId: {
+			params: {
+				idcode: { type: "string", max: "30" },
+			},
+			async handler(ctx) {
+				try {
+					let getWalletFromId = await Wallet.findOne({ _id: ctx.params.idcode });
+					if (!getWalletFromId) {
+						throw new MoleculerError("No WALLET ID", 501, "ERR_GET_WALLET_ID", {
+							message: "No Data",
+							internalErrorCode: "wallet544",
+						});
+					} else {
+						return [getWalletFromId];
+					}
+
+				} catch (error) {
+					throw new MoleculerError("Greška - GET DATA", 501, "ERR_GET_WALLET_ID", {
+						message: error.message,
+						internalErrorCode: "wallet543",
+					});
+				}
+			},
+		},
+
 		createWallet: {
 			// rest: "POST /getQrCodeData", not allowed
 			async handler() {

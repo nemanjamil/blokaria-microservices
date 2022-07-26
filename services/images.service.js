@@ -102,7 +102,7 @@ module.exports = {
 						createCardanoNftRes,
 						cidRes = "";
 					if (generatenft === "true") {
-						let { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx);
+						let { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb);
 						saveToDbResNft = saveToDb;
 						createCardanoNftRes = createCardanoNft;
 						cidRes = cid;
@@ -208,7 +208,7 @@ module.exports = {
 				return Promise.reject(error);
 			}
 		},
-		async generateNftMethod(uploadDirMkDir, meta, ctx) {
+		async generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb) {
 			try {
 				console.log("\n\n ---- generateNftMethod STARTED ----- \n\n ");
 
@@ -217,6 +217,12 @@ module.exports = {
 				console.log("\n\n");
 				console.log("generateNftMethod cid: ", cid);
 
+				let additionalMetaData = [
+					{ "Galaxy": "Milky Way" },
+					{ "Location": "Earth" },
+					{ "WebSite": `${process.env.BLOKARIA_WEBSITE}/s/${storedIntoDb._id}` },
+				];
+
 				let nftObj = {
 					imageIPFS: cid,
 					assetName: meta.$multipart.productName + "#" + Date.now(),
@@ -224,6 +230,8 @@ module.exports = {
 					authors: [meta.$multipart.userFullname],
 					copyright: "Copyright Blokaria",
 					walletName: process.env.WALLET_NAME,
+					storedIntoDb: storedIntoDb,
+					additionalMetaData: additionalMetaData
 					//contributorData: meta.$multipart.contributorData,
 					//productVideo: meta.$multipart.productVideo,
 				};
@@ -232,13 +240,15 @@ module.exports = {
 
 				let createCardanoNft;
 				if (process.env.LOCALENV === "false") {
+					console.log("START SERVER \n\n");
 					console.log("START generateNftMethod createCardanoNft SERVER \n\n");
 					createCardanoNft = await ctx.call("nftcardano.createCardanoNft", nftObj);
 
 					console.log("\n\n");
 					console.log("SUCCESSFULL generateNftMethod createCardano nft: ", createCardanoNft);
 				} else {
-					console.log("generateNftMethod createCardanoNft Local Dummy Data : \n\n");
+					console.log("START LOCAL \n\n");
+					console.log("generateNftMethod createCardanoNft LOCAL Dummy Data : \n\n");
 					createCardanoNft = {
 						mintNFT: {
 							txHash: "a4589358f5bb431becd35c166d591dee0a4495f7b0bc4c895f7f936cb7d2b4ff",
@@ -292,13 +302,13 @@ module.exports = {
 						});
 					}
 
-					console.log("\n UploadImagetoIPFS Unpack File objects from the response: ");
+					console.log("UploadImagetoIPFS Unpack File objects from the response: ");
 					const responseFiles = await res.files();
 
 					console.log("UploadImagetoIPFS responseFiles", responseFiles);
 
 					console.log(`UploadImagetoIPFS ${responseFiles[0].cid} -- ${responseFiles[0].path} -- ${responseFiles[0].size}`);
-					console.log(`UploadImagetoIPFS Image url: https://${responseFiles[0].cid}.ipfs.dweb.link`);
+					console.log(`FINISH UploadImagetoIPFS Image url: https://${responseFiles[0].cid}.ipfs.dweb.link`);
 
 					return responseFiles[0].cid;
 				} catch (error) {

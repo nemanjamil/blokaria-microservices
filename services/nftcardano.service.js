@@ -58,11 +58,14 @@ module.exports = {
 				authors: { type: "array", optional: true },
 				copyright: { type: "string", optional: true },
 				walletName: { type: "string" },
+				storedIntoDb: { type: "object" },
+				additionalMetaData: { type: "array" },
 			},
 
 			async handler(ctx) {
 				try {
 					console.log("createCardanoNft ctx.params: ", ctx.params);
+
 					let mintNft = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateNFT`, ctx.params);
 					//console.log("createCardanoNft-mintNft-generateNFT ", mintNft);
 					if (mintNft.data.txHash) {
@@ -78,7 +81,7 @@ module.exports = {
 			},
 		},
 
-		createCardanoNftWithAssignWallet: {
+		/* createCardanoNftWithAssignWallet: {
 			params: {
 				imageIPFS: { type: "string" },
 				assetName: { type: "string" },
@@ -88,6 +91,7 @@ module.exports = {
 				copyright: { type: "string", optional: true },
 				walletName: { type: "string" },
 				dalayCallToWalletAsset: { type: "number" },
+				idCode: { type: "string" },
 			},
 
 			async handler(ctx) {
@@ -151,6 +155,7 @@ module.exports = {
 				}
 			},
 		},
+ */
 
 		updateDbSendingAssetDb: {
 			async handler(ctx) {
@@ -286,6 +291,39 @@ module.exports = {
 					throw new MoleculerError("Greška u ažuriranju podataka : updateQrCodeUrlForward", 501, "ERR_GENERATING_CONTRACT", {
 						message: error.message,
 						internalErrorCode: "wallet532",
+					});
+				}
+			},
+		},
+
+		updateNftStory: {
+			params: {
+				qrcode: { type: "string" },
+				nftStory: { type: "string" }
+			},
+			async handler(ctx) {
+				const { qrcode, nftStory } = ctx.params;
+
+				let entity = { walletQrId: qrcode };
+
+				let data = {
+					nftStory: nftStory
+				};
+
+				try {
+					let getData = await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
+					if (!getData) {
+						throw new MoleculerError("Greška u ažuriranju podataka. No NFT data for this QR code", 501, "ERR_UPDATE_STORY", {
+							message: "No Data",
+							internalErrorCode: "wallet553",
+						});
+					} else {
+						return await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode });
+					}
+				} catch (error) {
+					throw new MoleculerError("Greška u ažuriranju podataka : updateQrCodeUrlForward", 501, "ERR_UPDATE_STORY", {
+						message: error.message,
+						internalErrorCode: "wallet552",
 					});
 				}
 			},

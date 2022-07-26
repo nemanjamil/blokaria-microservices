@@ -120,6 +120,7 @@ module.exports = {
 					"POST wallet/getListQrCodesGeneral": "wallet.getListQrCodesGeneral",
 					"POST wallet/getListQrCodesOwners": "wallet.getListQrCodesOwners",
 					"POST wallet/sendApprovalToClient": "wallet.sendApprovalToClient",
+					"POST wallet/getQrCodeFromId": "wallet.getQrCodeFromId",
 				},
 				callingOptions: {},
 
@@ -171,6 +172,7 @@ module.exports = {
 					"POST wallet/updateQrCodeText": "wallet.updateQrCodeText",
 					"POST nftcardano/updateQrCodeUrl": "nftcardano.updateQrCodeUrl",
 					"POST nftcardano/updateQrCodeUrlForward": "nftcardano.updateQrCodeUrlForward",
+					"POST nftcardano/updateNftStory": "nftcardano.updateNftStory"
 				},
 				callingOptions: {},
 
