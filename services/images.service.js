@@ -96,8 +96,6 @@ module.exports = {
 
 					let qrCodeImageForStatus = await this.generateQRCodeStatus(storedIntoDb);
 
-					await ctx.call("user.reduceNumberOfTransaction", meta);
-
 					let saveToDbResNft,
 						createCardanoNftRes,
 						cidRes = "";
@@ -107,6 +105,8 @@ module.exports = {
 						createCardanoNftRes = createCardanoNft;
 						cidRes = cid;
 					}
+
+					await ctx.call("user.reduceNumberOfTransaction", meta);
 
 					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					meta.$multipart.accessCode = storedIntoDb.accessCode;
