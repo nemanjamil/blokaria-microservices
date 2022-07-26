@@ -40,7 +40,7 @@ module.exports = {
 				walletQrId: { type: "string" },
 				emailVerificationId: { type: "number" },
 				what: { type: "string" },
-				howmany: { type: "number" },
+				howmany: { type: "string" },
 			},
 			async handler(ctx) {
 
