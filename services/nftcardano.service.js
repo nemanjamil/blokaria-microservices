@@ -32,6 +32,57 @@ module.exports = {
 			},
 		},
 
+
+		// user80
+		addDataToNftTable: {
+			rest: "POST /addDataToNftTable",
+			params: {
+				walletQrId: { type: "string" },
+				emailVerificationId: { type: "number" },
+				what: { type: "string" },
+				howmany: { type: "number" },
+			},
+			async handler(ctx) {
+
+				if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
+					throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
+						message: "Verification email failed",
+						internalErrorCode: "email203",
+					});
+
+				let what = ctx.params.what;
+				let howmany = ctx.params.howmany;
+
+				console.log(what, howmany);
+
+
+				const entity = {
+					walletQrId: ctx.params.walletQrId,
+				};
+
+				let data = {};
+				data[what] = howmany;
+
+				try {
+
+					let resultFromReducting = await Nftcardano.findOneAndUpdate(entity, data, { new: true });
+
+					if (!resultFromReducting) {
+						throw new MoleculerError("Data not find : addDataToNftTable", 401, "NFT_TABLE_IS_NOT_UPDATED", {
+							message: "Data not find",
+							internalErrorCode: "nftcardano808",
+						});
+					}
+					return resultFromReducting;
+				} catch (error) {
+					throw new MoleculerError("Error : addDataToNftTable", 401, "NFT_TABLE_IS_NOT_UPDATED", {
+						message: error.message,
+						internalErrorCode: "nftcardano809",
+					});
+				}
+			}
+		},
+
 		checkWallet: {
 			params: {
 				walletName: { type: "string" },

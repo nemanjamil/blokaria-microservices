@@ -172,7 +172,8 @@ module.exports = {
 					"POST wallet/updateQrCodeText": "wallet.updateQrCodeText",
 					"POST nftcardano/updateQrCodeUrl": "nftcardano.updateQrCodeUrl",
 					"POST nftcardano/updateQrCodeUrlForward": "nftcardano.updateQrCodeUrlForward",
-					"POST nftcardano/updateNftStory": "nftcardano.updateNftStory"
+					"POST nftcardano/updateNftStory": "nftcardano.updateNftStory",
+					"POST nftcardano/addDataToNftTable": "nftcardano.addDataToNftTable"
 				},
 				callingOptions: {},
 
