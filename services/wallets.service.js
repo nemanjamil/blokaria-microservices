@@ -145,12 +145,12 @@ module.exports = {
 							console.log(">>> WalletSending SERVER - STARTED sendAssetToWallet");
 
 							sendAssetToWallet = await ctx.call("nftcardano.sendAssetToWallet", nftParams);
-							console.log("\n\n	>>> SUCCESSFULL sendAssetToWallet Has Finished \n");
-							console.log("	>>> sendAssetToWallet ", sendAssetToWallet);
+							console.log(">>> SUCCESSFULL sendAssetToWallet Has Finished \n");
+							console.log(">>> sendAssetToWallet ", sendAssetToWallet);
 
 							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });
 
-							console.log("\n\n updateDbSendingAssetDbRes  \n");
+							console.log("updateDbSendingAssetDbRes  \n");
 							console.log("updateDbSendingAssetDbRes ", updateDbSendingAssetDbRes);
 						} else {
 							console.log("WalletMinting LOCAL  ENV \n");
