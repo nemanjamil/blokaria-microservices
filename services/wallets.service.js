@@ -115,9 +115,9 @@ module.exports = {
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
 					console.log("Wallet sendTransactionFromWalletToWallet DONE");
 
-					console.log("Wallet addDelay 10 sec - START");
-					await this.addDelay(10);
-					console.log("Wallet addDelay 10 sec - END");
+					console.log("Wallet addDelay 10 sec - START", Date.now());
+					await this.addDelay(1000);
+					console.log("Wallet addDelay 10 sec - END", Date.now());
 
 
 					let sendAssetToWallet, updateDbSendingAssetDbRes;
