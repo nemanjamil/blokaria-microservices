@@ -115,6 +115,10 @@ module.exports = {
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
 					console.log("Wallet sendTransactionFromWalletToWallet DONE");
 
+					console.log("Wallet addDelay 10 sec - START");
+					await this.addDelay(10);
+					console.log("Wallet addDelay 10 sec - END");
+
 
 					let sendAssetToWallet, updateDbSendingAssetDbRes;
 
@@ -692,7 +696,7 @@ module.exports = {
 			try {
 				let payLoadResponse;
 				if (process.env.LOCALENV === 'true') {
-					console.log('Local ENV');
+					console.log('Local ENV sendTransactionFromWalletToWallet');
 					payLoadResponse = {
 						data: {
 							rndBr: Math.floor(Math.random() * 1000),
@@ -700,7 +704,7 @@ module.exports = {
 						}
 					};
 				} else {
-					console.log('Server ENV');
+					console.log('sendTransactionFromWalletToWallet Server ENV');
 					payLoadResponse = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
 				}
 
@@ -835,6 +839,10 @@ module.exports = {
 			} catch (error) {
 				throw new MoleculerError("Updating Data Error", 501, "ERR_UPDATING_DB", { message: error.message, internalErrorCode: "wallet170" });
 			}
+		},
+
+		async addDelay(time) {
+			return new Promise((res) => setTimeout(res, time));
 		},
 	},
 };
