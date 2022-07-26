@@ -237,9 +237,17 @@ module.exports = {
 				};
 
 				try {
-					return await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
+					let getData = await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
+					if (!getData) {
+						throw new MoleculerError("Greška u ažuriranju podataka. No NFT data was found", 501, "ERR_GENERATING_NFT", {
+							message: "No Data",
+							internalErrorCode: "wallet534",
+						});
+					}
+					return await ctx.call("wallet.getQrCodeDataNoRedeem", { ctx });
+
 				} catch (error) {
-					throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+					throw new MoleculerError("Greška u ažuriranju podataka: updateQrCodeUrl", 501, "ERR_GENERATING_CONTRACT", {
 						message: error.message,
 						internalErrorCode: "wallet530",
 					});
@@ -267,17 +275,17 @@ module.exports = {
 
 					let getData = await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
 					if (!getData) {
-						throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+						throw new MoleculerError("Greška u ažuriranju podataka. No NFT data for this QR code", 501, "ERR_GENERATING_CONTRACT", {
 							message: "No Data",
-							internalErrorCode: "wallet530",
+							internalErrorCode: "wallet531",
 						});
 					} else {
-						return getData;
+						return await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode });
 					}
 				} catch (error) {
-					throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+					throw new MoleculerError("Greška u ažuriranju podataka : updateQrCodeUrlForward", 501, "ERR_GENERATING_CONTRACT", {
 						message: error.message,
-						internalErrorCode: "wallet530",
+						internalErrorCode: "wallet532",
 					});
 				}
 			},

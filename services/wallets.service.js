@@ -424,7 +424,7 @@ module.exports = {
 				try {
 					return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 				} catch (error) {
-					throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+					throw new MoleculerError("Greška u ažuriranju podataka : ChangeStatusOfQrCode", 501, "ERR_GENERATING_CONTRACT", {
 						message: error.message,
 						internalErrorCode: "wallet330",
 					});
@@ -449,7 +449,7 @@ module.exports = {
 				try {
 					return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 				} catch (error) {
-					throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+					throw new MoleculerError("Greška u ažuriranju podataka : updateQrCodeText", 501, "updateQrCodeText", {
 						message: error.message,
 						internalErrorCode: "wallet430",
 					});
@@ -520,7 +520,7 @@ module.exports = {
 			try {
 				return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 			} catch (error) {
-				throw new MoleculerError("Greška u ažuriranju podataka", 501, "ERR_GENERATING_CONTRACT", {
+				throw new MoleculerError("Greška u ažuriranju podataka : generateContractUpdateDataWithMessages", 501, "ERR_GENERATING_CONTRACT", {
 					message: error.message,
 					internalErrorCode: "wallet30",
 				});
@@ -581,7 +581,7 @@ module.exports = {
 					});
 				return wallet;
 			} catch (error) {
-				throw new MoleculerError("Greška pri šitanju postojećeg QR koda", 501, "ERROR_GET_QR_CODE_DATA", {
+				throw new MoleculerError("Greška pri citanju postojećeg QR koda", 501, "ERROR_GET_QR_CODE_DATA", {
 					message: "rror reading exists Qr Code",
 					internalErrorCode: "wallet61",
 				});
