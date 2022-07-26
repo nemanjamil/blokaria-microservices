@@ -115,8 +115,6 @@ module.exports = {
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
 					console.log("\n\n Wallet sendTransactionFromWalletToWallet DONE");
 
-					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
-					console.log("Wallet RedeemStatus", redeemStatus);
 
 					let sendAssetToWallet, updateDbSendingAssetDbRes;
 
@@ -163,6 +161,9 @@ module.exports = {
 					} else {
 						console.warn("\n\n  === WalletMinting  Skipped ==== \n");
 					}
+
+					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
+					console.log("Wallet RedeemStatus", redeemStatus);
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
