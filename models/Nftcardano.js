@@ -14,6 +14,7 @@ const nftCardanoSchema = new mongoose.Schema({
 	initialAmountValue: { type: Number },
 	nftlocation: { type: String },
 	urlforwarding: { type: Boolean },
+	nftStory: { type: String },
 });
 
 module.exports = mongoose.model("Nftcardano", nftCardanoSchema);
