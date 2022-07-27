@@ -334,7 +334,8 @@ module.exports = {
 							internalErrorCode: "wallet544",
 						});
 					} else {
-						return [getWalletFromId];
+						let qrcode = getWalletFromId.walletQrId;
+						return await this.actions.getQrCodeDataNoRedeem({ qrcode });
 					}
 
 				} catch (error) {
