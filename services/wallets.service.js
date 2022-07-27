@@ -598,7 +598,11 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
-				let wallet = await Wallet.find(entity).populate("_image", { productPicture: 1 }).populate("_nfts");
+				let wallet = await Wallet.find(entity)
+					.populate("_image", { productPicture: 1 })
+					.populate("_nfts")
+					.populate("_project");
+
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Greška pri čitanju QR koda", 501, "ERROR_GET_QR_CODE_DATA", {

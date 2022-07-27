@@ -37,8 +37,9 @@ module.exports = {
 				projectId: { type: "string" },
 			},
 			async handler(ctx) {
+				const { projectId } = ctx.params;
 				try {
-					let projectObject = await Project.findOne({ _id: ctx.params.projectId });
+					let projectObject = await Project.findOne({ _id: projectId });
 					console.log("Project to delete: ", projectObject);
 
 					if (projectObject._wallets.length > 0) {
@@ -48,7 +49,15 @@ module.exports = {
 							internalErrorCode: "project210",
 						});
 					}
+					let userId = projectObject._user;
 
+					if (!userId) {
+						throw new MoleculerError("USER IS NOT ASSIGNEG TO PROJECT", 401, "USER IS NOT ASSIGNEG TO PROJECT", {
+							message: "USER IS NOT ASSIGNEG TO PROJECT",
+							internalErrorCode: "project240",
+						});
+					}
+					await ctx.call("user.deleteProjectFromUser", { projectId, userId });
 					return await Project.deleteOne({ _id: ctx.params.projectId });
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR DELETING PROJECT", {
@@ -202,6 +211,36 @@ module.exports = {
 								},
 							},
 						);
+
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR GETTING PROJECT", {
+						message: error.message,
+						internalErrorCode: "project156",
+					});
+				}
+			}
+		},
+		listAllProjectNrApi: {
+			params: {
+				idcode: { type: "string", min: 2, max: 60 },
+			},
+			async handler(ctx) {
+				try {
+					const data = {
+						_id: ctx.params.idcode
+					};
+
+					let oneProjectData = await Project.findOne(data)
+						.populate(
+							{
+								path: "_user",
+								populate: {
+									path: "_projects",
+								},
+							},
+						);
+
+					return oneProjectData;
 
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR GETTING PROJECT", {

@@ -254,6 +254,30 @@ module.exports = {
 				}
 			}
 		},
+		deleteProjectFromUser: {
+			async handler(ctx) {
+
+				const { projectId, userId } = ctx.params;
+
+				const entity = {
+					_id: userId,
+				};
+				let data = {
+					$pull: { "_projects": String(projectId) }
+				};
+
+				try {
+					return await User.findOneAndUpdate(entity, data, { new: true }); // upsert: true
+					//.populate("_projects");
+
+				} catch (error) {
+					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {
+						message: "User Not Found",
+						internalErrorCode: "user30",
+					});
+				}
+			}
+		},
 
 		registerUser: {
 			//rest: "POST /registerUser",

@@ -121,6 +121,7 @@ module.exports = {
 					"POST wallet/getListQrCodesOwners": "wallet.getListQrCodesOwners",
 					"POST wallet/sendApprovalToClient": "wallet.sendApprovalToClient",
 					"POST wallet/getQrCodeFromId": "wallet.getQrCodeFromId",
+					"POST project/listAllProjectNrApi": "project.listAllProjectNrApi",
 				},
 				callingOptions: {},
 
