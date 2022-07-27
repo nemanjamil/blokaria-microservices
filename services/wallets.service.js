@@ -248,6 +248,7 @@ module.exports = {
 				}
 			},
 		},
+
 		getAllQrCodesFromProject: {
 			async handler(ctx) {
 				let data = {
@@ -477,9 +478,18 @@ module.exports = {
 				};
 
 				try {
-					return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
+					let getData = await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
+					if (!getData) {
+						throw new MoleculerError("Greška u ažuriranju podataka. updateQrCodeText", 501, "ERR_UPDATE_STORY", {
+							message: "No Data",
+							internalErrorCode: "wallet432",
+						});
+					} else {
+						return await this.actions.getQrCodeDataNoRedeem({ qrcode });
+					}
+
 				} catch (error) {
-					throw new MoleculerError("Greška u ažuriranju podataka : updateQrCodeText", 501, "updateQrCodeText", {
+					throw new MoleculerError("Greška u ažuriranju podataka : updateQrCodeText ERROR", 501, "updateQrCodeText", {
 						message: error.message,
 						internalErrorCode: "wallet430",
 					});
