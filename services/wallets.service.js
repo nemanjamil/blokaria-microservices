@@ -664,6 +664,7 @@ module.exports = {
 				costOfProduct: wallet.costOfProduct,
 				contributorData: wallet.contributorData,
 				longText: wallet.longText,
+				hasstory: wallet.hasstory,
 				accessCode: Utils.generatePass(),
 				_creator: user.userId,
 

@@ -223,6 +223,11 @@ module.exports = {
 					{ "WebSite": `${process.env.BLOKARIA_WEBSITE}/s/${storedIntoDb._id}` },
 				];
 
+				if (storedIntoDb.hasstory) {
+					let newObjMetaData = { "Link to Story": `${process.env.BLOKARIA_WEBSITE}/story/${storedIntoDb._id}` }
+					additionalMetaData.push(newObjMetaData);
+				}
+
 				let nftObj = {
 					imageIPFS: cid,
 					assetName: meta.$multipart.productName + "#" + Date.now(),
