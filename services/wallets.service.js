@@ -663,6 +663,7 @@ module.exports = {
 				publicQrCode: wallet.publicQrCode,
 				costOfProduct: wallet.costOfProduct,
 				contributorData: wallet.contributorData,
+				longText: wallet.longText,
 				accessCode: Utils.generatePass(),
 				_creator: user.userId,
 
