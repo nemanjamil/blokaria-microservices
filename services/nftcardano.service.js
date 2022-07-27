@@ -300,7 +300,7 @@ module.exports = {
 							internalErrorCode: "wallet534",
 						});
 					}
-					return await ctx.call("wallet.getQrCodeDataNoRedeem", { ctx });
+					return await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode });
 
 				} catch (error) {
 					throw new MoleculerError("Greška u ažuriranju podataka: updateQrCodeUrl", 501, "ERR_GENERATING_CONTRACT", {
