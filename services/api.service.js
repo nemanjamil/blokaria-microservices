@@ -167,6 +167,7 @@ module.exports = {
 					"POST project/editProjectName": "project.editProjectName",
 					"GET user/listProjectByUser": "user.listProjectByUser",
 					"POST project/deleteProject": "project.deleteProject",
+					"POST project/updateProject": "project.updateProject",
 					"POST project/addQrCodeToProject": "project.addQrCodeToProject",
 					"GET project/getOneProject/:projectId": "project.getOneProject",
 					"POST wallet/changeStatusOfQrCode": "wallet.changeStatusOfQrCode",

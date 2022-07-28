@@ -67,6 +67,7 @@ module.exports = {
 				}
 			},
 		},
+
 		addQrCodeToProject: {
 			params: {
 				projectId: { type: "string", },
@@ -166,16 +167,18 @@ module.exports = {
 				}
 			},
 		},
+
 		addNewProject: {
 			params: {
 				projectName: { type: "string", min: 2, max: 60 },
-				//projectDescription: { type: "string", max: 255 },
+				projectDesc: { type: "string", max: 3000, optional: true },
 			},
 			async handler(ctx) {
 				try {
 					let _user = ctx.meta.user.userId;
 					let data = {
 						projectName: ctx.params.projectName,
+						projectDesc: ctx.params.projectDesc,
 						_user,
 						//	projectDescription: ctx.params.projectDescription,
 					};
@@ -192,6 +195,33 @@ module.exports = {
 				}
 			},
 		},
+
+		updateProject: {
+			params: {
+				projectId: { type: "string", min: 2, max: 60 },
+				projectDesc: { type: "string", max: 3000, optional: true },
+				projectTitle: { type: "string", max: 300 },
+
+			},
+			async handler(ctx) {
+				try {
+					const filter = { _id: ctx.params.projectId };
+					const update = {
+						projectDesc: ctx.params.projectDesc,
+						projectName: ctx.params.projectTitle,
+					};
+
+					return await Project.findOneAndUpdate(filter, update, { new: true });
+
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR EDITING PROJECT DESCRIPTION", {
+						message: error.message,
+						internalErrorCode: "project202",
+					});
+				}
+			},
+		},
+
 		getOneProject: {
 			params: {
 				projectId: { type: "string", min: 2, max: 60 },
@@ -220,6 +250,7 @@ module.exports = {
 				}
 			}
 		},
+
 		listAllProjectNrApi: {
 			params: {
 				idcode: { type: "string", min: 2, max: 60 },
