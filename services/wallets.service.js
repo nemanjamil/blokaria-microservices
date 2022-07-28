@@ -367,14 +367,20 @@ module.exports = {
 			meta: {
 				user: {
 					userEmail: { type: "email" },
+					generated: { type: "boolead" },
 				},
 			},
 			async handler(ctx) {
 				ctx.params.userEmail = ctx.meta.user.userEmail;
 				try {
-					let listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
-					let listQrCodesOwnedByUser = await this.getlistQrCodesOwnedByUserMethod(ctx);
-					return { listQrCodesByUser, listQrCodesOwnedByUser };
+					let listQrCodesByUser;
+					if (ctx.params.generated) {
+						listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
+					} else {
+						listQrCodesByUser = await this.getlistQrCodesOwnedByUserMethod(ctx);
+					}
+
+					return listQrCodesByUser;
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -744,7 +750,9 @@ module.exports = {
 		// wallet110
 		async getListQrCodesByUserMethod(ctx) {
 			const entity = {
-				userEmail: ctx.params.userEmail
+				userEmail: ctx.params.userEmail,
+				clientEmail: { $exists: false },
+				//transactionId: ""
 			};
 			try {
 				return await Wallet.find(entity)
