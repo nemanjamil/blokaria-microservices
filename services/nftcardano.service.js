@@ -105,8 +105,6 @@ module.exports = {
 			params: {
 				imageIPFS: { type: "string" },
 				assetName: { type: "string" },
-				//description: { type: "string" },
-				authors: { type: "array", optional: true },
 				copyright: { type: "string", optional: true },
 				walletName: { type: "string" },
 				storedIntoDb: { type: "object" },

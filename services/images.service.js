@@ -264,12 +264,13 @@ module.exports = {
 				console.log("\n\n");
 				console.log("generateNftMethod cid: ", cid);
 				let additionalMetaData = JSON.parse(meta.$multipart.finalMetaData);
+				additionalMetaData["authors"] = meta.user.userFullName;
+
+				console.log("additionalMetaData: ", additionalMetaData);
 
 				let nftObj = {
 					imageIPFS: cid,
 					assetName: meta.$multipart.productName + "#" + Date.now(),
-					//description: meta.$multipart.userDesc,
-					authors: [meta.user.userFullName],
 					copyright: "Copyright Blokaria",
 					walletName: process.env.WALLET_NAME,
 					storedIntoDb: storedIntoDb,
