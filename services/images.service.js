@@ -269,7 +269,7 @@ module.exports = {
 					imageIPFS: cid,
 					assetName: meta.$multipart.productName + "#" + Date.now(),
 					//description: meta.$multipart.userDesc,
-					//authors: [meta.$multipart.userFullname],
+					authors: [meta.user.userFullName],
 					copyright: "Copyright Blokaria",
 					walletName: process.env.WALLET_NAME,
 					storedIntoDb: storedIntoDb,
