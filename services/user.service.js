@@ -254,6 +254,7 @@ module.exports = {
 				}
 			}
 		},
+
 		deleteProjectFromUser: {
 			async handler(ctx) {
 
@@ -306,6 +307,7 @@ module.exports = {
 				}
 			},
 		},
+
 		authenticate: {
 			params: {
 				id: { type: "string", min: 2, max: 60 },
@@ -487,6 +489,7 @@ module.exports = {
 
 			}
 		},
+
 		healthcheck: {
 
 			async handler() {

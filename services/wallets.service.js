@@ -43,8 +43,31 @@ module.exports = {
 			},
 		},
 
+		addImageToQrCode: {
+
+			async handler(ctx) {
+
+				const { imageSave } = ctx.params;
+				let data = {
+					_image: imageSave._id
+				};
+
+				let entity = {
+					walletQrId: imageSave.walletQrId
+				};
+
+				try {
+					return await Wallet.findOneAndUpdate(entity, data, { new: true });
+				} catch (error) {
+					throw new MoleculerError("Can not populate Wallet table with Image ids", 401, "POPULATE_BUG", {
+						message: "Wallet Not Found",
+						internalErrorCode: "wallet303_populate",
+					});
+				}
+			}
+		},
 		generateQrCodeInSystem: {
-			rest: "POST /generateQrCodeInSystem",
+			//rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
 				try {
 
@@ -718,16 +741,16 @@ module.exports = {
 
 			try {
 				let payLoadResponse;
-				if (process.env.LOCALENV === 'true') {
-					console.log('Local ENV sendTransactionFromWalletToWallet');
+				if (process.env.LOCALENV === "true") {
+					console.log("Local ENV sendTransactionFromWalletToWallet");
 					payLoadResponse = {
 						data: {
 							rndBr: Math.floor(Math.random() * 1000),
-							txHash: 'bla bla txHash'
+							txHash: "bla bla txHash"
 						}
 					};
 				} else {
-					console.log('sendTransactionFromWalletToWallet Server ENV');
+					console.log("sendTransactionFromWalletToWallet Server ENV");
 					payLoadResponse = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateTransaction`, qrCodeDbData);
 				}
 

@@ -141,6 +141,51 @@ module.exports = {
 				}
 			},
 		},
+
+		generateNftFromExistingQrCode: {
+
+			async handler(ctx) {
+				try {
+					const { user } = ctx.meta;
+					await this.checIfUseCanCreateNft(user);
+					let { meta, relativePath, filename, uploadDirMkDir } = await this.storeImage(ctx);
+					let { imageSave } = await this.insertProductPicture(meta, relativePath, filename);
+
+					console.log("imageSave", imageSave);
+
+					let storedIntoDb = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode: ctx.meta.$multipart.walletQrId });
+
+					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb });
+
+					meta.$multipart.productName = storedIntoDb[0].productName;
+
+					const { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb);
+
+					await ctx.call("user.reduceNumberOfTransaction", meta);
+
+					console.log("saveToDb", saveToDb);
+					console.log("createCardanoNft", createCardanoNft);
+					console.log("cid", cid);
+
+					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
+						qrcode: meta.$multipart.walletQrId,
+					});
+
+					console.log("\n getQrCodeInfo \n", getQrCodeInfo);
+
+					return getQrCodeInfo[0];
+
+				} catch (error) {
+
+					console.log(error.message);
+					throw new MoleculerError("Greška pri generisanju NFT-a", 501, "ERR_PICTURE_DB_INSERTING", {
+						message: error.message,
+						internalErrorCode: "nftFromQr10",
+					});
+				}
+			},
+		},
+
 		generateQrCodeInSystemNoImage: {
 			// params: {
 			// 	article: { type: "string" },
@@ -210,23 +255,12 @@ module.exports = {
 		},
 		async generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb) {
 			try {
-				console.log("\n\n ---- generateNftMethod STARTED ----- \n\n ");
+				console.log("---- generateNftMethod STARTED -----");
 
 				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
-
 				console.log("\n\n");
 				console.log("generateNftMethod cid: ", cid);
-
-				let additionalMetaData = [
-					{ "Galaxy": "Milky Way" },
-					{ "Location": "Earth" },
-					{ "WebSite": `${process.env.BLOKARIA_WEBSITE}/s/${storedIntoDb._id}` },
-				];
-
-				if (storedIntoDb.hasstory) {
-					let newObjMetaData = { "Link to Story": `${process.env.BLOKARIA_WEBSITE}/story/${storedIntoDb._id}` }
-					additionalMetaData.push(newObjMetaData);
-				}
+				let additionalMetaData = JSON.parse(meta.$multipart.finalMetaData);
 
 				let nftObj = {
 					imageIPFS: cid,
@@ -237,9 +271,9 @@ module.exports = {
 					walletName: process.env.WALLET_NAME,
 					storedIntoDb: storedIntoDb,
 					additionalMetaData: additionalMetaData
-					//contributorData: meta.$multipart.contributorData,
-					//productVideo: meta.$multipart.productVideo,
 				};
+
+
 				console.log("generateNftMethod NFT Object: ", nftObj, "\n");
 				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV, "\n");
 
@@ -334,7 +368,7 @@ module.exports = {
 		},
 		async storeImage(ctx) {
 			return new Promise((resolve, reject) => {
-				let relativePath = `__uploads/${slugify(ctx.meta.$multipart.userEmail)}/${ctx.meta.$multipart.walletQrId}`;
+				let relativePath = `__uploads/${slugify(ctx.meta.user.userEmail)}/${ctx.meta.$multipart.walletQrId}`;
 				let uploadDirMkDir = path.join(__dirname, `../public/${relativePath}`);
 				mkdir(uploadDirMkDir);
 
@@ -367,7 +401,7 @@ module.exports = {
 				let imageSave = await image.save();
 				return { imageSave, imageRelativePath };
 			} catch (error) {
-				throw new MoleculerError("Greška pri ubacivanju linka slike u bazu podataka", 501, "ERR_PICTURE_DB_INSERTING", {
+				throw new MoleculerError(error.message, 501, "ERR_PICTURE_DB_INSERTING", {
 					message: "Greška pri ubacivanju linka slike u bazu podataka",
 					internalErrorCode: "image10",
 				});
