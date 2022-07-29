@@ -108,7 +108,7 @@ module.exports = {
 				copyright: { type: "string", optional: true },
 				walletName: { type: "string" },
 				storedIntoDb: { type: "object" },
-				additionalMetaData: { type: "array" },
+				additionalMetaData: { type: "object" },
 			},
 
 			async handler(ctx) {
