@@ -147,11 +147,14 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { user } = ctx.meta;
+
 					await this.checIfUseCanCreateNft(user);
 					let { meta, relativePath, filename, uploadDirMkDir } = await this.storeImage(ctx);
 					let { imageSave } = await this.insertProductPicture(meta, relativePath, filename);
 
 					console.log("imageSave", imageSave);
+
+					console.log("ctx.meta", ctx.meta);
 
 					let storedIntoDb = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode: ctx.meta.$multipart.walletQrId });
 
@@ -159,7 +162,7 @@ module.exports = {
 
 					meta.$multipart.productName = storedIntoDb[0].productName;
 
-					const { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb);
+					const { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb[0]);
 
 					await ctx.call("user.reduceNumberOfTransaction", meta);
 
@@ -265,8 +268,8 @@ module.exports = {
 				let nftObj = {
 					imageIPFS: cid,
 					assetName: meta.$multipart.productName + "#" + Date.now(),
-					description: meta.$multipart.userDesc,
-					authors: [meta.$multipart.userFullname],
+					//description: meta.$multipart.userDesc,
+					//authors: [meta.$multipart.userFullname],
 					copyright: "Copyright Blokaria",
 					walletName: process.env.WALLET_NAME,
 					storedIntoDb: storedIntoDb,
