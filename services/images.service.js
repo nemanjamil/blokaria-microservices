@@ -274,7 +274,8 @@ module.exports = {
 
 				console.log("Step 1 additionalMetaData ", additionalMetaData);
 
-				additionalMetaData["authors"] = meta.user.userFullName;
+				additionalMetaData["Authors"] = meta.user.userFullName;
+				additionalMetaData["QrCodeDetails"] = `${process.env.BLOKARIA_WEBSITE}/s/${meta.$multipart.walletQrId}`;
 
 				console.log("Step 2 additionalMetaData: ", additionalMetaData);
 
