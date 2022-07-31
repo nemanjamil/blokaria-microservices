@@ -117,77 +117,74 @@ module.exports = {
 						walletName: process.env.WALLET_NAME,
 						amountValue: 1,
 					};
-
-					let assetFromDb = await Nftcardano.findOne({ walletQrId: qrCodeStatus[0].walletQrId });
-					console.log("assetFromDb ", assetFromDb);
-					const diffMinutes = Math.floor((Date.now() - assetFromDb.createdAt) / 60000);
-					if (diffMinutes < 10) {
-						throw new MoleculerError(`Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`, 401, "POPULATE_BUG", {
-							message: `Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`,
-							internalErrorCode: "wallet305_lessThen10MinElapsed",
-						});
-					}
-
 					console.log("Wallet newData ", newData);
 
-					// let reducingStatus = await ctx.call("user.reduceUserCoupons", qrCodeStatus);
-					// console.log("Wallet ReducingStatus", reducingStatus);
-
-
-					console.log("Wallet sendTransactionFromWalletToWallet START");
-					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
-					console.log("Wallet sendTransactionFromWalletToWallet DONE");
-
-					console.log("Wallet addDelay 10 sec - START", Date.now());
-					await this.addDelay(1000);
-					console.log("Wallet addDelay 10 sec - END", Date.now());
-
+					let nftAssetFromDb = await Nftcardano.findOne({ walletQrId: qrCodeStatus[0].walletQrId });
+					console.log("nftAssetFromDb ", nftAssetFromDb);
 
 					let sendAssetToWallet, updateDbSendingAssetDbRes;
 
-					console.log("Wallet >  qrCodeStatus", qrCodeStatus);
-					console.log("Wallet >  qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
-					console.log("Wallet >  qrCodeStatus[0]._nfts[0].length", qrCodeStatus[0]._nfts.length);
+					let nftStatus = nftAssetFromDb && nftAssetFromDb.length > 0;
+					console.log("nftStatus ", nftStatus);
 
-					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
-						console.log("\n\n =======START NFT ASSET TO CLIENT WALLET========= \n\n");
-						console.log("Wallet >  WalletSending Start \n");
-						console.log("Wallet >  WalletSending and wallet assigining has started \n");
+					if (nftStatus) {
 
-						let nftParams = {
-							assetId: qrCodeStatus[0]._nfts[0].assetId,
-							addressWallet: qrCodeStatus[0].nftsendaddress,
-							walletName: process.env.WALLET_NAME,
-							amountValue: 1.7,
-						};
+						this.checkTimeForNftCreation(nftAssetFromDb);
 
-						console.log("Wallet > WalletSending NftParams", nftParams);
-						console.log("Wallet > WalletSending process.env.LOCALENV", process.env.LOCALENV);
+						console.log("Wallet >  qrCodeStatus", qrCodeStatus);
+						console.log("Wallet >  qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
+						console.log("Wallet >  qrCodeStatus[0]._nfts[0].length", qrCodeStatus[0]._nfts.length);
 
-						if (process.env.LOCALENV === "false") {
-							console.log(">>> WalletSending SERVER - STARTED sendAssetToWallet");
+						if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
+							console.log("\n\n =======START NFT ASSET TO CLIENT WALLET========= \n\n");
+							console.log("Wallet >  WalletSending Start \n");
+							console.log("Wallet >  WalletSending and wallet assigining has started \n");
 
-							sendAssetToWallet = await ctx.call("nftcardano.sendAssetToWallet", nftParams);
-							console.log(">>> SUCCESSFULL sendAssetToWallet Has Finished \n");
-							console.log(">>> sendAssetToWallet ", sendAssetToWallet);
+							let nftParams = {
+								assetId: qrCodeStatus[0]._nfts[0].assetId,
+								addressWallet: qrCodeStatus[0].nftsendaddress,
+								walletName: process.env.WALLET_NAME,
+								amountValue: 1.7,
+							};
+
+							console.log("Wallet > WalletSending NftParams", nftParams);
+							console.log("Wallet > WalletSending process.env.LOCALENV", process.env.LOCALENV);
+
+							if (process.env.LOCALENV === "false") {
+								console.log(">>> WalletSending SERVER - STARTED sendAssetToWallet");
+
+								sendAssetToWallet = await ctx.call("nftcardano.sendAssetToWallet", nftParams);
+								console.log(">>> SUCCESSFULL sendAssetToWallet Has Finished \n");
+								console.log(">>> sendAssetToWallet ", sendAssetToWallet);
+
+
+							} else {
+								console.log("WalletMinting LOCAL  ENV \n");
+								sendAssetToWallet = {
+									sendAssetToWallet: {
+										txHash: "dabc75e9b333dc728729fbb5c1ba68fcd1f24ad0cc4f164216cd086d66e76db0",
+									},
+								};
+							}
 
 							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });
 
 							console.log("updateDbSendingAssetDbRes  \n");
 							console.log("updateDbSendingAssetDbRes ", updateDbSendingAssetDbRes);
-						} else {
-							console.log("WalletMinting LOCAL  ENV \n");
-							sendAssetToWallet = {
-								sendAssetToWallet: {
-									txHash: "dabc75e9b333dc728729fbb5c1ba68fcd1f24ad0cc4f164216cd086d66e76db0",
-								},
-							};
 
-							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });
+						} else {
+							console.warn("\n\n  === WalletMinting  Skipped ==== \n");
 						}
-					} else {
-						console.warn("\n\n  === WalletMinting  Skipped ==== \n");
+
 					}
+
+					console.log("Wallet addDelay 10 sec - START", Date.now());
+					await this.addDelay(1000);
+					console.log("Wallet addDelay 10 sec - END", Date.now());
+
+					console.log("Wallet sendTransactionFromWalletToWallet START");
+					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
+					console.log("Wallet sendTransactionFromWalletToWallet DONE");
 
 					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
 					console.log("Wallet RedeemStatus", redeemStatus);
@@ -932,5 +929,18 @@ module.exports = {
 		async addDelay(time) {
 			return new Promise((res) => setTimeout(res, time));
 		},
+
+		async checkTimeForNftCreation(nftAssetFromDb) {
+
+			console.log("nftAssetFromDb.createdAt", nftAssetFromDb.createdAt);
+
+			const diffMinutes = Math.floor((Date.now() - nftAssetFromDb.createdAt) / 60000);
+			if (diffMinutes < 10) {
+				throw new MoleculerError(`Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`, 401, "POPULATE_BUG", {
+					message: `Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`,
+					internalErrorCode: "wallet305_lessThen10MinElapsed",
+				});
+			}
+		}
 	},
 };
