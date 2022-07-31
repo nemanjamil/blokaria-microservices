@@ -8,6 +8,8 @@ const QRCode = require("qrcode");
 const fs = require("fs");
 const path = require("path");
 const mkdir = require("mkdirp").sync;
+const isObjectLike = require('lodash/isObjectLike');
+
 
 const { Web3Storage, getFilesFromPath } = require("web3.storage");
 
@@ -261,12 +263,20 @@ module.exports = {
 				console.log("---- generateNftMethod STARTED -----");
 
 				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
-				console.log("\n\n");
+
+				console.log("\n\n  >>>  ---- uploadImagetoIPFS DONE  -----");
+
 				console.log("generateNftMethod cid: ", cid);
-				let additionalMetaData = JSON.parse(meta.$multipart.finalMetaData);
+				console.log("meta.$multipart ", meta.$multipart);
+				let additionalMetaData = {};
+
+				additionalMetaData = (meta.$multipart.finalMetaData && isObjectLike(meta.$multipart.finalMetaData)) ? { ...additionalMetaData, ...JSON.parse(meta.$multipart.finalMetaData) } : additionalMetaData;
+
+				console.log("Step 1 additionalMetaData ", additionalMetaData);
+
 				additionalMetaData["authors"] = meta.user.userFullName;
 
-				console.log("additionalMetaData: ", additionalMetaData);
+				console.log("Step 2 additionalMetaData: ", additionalMetaData);
 
 				let nftObj = {
 					imageIPFS: cid,

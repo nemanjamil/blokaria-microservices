@@ -6,7 +6,7 @@ const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/Wallet.js");
 const Nftcardano = require("../models/Nftcardano");
 const Utils = require("../utils/utils");
-var isObjectLike = require('lodash/isObjectLike');
+const isObjectLike = require('lodash/isObjectLike');
 
 require("dotenv").config();
 
