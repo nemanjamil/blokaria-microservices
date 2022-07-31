@@ -390,7 +390,7 @@ module.exports = {
 			meta: {
 				user: {
 					userEmail: { type: "email" },
-					generated: { type: "boolead" },
+					generated: { type: "boolean" },
 				},
 			},
 			async handler(ctx) {
@@ -525,6 +525,46 @@ module.exports = {
 					});
 				}
 			},
+		},
+
+		updateDataInDb: {
+			rest: "POST /updateDataInDb",
+			params: {
+				searchBy: { type: "string" },
+				what: { type: "string" },
+				howmany: { type: "any" },
+			},
+			async handler(ctx) {
+
+				let searchBy = ctx.params.searchBy;
+				let what = ctx.params.what;
+				let howmany = ctx.params.howmany;
+
+				const entity = {
+					walletQrId: searchBy
+				};
+
+				let data = {};
+				data[what] = howmany;
+
+				try {
+
+					let resultFromReducting = await Wallet.findOneAndUpdate(entity, data, { new: true });
+
+					if (!resultFromReducting) {
+						throw new MoleculerError("Data not exist", 401, "WALLET ID DO NOT EXIST", {
+							message: "Data not exist in the system",
+							internalErrorCode: "user81",
+						});
+					}
+					return resultFromReducting;
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_UPDATING_DATA", {
+						message: error.message,
+						internalErrorCode: "user80",
+					});
+				}
+			}
 		},
 	},
 
