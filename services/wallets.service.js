@@ -107,6 +107,38 @@ module.exports = {
 
 					console.log("nftStatus ", nftStatus);
 
+
+
+					console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
+					let newData = {
+						userDesc: qrCodeStatus[0].userDesc,
+						userFullname: qrCodeStatus[0].userFullname,
+						userEmail: qrCodeStatus[0].userEmail,
+
+						productName: qrCodeStatus[0].productName,
+
+						clientEmail: qrCodeStatus[0].clientEmail,
+						clientMessage: qrCodeStatus[0].clientMessage,
+						clientName: qrCodeStatus[0].clientName,
+
+						walletQrId: qrCodeStatus[0].walletQrId,
+
+						contributorData: qrCodeStatus[0].contributorData,
+						clientemailcb: qrCodeStatus[0].clientemailcb,
+						ownernamecb: qrCodeStatus[0].clientemailcb,
+
+						walletName: process.env.WALLET_NAME,
+						amountValue: 1,
+					};
+					console.log("Wallet BASIC newData ", newData);
+					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
+					console.log("Wallet BASIC sendTransactionFromWalletToWallet DONE");
+
+					console.log("Wallet addDelay 10 sec - START", Date.now());
+					await this.addDelay(1000);
+					console.log("Wallet addDelay 10 sec - END", Date.now());
+
+
 					if (nftStatus) {
 
 						console.log("Wallet >  NFT TRANSACTION START");
@@ -162,34 +194,6 @@ module.exports = {
 
 					}
 
-					console.log("Wallet addDelay 10 sec - START", Date.now());
-					await this.addDelay(1000);
-					console.log("Wallet addDelay 10 sec - END", Date.now());
-
-					console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
-					let newData = {
-						userDesc: qrCodeStatus[0].userDesc,
-						userFullname: qrCodeStatus[0].userFullname,
-						userEmail: qrCodeStatus[0].userEmail,
-
-						productName: qrCodeStatus[0].productName,
-
-						clientEmail: qrCodeStatus[0].clientEmail,
-						clientMessage: qrCodeStatus[0].clientMessage,
-						clientName: qrCodeStatus[0].clientName,
-
-						walletQrId: qrCodeStatus[0].walletQrId,
-
-						contributorData: qrCodeStatus[0].contributorData,
-						clientemailcb: qrCodeStatus[0].clientemailcb,
-						ownernamecb: qrCodeStatus[0].clientemailcb,
-
-						walletName: process.env.WALLET_NAME,
-						amountValue: 1,
-					};
-					console.log("Wallet BASIC newData ", newData);
-					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
-					console.log("Wallet BASIC sendTransactionFromWalletToWallet DONE");
 
 					console.log("Wallet RedeemStatus START", redeemStatus);
 					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
