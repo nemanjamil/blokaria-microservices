@@ -111,6 +111,10 @@ module.exports = {
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
 					console.log("Wallet BASIC sendTransactionFromWalletToWallet DONE");
 
+					console.log("Wallet RedeemStatus START", redeemStatus);
+					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
+					console.log("Wallet RedeemStatus END", redeemStatus);
+
 					console.log("Wallet addDelay 10 sec - START", Date.now());
 					await this.addDelay(1000);
 					console.log("Wallet addDelay 10 sec - END", Date.now());
@@ -172,9 +176,7 @@ module.exports = {
 					}
 
 
-					console.log("Wallet RedeemStatus START", redeemStatus);
-					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
-					console.log("Wallet RedeemStatus END", redeemStatus);
+
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
