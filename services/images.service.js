@@ -8,7 +8,7 @@ const QRCode = require("qrcode");
 const fs = require("fs");
 const path = require("path");
 const mkdir = require("mkdirp").sync;
-const isObjectLike = require('lodash/isObjectLike');
+const has = require("lodash/has");
 
 
 const { Web3Storage, getFilesFromPath } = require("web3.storage");
@@ -270,7 +270,7 @@ module.exports = {
 				console.log("meta.$multipart ", meta.$multipart);
 				let additionalMetaData = {};
 
-				additionalMetaData = (meta.$multipart.finalMetaData && isObjectLike(meta.$multipart.finalMetaData)) ? { ...additionalMetaData, ...JSON.parse(meta.$multipart.finalMetaData) } : additionalMetaData;
+				additionalMetaData = (has(meta.$multipart, "finalMetaData")) ? { ...additionalMetaData, ...JSON.parse(meta.$multipart.finalMetaData) } : additionalMetaData;
 
 				console.log("Step 1 additionalMetaData ", additionalMetaData);
 
