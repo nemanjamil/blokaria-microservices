@@ -109,6 +109,8 @@ module.exports = {
 
 					if (nftStatus) {
 
+						console.log("Wallet >  NFT TRANSACTION START");
+
 						await this.checkTimeForNftCreation(nftAssetFromDb);
 
 						console.log("Wallet >  qrCodeStatus", qrCodeStatus);
@@ -152,6 +154,8 @@ module.exports = {
 							console.log("updateDbSendingAssetDbRes  \n");
 							console.log("updateDbSendingAssetDbRes ", updateDbSendingAssetDbRes);
 
+							console.log("Wallet >  NFT TRANSACTION FINISH \n\n");
+
 						} else {
 							console.warn("\n\n  === WalletMinting  Skipped ==== \n");
 						}
@@ -162,7 +166,7 @@ module.exports = {
 					await this.addDelay(1000);
 					console.log("Wallet addDelay 10 sec - END", Date.now());
 
-					console.log("Wallet sendTransactionFromWalletToWallet START");
+					console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
 					let newData = {
 						userDesc: qrCodeStatus[0].userDesc,
 						userFullname: qrCodeStatus[0].userFullname,
@@ -183,9 +187,9 @@ module.exports = {
 						walletName: process.env.WALLET_NAME,
 						amountValue: 1,
 					};
-					console.log("Wallet newData ", newData);
+					console.log("Wallet BASIC newData ", newData);
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
-					console.log("Wallet sendTransactionFromWalletToWallet DONE");
+					console.log("Wallet BASIC sendTransactionFromWalletToWallet DONE");
 
 					console.log("Wallet RedeemStatus START", redeemStatus);
 					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
