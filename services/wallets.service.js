@@ -937,9 +937,12 @@ module.exports = {
 		async checkTimeForNftCreation(nftAssetFromDb) {
 			console.log("checkTimeForNftCreation STARTED");
 
-			console.log("nftAssetFromDb.createdAt", nftAssetFromDb.createdAt);
+			console.log("checkTimeForNftCreation : nftAssetFromDb.createdAt", nftAssetFromDb.createdAt);
 
 			const diffMinutes = Math.floor((Date.now() - nftAssetFromDb.createdAt) / 60000);
+
+			console.log("checkTimeForNftCreation : diffMinutes", diffMinutes);
+
 			if (diffMinutes < 10) {
 				throw new MoleculerError(`Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`, 401, "POPULATE_BUG", {
 					message: `Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`,
