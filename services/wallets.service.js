@@ -189,8 +189,9 @@ module.exports = {
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(newData);
 					console.log("Wallet sendTransactionFromWalletToWallet DONE");
 
+					console.log("Wallet RedeemStatus START", redeemStatus);
 					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
-					console.log("Wallet RedeemStatus", redeemStatus);
+					console.log("Wallet RedeemStatus END", redeemStatus);
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
@@ -934,6 +935,7 @@ module.exports = {
 		},
 
 		async checkTimeForNftCreation(nftAssetFromDb) {
+			console.log("checkTimeForNftCreation STARTED");
 
 			console.log("nftAssetFromDb.createdAt", nftAssetFromDb.createdAt);
 
