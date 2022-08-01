@@ -132,7 +132,7 @@ module.exports = {
 
 					if (nftStatus) {
 
-						this.checkTimeForNftCreation(nftAssetFromDb);
+						await this.checkTimeForNftCreation(nftAssetFromDb);
 
 						console.log("Wallet >  qrCodeStatus", qrCodeStatus);
 						console.log("Wallet >  qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
@@ -943,12 +943,12 @@ module.exports = {
 
 			console.log("checkTimeForNftCreation : diffMinutes", diffMinutes);
 
-			// if (diffMinutes < 10) {
-			// 	throw new MoleculerError(`Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`, 401, "CHECK_TIME_ERROR", {
-			// 		message: `Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`,
-			// 		internalErrorCode: "wallet305_lessThen10MinElapsed",
-			// 	});
-			// }
+			if (diffMinutes < 10) {
+				throw new MoleculerError(`Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`, 401, "CHECK_TIME_ERROR", {
+					message: `Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`,
+					internalErrorCode: "wallet305_lessThen10MinElapsed",
+				});
+			}
 		}
 	},
 };
