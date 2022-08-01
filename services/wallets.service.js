@@ -94,6 +94,8 @@ module.exports = {
 				try {
 					console.log("\n\nWallet Initiation Has Started : initiateTransactionToClientWallet");
 
+
+
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 
 					console.log("Wallet qrCodeStatus BEFORE ", qrCodeStatus);
@@ -106,6 +108,9 @@ module.exports = {
 					let nftStatus = isObjectLike(nftAssetFromDb);
 					console.log("nftStatus ", nftStatus);
 
+					if (nftStatus) {
+						await this.checkTimeForNftCreation(nftAssetFromDb);
+					}
 
 					console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
@@ -123,8 +128,6 @@ module.exports = {
 					if (nftStatus) {
 
 						console.log("Wallet >  NFT TRANSACTION START");
-
-						await this.checkTimeForNftCreation(nftAssetFromDb);
 
 						console.log("Wallet >  qrCodeStatus", qrCodeStatus);
 						console.log("Wallet >  qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
