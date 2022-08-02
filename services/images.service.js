@@ -185,7 +185,7 @@ module.exports = {
 					console.log(error.message);
 					throw new MoleculerError("Greška pri generisanju NFT-a", 501, "ERR_PICTURE_DB_INSERTING", {
 						message: error.message,
-						internalErrorCode: "nftFromQr10",
+						internalErrorCode: error.internalErrorCode,
 					});
 				}
 			},
