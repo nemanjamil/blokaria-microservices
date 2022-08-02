@@ -109,7 +109,7 @@ module.exports = {
 					console.log("Wallet RedeemStatus END", redeemStatus);
 
 					console.log("Wallet addDelay 10 sec - START", Date.now());
-					await this.addDelay(10 * 1000);
+					await this.addDelay(60 * 1000);
 					console.log("Wallet addDelay 10 sec - END", Date.now());
 
 					console.log("Wallet >  NFT > SEND ASSET TO WALLET -  START");
