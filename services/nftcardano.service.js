@@ -59,7 +59,7 @@ module.exports = {
 					}
 
 				} catch (error) {
-					throw new MoleculerError("Check Time For Sending Asset is not correct", 401, "CHECK_TIME_ERROR", {
+					throw new MoleculerError(error.message, 401, "CHECK_TIME_ERROR", {
 						message: error.message,
 						internalErrorCode: "checkTimeForSendingAsset_101",
 					});
@@ -512,6 +512,7 @@ module.exports = {
 			console.log("checkTimeForNftCreation : diffMinutes", diffMinutes);
 
 			if (diffMinutes < 10) {
+				console.log("checkTimeForNftCreation Entering Error");
 				throw new MoleculerError(`Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`, 401, "CHECK_TIME_ERROR", {
 					message: `Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`,
 					internalErrorCode: "wallet305_lessThen10MinElapsed",
