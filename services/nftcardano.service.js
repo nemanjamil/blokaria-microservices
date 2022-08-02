@@ -77,7 +77,9 @@ module.exports = {
 				try {
 
 					console.log("\n\n ====== START generateNft PARAMS", ctx.params);
+
 					const { qrcode } = ctx.params;
+
 
 					console.log("qrcode", qrcode);
 

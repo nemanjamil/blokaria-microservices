@@ -113,7 +113,8 @@ module.exports = {
 					console.log("Wallet addDelay 10 sec - END", Date.now());
 
 					console.log("Wallet >  NFT > SEND ASSET TO WALLET -  START");
-					const { updateDbSendingAssetDbRes, sendAssetToWallet } = await ctx.call("nftcardano.generateNft", ctx);
+					console.log("Wallet >  DATA", ctx.params);
+					const { updateDbSendingAssetDbRes, sendAssetToWallet } = await ctx.call("nftcardano.generateNft", ctx.params);
 					console.log("Wallet >  NFT > SEND ASSET TO WALLET  FINISH");
 
 
