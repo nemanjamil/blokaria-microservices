@@ -96,11 +96,13 @@ module.exports = {
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 					console.log("Wallet qrCodeStatus BEFORE ", qrCodeStatus);
 
+					console.log("Wallet checkTimeForSendingAsset START");
 					await ctx.call("nftcardano.checkTimeForSendingAsset", { qrCodeStatus });
+					console.log("Wallet checkTimeForSendingAsset FINISH");
 
 					console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
-					console.log("Wallet BASIC sendTransactionFromWalletToWallet DONE");
+					console.log("Wallet BASIC sendTransactionFromWalletToWallet BASIC FINISH");
 
 					console.log("Wallet RedeemStatus START");
 					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
@@ -134,7 +136,7 @@ module.exports = {
 
 					throw new MoleculerError(error.message, 401, "TRANSACTION_ERROR", {
 						message: error.message,
-						internalErrorCode: "transaction_error_101",
+						internalErrorCode: error.internalErrorCode,
 					});
 				}
 			},
@@ -615,6 +617,8 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
+				console.log("checkIfQrCodeExistIndb entity", entity);
+
 				let wallet = await Wallet.exists(entity);
 				if (!wallet)
 					throw new MoleculerError("Kod ne postoji u bazi podataka", 401, "ERROR_GET_QR_CODE_DATA", {
@@ -624,7 +628,7 @@ module.exports = {
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Greška pri citanju postojećeg QR koda", 401, "ERROR_GET_QR_CODE_DATA", {
-					message: "rror reading exists Qr Code",
+					message: "Error reading exists Qr Code",
 					internalErrorCode: "wallet61",
 				});
 			}
