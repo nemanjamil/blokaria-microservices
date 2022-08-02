@@ -513,10 +513,11 @@ module.exports = {
 
 			console.log("checkTimeForNftCreation : diffMinutes", diffMinutes);
 
-			if (diffMinutes < 10) {
+			let numberOfMinutes = 30;
+			if (diffMinutes < numberOfMinutes) {
 				console.log("checkTimeForNftCreation Entering Error");
-				throw new MoleculerError(`Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`, 401, "CHECK_TIME_ERROR", {
-					message: `Morate sačekati još ${10 - diffMinutes} minuta pre slanja NFT-a`,
+				throw new MoleculerError(`Morate sačekati još ${numberOfMinutes - diffMinutes} minuta pre slanja NFT-a`, 401, "CHECK_TIME_ERROR", {
+					message: `Morate sačekati još ${numberOfMinutes - diffMinutes} minuta pre slanja NFT-a`,
 					internalErrorCode: "wallet305_lessThen10MinElapsed",
 				});
 			}
