@@ -128,7 +128,7 @@ module.exports = {
 						});
 
 
-						let updateNftRedeemStatus = await ctx.call("updateDataInDb", {
+						let updateNftRedeemStatus = await ctx.call("wallet.updateDataInDb", {
 							searchBy: qrCodeStatus[0].walletQrId,
 							what: "nftRedeemStatus",
 							howmany: true,
