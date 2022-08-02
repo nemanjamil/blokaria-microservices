@@ -828,7 +828,8 @@ module.exports = {
 		async getListQrCodesByUserMethod(ctx) {
 			const entity = {
 				userEmail: ctx.params.userEmail,
-				clientEmail: { $exists: false },
+				qrCodeRedeemStatus: 0
+				//clientEmail: { $exists: false },
 				//transactionId: ""
 			};
 			try {
