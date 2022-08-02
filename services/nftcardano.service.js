@@ -67,12 +67,9 @@ module.exports = {
 			},
 		},
 		generateNft: {
-			// params: {
-			// 	walletQrId: { type: "string" },
-			// 	emailVerificationId: { type: "number" },
-			// 	what: { type: "string" },
-			// 	howmany: { type: "string" },
-			// },
+			params: {
+				qrcode: { type: "string" }
+			},
 			async handler(ctx) {
 				try {
 
@@ -80,8 +77,7 @@ module.exports = {
 
 					const { qrcode } = ctx.params;
 
-
-					console.log("qrcode", qrcode);
+					console.log("generateNft qrcode", qrcode);
 
 					let qrCodeStatus = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode });
 
