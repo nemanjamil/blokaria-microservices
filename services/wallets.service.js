@@ -174,6 +174,17 @@ module.exports = {
 							console.log("updateDbSendingAssetDbRes  \n");
 							console.log("updateDbSendingAssetDbRes ", updateDbSendingAssetDbRes);
 
+							let updateNftRedeemStatus = this.updateDataInDb({
+								searchBy: qrCodeStatus[0].walletQrId,
+								what: "nftRedeemStatus",
+								howmany: true,
+							});
+
+							console.log("updateNftRedeemStatus  \n");
+							console.log("updateNftRedeemStatus ", updateNftRedeemStatus);
+
+
+
 							console.log("Wallet >  NFT TRANSACTION FINISH \n\n");
 
 						} else {
@@ -521,7 +532,6 @@ module.exports = {
 		},
 
 		updateDataInDb: {
-			rest: "POST /updateDataInDb",
 			params: {
 				searchBy: { type: "string" },
 				what: { type: "string" },
