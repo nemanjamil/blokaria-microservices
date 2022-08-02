@@ -112,6 +112,8 @@ module.exports = {
 						await this.checkTimeForNftCreation(nftAssetFromDb);
 					}
 
+
+
 					console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
 					console.log("Wallet BASIC sendTransactionFromWalletToWallet DONE");
@@ -123,6 +125,8 @@ module.exports = {
 					console.log("Wallet addDelay 10 sec - START", Date.now());
 					await this.addDelay(1000);
 					console.log("Wallet addDelay 10 sec - END", Date.now());
+
+
 
 
 					if (nftStatus) {
@@ -864,7 +868,8 @@ module.exports = {
 		// wallet130
 		async getlistQrCodesOwnedByUserMethod(ctx) {
 			const entity = {
-				clientEmail: ctx.params.userEmail,
+				//clientEmail: ctx.params.userEmail,
+				qrCodeRedeemStatus: 1
 			};
 			try {
 				return await Wallet.find(entity)
