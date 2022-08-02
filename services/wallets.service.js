@@ -96,7 +96,7 @@ module.exports = {
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 					console.log("Wallet qrCodeStatus BEFORE ", qrCodeStatus);
 
-					await ctx.call("nftcardano.checkTimeForSendingAsset", qrCodeStatus);
+					await ctx.call("nftcardano.checkTimeForSendingAsset", { qrCodeStatus });
 
 					console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
