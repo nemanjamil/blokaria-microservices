@@ -67,6 +67,7 @@ module.exports = {
 				}
 			}
 		},
+
 		generateQrCodeInSystem: {
 			//rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
@@ -108,9 +109,10 @@ module.exports = {
 					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
 					console.log("Wallet RedeemStatus END", redeemStatus);
 
-					console.log("Wallet addDelay 10 sec - START", Date.now());
-					await this.addDelay(60 * 1000);
-					console.log("Wallet addDelay 10 sec - END", Date.now());
+					let numberOfSeconds = 60;
+					console.log(`Wallet addDelay ${numberOfSeconds}sec - START `, Date.now());
+					await this.addDelay(numberOfSeconds * 1000);
+					console.log(`Wallet addDelay ${numberOfSeconds}sec - END`, Date.now());
 
 					console.log("Wallet >  NFT > SEND ASSET TO WALLET -  START");
 					console.log("Wallet >  DATA", ctx.params);

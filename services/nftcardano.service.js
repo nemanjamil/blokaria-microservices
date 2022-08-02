@@ -66,6 +66,7 @@ module.exports = {
 				}
 			},
 		},
+
 		generateNft: {
 			params: {
 				qrcode: { type: "string" }
