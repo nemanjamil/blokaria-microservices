@@ -791,6 +791,7 @@ module.exports = {
 				clientName: qrCodeDbData[0].clientName,
 
 				walletQrId: qrCodeDbData[0].walletQrId,
+				qrCodeId: qrCodeDbData[0]._id,
 
 				contributorData: qrCodeDbData[0].contributorData,
 				clientemailcb: qrCodeDbData[0].clientemailcb,
