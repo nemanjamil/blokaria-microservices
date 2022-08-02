@@ -76,7 +76,10 @@ module.exports = {
 			async handler(ctx) {
 				try {
 
-					let qrCodeStatus = await ctx.call("getQrCodeDataMethod", { ctx, qrRedeemCheck: true });
+					console.log("\n\n ====== START generateNft PARAMS", ctx.params);
+					const { qrcode } = ctx.params;
+
+					let qrCodeStatus = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode });
 
 
 					console.log("generateNft >  qrCodeStatus", qrCodeStatus);
