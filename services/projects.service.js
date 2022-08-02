@@ -279,6 +279,12 @@ module.exports = {
 								path: "_user",
 								populate: {
 									path: "_projects",
+									populate: {
+										path: "_wallets",
+										populate: {
+											path: "_image _nfts"
+										},
+									},
 								},
 							},
 						);
