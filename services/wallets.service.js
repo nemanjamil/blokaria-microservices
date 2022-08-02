@@ -172,7 +172,11 @@ module.exports = {
 							updateDbSendingAssetDbRes = await ctx.call("nftcardano.updateDbSendingAssetDb", { sendAssetToWallet, qrCodeStatus, nftParams });
 
 							console.log("updateDbSendingAssetDbRes  \n");
-							console.log("updateDbSendingAssetDbRes ", updateDbSendingAssetDbRes);
+							console.log("updateDbSendingAssetDbRes ", {
+								searchBy: qrCodeStatus[0].walletQrId,
+								what: "nftRedeemStatus",
+								howmany: true,
+							});
 
 							let updateNftRedeemStatus = this.action.updateDataInDb({
 								searchBy: qrCodeStatus[0].walletQrId,
