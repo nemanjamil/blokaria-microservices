@@ -249,6 +249,7 @@ module.exports = {
 
 			async handler(ctx) {
 				try {
+					console.log("\n\n =======START sendAssetToWallet ========= \n\n");
 					console.log("ctx.params", ctx.params);
 
 					let payloadToWallet = {
@@ -257,7 +258,7 @@ module.exports = {
 						assetId: ctx.params.assetId,
 						amountValue: ctx.params.amountValue,
 					};
-					console.log("sendAssetToWallet payloadToWallet", payloadToWallet);
+					console.log("sendAssetToWallet PAYLOAD", payloadToWallet);
 					let sendAssetToWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}sendAssetToWallet`, payloadToWallet);
 					//console.log("sendAssetToWallet-sendAssetToWallet-sendAssetToWallet ", sendAssetToWallet);
 					if (sendAssetToWallet.data.txHash) {
