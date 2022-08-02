@@ -819,7 +819,8 @@ module.exports = {
 				return await Wallet.find(entity)
 					.sort("-createdAt")
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
-					.populate("_image", { productPicture: 1 });
+					.populate("_image", { productPicture: 1 })
+					.populate("_nfts");
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet130" });
 			}
