@@ -178,7 +178,7 @@ module.exports = {
 								howmany: true,
 							});
 
-							let updateNftRedeemStatus = await this.action.updateDataInDb({
+							let updateNftRedeemStatus = await this.actions.updateDataInDb({
 								searchBy: qrCodeStatus[0].walletQrId,
 								what: "nftRedeemStatus",
 								howmany: true,
