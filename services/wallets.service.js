@@ -129,6 +129,9 @@ module.exports = {
 						redeemStatus,
 					};
 				} catch (error) {
+
+					console.log("error FINAL", error);
+
 					throw new MoleculerError(error.message, 401, "TRANSACTION_ERROR", {
 						message: error.message,
 						internalErrorCode: "transaction_error_101",
