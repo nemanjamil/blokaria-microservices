@@ -513,7 +513,7 @@ module.exports = {
 
 			console.log("checkTimeForNftCreation : diffMinutes", diffMinutes);
 
-			let numberOfMinutes = 30;
+			let numberOfMinutes = 10;
 			if (diffMinutes < numberOfMinutes) {
 				console.log("checkTimeForNftCreation Entering Error");
 				throw new MoleculerError(`Morate sačekati još ${numberOfMinutes - diffMinutes} minuta pre slanja NFT-a`, 401, "CHECK_TIME_ERROR", {
