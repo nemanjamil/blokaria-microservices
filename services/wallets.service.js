@@ -118,7 +118,7 @@ module.exports = {
 					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
 					console.log("Wallet BASIC sendTransactionFromWalletToWallet DONE");
 
-					console.log("Wallet RedeemStatus START", redeemStatus);
+					console.log("Wallet RedeemStatus START");
 					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
 					console.log("Wallet RedeemStatus END", redeemStatus);
 
