@@ -430,7 +430,7 @@ module.exports = {
 		updateQrCodeText: {
 			params: {
 				qrcode: { type: "string" },
-				longText: { type: "string", optional: true, empty: true, max: 1000 }
+				longText: { type: "string", optional: true, empty: true, max: 150000 }
 			},
 			async handler(ctx) {
 				const { qrcode, longText } = ctx.params;
