@@ -174,7 +174,7 @@ module.exports = {
 							console.log("updateDbSendingAssetDbRes  \n");
 							console.log("updateDbSendingAssetDbRes ", updateDbSendingAssetDbRes);
 
-							let updateNftRedeemStatus = this.updateDataInDb({
+							let updateNftRedeemStatus = this.action.updateDataInDb({
 								searchBy: qrCodeStatus[0].walletQrId,
 								what: "nftRedeemStatus",
 								howmany: true,
