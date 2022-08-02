@@ -108,7 +108,7 @@ module.exports = {
 						if (process.env.LOCALENV === "false") {
 							console.log(">>> generateNft SERVER - STARTED sendAssetToWallet");
 
-							sendAssetToWallet = await this.actions.sendAssetToWallet({ nftParams });
+							sendAssetToWallet = await this.actions.sendAssetToWallet(nftParams);
 							console.log(">>> generateNft SUCCESSFULL sendAssetToWallet Has Finished \n");
 							console.log(">>> generateNft sendAssetToWallet ", sendAssetToWallet);
 
