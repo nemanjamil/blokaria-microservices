@@ -129,7 +129,10 @@ module.exports = {
 						redeemStatus,
 					};
 				} catch (error) {
-					return Promise.reject(error);
+					throw new MoleculerError(error.message, 401, "TRANSACTION_ERROR", {
+						message: error.message,
+						internalErrorCode: "transaction_error_101",
+					});
 				}
 			},
 		},
@@ -275,7 +278,7 @@ module.exports = {
 				try {
 					let getWalletFromId = await Wallet.findOne({ _id: ctx.params.idcode });
 					if (!getWalletFromId) {
-						throw new MoleculerError("No WALLET ID", 501, "ERR_GET_WALLET_ID", {
+						throw new MoleculerError("No WALLET ID", 401, "ERR_GET_WALLET_ID", {
 							message: "No Data",
 							internalErrorCode: "wallet544",
 						});
@@ -285,7 +288,7 @@ module.exports = {
 					}
 
 				} catch (error) {
-					throw new MoleculerError("Greška - GET DATA", 501, "ERR_GET_WALLET_ID", {
+					throw new MoleculerError("Greška - GET DATA", 401, "ERR_GET_WALLET_ID", {
 						message: error.message,
 						internalErrorCode: "wallet543",
 					});
@@ -408,7 +411,7 @@ module.exports = {
 				try {
 					return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 				} catch (error) {
-					throw new MoleculerError("Greška u ažuriranju podataka : ChangeStatusOfQrCode", 501, "ERR_GENERATING_CONTRACT", {
+					throw new MoleculerError("Greška u ažuriranju podataka : ChangeStatusOfQrCode", 401, "ERR_GENERATING_CONTRACT", {
 						message: error.message,
 						internalErrorCode: "wallet330",
 					});
@@ -433,7 +436,7 @@ module.exports = {
 				try {
 					let getData = await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 					if (!getData) {
-						throw new MoleculerError("Greška u ažuriranju podataka. updateQrCodeText", 501, "ERR_UPDATE_STORY", {
+						throw new MoleculerError("Greška u ažuriranju podataka. updateQrCodeText", 401, "ERR_UPDATE_STORY", {
 							message: "No Data",
 							internalErrorCode: "wallet432",
 						});
@@ -442,7 +445,7 @@ module.exports = {
 					}
 
 				} catch (error) {
-					throw new MoleculerError("Greška u ažuriranju podataka : updateQrCodeText ERROR", 501, "updateQrCodeText", {
+					throw new MoleculerError("Greška u ažuriranju podataka : updateQrCodeText ERROR", 401, "updateQrCodeText", {
 						message: error.message,
 						internalErrorCode: "wallet430",
 					});
@@ -501,7 +504,7 @@ module.exports = {
 					case !qrRedeemCheck:
 						return walletIdData;
 					case qrRedeemCheck && walletIdData[0].qrCodeRedeemStatus > 0:
-						throw new MoleculerError("QR kod je već iskorišćen", 501, "ERR_DB_GETTING", {
+						throw new MoleculerError("QR kod je već iskorišćen", 401, "ERR_DB_GETTING", {
 							message: "QR kod je već iskorišćen",
 							internalErrorCode: "walletredeem10",
 						});
@@ -509,13 +512,13 @@ module.exports = {
 					case ctx.params.accessCode && ctx.params.accessCode === walletIdData[0].accessCode:
 						return walletIdData;
 					case walletIdData[0].publicQrCode === false:
-						throw new MoleculerError("QR kod nije javno dostupan", 501, "ERR_DB_GETTING", {
+						throw new MoleculerError("QR kod nije javno dostupan", 401, "ERR_DB_GETTING", {
 							message: "QR kod nije javno dostupan",
 							internalErrorCode: "walletredeem11",
 						});
 					default:
 						return walletIdData;
-					// throw new MoleculerError("Something happened on getQrCodeDataMethod", 501, "ERR_DB_GETTING", {
+					// throw new MoleculerError("Something happened on getQrCodeDataMethod", 401, "ERR_DB_GETTING", {
 					// 	message: "Something happened on getQrCodeDataMethod",
 					// 	internalErrorCode: "walletredeem12",
 					// });
@@ -552,7 +555,7 @@ module.exports = {
 			try {
 				return await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 			} catch (error) {
-				throw new MoleculerError("Greška u ažuriranju podataka : generateContractUpdateDataWithMessages", 501, "ERR_GENERATING_CONTRACT", {
+				throw new MoleculerError("Greška u ažuriranju podataka : generateContractUpdateDataWithMessages", 401, "ERR_GENERATING_CONTRACT", {
 					message: error.message,
 					internalErrorCode: "wallet30",
 				});
@@ -576,7 +579,7 @@ module.exports = {
 				let wallet = await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 				return wallet;
 			} catch (error) {
-				throw new MoleculerError("Updating Redeem Status Error", 501, "ERROR_UPDATE_REEDEEM_STATUS", {
+				throw new MoleculerError("Updating Redeem Status Error", 401, "ERROR_UPDATE_REEDEEM_STATUS", {
 					message: error.message,
 					internalErrorCode: "wallet40",
 				});
@@ -596,7 +599,7 @@ module.exports = {
 
 				return wallet;
 			} catch (error) {
-				throw new MoleculerError("Greška pri čitanju QR koda", 501, "ERROR_GET_QR_CODE_DATA", {
+				throw new MoleculerError("Greška pri čitanju QR koda", 401, "ERROR_GET_QR_CODE_DATA", {
 					message: error.message,
 					internalErrorCode: "wallet50",
 				});
@@ -611,13 +614,13 @@ module.exports = {
 			try {
 				let wallet = await Wallet.exists(entity);
 				if (!wallet)
-					throw new MoleculerError("Kod ne postoji u bazi podataka", 501, "ERROR_GET_QR_CODE_DATA", {
+					throw new MoleculerError("Kod ne postoji u bazi podataka", 401, "ERROR_GET_QR_CODE_DATA", {
 						message: "Code do not exist into db",
 						internalErrorCode: "wallet60",
 					});
 				return wallet;
 			} catch (error) {
-				throw new MoleculerError("Greška pri citanju postojećeg QR koda", 501, "ERROR_GET_QR_CODE_DATA", {
+				throw new MoleculerError("Greška pri citanju postojećeg QR koda", 401, "ERROR_GET_QR_CODE_DATA", {
 					message: "rror reading exists Qr Code",
 					internalErrorCode: "wallet61",
 				});
@@ -639,7 +642,7 @@ module.exports = {
 				let wallet = new Wallet(entity);
 				return await wallet.save();
 			} catch (error) {
-				throw new MoleculerError("Greška u ubacivanju podataka u bazu podataka", 501, "ERROR_INSERT_INTO_DB", {
+				throw new MoleculerError("Greška u ubacivanju podataka u bazu podataka", 401, "ERROR_INSERT_INTO_DB", {
 					message: error.message,
 					internalErrorCode: "wallet70",
 				});
@@ -678,7 +681,7 @@ module.exports = {
 
 				return wallet;
 			} catch (error) {
-				throw new MoleculerError("Plain Inerting Data into DB Error", 501, "ERROR_PLAIN_INSERT_INTO_DB", {
+				throw new MoleculerError("Plain Inerting Data into DB Error", 401, "ERROR_PLAIN_INSERT_INTO_DB", {
 					message: error.message,
 					internalErrorCode: "wallet80",
 				});
@@ -691,7 +694,7 @@ module.exports = {
 			try {
 				return await this.axiosGet(wallet_url);
 			} catch (error) {
-				throw new MoleculerError("Get Wallet Adress Error", 501, "ERROR_GET_WALLET_ADDRESS", { message: error.message, internalErrorCode: "wallet90" });
+				throw new MoleculerError("Get Wallet Adress Error", 401, "ERROR_GET_WALLET_ADDRESS", { message: error.message, internalErrorCode: "wallet90" });
 			}
 		},
 
@@ -747,7 +750,7 @@ module.exports = {
 
 				console.error("sendTransactionFromWalletToWallet error 4 error.response.data.error", error.response.data.error);
 
-				throw new MoleculerError("Došlo je do greške pri slanju podataka na BlockChain : sendTransactionFromWalletToWallet", 501, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
+				throw new MoleculerError("Došlo je do greške pri slanju podataka na BlockChain : sendTransactionFromWalletToWallet", 401, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
 					message: "Došlo je do greške pri slanju podataka na BlockChain",
 					internalErrorCode: "wallet202",
 				});
@@ -768,14 +771,14 @@ module.exports = {
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 });
 			} catch (error) {
-				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
+				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
 			}
 			// let query = [{ $match: { userEmail: userEmail } }];
 			// try {
 			// 	let user = await Wallet.aggregate(query).exec();
 			// 	return user;
 			// } catch (error) {
-			// 	throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
+			// 	throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
 			// }
 		},
 
@@ -792,7 +795,7 @@ module.exports = {
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 });
 			} catch (error) {
-				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
+				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
 			}
 		},
 
@@ -808,7 +811,7 @@ module.exports = {
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 });
 			} catch (error) {
-				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet130" });
+				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet130" });
 			}
 		},
 
@@ -822,7 +825,7 @@ module.exports = {
 					.project({ _id: 0, count: "$count", userFullName: "$userInfo.userFullName", userEmail: "$userInfo.userEmail" })
 					.exec();
 			} catch (error) {
-				throw new MoleculerError("Error Listing Qr codes", 501, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet140" });
+				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet140" });
 			}
 		},
 
@@ -834,7 +837,7 @@ module.exports = {
 			try {
 				return await Wallet.deleteOne(data);
 			} catch (error) {
-				throw new MoleculerError("Error Delete Qr codes", 501, "ERROR_DELETE_QR_CODES", { message: error.message, internalErrorCode: "wallet150" });
+				throw new MoleculerError("Error Delete Qr codes", 401, "ERROR_DELETE_QR_CODES", { message: error.message, internalErrorCode: "wallet150" });
 			}
 		},
 
@@ -848,13 +851,13 @@ module.exports = {
 				if (qrCodeData[0].userEmail === ctx.meta.user.userEmail) {
 					return qrCodeData;
 				} else {
-					throw new MoleculerError("Error Delete Qr codes check Parmissions", 501, "ERROR_DELETE_QR_CODES_PERMISSIONS", {
+					throw new MoleculerError("Error Delete Qr codes check Parmissions", 401, "ERROR_DELETE_QR_CODES_PERMISSIONS", {
 						message: "Data do not match",
 						internalErrorCode: "wallet161",
 					});
 				}
 			} catch (error) {
-				throw new MoleculerError("Error Delete Qr codes check Parmissions", 501, "ERROR_DELETE_QR_CODES_PERMISSIONS", {
+				throw new MoleculerError("Error Delete Qr codes check Parmissions", 401, "ERROR_DELETE_QR_CODES_PERMISSIONS", {
 					message: error.message,
 					internalErrorCode: "wallet160",
 				});
@@ -871,7 +874,7 @@ module.exports = {
 			try {
 				return await Wallet.findOneAndUpdate(entity, { $set: dataIn }, { new: true });
 			} catch (error) {
-				throw new MoleculerError("Updating Data Error", 501, "ERR_UPDATING_DB", { message: error.message, internalErrorCode: "wallet170" });
+				throw new MoleculerError("Updating Data Error", 401, "ERR_UPDATING_DB", { message: error.message, internalErrorCode: "wallet170" });
 			}
 		},
 
