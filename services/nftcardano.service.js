@@ -79,8 +79,9 @@ module.exports = {
 					console.log("\n\n ====== START generateNft PARAMS", ctx.params);
 					const { qrcode } = ctx.params;
 
-					let qrCodeStatus = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode });
+					console.log("qrcode", qrcode);
 
+					let qrCodeStatus = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode });
 
 					console.log("generateNft >  qrCodeStatus", qrCodeStatus);
 					console.log("generateNft >  qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
