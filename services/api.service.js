@@ -146,6 +146,31 @@ module.exports = {
 					},
 				},
 			},
+			{
+				path: "/nrapi-reg",
+				use: [],
+				mergeParams: true,
+				authentication: false,
+				authorization: false,
+
+				whitelist: [
+					"http.*",
+				],
+				mappingPolicy: "restrict",
+				autoAliases: true,
+
+
+				bodyParsers: {
+					json: {
+						strict: false,
+						limit: "1MB",
+					},
+					urlencoded: {
+						extended: true,
+						limit: "1MB",
+					},
+				},
+			},
 
 			{
 				path: "/api",
