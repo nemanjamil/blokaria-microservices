@@ -445,8 +445,6 @@ module.exports = {
 				};
 
 				try {
-					console.log("USAO u findOneAndUpdate entity", entity);
-					console.log("USAO u findOneAndUpdate data", data);
 
 					let getData = await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
 					if (!getData) {

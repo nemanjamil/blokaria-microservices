@@ -2,7 +2,8 @@
 
 const ApiGateway = require("moleculer-web");
 const { MoleculerError } = require("moleculer").Errors;
-
+//const isObjectLike = require("lodash/isObjectLike");
+const isEmpty = require("lodash/isEmpty");
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
  * @typedef {import('http').IncomingMessage} IncomingRequest Incoming HTTP Request
@@ -25,6 +26,7 @@ const { MoleculerError } = require("moleculer").Errors;
 
 // 	res.end(next);
 // }
+
 
 module.exports = {
 	name: "api",
@@ -174,7 +176,7 @@ module.exports = {
 
 			{
 				path: "/api",
-				use: [],
+				use: [], // Route-level middlewares.
 				mergeParams: true,
 				authentication: true,
 				authorization: false,
@@ -206,13 +208,10 @@ module.exports = {
 					"POST project/addQrCodeToProject": "project.addQrCodeToProject",
 					"GET project/getOneProject/:projectId": "project.getOneProject",
 					"POST wallet/changeStatusOfQrCode": "wallet.changeStatusOfQrCode",
-					"POST wallet/updateQrCodeText": "wallet.updateQrCodeText",
-					"POST nftcardano/updateQrCodeUrl": "nftcardano.updateQrCodeUrl",
-					"POST nftcardano/updateQrCodeUrlForward": "nftcardano.updateQrCodeUrlForward",
 					"POST nftcardano/updateNftStory": "nftcardano.updateNftStory",
 					"POST nftcardano/addDataToNftTable": "nftcardano.addDataToNftTable",
 					"POST wallet/updateDataInDb": "wallet.updateDataInDb",
-					"POST nftcardano/generateNft": "nftcardano.generateNft"
+					"POST nftcardano/generateNft": "nftcardano.generateNft",
 				},
 				callingOptions: {},
 
@@ -240,6 +239,35 @@ module.exports = {
 					return doSomething(ctx, res, data);
 				}, */
 			},
+			{
+				path: "/api-verify",
+
+				authentication: true,
+				authorization: "validateUpdateQrCode",
+				whitelist: ["**"],
+				mappingPolicy: "restrict", // restrict
+				autoAliases: false,
+				aliases: {
+					"POST nftcardano/updateQrCodeUrlForward": [
+						"nftcardano.updateQrCodeUrlForward",
+					],
+					"POST nftcardano/updateQrCodeUrl": "nftcardano.updateQrCodeUrl",
+					"POST wallet/updateQrCodeText": "wallet.updateQrCodeText",
+				},
+				callingOptions: {},
+
+				bodyParsers: {
+					json: {
+						strict: false,
+						limit: "1MB",
+					},
+					urlencoded: {
+						extended: true,
+						limit: "1MB",
+					},
+				},
+				logging: true,
+			},
 		],
 
 		// Do not log client side errors (does not log an error response when the error.code is 400<=X<500)
@@ -258,7 +286,64 @@ module.exports = {
 		},
 	},
 
+
 	methods: {
+
+		/**
+		 
+		 * @param {Context} ctx
+		 * @param {Object} route
+		 * @param {IncomingRequest} req
+		 * @returns {Promise}
+		 */
+
+		async validateUpdateQrCode(ctx, route, req) {
+
+			try {
+				console.log("req", req.body);
+				console.log("meta", ctx.meta);
+
+				const { qrcode } = req.body;
+				const { userEmail } = ctx.meta.user;
+				let qrcodeRes = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", { qrcode });
+
+				if (isEmpty(qrcodeRes)) {
+					throw new MoleculerError("QR Code doesn't exist", 401, "ERROR_EMPTY", {
+						message: "QR Code doesn't exist",
+						internalErrorCode: "no_qr_code_1",
+					});
+				}
+				const { qrCodeRedeemStatus, userEmail: userQrCodeEmail, clientEmail } = qrcodeRes[0];
+
+				let canPass = false;
+				switch (true) {
+					case (userEmail === userQrCodeEmail && qrCodeRedeemStatus === 0):
+						canPass = true;
+						break;
+					case (userEmail === clientEmail && qrCodeRedeemStatus === 1):
+						canPass = true;
+						break;
+
+					default:
+						break;
+				}
+
+				console.log("canPass", canPass);
+
+				if (!canPass) {
+					throw new MoleculerError("You do not have sufficient permissions to do this request", 401, "ERROR_ON_PERMISSIONS", {
+						message: "You do not have sufficient permissions to do this request",
+						internalErrorCode: "permission_error_1",
+					});
+				}
+
+			} catch (error) {
+				throw new MoleculerError(error.message, 401, "ERROR_VALIDATE_IF_USER_HAS_PRIVILAGES_TO_UPDATE", {
+					message: error.message,
+					internalErrorCode: "update10",
+				});
+			}
+		},
 		/**
 		 * Authenticate the request. It check the `Authorization` token value in the request header.
 		 * Check the token value & resolve the user by the token.

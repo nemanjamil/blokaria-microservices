@@ -247,7 +247,6 @@ module.exports = {
 		},
 
 		getQrCodeData: {
-			rest: "POST /getQrCodeData",
 			async handler(ctx) {
 				try {
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
@@ -620,7 +619,6 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
-				console.log("checkIfQrCodeExistIndb entity", entity);
 
 				let wallet = await Wallet.exists(entity);
 				if (!wallet)
