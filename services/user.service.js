@@ -293,6 +293,10 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { recaptchaValue } = ctx.params;
+
+					console.log("process.env.RECAPTCHA_SECRET", process.env.RECAPTCHA_SECRET);
+					console.log("recaptchaValue", recaptchaValue);
+
 					let callToGoogle = await ctx.call("http.post", {
 						url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaValue}`,
 						opt: {
@@ -300,7 +304,7 @@ module.exports = {
 
 						}
 					});
-
+					console.log("PROSAO callToGoogle", callToGoogle);
 
 					if (callToGoogle.success === false) {
 						throw new MoleculerError("Fail in recaptchaValue", 401, "USER_CANT_REGISTRATE", {
