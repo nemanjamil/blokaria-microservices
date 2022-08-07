@@ -134,6 +134,7 @@ module.exports = {
 					"POST wallet/sendApprovalToClient": "wallet.sendApprovalToClient",
 					"POST wallet/getQrCodeFromId": "wallet.getQrCodeFromId",
 					"POST project/listAllProjectNrApi": "project.listAllProjectNrApi",
+					"GET project/getOneProject/:projectId": "project.getOneProject",
 				},
 				callingOptions: {},
 
@@ -206,7 +207,6 @@ module.exports = {
 					"POST project/deleteProject": "project.deleteProject",
 					"POST project/updateProject": "project.updateProject",
 					"POST project/addQrCodeToProject": "project.addQrCodeToProject",
-					"GET project/getOneProject/:projectId": "project.getOneProject",
 					"POST wallet/changeStatusOfQrCode": "wallet.changeStatusOfQrCode",
 					"POST nftcardano/updateNftStory": "nftcardano.updateNftStory",
 					"POST nftcardano/addDataToNftTable": "nftcardano.addDataToNftTable",
