@@ -109,7 +109,7 @@ module.exports = {
 					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
 					console.log("Wallet RedeemStatus END", redeemStatus);
 
-					let numberOfSeconds = 60;
+					let numberOfSeconds = 100;
 					console.log(`Wallet addDelay ${numberOfSeconds}sec - START `, Date.now());
 					await this.addDelay(numberOfSeconds * 1000);
 					console.log(`Wallet addDelay ${numberOfSeconds}sec - END`, Date.now());
