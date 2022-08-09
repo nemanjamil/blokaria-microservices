@@ -101,24 +101,37 @@ module.exports = {
 					await ctx.call("nftcardano.checkTimeForSendingAsset", { qrCodeStatus });
 					console.log("Wallet checkTimeForSendingAsset FINISH");
 
-					console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
-					let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
-					console.log("Wallet BASIC sendTransactionFromWalletToWallet BASIC FINISH");
-
-					console.log("Wallet RedeemStatus START");
-					let redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
-					console.log("Wallet RedeemStatus END", redeemStatus);
-
-					let numberOfSeconds = 100;
+					let numberOfSeconds = 5;
 					console.log(`Wallet addDelay ${numberOfSeconds}sec - START `, Date.now());
 					await this.addDelay(numberOfSeconds * 1000);
 					console.log(`Wallet addDelay ${numberOfSeconds}sec - END`, Date.now());
 
-					console.log("Wallet >  NFT > SEND ASSET TO WALLET -  START");
-					console.log("Wallet >  DATA", ctx.params);
-					const { updateDbSendingAssetDbRes, sendAssetToWallet } = await ctx.call("nftcardano.generateNft", ctx.params);
-					console.log("Wallet >  NFT > SEND ASSET TO WALLET  FINISH");
+					let updateDbSendingAssetDb, sendAssetToWallet, txHash, redeemStatus;
 
+					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
+						console.log("NFT START");
+						console.log("Wallet >  NFT > SEND ASSET TO WALLET -  START");
+						console.log("Wallet >  DATA", ctx.params);
+						let { updateDbSendingAssetDbRes, sendAssetToWalletRes } = await ctx.call("nftcardano.sendNftAssetToClient", ctx.params);
+						console.log("Wallet >  NFT > SEND ASSET TO WALLET  FINISH");
+						sendAssetToWallet = sendAssetToWalletRes;
+						updateDbSendingAssetDb = updateDbSendingAssetDbRes;
+
+						console.log("Wallet RedeemStatus NFT START");
+						redeemStatus = await this.updateRedeemStatus(ctx);
+						console.log("Wallet RedeemStatus NFT END", redeemStatus);
+
+
+					} else {
+						console.log("BASIC START");
+						console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
+						let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
+						console.log("Wallet BASIC sendTransactionFromWalletToWallet BASIC FINISH");
+
+						console.log("Wallet RedeemStatus START");
+						redeemStatus = await this.updateRedeemStatus(ctx, txHash, rndBr);
+						console.log("Wallet RedeemStatus END", redeemStatus);
+					}
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
@@ -130,7 +143,7 @@ module.exports = {
 						sendAssetToWallet,
 						cardanoStatus: txHash,
 						sendEmail,
-						updateDbSendingAssetDbRes,
+						updateDbSendingAssetDb,
 						redeemStatus,
 					};
 				} catch (error) {
@@ -570,15 +583,19 @@ module.exports = {
 		},
 
 		// 40
-		async updateRedeemStatus(ctx, txHash, metaDataRandomNumber) {
+		async updateRedeemStatus(ctx, txHash = false, metaDataRandomNumber = false) {
 			let entity = {
 				walletQrId: ctx.params.qrcode,
 			};
 			let data = {
 				qrCodeRedeemStatus: 1,
-				transactionId: txHash,
-				metaDataRandomNumber: metaDataRandomNumber,
 			};
+
+			if (txHash)
+				data.transactionId = txHash;
+			if (metaDataRandomNumber)
+				data.metaDataRandomNumber = metaDataRandomNumber;
+
 
 			try {
 				console.log("Wallet updateRedeemStatus entity ", entity);

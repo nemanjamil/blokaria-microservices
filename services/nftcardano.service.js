@@ -67,29 +67,29 @@ module.exports = {
 			},
 		},
 
-		generateNft: {
+		sendNftAssetToClient: {
 			params: {
 				qrcode: { type: "string" }
 			},
 			async handler(ctx) {
 				try {
 
-					console.log("\n\n ====== START generateNft PARAMS", ctx.params);
+					console.log("\n\n ====== START sendNftAssetToClient PARAMS", ctx.params);
 
 					const { qrcode } = ctx.params;
 
-					console.log("generateNft qrcode", qrcode);
+					console.log("sendNftAssetToClient qrcode", qrcode);
 
 					let qrCodeStatus = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode });
 
-					console.log("generateNft >  qrCodeStatus", qrCodeStatus);
-					console.log("generateNft >  qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
-					console.log("generateNft >  qrCodeStatus[0]._nfts[0].length", qrCodeStatus[0]._nfts.length);
+					console.log("sendNftAssetToClient >  qrCodeStatus", qrCodeStatus);
+					console.log("sendNftAssetToClient >  qrCodeStatus[0].cbnftimage", qrCodeStatus[0].cbnftimage);
+					console.log("sendNftAssetToClient >  qrCodeStatus[0]._nfts[0].length", qrCodeStatus[0]._nfts.length);
 
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
 						console.log("\n\n =======START NFT ASSET TO CLIENT WALLET========= \n\n");
-						console.log("generateNft >  WalletSending Start \n");
-						console.log("generateNft >  WalletSending and wallet assigining has started \n");
+						console.log("sendNftAssetToClient >  WalletSending Start \n");
+						console.log("sendNftAssetToClient >  WalletSending and wallet assigining has started \n");
 
 						let nftParams = {
 							assetId: qrCodeStatus[0]._nfts[0].assetId,
@@ -98,20 +98,20 @@ module.exports = {
 							amountValue: 1.7,
 						};
 
-						console.log("generateNft > WalletSending NftParams", nftParams);
-						console.log("generateNft > WalletSending process.env.LOCALENV", process.env.LOCALENV);
+						console.log("sendNftAssetToClient > WalletSending NftParams", nftParams);
+						console.log("sendNftAssetToClient > WalletSending process.env.LOCALENV", process.env.LOCALENV);
 
 						let sendAssetToWallet;
 						if (process.env.LOCALENV === "false") {
-							console.log(">>> generateNft SERVER - STARTED sendAssetToWallet");
+							console.log(">>> sendNftAssetToClient SERVER - STARTED sendAssetToWallet");
 
 							sendAssetToWallet = await this.actions.sendAssetToWallet(nftParams);
-							console.log(">>> generateNft SUCCESSFULL sendAssetToWallet Has Finished \n");
-							console.log(">>> generateNft sendAssetToWallet ", sendAssetToWallet);
+							console.log(">>> sendNftAssetToClient SUCCESSFULL sendAssetToWallet Has Finished \n");
+							console.log(">>> sendNftAssetToClient sendAssetToWallet ", sendAssetToWallet);
 
 
 						} else {
-							console.log("generateNft WalletMinting LOCAL  ENV \n");
+							console.log("sendNftAssetToClient WalletMinting LOCAL  ENV \n");
 							sendAssetToWallet = {
 								sendAssetToWallet: {
 									txHash: "dabc75e9b333dc728729fbb5c1ba68fcd1f24ad0cc4f164216cd086d66e76db0",
@@ -119,10 +119,12 @@ module.exports = {
 							};
 						}
 
+						console.log("sendNftAssetToClient sendAssetToWalletRes : ", sendAssetToWallet);
+
 						let updateDbSendingAssetDbRes = await this.actions.updateDbSendingAssetDb({ sendAssetToWallet, qrCodeStatus, nftParams });
 
-						console.log("generateNft updateDbSendingAssetDbRes  \n");
-						console.log("generateNft updateDbSendingAssetDbRes ", {
+						console.log("sendNftAssetToClient updateDbSendingAssetDbRes  \n");
+						console.log("sendNftAssetToClient updateDbSendingAssetDbRes ", {
 							searchBy: qrCodeStatus[0].walletQrId,
 							what: "nftRedeemStatus",
 							howmany: true,
@@ -136,14 +138,14 @@ module.exports = {
 						});
 
 
-						console.log("generateNft updateNftRedeemStatus  \n");
-						console.log("generateNft updateNftRedeemStatus ", updateNftRedeemStatus);
+						console.log("sendNftAssetToClient updateNftRedeemStatus  \n");
+						console.log("sendNftAssetToClient updateNftRedeemStatus ", updateNftRedeemStatus);
 
-						console.log("generateNft >  NFT TRANSACTION FINISH \n\n");
-						return { updateDbSendingAssetDbRes, sendAssetToWallet };
+						console.log("sendNftAssetToClient >  NFT TRANSACTION FINISH \n\n");
+						return { updateDbSendingAssetDbRes, sendAssetToWalletRes: sendAssetToWallet };
 
 					} else {
-						console.warn("\n\n  === generateNft WalletMinting  Skipped ==== \n");
+						console.warn("\n\n  === sendNftAssetToClient WalletMinting  Skipped ==== \n");
 					}
 
 
@@ -512,7 +514,7 @@ module.exports = {
 
 			console.log("checkTimeForNftCreation : diffMinutes", diffMinutes);
 
-			let numberOfMinutes = 20;
+			let numberOfMinutes = 5;
 			if (diffMinutes < numberOfMinutes) {
 				console.log("checkTimeForNftCreation Entering Error");
 				throw new MoleculerError(`Morate sačekati još ${numberOfMinutes - diffMinutes} minuta pre slanja NFT-a`, 401, "CHECK_TIME_ERROR", {

@@ -32,6 +32,7 @@ module.exports = {
 				}
 			},
 		},
+
 		deleteQrCodeImage: {
 			async handler(ctx) {
 				try {
