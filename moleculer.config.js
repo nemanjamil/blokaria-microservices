@@ -173,10 +173,24 @@ module.exports = {
 
 	// Enable built-in tracing function. More info: https://moleculer.services/docs/0.14/tracing.html
 	tracing: {
-		enabled: false,
+		//enabled: process.env.ENABLE_DATADOG == "true",
+		enabled: true,
 		// Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
 		exporter: {
-			type: "Console", // Console exporter is only for development!
+			type: "Datadog",
+			options: {
+				// Datadog Agent URL
+				agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
+				// Environment variable
+				env: process.env.DD_ENVIRONMENT || null,
+				// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
+				samplingPriority: "AUTO_KEEP",
+				// Default tags. They will be added into all span tags.
+				defaultTags: null,
+				// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
+				tracerOptions: null,
+			}
+			/* type: "Console", // Console exporter is only for development!
 			options: {
 				// Custom logger
 				logger: null,
@@ -186,7 +200,7 @@ module.exports = {
 				width: 100,
 				// Gauge width in the row
 				gaugeWidth: 40,
-			},
+			}, */
 		},
 	},
 
