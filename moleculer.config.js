@@ -180,7 +180,8 @@ module.exports = {
 			type: "Datadog",
 			options: {
 				// Datadog Agent URL
-				agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
+				//agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
+				agentUrl: "https://trace.agent.datadoghq.eu",
 				// Environment variable
 				env: process.env.DD_ENVIRONMENT || null,
 
