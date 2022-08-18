@@ -1,5 +1,6 @@
 "use strict";
-
+const os = require("os");
+require("dotenv").config();
 /**
  * Moleculer ServiceBroker configuration file
  *
@@ -31,11 +32,33 @@ module.exports = {
 	// Unique node identifier. Must be unique in a namespace.
 	nodeID: "nemanja123",
 	// Custom metadata store. Store here what you want. Accessing: `this.broker.metadata`
-	metadata: {},
 
 	// Enable/disable logging or use custom logger. More info: https://moleculer.services/docs/0.14/logging.html
 	// Available logger types: "Console", "File", "Pino", "Winston", "Bunyan", "debug", "Log4js", "Datadog"
 	logger: {
+		type: "Datadog",
+		options: {
+			// Logging level
+			level: "info",
+			// Datadog server endpoint. https://docs.datadoghq.com/api/?lang=bash#send-logs-over-http
+			//url: "https://http-intake.logs.datadoghq.com/v1/input/",
+			url: "https://http-intake.logs.datadoghq.eu/api/v2/logs/",
+
+			// Datadog API key
+			apiKey: process.env.DATADOG_API_KEY,
+			// Datadog source variable
+			ddSource: "moleculer",
+			// Datadog env variable
+			env: "moleculerEnv",
+			// Datadog hostname variable
+			hostname: os.hostname(),
+			// Custom object printer function for `Object` & `Ąrray`
+			objectPrinter: null,
+			// Data uploading interval
+			interval: 10 * 1000
+		}
+	},
+	/* logger: {
 		type: "Console",
 		options: {
 			level: "info",
@@ -50,7 +73,7 @@ module.exports = {
 			// Auto-padding the module name in order to messages begin at the same column.
 			autoPadding: false,
 		},
-	},
+	}, */
 	// Default log level for built-in console logger. It can be overwritten in logger options above.
 	// Available values: trace, debug, info, warn, error, fatal
 	logLevel: "info",
@@ -173,30 +196,10 @@ module.exports = {
 
 	// Enable built-in tracing function. More info: https://moleculer.services/docs/0.14/tracing.html
 	tracing: {
-		//enabled: process.env.ENABLE_DATADOG == "true",
-		enabled: true,
+		enabled: false,
 		// Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
 		exporter: {
-			type: "Datadog",
-			options: {
-				// Datadog Agent URL
-				//agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
-				agentUrl: "https://trace.agent.datadoghq.eu",
-				// Environment variable
-				env: process.env.DD_ENVIRONMENT || null,
-
-				service: "cardanoMoleculer",
-
-				logLevel: "info",
-
-				// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
-				samplingPriority: "AUTO_KEEP",
-				// Default tags. They will be added into all span tags.
-				defaultTags: null,
-				// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
-				tracerOptions: null,
-			}
-			/* type: "Console", // Console exporter is only for development!
+			type: "Console", // Console exporter is only for development!
 			options: {
 				// Custom logger
 				logger: null,
@@ -206,7 +209,7 @@ module.exports = {
 				width: 100,
 				// Gauge width in the row
 				gaugeWidth: 40,
-			}, */
+			},
 		},
 	},
 
