@@ -41,8 +41,8 @@ module.exports = {
 			// Logging level
 			level: "info",
 			// Datadog server endpoint. https://docs.datadoghq.com/api/?lang=bash#send-logs-over-http
-			//url: "https://http-intake.logs.datadoghq.com/v1/input/",
-			url: "https://http-intake.logs.datadoghq.eu/api/v2/logs/",
+			url: "https://http-intake.logs.datadoghq.com/v1/input/",
+			//url: "https://http-intake.logs.datadoghq.eu/api/v2/logs/",
 
 			// Datadog API key
 			apiKey: process.env.DATADOG_API_KEY,
