@@ -35,29 +35,47 @@ module.exports = {
 
 	// Enable/disable logging or use custom logger. More info: https://moleculer.services/docs/0.14/logging.html
 	// Available logger types: "Console", "File", "Pino", "Winston", "Bunyan", "debug", "Log4js", "Datadog"
-	logger: {
-		type: "Datadog",
-		options: {
-			// Logging level
-			level: "info",
-			// Datadog server endpoint. https://docs.datadoghq.com/api/?lang=bash#send-logs-over-http
-			url: "https://http-intake.logs.datadoghq.com/v1/input/",
-			//url: "https://http-intake.logs.datadoghq.eu/api/v2/logs/",
+	logger: [
+		{
+			type: "Datadog",
+			options: {
+				// Logging level
+				level: "info",
+				// Datadog server endpoint. https://docs.datadoghq.com/api/?lang=bash#send-logs-over-http
+				url: "https://http-intake.logs.datadoghq.com/v1/input/",
+				//url: "https://http-intake.logs.datadoghq.eu/api/v2/logs/",
 
-			// Datadog API key
-			apiKey: process.env.DATADOG_API_KEY,
-			// Datadog source variable
-			ddSource: "moleculer",
-			// Datadog env variable
-			env: "moleculerEnv",
-			// Datadog hostname variable
-			hostname: os.hostname(),
-			// Custom object printer function for `Object` & `Ąrray`
-			objectPrinter: null,
-			// Data uploading interval
-			interval: 10 * 1000
+				// Datadog API key
+				apiKey: process.env.DATADOG_API_KEY,
+				// Datadog source variable
+				ddSource: "moleculer",
+				// Datadog env variable
+				env: undefined,
+				// Datadog hostname variable
+				hostname: os.hostname(),
+				// Custom object printer function for `Object` & `Ąrray`
+				objectPrinter: null,
+				// Data uploading interval
+				interval: 10 * 1000
+			}
+		},
+		{
+			type: "Console",
+			options: {
+				level: "info",
+				// Using colors on the output
+				colors: true,
+				// Print module names with different colors (like docker-compose for containers)
+				moduleColors: false,
+				// Line formatter. It can be "json", "short", "simple", "full", a `Function` or a template string like "{timestamp} {level} {nodeID}/{mod}: {msg}"
+				formatter: "simple",
+				// Custom object printer. If not defined, it uses the `util.inspect` method.
+				objectPrinter: null,
+				// Auto-padding the module name in order to messages begin at the same column.
+				autoPadding: false,
+			}
 		}
-	},
+	],
 	/* logger: {
 		type: "Console",
 		options: {
