@@ -196,39 +196,79 @@ module.exports = {
 	metrics: {
 		enabled: true,
 		// Available built-in reporters: "Console", "CSV", "Event", "Prometheus", "Datadog", "StatsD"
-		reporter: {
-			type: "Prometheus",
-			options: {
-				// HTTP port
-				port: 3032,
-				// HTTP URL path
-				path: "/metrics",
-				// Default labels which are appended to all metrics labels
-				defaultLabels: (registry) => ({
-					namespace: registry.broker.namespace,
-					nodeID: registry.broker.nodeID,
-				}),
-			},
-		},
+		reporter: [
+			{
+				type: "Datadog",
+				options: {
+					// Hostname
+					host: "my-host",
+					// Base URL
+					baseUrl: "https://api.datadoghq.eu/api/", // Default is https://api.datadoghq.com/api/
+					// API version
+					apiVersion: "v1",
+					// Server URL path
+					path: "/series",
+					// Datadog API Key
+					apiKey: process.env.DATADOG_API_KEY,
+					// Default labels which are appended to all metrics labels
+					defaultLabels: (registry) => ({
+						namespace: registry.broker.namespace,
+						nodeID: registry.broker.nodeID
+					}),
+					// Sending interval in seconds
+					interval: 10
+				}
+			}
+		]
+		// reporter: {
+		// 	type: "Prometheus",
+		// 	options: {
+		// 		// HTTP port
+		// 		port: 3032,
+		// 		// HTTP URL path
+		// 		path: "/metrics",
+		// 		// Default labels which are appended to all metrics labels
+		// 		defaultLabels: (registry) => ({
+		// 			namespace: registry.broker.namespace,
+		// 			nodeID: registry.broker.nodeID,
+		// 		}),
+		// 	},
+		// },
 	},
 
 	// Enable built-in tracing function. More info: https://moleculer.services/docs/0.14/tracing.html
 	tracing: {
-		enabled: false,
+		enabled: true,
 		// Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
-		exporter: {
-			type: "Console", // Console exporter is only for development!
-			options: {
-				// Custom logger
-				logger: null,
-				// Using colors
-				colors: true,
-				// Width of row
-				width: 100,
-				// Gauge width in the row
-				gaugeWidth: 40,
-			},
-		},
+		exporter: [
+			// {
+			// 	type: "Datadog",
+			// 	options: {
+			// 		// Datadog Agent URL
+			// 		agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
+			// 		// Environment variable
+			// 		env: process.env.DD_ENVIRONMENT || null,
+			// 		// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
+			// 		samplingPriority: "AUTO_KEEP",
+			// 		// Default tags. They will be added into all span tags.
+			// 		defaultTags: null,
+			// 		// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
+			// 		tracerOptions: null,
+			// 	}
+			// }
+			{
+				type: "Console", // Console exporter is only for development!
+				options: {
+					// Custom logger
+					logger: null,
+					// Using colors
+					colors: true,
+					// Width of row
+					width: 100,
+					// Gauge width in the row
+					gaugeWidth: 40,
+				},
+			}],
 	},
 
 	// Register custom middlewares
