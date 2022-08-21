@@ -241,21 +241,21 @@ module.exports = {
 		enabled: true,
 		// Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
 		exporter: [
-			// {
-			// 	type: "Datadog",
-			// 	options: {
-			// 		// Datadog Agent URL
-			// 		agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
-			// 		// Environment variable
-			// 		env: process.env.DD_ENVIRONMENT || null,
-			// 		// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
-			// 		samplingPriority: "AUTO_KEEP",
-			// 		// Default tags. They will be added into all span tags.
-			// 		defaultTags: null,
-			// 		// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
-			// 		tracerOptions: null,
-			// 	}
-			// }
+			{
+				type: "Datadog",
+				options: {
+					// Datadog Agent URL
+					agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
+					// Environment variable
+					env: process.env.DD_ENVIRONMENT || null,
+					// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
+					samplingPriority: "AUTO_KEEP",
+					// Default tags. They will be added into all span tags.
+					defaultTags: null,
+					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
+					tracerOptions: null,
+				}
+			},
 			{
 				type: "Console", // Console exporter is only for development!
 				options: {
