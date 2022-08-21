@@ -248,7 +248,7 @@ module.exports = {
 					agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
 					// Environment variable
 					//env: process.env.DD_ENVIRONMENT || null,
-					env: "TRACING_MOLECULER_ONE",
+					env: "vmi766328",
 					// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
 					samplingPriority: "AUTO_KEEP",
 					// Default tags. They will be added into all span tags.
