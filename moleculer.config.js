@@ -1,5 +1,5 @@
 "use strict";
-const os = require("os");
+//const os = require("os");
 require("dotenv").config();
 /**
  * Moleculer ServiceBroker configuration file
@@ -50,9 +50,9 @@ module.exports = {
 				// Datadog source variable
 				ddSource: "moleculer",
 				// Datadog env variable
-				env: undefined,
+				env: "envMoleculer",
 				// Datadog hostname variable
-				hostname: os.hostname(),
+				hostname: "moleculerContainer",
 				// Custom object printer function for `Object` & `Ąrray`
 				objectPrinter: null,
 				// Data uploading interval
