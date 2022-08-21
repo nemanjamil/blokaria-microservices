@@ -283,6 +283,7 @@ module.exports = {
 			//rest: "POST /getQrCodeDataNoRedeem",
 			async handler(ctx) {
 				try {
+					this.logger.info("getQrCodeDataNoRedeem", ctx);
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
 				} catch (error) {
 					return Promise.reject(error);
@@ -520,6 +521,9 @@ module.exports = {
 			try {
 				await this.checkIfQrCodeExistIndb(ctx);
 				let walletIdData = await this.getQrCodeInfo(ctx);
+
+				this.logger.info("getQrCodeDataMethod ctx", ctx);
+				this.logger.info("getQrCodeDataMethod qrRedeemCheck", qrRedeemCheck);
 
 				switch (true) {
 					case !qrRedeemCheck:
