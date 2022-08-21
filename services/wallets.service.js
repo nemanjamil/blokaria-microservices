@@ -5,7 +5,7 @@ const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/Wallet.js");
 const Utils = require("../utils/utils");
-
+const random = require("lodash/random");
 
 require("dotenv").config();
 
@@ -283,7 +283,9 @@ module.exports = {
 			//rest: "POST /getQrCodeDataNoRedeem",
 			async handler(ctx) {
 				try {
-					this.logger.info("getQrCodeDataNoRedeem", ctx);
+					this.logger.warn("getQrCodeDataNoRedeem warn", random());
+					this.logger.error("getQrCodeDataNoRedeem error", random());
+					this.logger.info("getQrCodeDataNoRedeem info", ctx);
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
 				} catch (error) {
 					return Promise.reject(error);
