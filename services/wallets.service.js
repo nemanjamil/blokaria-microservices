@@ -374,6 +374,7 @@ module.exports = {
 		getListQrCodesGeneral: {
 			async handler(ctx) {
 				try {
+					this.logger.info("BLA this.logger");
 					let listQrCodesByUser = await this.getListQrCodesGeneral(ctx);
 					return listQrCodesByUser;
 				} catch (error) {
