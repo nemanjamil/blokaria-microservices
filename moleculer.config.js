@@ -2,15 +2,18 @@
 //const os = require("os");
 require("dotenv").config();
 
-const tracer = require("dd-trace").init({
-	service: "moleculerTracer", // shows up as Service in Datadog UI
-	url: "http://localhost:8126",
-	debug: false,
-	samplingPriority: "USER_KEEP"
-});
+// const tracer = require("dd-trace").init({
+// 	service: "moleculerTracer", // shows up as Service in Datadog UI
+// 	url: "http://localhost:8126",
+// 	debug: false,
+// 	samplingPriority: "USER_KEEP"
+// });
 
-tracer.use("http");
-tracer.use("ioredis");
+// tracer.use("http");
+// tracer.use("ioredis");
+// tracer.use("moleculerTracer", {
+// 	params: true
+// });
 
 /**
  * Moleculer ServiceBroker configuration file
@@ -255,20 +258,19 @@ module.exports = {
 			{
 				type: "Datadog",
 				options: {
-					tracer
+					//tracer
 
 					// Datadog Agent URL
-					//agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
-					//agentUrl: "localhost:8126",
+					agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
 					// Environment variable
 					//env: process.env.DD_ENVIRONMENT || null,
-					//env: "vmi766328",
+					env: "testNet",
 					// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
-					//samplingPriority: "AUTO_KEEP",
+					samplingPriority: "AUTO_KEEP",
 					// Default tags. They will be added into all span tags.
-					//defaultTags: null,
+					defaultTags: null,
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
-					//tracerOptions: null,
+					tracerOptions: null,
 				}
 			},
 			// {
