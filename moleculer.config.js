@@ -62,11 +62,11 @@ module.exports = {
 				// Datadog API key
 				apiKey: process.env.DATADOG_API_KEY,
 				// Datadog source variable
-				ddSource: "moleculer",
+				ddSource: "moleculerSource",
 				// Datadog env variable
-				env: "envMoleculer",
+				env: "testNet",
 				// Datadog hostname variable
-				hostname: "moleculerContainer",
+				hostname: "moleculerHost",
 				// Custom object printer function for `Object` & `Ąrray`
 				objectPrinter: null,
 				// Data uploading interval
