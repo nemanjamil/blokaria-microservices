@@ -216,7 +216,7 @@ module.exports = {
 				type: "Datadog",
 				options: {
 					// Hostname
-					host: "vmi766328",
+					host: "moleculerHost", // vmi766328
 					// Base URL
 					baseUrl: "https://api.datadoghq.eu/api/", // Default is https://api.datadoghq.com/api/
 					// API version
