@@ -284,6 +284,7 @@ module.exports = {
 						"logInjection": true,
 					},
 
+					logInjection: true,
 					service: "moleculerService",
 				}
 			},
