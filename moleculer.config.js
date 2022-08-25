@@ -264,6 +264,9 @@ module.exports = {
 					// Datadog Agent URL
 					//agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
 					agentUrl: "http://datadog-agent:8126",
+
+					service: "wallet",
+					hostname: "moleculerHost",
 					// Environment variable
 					//env: process.env.DD_ENVIRONMENT || null,
 					env: "testNet",
@@ -272,7 +275,11 @@ module.exports = {
 					// Default tags. They will be added into all span tags.
 					defaultTags: null,
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
-					tracerOptions: null,
+					tracerOptions: {
+						//ddSource: "moleculerSource",
+						service: "wallet",
+						hostname: "moleculerHost",
+					},
 				}
 			},
 			// {
