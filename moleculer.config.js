@@ -3,7 +3,7 @@
 require("dotenv").config();
 
 // const tracer = require("dd-trace").init({
-// 	service: "moleculerService",
+// 	service: "moleculerservice",
 // 	url: "http://datadog-agent:8126",
 // 	debug: true,
 // 	samplingPriority: "USER_KEEP",
@@ -14,7 +14,7 @@ require("dotenv").config();
 
 // tracer.use("http");
 // tracer.use("ioredis");
-// tracer.use("moleculerService", {
+// tracer.use("moleculerservice", {
 // 	params: true,
 // });
 
@@ -69,12 +69,12 @@ module.exports = {
 				// Datadog env variable
 				env: "testNet",
 
-				ddSource: "moleculerSource",
+				ddSource: "moleculersource",
 
-				service: "moleculerService",
+				service: "moleculerservice",
 
 				// Datadog hostname variable
-				hostname: "moleculerHost",
+				hostname: "moleculerhost",
 				// Custom object printer function for `Object` & `Ąrray`
 				objectPrinter: null,
 				// Data uploading interval
@@ -223,7 +223,7 @@ module.exports = {
 				type: "Datadog",
 				options: {
 					// Hostname
-					host: "moleculerHost", // vmi766328
+					host: "moleculerhost", // vmi766328
 					// Base URL
 					baseUrl: "https://api.datadoghq.eu/api/", // Default is https://api.datadoghq.com/api/
 					// API version
@@ -279,7 +279,7 @@ module.exports = {
 					defaultTags: null,
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
 					tracerOptions: {
-						"service": "moleculerService",
+						"service": "moleculerservice",
 						"analytics": true,
 						"debug": true,
 						"enabled": true,
@@ -287,7 +287,7 @@ module.exports = {
 					},
 
 					logInjection: true,
-					service: "moleculerService",
+					service: "moleculerservice",
 				}
 			},
 			// {
