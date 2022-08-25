@@ -2,21 +2,21 @@
 //const os = require("os");
 require("dotenv").config();
 
-const tracer = require("dd-trace").init({
-	service: "moleculerService",
-	url: "http://datadog-agent:8126",
-	debug: true,
-	samplingPriority: "USER_KEEP",
-	logInjection: true,
-	env: "testNet",
-});
+// const tracer = require("dd-trace").init({
+// 	service: "moleculerService",
+// 	url: "http://datadog-agent:8126",
+// 	debug: true,
+// 	samplingPriority: "USER_KEEP",
+// 	logInjection: true,
+// 	env: "testNet",
+// });
 
 
-tracer.use("http");
-tracer.use("ioredis");
-tracer.use("moleculerService", {
-	params: true,
-});
+// tracer.use("http");
+// tracer.use("ioredis");
+// tracer.use("moleculerService", {
+// 	params: true,
+// });
 
 /**
  * Moleculer ServiceBroker configuration file
@@ -60,8 +60,8 @@ module.exports = {
 				level: "info",
 
 				// Datadog server endpoint. https://docs.datadoghq.com/api/?lang=bash#send-logs-over-http
-				url: "https://http-intake.logs.datadoghq.eu/v1/input/", //url: "http://datadog-agent:8126",
-
+				//url: "https://http-intake.logs.datadoghq.eu/v1/input/", 
+				url: "http://datadog-agent:8126",
 				// Datadog API key
 				apiKey: process.env.DATADOG_API_KEY,
 				// Datadog source variable
@@ -266,9 +266,9 @@ module.exports = {
 			{
 				type: "Datadog",
 				options: {
-					tracer
+					//tracer
 
-					/* // Datadog Agent URL
+					// Datadog Agent URL
 					//agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
 					agentUrl: "http://datadog-agent:8126",
 					// Environment variable
@@ -288,7 +288,7 @@ module.exports = {
 					},
 
 					logInjection: true,
-					service: "moleculerService", */
+					service: "moleculerService",
 				}
 			},
 			// {
