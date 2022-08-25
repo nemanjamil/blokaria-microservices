@@ -267,7 +267,6 @@ module.exports = {
 				type: "Datadog",
 				options: {
 					//tracer
-
 					// Datadog Agent URL
 					//agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
 					agentUrl: "http://datadog-agent:8126",
