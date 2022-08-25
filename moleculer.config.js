@@ -8,6 +8,7 @@ const tracer = require("dd-trace").init({
 	debug: true,
 	samplingPriority: "USER_KEEP",
 	logInjection: true,
+	env: "testNet",
 });
 
 
@@ -259,15 +260,15 @@ module.exports = {
 
 	// Enable built-in tracing function. More info: https://moleculer.services/docs/0.14/tracing.html
 	tracing: {
-		enabled: false,
+		enabled: true,
 		// Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
 		exporter: [
 			{
 				type: "Datadog",
 				options: {
-					//tracer
+					tracer
 
-					// Datadog Agent URL
+					/* // Datadog Agent URL
 					//agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
 					agentUrl: "http://datadog-agent:8126",
 					// Environment variable
@@ -287,7 +288,7 @@ module.exports = {
 					},
 
 					logInjection: true,
-					service: "moleculerService",
+					service: "moleculerService", */
 				}
 			},
 			// {
