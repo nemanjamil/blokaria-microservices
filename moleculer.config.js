@@ -277,7 +277,10 @@ module.exports = {
 					defaultTags: null,
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
 					tracerOptions: {
-						service: "moleculerService"
+						"service": "moleculerService",
+						"analytics": true,
+						"debug": true,
+						"enabled": true,
 					},
 
 					service: "moleculerService",
