@@ -71,7 +71,7 @@ module.exports = {
 
 				ddSource: "moleculersource",
 
-				service: "moleculerservice",
+				service: "Moleculerservice",
 
 				// Datadog hostname variable
 				hostname: "moleculerhost",
