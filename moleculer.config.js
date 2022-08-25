@@ -281,6 +281,7 @@ module.exports = {
 						"analytics": true,
 						"debug": true,
 						"enabled": true,
+						"logInjection": true,
 					},
 
 					service: "moleculerService",
