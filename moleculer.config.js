@@ -57,8 +57,8 @@ module.exports = {
 				level: "info",
 				// Datadog server endpoint. https://docs.datadoghq.com/api/?lang=bash#send-logs-over-http
 				//url: "http://datadog-agent:8126",
-				url: "https://http-intake.logs.datadoghq.eu/v1/input/",
-				//url: "https://http-intake.logs.datadoghq.eu/api/v2/logs/",
+				//url: "https://http-intake.logs.datadoghq.eu/v1/input/",
+				url: "https://http-intake.logs.datadoghq.eu/api/v2/logs/",
 
 				// Datadog API key
 				apiKey: process.env.DATADOG_API_KEY,
@@ -264,9 +264,6 @@ module.exports = {
 					// Datadog Agent URL
 					//agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
 					agentUrl: "http://datadog-agent:8126",
-
-					service: "wallet",
-					hostname: "moleculerHost",
 					// Environment variable
 					//env: process.env.DD_ENVIRONMENT || null,
 					env: "testNet",
@@ -275,11 +272,7 @@ module.exports = {
 					// Default tags. They will be added into all span tags.
 					defaultTags: null,
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
-					tracerOptions: {
-						//ddSource: "moleculerSource",
-						service: "wallet",
-						hostname: "moleculerHost",
-					},
+					tracerOptions: null,
 				}
 			},
 			// {
