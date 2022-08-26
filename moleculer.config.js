@@ -69,9 +69,9 @@ module.exports = {
 				// Datadog env variable
 				env: "testNet",
 
-				ddSource: "moleculersource",
+				ddSource: "moleculer-cardano",
 
-				service: "moleculerservice",
+				service: "moleculer-cardano",
 
 				// Datadog hostname variable
 				hostname: "moleculerhost",
@@ -226,13 +226,13 @@ module.exports = {
 					host: "moleculerhost", // vmi766328
 					// Base URL
 					//baseUrl: "https://api.datadoghq.eu/api/",
-					baseUrl: "http://datadog-agent:8126",
+					baseUrl: "https://api.datadoghq.eu/api/",
 					// API version
-					//apiVersion: "v1",
+					apiVersion: "v1",
 					// Server URL path
-					//path: "/series",
+					path: "/series",
 					// Datadog API Key
-					//apiKey: process.env.DATADOG_API_KEY,
+					apiKey: process.env.DATADOG_API_KEY,
 					// Default labels which are appended to all metrics labels
 					defaultLabels: (registry) => ({
 						namespace: registry.broker.namespace,
@@ -280,7 +280,7 @@ module.exports = {
 					defaultTags: { "tracingTag1": "tag1", "tracingTag2": "tag2" },
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
 					tracerOptions: {
-						"service": "moleculerservice",
+						"service": "moleculer-cardano",
 						"logInjection": true,
 					},
 				}
