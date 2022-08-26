@@ -71,7 +71,7 @@ module.exports = {
 
 				ddSource: "moleculersource",
 
-				service: "Moleculerservice",
+				service: "moleculerservice",
 
 				// Datadog hostname variable
 				hostname: "moleculerhost",
@@ -276,18 +276,12 @@ module.exports = {
 					// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
 					samplingPriority: "AUTO_KEEP",
 					// Default tags. They will be added into all span tags.
-					defaultTags: null,
+					defaultTags: { "tracingTag1": "tag1", "tracingTag2": "tag2" },
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
 					tracerOptions: {
 						"service": "moleculerservice",
-						"analytics": true,
-						"debug": true,
-						"enabled": true,
 						"logInjection": true,
 					},
-
-					logInjection: true,
-					service: "moleculerservice",
 				}
 			},
 			// {
