@@ -287,6 +287,10 @@ module.exports = {
 					this.logger.error("getQrCodeDataNoRedeem error", random(100));
 					this.logger.info("getQrCodeDataNoRedeem info", random(100));
 
+					console.warn("getQrCodeDataNoRedeem warn", random(100));
+					console.error("getQrCodeDataNoRedeem error", random(100));
+					console.info("getQrCodeDataNoRedeem info", random(100));
+
 					this.logger.info("getQrCodeDataNoRedeem info", ctx);
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
 				} catch (error) {
