@@ -216,7 +216,7 @@ module.exports = {
 
 	// Enable/disable built-in metrics function. More info: https://moleculer.services/docs/0.14/metrics.html
 	metrics: {
-		enabled: false,
+		enabled: true,
 		// Available built-in reporters: "Console", "CSV", "Event", "Prometheus", "Datadog", "StatsD"
 		reporter: [
 			{
@@ -225,13 +225,14 @@ module.exports = {
 					// Hostname
 					host: "moleculerhost", // vmi766328
 					// Base URL
-					baseUrl: "https://api.datadoghq.eu/api/",
+					//baseUrl: "https://api.datadoghq.eu/api/",
+					baseUrl: "http://datadog-agent:8126",
 					// API version
-					apiVersion: "v1",
+					//apiVersion: "v1",
 					// Server URL path
-					path: "/series",
+					//path: "/series",
 					// Datadog API Key
-					apiKey: process.env.DATADOG_API_KEY,
+					//apiKey: process.env.DATADOG_API_KEY,
 					// Default labels which are appended to all metrics labels
 					defaultLabels: (registry) => ({
 						namespace: registry.broker.namespace,
