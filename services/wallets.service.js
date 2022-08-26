@@ -822,7 +822,8 @@ module.exports = {
 				publicQrCode: true
 			};
 			try {
-				console.log("getListQrCodesGeneral BLA THIS CONSOLE LOG");
+				console.log("getListQrCodesGeneral - CONSOLE LOG");
+				this.logger.info("getListQrCodesGeneral - this.logger.info");
 
 				return await Wallet.find(entity)
 					.skip(ctx.params.skip)
