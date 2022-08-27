@@ -275,12 +275,14 @@ module.exports = {
 					// Default tags. They will be added into all span tags.
 					defaultTags: { "tracingTag1": "tag1", "tracingTag2": "tag2" },
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
-					tracerOptions: null,
-					/* tracerOptions: {
+
+					tracerOptions: {
 						"hostname": "datadog-agent-on-docker",
 						"service": "moleculer-service-tracing",
-						"logInjection": true,
-					}, */
+						"version": "1.0.0", // The version number of the application. Defaults to value of the version field in package.json.
+						"env": "testNet",
+						"logInjection": "true",
+					},
 				}
 			},
 			// {
