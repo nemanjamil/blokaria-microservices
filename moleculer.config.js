@@ -276,7 +276,7 @@ module.exports = {
 					defaultTags: { "tracingTag1": "tag1", "tracingTag2": "tag2" },
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
 					tracerOptions: {
-						"hostname": "peradetlic",
+						"hostname": "datadog-agent-on-docker",
 						"service": "moleculer-service-tracing",
 						"logInjection": true,
 					},
