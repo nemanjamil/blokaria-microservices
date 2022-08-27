@@ -284,6 +284,10 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					let rnd = random(100);
+
+					this.logger.info("ctx.requestID", ctx.requestID);
+					this.logger.info("ctx.parentID", ctx.parentID);
+
 					this.logger.warn("getQrCodeDataNoRedeem this.logger.warn", rnd);
 					this.logger.error("getQrCodeDataNoRedeem this.logger.error", rnd);
 					this.logger.info("getQrCodeDataNoRedeem this.logger.info", rnd);
