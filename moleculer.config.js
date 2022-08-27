@@ -269,7 +269,7 @@ module.exports = {
 					//tracer
 					// Datadog Agent URL
 					//agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
-					agentUrl: "http://datadog-agent:8126",
+					agentUrl: "http://datadog-agent-on-docker:8126",
 					// Environment variable
 					//env: process.env.DD_ENVIRONMENT || null,
 					env: "testNet",
