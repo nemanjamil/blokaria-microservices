@@ -276,7 +276,7 @@ module.exports = {
 
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
 					tracerOptions: {
-						//"hostname": "datadog-agent-on-docker",
+						"hostname": "datadog-agent-on-docker",
 						"service": "moleculer-service-tracing",
 						"version": "1.0.0", // The version number of the application. Defaults to value of the version field in package.json.
 						"logInjection": "true",
