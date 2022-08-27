@@ -69,8 +69,8 @@ module.exports = {
 				// Datadog source variable
 
 				// Datadog env variable
-				env: "testNet",
-				version: "1.0.0",
+				ddEnv: "testNet",
+				ddVersion: "1.0.0",
 				ddService: "moleculer-service-tracing",
 
 				ddSource: "moleculer-source-logger",
