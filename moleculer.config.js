@@ -68,9 +68,9 @@ module.exports = {
 				ddSource: "moleculer-source-logger",
 
 				// Datadog env variable
-				env: "testnet",
+				env: "testnet-logger",
 				version: "1.0.0",
-				service: "moleculer-service-tracing",
+				service: "moleculer-service-logger",
 
 				// Datadog hostname variable
 				hostname: "peradetlic",
@@ -268,7 +268,7 @@ module.exports = {
 					//tracer
 					agentUrl: "http://datadog-agent-on-docker:8126",
 					// Environment variable
-					env: "testnet",
+					env: "testnet-tracing",
 					// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
 					samplingPriority: "AUTO_KEEP",
 					// Default tags. They will be added into all span tags.
