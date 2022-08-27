@@ -63,7 +63,8 @@ module.exports = {
 				//url: "https://http-intake.logs.datadoghq.eu/v1/input/",
 				url: "http://datadog-agent-on-docker:8126",
 				// Datadog API key
-				apiKey: process.env.DATADOG_API_KEY,
+				//apiKey: process.env.DATADOG_API_KEY,
+				apiKey: null,
 				// Datadog source variable
 
 				// Datadog env variable
