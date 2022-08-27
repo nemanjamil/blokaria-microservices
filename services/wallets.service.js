@@ -287,7 +287,7 @@ module.exports = {
 
 					this.logger.info("ctx.requestID", ctx.requestID, rnd);
 					this.logger.info("ctx.parentID", ctx.options.parentCtx.parentID, rnd);
-					this.logger.info("ctx.span", ctx.options.params.span, rnd);
+					this.logger.info("ctx.span", ctx.options.parentCtx.span, rnd);
 
 					this.logger.info("getQrCodeDataNoRedeem this.logger.info", rnd);
 					console.info("getQrCodeDataNoRedeem console.info", rnd);
