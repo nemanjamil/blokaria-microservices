@@ -283,13 +283,14 @@ module.exports = {
 			//rest: "POST /getQrCodeDataNoRedeem",
 			async handler(ctx) {
 				try {
-					this.logger.warn("getQrCodeDataNoRedeem this.logger.warn", random(100));
-					this.logger.error("getQrCodeDataNoRedeem this.logger.error", random(100));
-					this.logger.info("getQrCodeDataNoRedeem this.logger.info", random(100));
+					let rnd = random(100);
+					this.logger.warn("getQrCodeDataNoRedeem this.logger.warn", rnd);
+					this.logger.error("getQrCodeDataNoRedeem this.logger.error", rnd);
+					this.logger.info("getQrCodeDataNoRedeem this.logger.info", rnd);
 
-					console.warn("getQrCodeDataNoRedeem console.warn", random(100));
-					console.error("getQrCodeDataNoRedeem console.error", random(100));
-					console.info("getQrCodeDataNoRedeem console.info", random(100));
+					console.warn("getQrCodeDataNoRedeem console.warn", rnd);
+					console.error("getQrCodeDataNoRedeem console.error", rnd);
+					console.info("getQrCodeDataNoRedeem console.info", rnd);
 
 					this.logger.info("getQrCodeDataNoRedeem info", ctx);
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });

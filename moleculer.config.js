@@ -61,19 +61,16 @@ module.exports = {
 
 				// Datadog server endpoint. https://docs.datadoghq.com/api/?lang=bash#send-logs-over-http
 
-				// url: "datadog-agent-on-docker:8126",
-				// apiKey: "&blabla=" + process.env.DATADOG_API_KEY,
 				url: "https://http-intake.logs.datadoghq.eu/v1/input/",
 				apiKey: process.env.DATADOG_API_KEY,
 
 				// Datadog source variable
+				ddSource: "moleculer-source-logger",
 
 				// Datadog env variable
 				env: "testNet",
 				version: "1.0.0",
 				service: "moleculer-service-tracing",
-
-				ddSource: "moleculer-source-logger",
 
 				// Datadog hostname variable
 				hostname: "peradetlic",
@@ -276,13 +273,12 @@ module.exports = {
 					samplingPriority: "AUTO_KEEP",
 					// Default tags. They will be added into all span tags.
 					defaultTags: { "tracingTag1": "tag1", "tracingTag2": "tag2" },
-					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
 
+					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
 					tracerOptions: {
-						"hostname": "datadog-agent-on-docker",
+						//"hostname": "datadog-agent-on-docker",
 						"service": "moleculer-service-tracing",
 						"version": "1.0.0", // The version number of the application. Defaults to value of the version field in package.json.
-						"env": "testNet",
 						"logInjection": "true",
 					},
 				}
