@@ -267,11 +267,8 @@ module.exports = {
 				type: "Datadog",
 				options: {
 					//tracer
-					// Datadog Agent URL
-					//agentUrl: process.env.DD_AGENT_URL || "http://localhost:8126",
-					agentUrl: "http://datadog-agent-on-docker:3022",
+					agentUrl: "http://datadog-agent-on-docker:8126",
 					// Environment variable
-					//env: process.env.DD_ENVIRONMENT || null,
 					env: "testNet",
 					// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
 					samplingPriority: "AUTO_KEEP",
@@ -279,6 +276,7 @@ module.exports = {
 					defaultTags: { "tracingTag1": "tag1", "tracingTag2": "tag2" },
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
 					tracerOptions: {
+						"hostname": "peradetlic",
 						"service": "moleculer-service-tracing",
 						"logInjection": true,
 					},
