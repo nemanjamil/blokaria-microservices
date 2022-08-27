@@ -60,11 +60,12 @@ module.exports = {
 				level: "info",
 
 				// Datadog server endpoint. https://docs.datadoghq.com/api/?lang=bash#send-logs-over-http
-				//url: "https://http-intake.logs.datadoghq.eu/v1/input/",
-				url: "datadog-agent-on-docker:8126",
-				// Datadog API key
-				//apiKey: process.env.DATADOG_API_KEY,
-				apiKey: "&blabla=" + process.env.DATADOG_API_KEY,
+
+				// url: "datadog-agent-on-docker:8126",
+				// apiKey: "&blabla=" + process.env.DATADOG_API_KEY,
+				url: "https://http-intake.logs.datadoghq.eu/v1/input/",
+				apiKey: process.env.DATADOG_API_KEY,
+
 				// Datadog source variable
 
 				// Datadog env variable
