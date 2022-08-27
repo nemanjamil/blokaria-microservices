@@ -267,7 +267,8 @@ module.exports = {
 				type: "Datadog",
 				options: {
 					//tracer
-					agentUrl: "http://datadog-agent-on-docker:8126",
+					//agentUrl: "http://datadog-agent-on-docker:8126",
+					agentUrl: "localhost:8126",
 					// Environment variable
 					env: "testNet",
 					// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
