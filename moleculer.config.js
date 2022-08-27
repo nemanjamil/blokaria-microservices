@@ -12,8 +12,8 @@ const tracer = require("dd-trace").init({
 });
 
 
-//tracer.use("http");
-//tracer.use("ioredis");
+tracer.use("http");
+tracer.use("ioredis");
 tracer.use("moleculer-service", {
 	params: true,
 });
