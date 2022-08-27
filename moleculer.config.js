@@ -69,12 +69,12 @@ module.exports = {
 				// Datadog env variable
 				env: "testNet",
 
-				ddSource: "moleculersource",
+				ddSource: "moleculer-source-logger",
 
-				service: "moleculerservice",
+				service: "moleculer-service-logger",
 
 				// Datadog hostname variable
-				hostname: "moleculerhost",
+				hostname: "peradetlic",
 				// Custom object printer function for `Object` & `Ąrray`
 				objectPrinter: null,
 				// Data uploading interval
@@ -279,7 +279,7 @@ module.exports = {
 					defaultTags: { "tracingTag1": "tag1", "tracingTag2": "tag2" },
 					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
 					tracerOptions: {
-						"service": "moleculerservice",
+						"service": "moleculer-service-tracing",
 						"logInjection": true,
 					},
 				}
