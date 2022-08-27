@@ -285,18 +285,15 @@ module.exports = {
 				try {
 					let rnd = random(100);
 
-					this.logger.info("ctx.requestID", ctx.requestID);
-					this.logger.info("ctx.parentID", ctx.parentID);
+					this.logger.info("ctx.requestID", ctx.requestID, rnd);
+					this.logger.info("ctx.parentID", ctx.options.parentCtx.parentID, rnd);
+					this.logger.info("ctx.span", ctx.options.params.span, rnd);
 
-					this.logger.warn("getQrCodeDataNoRedeem this.logger.warn", rnd);
-					this.logger.error("getQrCodeDataNoRedeem this.logger.error", rnd);
 					this.logger.info("getQrCodeDataNoRedeem this.logger.info", rnd);
-
-					console.warn("getQrCodeDataNoRedeem console.warn", rnd);
-					console.error("getQrCodeDataNoRedeem console.error", rnd);
 					console.info("getQrCodeDataNoRedeem console.info", rnd);
 
-					this.logger.info("getQrCodeDataNoRedeem info", ctx);
+					this.logger.info("getQrCodeDataNoRedeem info", ctx, rnd);
+
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
 				} catch (error) {
 					return Promise.reject(error);
