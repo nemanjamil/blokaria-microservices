@@ -509,9 +509,8 @@ module.exports = {
 		},
 
 		healthcheck: {
-
 			async handler() {
-				return "health is OK";
+				return "Health is OK";
 			}
 		}
 	},

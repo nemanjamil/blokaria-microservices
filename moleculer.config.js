@@ -2,21 +2,21 @@
 //const os = require("os");
 require("dotenv").config();
 
-// const tracer = require("dd-trace").init({
-// 	service: "moleculerservice",
-// 	url: "http://datadog-agent:8126",
-// 	debug: true,
-// 	samplingPriority: "USER_KEEP",
-// 	logInjection: true,
-// 	env: "testNet",
-// });
+const tracer = require("dd-trace").init({
+	service: "moleculer-service",
+	url: "http://datadog-agent-on-docker:8126",
+	debug: true,
+	samplingPriority: "USER_KEEP",
+	logInjection: true,
+	env: "testnet-moleculer",
+});
 
 
-// tracer.use("http");
-// tracer.use("ioredis");
-// tracer.use("moleculerservice", {
-// 	params: true,
-// });
+//tracer.use("http");
+//tracer.use("ioredis");
+tracer.use("moleculer-service", {
+	params: true,
+});
 
 /**
  * Moleculer ServiceBroker configuration file
@@ -259,7 +259,7 @@ module.exports = {
 
 	// Enable built-in tracing function. More info: https://moleculer.services/docs/0.14/tracing.html
 	tracing: {
-		enabled: true,
+		enabled: false,
 		// Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
 		exporter: [
 			{
