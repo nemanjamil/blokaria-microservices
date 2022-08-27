@@ -69,10 +69,10 @@ module.exports = {
 
 				// Datadog env variable
 				env: "testNet",
+				version: "1.0.0",
+				service: "moleculer-service-tracing",
 
 				ddSource: "moleculer-source-logger",
-
-				service: "moleculer-service-logger",
 
 				// Datadog hostname variable
 				hostname: "peradetlic",
