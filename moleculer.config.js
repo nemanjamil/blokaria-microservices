@@ -278,7 +278,6 @@ module.exports = {
 					tracerOptions: {
 						//"hostname": "datadog-agent-on-docker",
 						"service": "moleculer-service-tracing",
-						"runtimeMetrics": true,
 						"logInjection": true,
 					},
 				}
