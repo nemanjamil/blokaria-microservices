@@ -347,12 +347,18 @@ module.exports = {
 					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
 					console.log(`UploadImagetoIPFS Root cid: ${cid}`);
 
+					let numberOfSeconds = 10;
+					console.log(`Wallet addDelay ${numberOfSeconds}sec - START `, Date.now());
+					await this.methods.addDelay(numberOfSeconds * 1000);
+					console.log(`Wallet addDelay ${numberOfSeconds}sec - END`, Date.now());
+
+
 					console.log("UploadImagetoIPFS Received data from ipfs: ");
 					const res = await web3Storage.get(cid);
 					console.log(`UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
 					if (res.status !== 200) {
-						throw new MoleculerError("Došlo je do greške pri otpremanju NFT-a", 501, "ERR_IPFS", {
-							message: "Došlo je do greške pri otpremanju NFT-a",
+						throw new MoleculerError("Došlo je do greške pri povlacenju slike sa IPFS-a", 501, "ERR_IPFS", {
+							message: "Došlo je do greške pri povlacenju NFT-a",
 							internalErrorCode: "ipfs10",
 						});
 					}
@@ -371,6 +377,10 @@ module.exports = {
 					return Promise.reject(error);
 				}
 			}
+		},
+
+		async addDelay(time) {
+			return new Promise((res) => setTimeout(res, time));
 		},
 		async createIPFSWeb3Storage() {
 			try {
