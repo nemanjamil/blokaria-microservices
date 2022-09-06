@@ -349,7 +349,7 @@ module.exports = {
 
 					let numberOfSeconds = 10;
 					console.log(`Wallet addDelay ${numberOfSeconds}sec - START `, Date.now());
-					await this.methods.addDelay(numberOfSeconds * 1000);
+					await this.addDelay(numberOfSeconds * 1000);
 					console.log(`Wallet addDelay ${numberOfSeconds}sec - END`, Date.now());
 
 
