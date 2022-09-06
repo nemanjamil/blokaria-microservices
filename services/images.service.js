@@ -363,7 +363,7 @@ module.exports = {
 						});
 					}
 
-					console.log("UploadImagetoIPFS Unpack File objects from the response: ");
+					console.log("UploadImagetoIPFS Unpack File objects from the response: ", res);
 					const responseFiles = await res.files();
 
 					console.log("UploadImagetoIPFS responseFiles", responseFiles);
