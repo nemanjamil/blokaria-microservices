@@ -283,7 +283,7 @@ module.exports = {
 			//rest: "POST /getQrCodeDataNoRedeem",
 			async handler(ctx) {
 				try {
-					let rnd = random(100);
+					/* let rnd = random(100);
 
 					this.logger.info("ctx.requestID", ctx.requestID, rnd);
 					this.logger.info("ctx.parentID", ctx.options.parentCtx.parentID, rnd);
@@ -292,7 +292,7 @@ module.exports = {
 					this.logger.info("getQrCodeDataNoRedeem this.logger.info", rnd);
 					console.info("getQrCodeDataNoRedeem console.info", rnd);
 
-					this.logger.info("getQrCodeDataNoRedeem info", ctx, rnd);
+					this.logger.info("getQrCodeDataNoRedeem info", ctx, rnd); */
 
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
 				} catch (error) {
