@@ -168,6 +168,12 @@ module.exports = {
 
 					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb });
 
+					await ctx.call("wallet.updateDataInDb", {
+						searchBy: ctx.meta.$multipart.walletQrId,
+						what: "hasstory",
+						howmany: (ctx.meta.$multipart.hasstory === "true")
+					});
+
 					meta.$multipart.productName = storedIntoDb[0].productName;
 
 					const { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb[0]);

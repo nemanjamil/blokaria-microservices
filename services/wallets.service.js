@@ -493,6 +493,8 @@ module.exports = {
 			},
 			async handler(ctx) {
 
+				this.logger.info("updateDataInDb START", ctx.params);
+
 				let searchBy = ctx.params.searchBy;
 				let what = ctx.params.what;
 				let howmany = ctx.params.howmany;
@@ -503,6 +505,8 @@ module.exports = {
 
 				let data = {};
 				data[what] = howmany;
+
+				this.logger.info("updateDataInDb data", data);
 
 				try {
 
