@@ -348,9 +348,17 @@ module.exports = {
 					console.log(`UploadImagetoIPFS Root cid: ${cid}`);
 
 					let numberOfSeconds = 30;
-					console.log(`Wallet addDelay ${numberOfSeconds}sec - START `, Date.now());
+					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
 					await this.addDelay(numberOfSeconds * 1000);
-					console.log(`Wallet addDelay ${numberOfSeconds}sec - END`, Date.now());
+					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
+
+					const infoCidStatus = await web3Storage.status(cid);
+					console.log("infoCidStatus", infoCidStatus);
+
+					numberOfSeconds = 5;
+					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
+					await this.addDelay(numberOfSeconds * 1000);
+					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
 
 
 					console.log("UploadImagetoIPFS Received data from ipfs: ");
