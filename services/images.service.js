@@ -83,6 +83,7 @@ module.exports = {
 			// },
 			async handler(ctx) {
 				try {
+					console.log("saveImageAndData imageSave START");
 
 					const { user } = ctx.meta; // $multipart: qrCodeData
 
@@ -137,7 +138,7 @@ module.exports = {
 
 					return getQrCodeInfo[0];
 				} catch (error) {
-
+					console.error("getQrCodeInfo ", error);
 					throw new MoleculerError("SAVE_IMAGE_AND_DATA", 501, "ERROR_SAVE_IMAGE", {
 						message: error.message,
 						internalErrorCode: "internal5055",
@@ -150,6 +151,9 @@ module.exports = {
 
 			async handler(ctx) {
 				try {
+
+					console.log("generateNftFromExistingQrCode START");
+
 					const { user } = ctx.meta;
 
 					await this.checIfUseCanCreateNft(user);
@@ -200,6 +204,8 @@ module.exports = {
 			// },
 			async handler(ctx) {
 				try {
+
+					console.log("generateQrCodeInSystemNoImage START");
 
 					let meta = ctx.meta;
 					let imageSave = "";
@@ -332,7 +338,7 @@ module.exports = {
 
 				return { saveToDb, createCardanoNft, cid };
 			} catch (error) {
-				console.log("generateNft generateNft Error: ", error);
+				console.error("generateNft generateNft Error: ", error);
 				throw new MoleculerError(error.message, 401, "GenerateNftMethod", {
 					message: error.message,
 					internalErrorCode: error.internalErrorCode,
@@ -385,7 +391,7 @@ module.exports = {
 
 					return responseFiles[0].cid;
 				} catch (error) {
-					console.log("Error occured while storing image to IPFS: " + error);
+					console.error("Error occured while storing image to IPFS: " + error);
 					return Promise.reject(error);
 				}
 			}
@@ -455,6 +461,7 @@ module.exports = {
 
 
 			} catch (error) {
+				console.error("insertProductPicture error ", error);
 				throw new MoleculerError(error.message, 401, "ERR_PICTURE_DB_INSERTING", {
 					message: "Greška pri ubacivanju linka slike u bazu podataka",
 					internalErrorCode: "image10",
