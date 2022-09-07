@@ -347,7 +347,7 @@ module.exports = {
 					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
 					console.log(`UploadImagetoIPFS Root cid: ${cid}`);
 
-					let numberOfSeconds = 10;
+					let numberOfSeconds = 30;
 					console.log(`Wallet addDelay ${numberOfSeconds}sec - START `, Date.now());
 					await this.addDelay(numberOfSeconds * 1000);
 					console.log(`Wallet addDelay ${numberOfSeconds}sec - END`, Date.now());
