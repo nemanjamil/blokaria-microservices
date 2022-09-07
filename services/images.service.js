@@ -9,6 +9,7 @@ const fs = require("fs");
 const path = require("path");
 const mkdir = require("mkdirp").sync;
 const has = require("lodash/has");
+const isObjectLike = require("lodash/isObjectLike");
 
 
 const { Web3Storage, getFilesFromPath } = require("web3.storage");
@@ -184,7 +185,7 @@ module.exports = {
 				} catch (error) {
 
 					console.log(error.message);
-					throw new MoleculerError("Greška pri generisanju NFT-a", 501, "ERR_PICTURE_DB_INSERTING", {
+					throw new MoleculerError("Greška pri generisanju NFT-a", 401, "ERR_PICTURE_DB_INSERTING", {
 						message: error.message,
 						internalErrorCode: error.internalErrorCode,
 					});
@@ -332,7 +333,10 @@ module.exports = {
 				return { saveToDb, createCardanoNft, cid };
 			} catch (error) {
 				console.log("generateNft generateNft Error: ", error);
-				return Promise.reject(error);
+				throw new MoleculerError(error.message, 401, "GenerateNftMethod", {
+					message: error.message,
+					internalErrorCode: error.internalErrorCode,
+				});
 			}
 		},
 		async uploadImagetoIPFS(imageDir) {
@@ -431,11 +435,27 @@ module.exports = {
 				productPicture: imageRelativePath,
 			};
 			try {
+
 				let image = new Image(entity);
-				let imageSave = await image.save();
-				return { imageSave, imageRelativePath };
+				let checkStatusOfImage = await image.findOne({ walletQrId: meta.$multipart.walletQrId });
+
+				console.log("insertProductPicture checkStatusOfImage ", checkStatusOfImage);
+
+				let imageStatus = isObjectLike(checkStatusOfImage);
+
+				console.log("insertProductPicture imageStatus ", imageStatus);
+
+				if (imageStatus) {
+					console.log("insertProductPicture IMAGE EXIST ALREADY");
+					return { imageSave: checkStatusOfImage };
+				} else {
+					let imageSave = await image.save();
+					return { imageSave, imageRelativePath };
+				}
+
+
 			} catch (error) {
-				throw new MoleculerError(error.message, 501, "ERR_PICTURE_DB_INSERTING", {
+				throw new MoleculerError(error.message, 401, "ERR_PICTURE_DB_INSERTING", {
 					message: "Greška pri ubacivanju linka slike u bazu podataka",
 					internalErrorCode: "image10",
 				});
