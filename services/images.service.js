@@ -443,7 +443,7 @@ module.exports = {
 			try {
 
 
-				let checkStatusOfImage = await this.action.getProductPicture({ walletQrId: meta.$multipart.walletQrId });
+				let checkStatusOfImage = await this.actions.getProductPicture({ walletQrId: meta.$multipart.walletQrId });
 
 				console.log("insertProductPicture checkStatusOfImage ", checkStatusOfImage);
 
