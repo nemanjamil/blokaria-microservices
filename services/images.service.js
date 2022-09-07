@@ -442,8 +442,8 @@ module.exports = {
 			};
 			try {
 
-				let image = new Image(entity);
-				let checkStatusOfImage = await image.findOne({ walletQrId: meta.$multipart.walletQrId });
+
+				let checkStatusOfImage = await this.action.getProductPicture({ walletQrId: meta.$multipart.walletQrId });
 
 				console.log("insertProductPicture checkStatusOfImage ", checkStatusOfImage);
 
@@ -455,6 +455,7 @@ module.exports = {
 					console.log("insertProductPicture IMAGE EXIST ALREADY");
 					return { imageSave: checkStatusOfImage };
 				} else {
+					let image = new Image(entity);
 					let imageSave = await image.save();
 					return { imageSave, imageRelativePath };
 				}
