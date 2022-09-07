@@ -352,18 +352,18 @@ module.exports = {
 					const web3Storage = new Web3Storage({ token: process.env.WEB3_TOKEN });
 
 					let file = await getFilesFromPath(imageDir);
-					console.log("UploadImagetoIPFS file: ", file, "\n");
+					console.log("UploadImagetoIPFS LOCAL FOLDER file: ", file, "\n");
 
 					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
 					console.log(`UploadImagetoIPFS Root cid: ${cid}`);
 
-					let numberOfSeconds = 30;
+					let numberOfSeconds = 5;
 					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
 					await this.addDelay(numberOfSeconds * 1000);
 					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
 
 					const infoCidStatus = await web3Storage.status(cid);
-					console.log("infoCidStatus", infoCidStatus);
+					console.log("UploadImagetoIPFS infoCidStatus", infoCidStatus);
 
 					numberOfSeconds = 5;
 					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
