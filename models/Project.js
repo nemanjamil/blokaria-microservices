@@ -4,6 +4,7 @@ const ObjectId = mongoose.ObjectId;
 const projectSchema = new mongoose.Schema({
 	projectName: { type: String, required: true },
 	projectDesc: { type: String },
+	projectMetaData: { type: Object },
 	date: { type: Date, default: Date.now },
 	_wallets: [
 		{

@@ -8,6 +8,9 @@ const QRCode = require("qrcode");
 const fs = require("fs");
 const path = require("path");
 const mkdir = require("mkdirp").sync;
+const has = require("lodash/has");
+const isObjectLike = require("lodash/isObjectLike");
+
 
 const { Web3Storage, getFilesFromPath } = require("web3.storage");
 
@@ -30,6 +33,7 @@ module.exports = {
 				}
 			},
 		},
+
 		deleteQrCodeImage: {
 			async handler(ctx) {
 				try {
@@ -79,6 +83,7 @@ module.exports = {
 			// },
 			async handler(ctx) {
 				try {
+					console.log("saveImageAndData imageSave START");
 
 					const { user } = ctx.meta; // $multipart: qrCodeData
 
@@ -133,7 +138,7 @@ module.exports = {
 
 					return getQrCodeInfo[0];
 				} catch (error) {
-
+					console.error("getQrCodeInfo ", error);
 					throw new MoleculerError("SAVE_IMAGE_AND_DATA", 501, "ERROR_SAVE_IMAGE", {
 						message: error.message,
 						internalErrorCode: "internal5055",
@@ -141,6 +146,63 @@ module.exports = {
 				}
 			},
 		},
+
+		generateNftFromExistingQrCode: {
+
+			async handler(ctx) {
+				try {
+
+					console.log("generateNftFromExistingQrCode START");
+
+					const { user } = ctx.meta;
+
+					await this.checIfUseCanCreateNft(user);
+					let { meta, relativePath, filename, uploadDirMkDir } = await this.storeImage(ctx);
+					let { imageSave } = await this.insertProductPicture(meta, relativePath, filename);
+
+					console.log("imageSave", imageSave);
+
+					console.log("ctx.meta", ctx.meta);
+
+					let storedIntoDb = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode: ctx.meta.$multipart.walletQrId });
+
+					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb });
+
+					await ctx.call("wallet.updateDataInDb", {
+						searchBy: ctx.meta.$multipart.walletQrId,
+						what: "hasstory",
+						howmany: (ctx.meta.$multipart.hasstory === "true")
+					});
+
+					meta.$multipart.productName = storedIntoDb[0].productName;
+
+					const { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb[0]);
+
+					await ctx.call("user.reduceNumberOfTransaction", meta);
+
+					console.log("saveToDb", saveToDb);
+					console.log("createCardanoNft", createCardanoNft);
+					console.log("cid", cid);
+
+					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
+						qrcode: meta.$multipart.walletQrId,
+					});
+
+					console.log("\n getQrCodeInfo \n", getQrCodeInfo);
+
+					return getQrCodeInfo[0];
+
+				} catch (error) {
+
+					console.log(error.message);
+					throw new MoleculerError("Greška pri generisanju NFT-a", 401, "ERR_PICTURE_DB_INSERTING", {
+						message: error.message,
+						internalErrorCode: error.internalErrorCode,
+					});
+				}
+			},
+		},
+
 		generateQrCodeInSystemNoImage: {
 			// params: {
 			// 	article: { type: "string" },
@@ -148,6 +210,8 @@ module.exports = {
 			// },
 			async handler(ctx) {
 				try {
+
+					console.log("generateQrCodeInSystemNoImage START");
 
 					let meta = ctx.meta;
 					let imageSave = "";
@@ -210,36 +274,35 @@ module.exports = {
 		},
 		async generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb) {
 			try {
-				console.log("\n\n ---- generateNftMethod STARTED ----- \n\n ");
+				console.log("---- generateNftMethod STARTED -----");
 
 				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
 
-				console.log("\n\n");
+				console.log("\n\n  >>>  ---- uploadImagetoIPFS DONE  -----");
+
 				console.log("generateNftMethod cid: ", cid);
+				console.log("meta.$multipart ", meta.$multipart);
+				let additionalMetaData = {};
 
-				let additionalMetaData = [
-					{ "Galaxy": "Milky Way" },
-					{ "Location": "Earth" },
-					{ "WebSite": `${process.env.BLOKARIA_WEBSITE}/s/${storedIntoDb._id}` },
-				];
+				additionalMetaData = (has(meta.$multipart, "finalMetaData")) ? { ...additionalMetaData, ...JSON.parse(meta.$multipart.finalMetaData) } : additionalMetaData;
 
-				if (storedIntoDb.hasstory) {
-					let newObjMetaData = { "Link to Story": `${process.env.BLOKARIA_WEBSITE}/story/${storedIntoDb._id}` }
-					additionalMetaData.push(newObjMetaData);
-				}
+				console.log("Step 1 additionalMetaData ", additionalMetaData);
+
+				additionalMetaData["Authors"] = meta.user.userFullName;
+				additionalMetaData["QrCodeDetails"] = `${process.env.BLOKARIA_WEBSITE}/s/${storedIntoDb._id}`;
+
+				console.log("Step 2 additionalMetaData: ", additionalMetaData);
 
 				let nftObj = {
 					imageIPFS: cid,
 					assetName: meta.$multipart.productName + "#" + Date.now(),
-					description: meta.$multipart.userDesc,
-					authors: [meta.$multipart.userFullname],
 					copyright: "Copyright Blokaria",
 					walletName: process.env.WALLET_NAME,
 					storedIntoDb: storedIntoDb,
 					additionalMetaData: additionalMetaData
-					//contributorData: meta.$multipart.contributorData,
-					//productVideo: meta.$multipart.productVideo,
 				};
+
+
 				console.log("generateNftMethod NFT Object: ", nftObj, "\n");
 				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV, "\n");
 
@@ -281,8 +344,11 @@ module.exports = {
 
 				return { saveToDb, createCardanoNft, cid };
 			} catch (error) {
-				console.log("generateNft generateNft Error: ", error);
-				return Promise.reject(error);
+				console.error("generateNft generateNft Error: ", error);
+				throw new MoleculerError(error.message, 401, "GenerateNftMethod", {
+					message: error.message,
+					internalErrorCode: error.internalErrorCode,
+				});
 			}
 		},
 		async uploadImagetoIPFS(imageDir) {
@@ -292,22 +358,36 @@ module.exports = {
 					const web3Storage = new Web3Storage({ token: process.env.WEB3_TOKEN });
 
 					let file = await getFilesFromPath(imageDir);
-					console.log("UploadImagetoIPFS file: ", file, "\n");
+					console.log("UploadImagetoIPFS LOCAL FOLDER file: ", file, "\n");
 
 					const cid = await web3Storage.put(file, { wrapWithDirectory: false });
 					console.log(`UploadImagetoIPFS Root cid: ${cid}`);
+
+					let numberOfSeconds = 5;
+					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
+					await this.addDelay(numberOfSeconds * 1000);
+					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
+
+					const infoCidStatus = await web3Storage.status(cid);
+					console.log("UploadImagetoIPFS infoCidStatus", infoCidStatus);
+
+					numberOfSeconds = 5;
+					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
+					await this.addDelay(numberOfSeconds * 1000);
+					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
+
 
 					console.log("UploadImagetoIPFS Received data from ipfs: ");
 					const res = await web3Storage.get(cid);
 					console.log(`UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
 					if (res.status !== 200) {
-						throw new MoleculerError("Došlo je do greške pri otpremanju NFT-a", 501, "ERR_IPFS", {
-							message: "Došlo je do greške pri otpremanju NFT-a",
+						throw new MoleculerError("Došlo je do greške pri povlacenju slike sa IPFS-a", 501, "ERR_IPFS", {
+							message: "Došlo je do greške pri povlacenju NFT-a",
 							internalErrorCode: "ipfs10",
 						});
 					}
 
-					console.log("UploadImagetoIPFS Unpack File objects from the response: ");
+					console.log("UploadImagetoIPFS Unpack File objects from the response: ", res);
 					const responseFiles = await res.files();
 
 					console.log("UploadImagetoIPFS responseFiles", responseFiles);
@@ -317,10 +397,14 @@ module.exports = {
 
 					return responseFiles[0].cid;
 				} catch (error) {
-					console.log("Error occured while storing image to IPFS: " + error);
+					console.error("Error occured while storing image to IPFS: " + error);
 					return Promise.reject(error);
 				}
 			}
+		},
+
+		async addDelay(time) {
+			return new Promise((res) => setTimeout(res, time));
 		},
 		async createIPFSWeb3Storage() {
 			try {
@@ -334,7 +418,7 @@ module.exports = {
 		},
 		async storeImage(ctx) {
 			return new Promise((resolve, reject) => {
-				let relativePath = `__uploads/${slugify(ctx.meta.$multipart.userEmail)}/${ctx.meta.$multipart.walletQrId}`;
+				let relativePath = `__uploads/${slugify(ctx.meta.user.userEmail)}/${ctx.meta.$multipart.walletQrId}`;
 				let uploadDirMkDir = path.join(__dirname, `../public/${relativePath}`);
 				mkdir(uploadDirMkDir);
 
@@ -363,11 +447,29 @@ module.exports = {
 				productPicture: imageRelativePath,
 			};
 			try {
-				let image = new Image(entity);
-				let imageSave = await image.save();
-				return { imageSave, imageRelativePath };
+
+
+				let checkStatusOfImage = await this.actions.getProductPicture({ walletQrId: meta.$multipart.walletQrId });
+
+				console.log("insertProductPicture checkStatusOfImage ", checkStatusOfImage);
+
+				let imageStatus = isObjectLike(checkStatusOfImage);
+
+				console.log("insertProductPicture imageStatus ", imageStatus);
+
+				if (imageStatus) {
+					console.log("insertProductPicture IMAGE EXIST ALREADY");
+					return { imageSave: checkStatusOfImage };
+				} else {
+					let image = new Image(entity);
+					let imageSave = await image.save();
+					return { imageSave, imageRelativePath };
+				}
+
+
 			} catch (error) {
-				throw new MoleculerError("Greška pri ubacivanju linka slike u bazu podataka", 501, "ERR_PICTURE_DB_INSERTING", {
+				console.error("insertProductPicture error ", error);
+				throw new MoleculerError(error.message, 401, "ERR_PICTURE_DB_INSERTING", {
 					message: "Greška pri ubacivanju linka slike u bazu podataka",
 					internalErrorCode: "image10",
 				});

@@ -6,6 +6,7 @@ const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
+
 //const Date = require("../utils/Date");
 //const { decode } = require("utf8");
 //const LG = require("../utils/Logger");
@@ -254,6 +255,7 @@ module.exports = {
 				}
 			}
 		},
+
 		deleteProjectFromUser: {
 			async handler(ctx) {
 
@@ -285,10 +287,27 @@ module.exports = {
 				userEmail: { type: "email" },
 				userFullName: { type: "string" },
 				userPassword: { type: "string", min: 1 },
+				recaptchaValue: { type: "string", min: 1 },
 			},
 
 			async handler(ctx) {
 				try {
+					const { recaptchaValue } = ctx.params;
+
+					let callToGoogle = await ctx.call("http.post", {
+						url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaValue}`,
+						opt: {
+							responseType: "json",
+						}
+					});
+
+					if (callToGoogle.success === false) {
+						throw new MoleculerError("Fail in recaptchaValue", 401, "USER_CANT_REGISTRATE", {
+							message: "Fail in recaptchaValue",
+							internalErrorCode: "recaptchaValue_1",
+						});
+					}
+
 					let clearPassword = Utils.generatePass();
 					ctx.meta.clearPassword = clearPassword;
 					await this.addUserToDB({ ctx, clearPassword });
@@ -306,6 +325,7 @@ module.exports = {
 				}
 			},
 		},
+
 		authenticate: {
 			params: {
 				id: { type: "string", min: 2, max: 60 },
@@ -487,10 +507,10 @@ module.exports = {
 
 			}
 		},
-		healthcheck: {
 
+		healthcheck: {
 			async handler() {
-				return "health is OK";
+				return "Health is OK";
 			}
 		}
 	},

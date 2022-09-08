@@ -13,7 +13,7 @@ module.exports = {
 	model: Project,
 
 	actions: {
-		editProjectName: {
+		/* editProjectName: {
 			params: {
 				projectId: { type: "string" },
 				projectNewName: { type: "string", min: 2, max: 60 },
@@ -31,7 +31,7 @@ module.exports = {
 					});
 				}
 			},
-		},
+		}, */
 		deleteProject: {
 			params: {
 				projectId: { type: "string" },
@@ -172,6 +172,7 @@ module.exports = {
 			params: {
 				projectName: { type: "string", min: 2, max: 60 },
 				projectDesc: { type: "string", max: 3000, optional: true },
+				projectMetaData: { type: "object", optional: true, empty: true },
 			},
 			async handler(ctx) {
 				try {
@@ -179,6 +180,7 @@ module.exports = {
 					let data = {
 						projectName: ctx.params.projectName,
 						projectDesc: ctx.params.projectDesc,
+						projectMetaData: ctx.params.projectMetaData,
 						_user,
 						//	projectDescription: ctx.params.projectDescription,
 					};
@@ -198,17 +200,27 @@ module.exports = {
 
 		updateProject: {
 			params: {
-				projectId: { type: "string", min: 2, max: 60 },
-				projectDesc: { type: "string", max: 3000, optional: true },
-				projectTitle: { type: "string", max: 300 },
+				projectData: {
+					type: "object",
+					props: {
+						projectId: { type: "string", min: 2, max: 60 },
+						projectDesc: { type: "string", max: 3000, optional: true },
+						projectName: { type: "string", max: 300 },
+						projectMetaData: { type: "object", optional: true, empty: true },
+					}
+				}
 
 			},
 			async handler(ctx) {
+
 				try {
-					const filter = { _id: ctx.params.projectId };
+					const { projectId, projectDesc, projectName, projectMetaData } = ctx.params.projectData;
+
+					const filter = { _id: projectId };
 					const update = {
-						projectDesc: ctx.params.projectDesc,
-						projectName: ctx.params.projectTitle,
+						projectDesc: projectDesc,
+						projectName: projectName,
+						projectMetaData: projectMetaData,
 					};
 
 					return await Project.findOneAndUpdate(filter, update, { new: true });
@@ -267,6 +279,12 @@ module.exports = {
 								path: "_user",
 								populate: {
 									path: "_projects",
+									populate: {
+										path: "_wallets",
+										populate: {
+											path: "_image _nfts"
+										},
+									},
 								},
 							},
 						);
