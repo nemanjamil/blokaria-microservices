@@ -283,11 +283,14 @@ module.exports = {
 				}
 			},
 		},
+
 		sendContractEmail: {
+
 			async handler(ctx) {
 
 				console.log("sendContractEmail", ctx.params);
 
+				return "aa";
 				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.meta.user;
 				const { userEmail, userFullname, clientEmail, clientName, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
 
