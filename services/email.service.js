@@ -284,21 +284,21 @@ module.exports = {
 			},
 		},
 
-		sendContractEmail: {
+		sendContractEmailToOwner: {
 
 			async handler(ctx) {
 
-				console.log("sendContractEmail", ctx.params);
+				console.log("sendContractEmailToOwner", ctx.params);
 
 				return "aa";
 				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.meta.user;
 				const { userEmail, userFullname, clientEmail, clientName, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
 
-				console.log("sendContractEmail ctx.meta.user", ctx.meta.user);
+				console.log("sendContractEmailToOwner ctx.meta.user", ctx.meta.user);
 
 				const source = fs.readFileSync("./public/templates/initiateProgressEmail.html", "utf-8").toString();
 
-				console.log("sendContractEmail source");
+				console.log("sendContractEmailToOwner source");
 
 				const template = handlebars.compile(source);
 
