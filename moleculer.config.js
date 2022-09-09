@@ -68,12 +68,12 @@ module.exports = {
 				ddSource: "moleculer-source-logger",
 
 				// Datadog env variable
-				env: "testnet-moleculer",
+				env: process.env.DATADOG_ENV,
 				version: "1.0.0",
-				service: "moleculer-service",
+				service: process.env.DD_SERVICE,
 
 				// Datadog hostname variable
-				hostname: "peradetlic",
+				hostname: process.env.DD_HOSTNAME,
 				// Custom object printer function for `Object` & `Ąrray`
 				objectPrinter: null,
 				// Data uploading interval
@@ -222,7 +222,7 @@ module.exports = {
 				type: "Datadog",
 				options: {
 					// Hostname
-					host: "peradetlic",
+					host: process.env.DD_HOSTNAME,
 					// Base URL
 					baseUrl: "https://api.datadoghq.eu/api/",
 					// API version
@@ -268,7 +268,7 @@ module.exports = {
 					//tracer
 					agentUrl: "http://datadog-agent-on-docker:8126",
 					// Environment variable
-					env: "testnet-moleculer",
+					env: process.env.DATADOG_ENV,
 					// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
 					samplingPriority: "AUTO_KEEP",
 					// Default tags. They will be added into all span tags.
