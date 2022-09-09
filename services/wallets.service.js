@@ -284,7 +284,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					let rnd = random(100);
-					this.logger.info("getQrCodeDataNoRedeem ctx.requestID", ctx.ctx.params);
+					this.logger.info("getQrCodeDataNoRedeem ctx.requestID", ctx.params);
 					this.logger.info("getQrCodeDataNoRedeem ctx.requestID", ctx.requestID, rnd);
 
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
