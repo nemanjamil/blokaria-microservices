@@ -283,16 +283,10 @@ module.exports = {
 			//rest: "POST /getQrCodeDataNoRedeem",
 			async handler(ctx) {
 				try {
-					/* let rnd = random(100);
-
+					let rnd = random(100);
 					this.logger.info("ctx.requestID", ctx.requestID, rnd);
-					this.logger.info("ctx.parentID", ctx.options.parentCtx.parentID, rnd);
-					this.logger.info("ctx.span", ctx.options.parentCtx.span, rnd);
-
 					this.logger.info("getQrCodeDataNoRedeem this.logger.info", rnd);
-					console.info("getQrCodeDataNoRedeem console.info", rnd);
 
-					this.logger.info("getQrCodeDataNoRedeem info", ctx, rnd); */
 
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
 				} catch (error) {
@@ -385,7 +379,7 @@ module.exports = {
 		getListQrCodesGeneral: {
 			async handler(ctx) {
 				try {
-					this.logger.info("BLA this.logger");
+					this.logger.info("getListQrCodesGeneral", ctx.params);
 					let listQrCodesByUser = await this.getListQrCodesGeneral(ctx);
 					return listQrCodesByUser;
 				} catch (error) {
@@ -533,6 +527,7 @@ module.exports = {
 		// 10
 		async getQrCodeDataMethod({ ctx, qrRedeemCheck }) {
 			try {
+
 				await this.checkIfQrCodeExistIndb(ctx);
 				let walletIdData = await this.getQrCodeInfo(ctx);
 
