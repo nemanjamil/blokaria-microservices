@@ -301,6 +301,9 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+
+					this.logger.info("getQrCodeFromId", ctx.params);
+
 					let getWalletFromId = await Wallet.findOne({ _id: ctx.params.idcode });
 					if (!getWalletFromId) {
 						throw new MoleculerError("No WALLET ID", 401, "ERR_GET_WALLET_ID", {

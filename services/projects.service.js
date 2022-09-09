@@ -268,6 +268,9 @@ module.exports = {
 				idcode: { type: "string", min: 2, max: 60 },
 			},
 			async handler(ctx) {
+
+				this.logger.info("listAllProjectNrApi", ctx.params);
+
 				try {
 					const data = {
 						_id: ctx.params.idcode
