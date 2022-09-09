@@ -406,9 +406,13 @@ module.exports = {
 
 					let walletIdData = await this.getQrCodeInfo(ctx);
 
-					this.logger.info("sendContractEmail walletIdData", walletIdData);
+					console.log("sendContractEmail walletIdData CONSOLE.LOG", walletIdData);
+					this.logger.info("sendContractEmail walletIdData THIS.LOGGER", walletIdData);
 
 					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmail", { ctx, walletIdData });
+
+					console.log("sendContractEmail sendContractEmailRes CONSOLE.LOG", sendContractEmailRes);
+					this.logger.info("sendContractEmail sendContractEmailRes THIS.LOGGER", sendContractEmailRes);
 
 					return sendContractEmailRes;
 				} catch (error) {
