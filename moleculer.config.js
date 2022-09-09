@@ -60,7 +60,6 @@ module.exports = {
 				level: "info",
 
 				// Datadog server endpoint. https://docs.datadoghq.com/api/?lang=bash#send-logs-over-http
-
 				url: "https://http-intake.logs.datadoghq.eu/v1/input/",
 				apiKey: process.env.DATADOG_API_KEY,
 
@@ -97,22 +96,7 @@ module.exports = {
 		// 	}
 		// }
 	],
-	/* logger: {
-		type: "Console",
-		options: {
-			level: "info",
-			// Using colors on the output
-			colors: true,
-			// Print module names with different colors (like docker-compose for containers)
-			moduleColors: false,
-			// Line formatter. It can be "json", "short", "simple", "full", a `Function` or a template string like "{timestamp} {level} {nodeID}/{mod}: {msg}"
-			formatter: "simple",
-			// Custom object printer. If not defined, it uses the `util.inspect` method.
-			objectPrinter: null,
-			// Auto-padding the module name in order to messages begin at the same column.
-			autoPadding: false,
-		},
-	}, */
+
 	// Default log level for built-in console logger. It can be overwritten in logger options above.
 	// Available values: trace, debug, info, warn, error, fatal
 	logLevel: "info",
@@ -215,7 +199,7 @@ module.exports = {
 
 	// Enable/disable built-in metrics function. More info: https://moleculer.services/docs/0.14/metrics.html
 	metrics: {
-		enabled: true,
+		enabled: (process.env.LOCALENV === "true") ? false : true,
 		// Available built-in reporters: "Console", "CSV", "Event", "Prometheus", "Datadog", "StatsD"
 		reporter: [
 			{
@@ -259,7 +243,7 @@ module.exports = {
 
 	// Enable built-in tracing function. More info: https://moleculer.services/docs/0.14/tracing.html
 	tracing: {
-		enabled: true,
+		enabled: (process.env.LOCALENV === "true") ? false : true,
 		// Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
 		exporter: [
 			{

@@ -384,6 +384,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					this.logger.info("getListQrCodesGeneral", ctx.params);
+
 					let listQrCodesByUser = await this.getListQrCodesGeneral(ctx);
 					return listQrCodesByUser;
 				} catch (error) {
@@ -399,8 +400,16 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+
+					console.log("sendContractEmail CONSOLE.LOG", ctx.params);
+					this.logger.info("sendContractEmail THIS.LOGGER", ctx.params);
+
 					let walletIdData = await this.getQrCodeInfo(ctx);
+
+					this.logger.info("sendContractEmail walletIdData", walletIdData);
+
 					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmail", { ctx, walletIdData });
+
 					return sendContractEmailRes;
 				} catch (error) {
 					return Promise.reject(error);
@@ -834,8 +843,8 @@ module.exports = {
 				publicQrCode: true
 			};
 			try {
-				console.log("getListQrCodesGeneral - CONSOLE LOG");
-				this.logger.info("getListQrCodesGeneral - this.logger.info");
+				console.log("getListQrCodesGeneral ", ctx.params);
+				this.logger.info("getListQrCodesGeneral ", ctx.params);
 
 				return await Wallet.find(entity)
 					.skip(ctx.params.skip)
@@ -843,6 +852,7 @@ module.exports = {
 					.sort({ createdAt: -1 })
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 });
+
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
 			}
