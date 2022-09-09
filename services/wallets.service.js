@@ -405,12 +405,11 @@ module.exports = {
 
 					let walletIdData = await this.getQrCodeInfo(ctx);
 
-					console.log("sendContractEmail walletIdData CONSOLE.LOG", walletIdData);
+					console.log("sendContractEmail walletIdData", walletIdData);
 
-					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmailToOwner", { walletIdData });
+					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmailToOwner", { walletIdData, meta: ctx.meta.user });
 
-					console.log("sendContractEmail sendContractEmailRes CONSOLE.LOG", sendContractEmailRes);
-					this.logger.info("sendContractEmail sendContractEmailRes THIS.LOGGER", sendContractEmailRes);
+					console.log("sendContractEmail sendContractEmailRes", sendContractEmailRes);
 
 					return sendContractEmailRes;
 				} catch (error) {

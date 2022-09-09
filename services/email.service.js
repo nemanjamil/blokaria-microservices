@@ -290,11 +290,8 @@ module.exports = {
 
 				console.log("sendContractEmailToOwner", ctx.params);
 
-				return "aa";
-				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.meta.user;
+				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.params.meta;
 				const { userEmail, userFullname, clientEmail, clientName, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
-
-				console.log("sendContractEmailToOwner ctx.meta.user", ctx.meta.user);
 
 				const source = fs.readFileSync("./public/templates/initiateProgressEmail.html", "utf-8").toString();
 
