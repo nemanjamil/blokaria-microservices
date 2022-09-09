@@ -402,14 +402,12 @@ module.exports = {
 				try {
 
 					console.log("sendContractEmail CONSOLE.LOG", ctx.params);
-					this.logger.info("sendContractEmail THIS.LOGGER", ctx.params);
 
 					let walletIdData = await this.getQrCodeInfo(ctx);
 
 					console.log("sendContractEmail walletIdData CONSOLE.LOG", walletIdData);
-					this.logger.info("sendContractEmail walletIdData THIS.LOGGER", walletIdData);
 
-					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmailToOwner", { ctx, walletIdData });
+					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmailToOwner", { walletIdData });
 
 					console.log("sendContractEmail sendContractEmailRes CONSOLE.LOG", sendContractEmailRes);
 					this.logger.info("sendContractEmail sendContractEmailRes THIS.LOGGER", sendContractEmailRes);
