@@ -370,6 +370,8 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+					this.logger.info("getListQrCodesByUser", ctx.params);
+
 					let listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
 					return listQrCodesByUser;
 				} catch (error) {
@@ -807,6 +809,9 @@ module.exports = {
 				//transactionId: ""
 			};
 			try {
+
+				this.logger.info("getListQrCodesByUserMethod", ctx.params);
+
 				return await Wallet.find(entity)
 					.sort("-createdAt")
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
