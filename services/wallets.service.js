@@ -284,9 +284,8 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					let rnd = random(100);
-					this.logger.info("ctx.requestID", ctx.requestID, rnd);
-					this.logger.info("getQrCodeDataNoRedeem this.logger.info", rnd);
-
+					this.logger.info("getQrCodeDataNoRedeem ctx.requestID", ctx.params);
+					this.logger.info("getQrCodeDataNoRedeem ctx.requestID", ctx.requestID, rnd);
 
 					return await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: false });
 				} catch (error) {
@@ -301,6 +300,9 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+
+					this.logger.info("getQrCodeFromId", ctx.params);
+
 					let getWalletFromId = await Wallet.findOne({ _id: ctx.params.idcode });
 					if (!getWalletFromId) {
 						throw new MoleculerError("No WALLET ID", 401, "ERR_GET_WALLET_ID", {
@@ -368,6 +370,8 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+					this.logger.info("getListQrCodesByUser", ctx.params);
+
 					let listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
 					return listQrCodesByUser;
 				} catch (error) {
@@ -380,6 +384,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					this.logger.info("getListQrCodesGeneral", ctx.params);
+
 					let listQrCodesByUser = await this.getListQrCodesGeneral(ctx);
 					return listQrCodesByUser;
 				} catch (error) {
@@ -395,8 +400,17 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+
+					console.log("sendContractEmail CONSOLE.LOG", ctx.params);
+
 					let walletIdData = await this.getQrCodeInfo(ctx);
-					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmail", { ctx, walletIdData });
+
+					console.log("sendContractEmail walletIdData", walletIdData);
+
+					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmailToOwner", { walletIdData, meta: ctx.meta.user });
+
+					console.log("sendContractEmail sendContractEmailRes", sendContractEmailRes);
+
 					return sendContractEmailRes;
 				} catch (error) {
 					return Promise.reject(error);
@@ -414,7 +428,7 @@ module.exports = {
 				const { clientEmail, clientName } = ctx.params;
 
 				let walletIdData = await this.getQrCodeInfo(ctx);
-				let sendApprovalToClientRes = await ctx.call("v1.email.sendApprovalToClient", { ctx, walletIdData, clientEmail, clientName });
+				let sendApprovalToClientRes = await ctx.call("v1.email.sendApprovalToClient", { walletIdData, clientEmail, clientName });
 
 				return sendApprovalToClientRes;
 			},
@@ -805,6 +819,9 @@ module.exports = {
 				//transactionId: ""
 			};
 			try {
+
+				this.logger.info("getListQrCodesByUserMethod", ctx.params);
+
 				return await Wallet.find(entity)
 					.sort("-createdAt")
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
@@ -827,8 +844,8 @@ module.exports = {
 				publicQrCode: true
 			};
 			try {
-				console.log("getListQrCodesGeneral - CONSOLE LOG");
-				this.logger.info("getListQrCodesGeneral - this.logger.info");
+				console.log("getListQrCodesGeneral ", ctx.params);
+				this.logger.info("getListQrCodesGeneral ", ctx.params);
 
 				return await Wallet.find(entity)
 					.skip(ctx.params.skip)
@@ -836,6 +853,7 @@ module.exports = {
 					.sort({ createdAt: -1 })
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 });
+
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
 			}

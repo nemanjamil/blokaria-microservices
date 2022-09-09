@@ -283,12 +283,20 @@ module.exports = {
 				}
 			},
 		},
-		sendContractEmail: {
+
+		sendContractEmailToOwner: {
+
 			async handler(ctx) {
-				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.meta.user;
+
+				console.log("sendContractEmailToOwner", ctx.params);
+
+				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.params.meta;
 				const { userEmail, userFullname, clientEmail, clientName, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
 
 				const source = fs.readFileSync("./public/templates/initiateProgressEmail.html", "utf-8").toString();
+
+				console.log("sendContractEmailToOwner source");
+
 				const template = handlebars.compile(source);
 
 				const replacements = {
@@ -308,8 +316,12 @@ module.exports = {
 
 				const htmlToSend = template(replacements);
 
+				console.log("sendContractEmail htmlToSend");
+
 				try {
 					let transporter = await this.getTransporter();
+
+					console.log("sendContractEmail transporter");
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
@@ -318,6 +330,8 @@ module.exports = {
 						subject: "Korisnik je zainteresovan za Vaš proizvod ✔",
 						html: htmlToSend,
 					};
+
+					console.log("sendContractEmail mailOptions");
 
 					return await transporter.sendMail(mailOptions);
 				} catch (error) {
