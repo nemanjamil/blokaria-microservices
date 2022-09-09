@@ -428,7 +428,7 @@ module.exports = {
 				const { clientEmail, clientName } = ctx.params;
 
 				let walletIdData = await this.getQrCodeInfo(ctx);
-				let sendApprovalToClientRes = await ctx.call("v1.email.sendApprovalToClient", { ctx, walletIdData, clientEmail, clientName });
+				let sendApprovalToClientRes = await ctx.call("v1.email.sendApprovalToClient", { walletIdData, clientEmail, clientName });
 
 				return sendApprovalToClientRes;
 			},
