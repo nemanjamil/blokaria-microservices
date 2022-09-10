@@ -109,7 +109,7 @@ module.exports = {
 					let updateDbSendingAssetDb, sendAssetToWallet, txHash, redeemStatus;
 
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
-						console.log("NFT START");
+						console.log("---- NFT START ----");
 						console.log("Wallet >  NFT > SEND ASSET TO WALLET -  START");
 						console.log("Wallet >  DATA", ctx.params);
 						let { updateDbSendingAssetDbRes, sendAssetToWalletRes } = await ctx.call("nftcardano.sendNftAssetToClient", ctx.params);
@@ -123,7 +123,7 @@ module.exports = {
 
 
 					} else {
-						console.log("BASIC START");
+						console.log("---- BASIC START ----");
 						console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
 						let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
 						console.log("Wallet BASIC sendTransactionFromWalletToWallet BASIC FINISH");
