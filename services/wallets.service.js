@@ -498,10 +498,17 @@ module.exports = {
 				searchBy: { type: "string" },
 				what: { type: "string" },
 				howmany: { type: "any" },
+				emailVerificationId: { type: "number" },
 			},
 			async handler(ctx) {
 
 				this.logger.info("updateDataInDb START", ctx.params);
+
+				if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
+					throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
+						message: "Verification email failed",
+						internalErrorCode: "walletError808",
+					});
 
 				let searchBy = ctx.params.searchBy;
 				let what = ctx.params.what;

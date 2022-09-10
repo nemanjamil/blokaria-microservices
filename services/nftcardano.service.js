@@ -135,6 +135,7 @@ module.exports = {
 							searchBy: qrCodeStatus[0].walletQrId,
 							what: "nftRedeemStatus",
 							howmany: true,
+							emailVerificationId: process.env.EMAIL_VERIFICATION_ID
 						});
 
 
