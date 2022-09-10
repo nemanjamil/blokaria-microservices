@@ -174,7 +174,7 @@ module.exports = {
 						searchBy: ctx.meta.$multipart.walletQrId,
 						what: "hasstory",
 						howmany: (ctx.meta.$multipart.hasstory === "true"),
-						emailVerificationId: process.env.EMAIL_VERIFICATION_ID
+						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID)
 					};
 					console.log("generateNftFromExistingQrCode updateWallet", updateWallet);
 
