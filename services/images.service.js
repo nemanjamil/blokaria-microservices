@@ -186,15 +186,15 @@ module.exports = {
 
 					await ctx.call("user.reduceNumberOfTransaction", meta);
 
-					console.log("saveToDb", saveToDb);
-					console.log("createCardanoNft", createCardanoNft);
-					console.log("cid", cid);
+					console.log("generateNftFromExistingQrCode saveToDb", saveToDb);
+					console.log("generateNftFromExistingQrCode createCardanoNft", createCardanoNft);
+					console.log("generateNftFromExistingQrCode cid", cid);
 
 					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
 						qrcode: meta.$multipart.walletQrId,
 					});
 
-					console.log("\n getQrCodeInfo \n", getQrCodeInfo);
+					console.log("\n generateNftFromExistingQrCode getQrCodeInfo \n", getQrCodeInfo);
 
 					return getQrCodeInfo[0];
 
