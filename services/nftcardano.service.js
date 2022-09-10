@@ -123,21 +123,19 @@ module.exports = {
 
 						let updateDbSendingAssetDbRes = await this.actions.updateDbSendingAssetDb({ sendAssetToWallet, qrCodeStatus, nftParams });
 
-						console.log("sendNftAssetToClient updateDbSendingAssetDbRes  \n");
-						console.log("sendNftAssetToClient updateDbSendingAssetDbRes ", {
+						console.log("sendNftAssetToClient updateDbSendingAssetDbRes");
+
+						let updateDataPayload = {
 							searchBy: qrCodeStatus[0].walletQrId,
 							what: "nftRedeemStatus",
 							howmany: true,
-							emailVerificationId: process.env.EMAIL_VERIFICATION_ID
-						});
+							emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID)
+						};
+
+						console.log("sendNftAssetToClient updateDataPayload ", updateDataPayload);
 
 
-						let updateNftRedeemStatus = await ctx.call("wallet.updateDataInDb", {
-							searchBy: qrCodeStatus[0].walletQrId,
-							what: "nftRedeemStatus",
-							howmany: true,
-							emailVerificationId: process.env.EMAIL_VERIFICATION_ID
-						});
+						let updateNftRedeemStatus = await ctx.call("wallet.updateDataInDb", updateDataPayload);
 
 
 						console.log("sendNftAssetToClient updateNftRedeemStatus  \n");
