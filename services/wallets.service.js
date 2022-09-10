@@ -48,9 +48,11 @@ module.exports = {
 
 			async handler(ctx) {
 
-				const { imageSave } = ctx.params;
+				const { imageSave, cbnftimage } = ctx.params;
+
 				let data = {
-					_image: imageSave._id
+					_image: imageSave._id,
+					cbnftimage: cbnftimage
 				};
 
 				let entity = {
@@ -117,7 +119,9 @@ module.exports = {
 
 
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
+
 						console.log("\n\n\n ---- NFT START SERVER ---- \n\n\n");
+
 						console.log("Wallet >  NFT > SEND ASSET TO WALLET -  START");
 						console.log("Wallet >  DATA", ctx.params);
 						let { updateDbSendingAssetDbRes, sendAssetToWalletRes } = await ctx.call("nftcardano.sendNftAssetToClient", ctx.params);
@@ -133,8 +137,6 @@ module.exports = {
 					} else {
 
 						console.log("\n\n\n ---- BASIC START ---- \n\n\n");
-
-						return;
 
 						console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
 						let { rndBr, txHash } = await this.sendTransactionFromWalletToWallet(qrCodeStatus);
