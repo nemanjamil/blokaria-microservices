@@ -194,7 +194,7 @@ module.exports = {
 						qrcode: meta.$multipart.walletQrId,
 					});
 
-					console.log("\n generateNftFromExistingQrCode getQrCodeInfo \n", getQrCodeInfo);
+					console.log("generateNftFromExistingQrCode getQrCodeInfo", getQrCodeInfo);
 
 					return getQrCodeInfo[0];
 
