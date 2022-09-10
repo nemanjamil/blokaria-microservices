@@ -160,20 +160,25 @@ module.exports = {
 					let { meta, relativePath, filename, uploadDirMkDir } = await this.storeImage(ctx);
 					let { imageSave } = await this.insertProductPicture(meta, relativePath, filename);
 
-					console.log("imageSave", imageSave);
+					console.log("generateNftFromExistingQrCode imageSave", imageSave);
 
-					console.log("ctx.meta", ctx.meta);
+					console.log("generateNftFromExistingQrCode ctx.meta", ctx.meta);
 
 					let storedIntoDb = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode: ctx.meta.$multipart.walletQrId });
 
+					console.log("generateNftFromExistingQrCode storedIntoDb", storedIntoDb);
+
 					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb });
 
-					await ctx.call("wallet.updateDataInDb", {
+					let updateWallet = {
 						searchBy: ctx.meta.$multipart.walletQrId,
 						what: "hasstory",
 						howmany: (ctx.meta.$multipart.hasstory === "true"),
 						emailVerificationId: process.env.EMAIL_VERIFICATION_ID
-					});
+					};
+					console.log("generateNftFromExistingQrCode updateWallet", updateWallet);
+
+					await ctx.call("wallet.updateDataInDb", updateWallet);
 
 					meta.$multipart.productName = storedIntoDb[0].productName;
 
@@ -181,15 +186,15 @@ module.exports = {
 
 					await ctx.call("user.reduceNumberOfTransaction", meta);
 
-					console.log("saveToDb", saveToDb);
-					console.log("createCardanoNft", createCardanoNft);
-					console.log("cid", cid);
+					console.log("generateNftFromExistingQrCode saveToDb", saveToDb);
+					console.log("generateNftFromExistingQrCode createCardanoNft", createCardanoNft);
+					console.log("generateNftFromExistingQrCode cid", cid);
 
 					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
 						qrcode: meta.$multipart.walletQrId,
 					});
 
-					console.log("\n getQrCodeInfo \n", getQrCodeInfo);
+					console.log("generateNftFromExistingQrCode getQrCodeInfo", getQrCodeInfo);
 
 					return getQrCodeInfo[0];
 
