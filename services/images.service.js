@@ -171,7 +171,8 @@ module.exports = {
 					await ctx.call("wallet.updateDataInDb", {
 						searchBy: ctx.meta.$multipart.walletQrId,
 						what: "hasstory",
-						howmany: (ctx.meta.$multipart.hasstory === "true")
+						howmany: (ctx.meta.$multipart.hasstory === "true"),
+						emailVerificationId: process.env.EMAIL_VERIFICATION_ID
 					});
 
 					meta.$multipart.productName = storedIntoDb[0].productName;
