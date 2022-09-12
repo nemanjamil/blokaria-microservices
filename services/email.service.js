@@ -31,15 +31,17 @@ module.exports = {
 				userOrgPass: { type: "string" },
 				userFullName: { type: "string" },
 				authenticateLink: { type: "string" },
+				userLang: { type: "string" },
 			},
 			async handler(ctx) {
 				let userEmail = ctx.params.userEmail;
 				let userOrgPass = ctx.params.userOrgPass;
 				let userFullName = ctx.params.userFullName;
 				let authenticateLink = ctx.params.authenticateLink;
+				let userLang = ctx.params.userLang;
 
 				try {
-					const source = fs.readFileSync("./public/templates/registrateUser.html", "utf-8").toString();
+					const source = fs.readFileSync(`./public/templates/${userLang}/registrateUser.html`, "utf-8").toString();
 					const template = handlebars.compile(source);
 					const replacements = {
 						userEmail: userEmail,

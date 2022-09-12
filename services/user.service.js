@@ -288,6 +288,7 @@ module.exports = {
 				userFullName: { type: "string" },
 				userPassword: { type: "string", min: 1 },
 				recaptchaValue: { type: "string", min: 1 },
+				userLang: { type: "string", min: 1, max: 5, default: "en", values: ["sr", "en"] },
 			},
 
 			async handler(ctx) {
@@ -318,6 +319,7 @@ module.exports = {
 						userOrgPass: ctx.params.userPassword,
 						userFullName: ctx.params.userFullName,
 						authenticateLink: clearPassword,
+						userLang: ctx.params.userLang,
 					});
 					return { sendEmail, userEmail };
 				} catch (error) {
