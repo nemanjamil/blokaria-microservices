@@ -377,6 +377,10 @@ module.exports = {
 				ctx.params.userEmail = ctx.meta.user.userEmail;
 				try {
 					let listQrCodesByUser;
+
+					this.logger.info("getListQrCodesByUserPrivate", ctx.params);
+					this.logger.info("getListQrCodesByUserPrivate meta", ctx.meta);
+
 					if (ctx.params.generated) {
 						listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
 					} else {
@@ -925,10 +929,13 @@ module.exports = {
 		// wallet130
 		async getlistQrCodesOwnedByUserMethod(ctx) {
 			const entity = {
-				//clientEmail: ctx.params.userEmail,
+				clientEmail: ctx.meta.user.userEmail,
 				qrCodeRedeemStatus: 1
 			};
 			try {
+
+				this.logger.info("getlistQrCodesOwnedByUserMethod params", ctx.params);
+
 				return await Wallet.find(entity)
 					.sort("-createdAt")
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
