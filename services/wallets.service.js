@@ -524,6 +524,31 @@ module.exports = {
 			},
 		},
 
+		updateStory: {
+			params: {
+				qrCode: { type: "string" },
+				state: { type: "boolean" },
+			},
+			async handler(ctx) {
+
+				let updateDataPayload = {
+					searchBy: ctx.params.qrCode,
+					what: "hasstory",
+					howmany: ctx.params.state,
+					emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID)
+				};
+				try {
+					return this.actions.updateDataInDb(updateDataPayload);
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_UPDATING_DATA", {
+						message: error.message,
+						internalErrorCode: "user822",
+					});
+				}
+
+			}
+		},
+
 		updateDataInDb: {
 			params: {
 				searchBy: { type: "string" },
