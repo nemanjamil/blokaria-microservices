@@ -211,6 +211,7 @@ module.exports = {
 					"POST nftcardano/updateNftStory": "nftcardano.updateNftStory",
 					"POST nftcardano/addDataToNftTable": "nftcardano.addDataToNftTable",
 					"POST wallet/updateDataInDb": "wallet.updateDataInDb",
+					"POST wallet/updateStory": "wallet.updateStory",
 					"POST nftcardano/generateNft": "nftcardano.generateNft",
 				},
 				callingOptions: {},
