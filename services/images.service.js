@@ -148,7 +148,6 @@ module.exports = {
 		},
 
 		generateNftFromExistingQrCode: {
-
 			async handler(ctx) {
 				try {
 
@@ -210,14 +209,13 @@ module.exports = {
 		},
 
 		generateQrCodeInSystemNoImage: {
-			// params: {
-			// 	article: { type: "string" },
-			// 	user: { type: "string" },
-			// },
+			params: {
+				userLang: { type: "string", min: 1, max: 5, default: "en", values: ["sr", "en"] },
+			},
 			async handler(ctx) {
 				try {
 
-					console.log("generateQrCodeInSystemNoImage START");
+					console.log("generateQrCodeInSystemNoImage START", ctx.params);
 
 					let meta = ctx.meta;
 					let imageSave = "";
@@ -234,6 +232,7 @@ module.exports = {
 					meta.$multipart.accessCode = storedIntoDb.accessCode;
 					meta.$multipart.publicQrCode = storedIntoDb.publicQrCode;
 					meta.$multipart.qrCodeImageForStatus = qrCodeImageForStatus;
+					meta.$multipart.userLang = ctx.params.userLang;
 
 					console.log("meta.$multipart", meta.$multipart);
 					console.log("\n\n Send Email Started \n\n");

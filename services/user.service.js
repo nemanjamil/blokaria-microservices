@@ -288,6 +288,7 @@ module.exports = {
 				userFullName: { type: "string" },
 				userPassword: { type: "string", min: 1 },
 				recaptchaValue: { type: "string", min: 1 },
+				userLang: { type: "string", min: 1, max: 5, default: "en", values: ["sr", "en"] },
 			},
 
 			async handler(ctx) {
@@ -318,6 +319,7 @@ module.exports = {
 						userOrgPass: ctx.params.userPassword,
 						userFullName: ctx.params.userFullName,
 						authenticateLink: clearPassword,
+						userLang: ctx.params.userLang,
 					});
 					return { sendEmail, userEmail };
 				} catch (error) {
@@ -440,13 +442,14 @@ module.exports = {
 		// user60
 		resetPassword: {
 			params: {
-				userEmail: { type: "email" }
+				userEmail: { type: "email" },
+				userLang: { type: "string", min: 1, max: 5, default: "en", values: ["sr", "en"] },
 			},
 			async handler(ctx) {
-				const { userEmail } = ctx.params;
+				const { userEmail, userLang } = ctx.params;
 
 				try {
-					let getUserData = await this.actions.userFind(ctx.params);
+					let getUserData = await this.actions.userFind({ userEmail: userEmail });
 
 					if (getUserData.length < 1) {
 						throw new MoleculerError("User does not exist", 401, "USER_DOES_NOT_EXIST", {
@@ -458,7 +461,8 @@ module.exports = {
 
 					let sentResetEmail = await ctx.call("v1.email.resetEmail", {
 						userEmail: userEmail,
-						clearPassword: getUserData[0].clearPassword
+						clearPassword: getUserData[0].clearPassword,
+						userLang: userLang
 					});
 
 					return sentResetEmail;
