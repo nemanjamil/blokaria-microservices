@@ -87,12 +87,15 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+
+					let userLang = ctx.params.userLang;
+
 					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
 						throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
 							message: "Verification email failed",
 							internalErrorCode: "email20",
 						});
-					const source = fs.readFileSync("./public/templates/contractEmail.html", "utf-8").toString();
+					const source = fs.readFileSync(`./public/templates/${userLang}/contractEmail.html`, "utf-8").toString();
 					const template = handlebars.compile(source);
 
 					let clientEmail = ctx.params.clientEmail;
@@ -139,11 +142,12 @@ module.exports = {
 				productName: { type: "string" },
 				accessCode: { type: "string" },
 				qrCodeImageForStatus: { type: "string" },
+				userLang: { type: "string" },
 			},
 			async handler(ctx) {
 				try {
-					const { qrCodeImageForStatus } = ctx.params;
-					const source = fs.readFileSync("./public/templates/generatingQrCodeEmail.html", "utf-8").toString();
+					const { qrCodeImageForStatus, userLang } = ctx.params;
+					const source = fs.readFileSync(`./public/templates/${userLang}/generatingQrCodeEmail.html`, "utf-8").toString();
 					const template = handlebars.compile(source);
 
 					let userEmail = ctx.params.userEmail;
@@ -197,6 +201,7 @@ module.exports = {
 				productName: { type: "string" },
 				clientEmail: { type: "email" },
 				clientName: { type: "string" },
+				userLang: { type: "string" },
 			},
 			async handler(ctx) {
 				try {
@@ -205,8 +210,8 @@ module.exports = {
 							message: "Verification email failed",
 							internalErrorCode: "sendTransactionEmail10",
 						});
-
-					const source = fs.readFileSync("./public/templates/transactionConfirmationEmail.html", "utf-8").toString();
+					const { userLang } = ctx.params;
+					const source = fs.readFileSync(`./public/templates/${userLang}/transactionConfirmationEmail.html`, "utf-8").toString();
 					const template = handlebars.compile(source);
 
 					let userEmail = ctx.params.userEmail;
@@ -248,11 +253,12 @@ module.exports = {
 			params: {
 				userEmail: { type: "email" },
 				clearPassword: { type: "string" },
+				userLang: { type: "string" },
 			},
 			async handler(ctx) {
-				const { userEmail, clearPassword, userFullname } = ctx.params;
+				const { userEmail, clearPassword, userFullname, userLang } = ctx.params;
 
-				const source = fs.readFileSync("./public/templates/resetEmail.html", "utf-8").toString();
+				const source = fs.readFileSync(`./public/templates/${userLang}/resetEmail.html`, "utf-8").toString();
 				const template = handlebars.compile(source);
 
 				const replacements = {
@@ -294,8 +300,10 @@ module.exports = {
 
 				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.params.meta;
 				const { userEmail, userFullname, clientEmail, clientName, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
+				const { userLang } = ctx.params;
 
-				const source = fs.readFileSync("./public/templates/initiateProgressEmail.html", "utf-8").toString();
+
+				const source = fs.readFileSync(`./public/templates/${userLang}/initiateProgressEmail.html`, "utf-8").toString();
 
 				console.log("sendContractEmailToOwner source");
 
@@ -350,8 +358,10 @@ module.exports = {
 				const { userEmail, userFullname, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
 				const clientEmail = ctx.params.clientEmail;
 				const clientName = ctx.params.clientName;
+				const userLang = ctx.params.userLang;
 
-				const source = fs.readFileSync("./public/templates/qrCodeApproval.html", "utf-8").toString();
+
+				const source = fs.readFileSync(`./public/templates/${userLang}/qrCodeApproval.html`, "utf-8").toString();
 				const template = handlebars.compile(source);
 				const replacements = {
 					walletQrId,

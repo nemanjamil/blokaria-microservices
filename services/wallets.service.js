@@ -91,10 +91,15 @@ module.exports = {
 		},
 
 		initiateTransactionToClientWallet: {
-			rest: "POST /initiateTransactionToClientWallet",
+			params: {
+				userLang: { type: "string", min: 1, max: 5, default: "en", values: ["sr", "en"] },
+				qrcode: { type: "string", min: 1, max: 50 },
+			},
+			//rest: "POST /initiateTransactionToClientWallet",
 			async handler(ctx) {
 				try {
-					console.log("\n\nWallet Initiation Has Started : initiateTransactionToClientWallet");
+					const { userLang } = ctx.params;
+					console.log("\n\n Wallet Initiation Has Started : initiateTransactionToClientWallet", ctx.params);
 
 					let qrCodeStatus = await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 					console.log("Wallet qrCodeStatus BEFORE ", qrCodeStatus);
@@ -148,6 +153,12 @@ module.exports = {
 					}
 
 					qrCodeStatus[0].emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
+					qrCodeStatus[0].userLang = userLang;
+
+					console.log("Wallet RedeemStatus userLang", userLang);
+
+					console.log("Wallet RedeemStatus Dayload for Email", qrCodeStatus[0]);
+
 					let sendEmail = await ctx.call("v1.email.sendTransactionEmail", qrCodeStatus[0]);
 
 					console.log("\n\n Wallet SendEmail", sendEmail);
@@ -261,10 +272,12 @@ module.exports = {
 				nftimage: { type: "string", optional: true },
 				cbnftimage: { type: "boolean", default: false },
 				clientemailcb: { type: "boolean", default: true },
-				ownernamecb: { type: "boolean", default: true },
+				ownernamecb: { type: "boolean", default: true }
 			},
 			async handler(ctx) {
 				try {
+					console.log("generateContract", ctx.params);
+
 					await this.getQrCodeDataMethod({ ctx, qrRedeemCheck: true });
 					return await this.generateContractUpdateDataWithMessages(ctx);
 				} catch (error) {
@@ -411,17 +424,20 @@ module.exports = {
 			params: {
 				qrcode: { type: "string" },
 				clientEmail: { type: "string" },
+				userLang: { type: "string", min: 1, max: 5, default: "en", values: ["sr", "en"] },
 			},
 			async handler(ctx) {
 				try {
 
 					console.log("sendContractEmail CONSOLE.LOG", ctx.params);
 
+					const { userLang } = ctx.params;
+
 					let walletIdData = await this.getQrCodeInfo(ctx);
 
 					console.log("sendContractEmail walletIdData", walletIdData);
 
-					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmailToOwner", { walletIdData, meta: ctx.meta.user });
+					let sendContractEmailRes = await ctx.call("v1.email.sendContractEmailToOwner", { walletIdData, meta: ctx.meta.user, userLang });
 
 					console.log("sendContractEmail sendContractEmailRes", sendContractEmailRes);
 
@@ -437,12 +453,13 @@ module.exports = {
 				clientEmail: { type: "email" },
 				qrcode: { type: "string" },
 				clientName: { type: "string" },
+				userLang: { type: "string", min: 1, max: 5, default: "en", values: ["sr", "en"] },
 			},
 			async handler(ctx) {
-				const { clientEmail, clientName } = ctx.params;
+				const { clientEmail, clientName, userLang } = ctx.params;
 
 				let walletIdData = await this.getQrCodeInfo(ctx);
-				let sendApprovalToClientRes = await ctx.call("v1.email.sendApprovalToClient", { walletIdData, clientEmail, clientName });
+				let sendApprovalToClientRes = await ctx.call("v1.email.sendApprovalToClient", { walletIdData, clientEmail, clientName, userLang });
 
 				return sendApprovalToClientRes;
 			},
@@ -618,7 +635,7 @@ module.exports = {
 				nftimage: ctx.params.nftimage ? ctx.params.nftimage : "",
 				cbnftimage: ctx.params.cbnftimage,
 				clientemailcb: ctx.params.clientemailcb,
-				ownernamecb: ctx.params.ownernamecb,
+				ownernamecb: ctx.params.ownernamecb
 			};
 
 			try {
