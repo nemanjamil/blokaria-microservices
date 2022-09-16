@@ -374,17 +374,31 @@ module.exports = {
 				},
 			},
 			async handler(ctx) {
-				ctx.params.userEmail = ctx.meta.user.userEmail;
+
+				const { userEmail } = ctx.meta.user;
+				const { generated } = ctx.params;
+
 				try {
 					let listQrCodesByUser;
 
 					this.logger.info("getListQrCodesByUserPrivate", ctx.params);
 					this.logger.info("getListQrCodesByUserPrivate meta", ctx.meta);
 
-					if (ctx.params.generated) {
-						listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
+					if (generated) {
+
+						this.logger.info("getListQrCodesByUserPrivate generated TRUE", generated);
+
+						listQrCodesByUser = await this.getListQrCodesByUserMethod(
+							{ userEmail, qrCodeRedeemStatus: 0, publicQrCode: false }
+						);
+
 					} else {
-						listQrCodesByUser = await this.getlistQrCodesOwnedByUserMethod(ctx);
+
+						this.logger.info("getListQrCodesByUserPrivate generated false", generated);
+
+						listQrCodesByUser = await this.getlistQrCodesOwnedByUserMethod(
+							{ userEmail, qrCodeRedeemStatus: 1, publicQrCode: false }
+						);
 					}
 
 					return listQrCodesByUser;
@@ -401,9 +415,14 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+
 					this.logger.info("getListQrCodesByUser", ctx.params);
 
-					let listQrCodesByUser = await this.getListQrCodesByUserMethod(ctx);
+					const { userEmail } = ctx.params;
+
+					let listQrCodesByUser = await this.getListQrCodesByUserMethod(
+						{ userEmail, qrCodeRedeemStatus: 0, publicQrCode: true }
+					);
 					return listQrCodesByUser;
 				} catch (error) {
 					return Promise.reject(error);
@@ -878,16 +897,18 @@ module.exports = {
 		},
 
 		// wallet110
-		async getListQrCodesByUserMethod(ctx) {
+		async getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode }) {
 			const entity = {
-				userEmail: ctx.params.userEmail,
-				qrCodeRedeemStatus: 0
-				//clientEmail: { $exists: false },
-				//transactionId: ""
+				userEmail,
+				qrCodeRedeemStatus
 			};
+
+			if (publicQrCode)
+				entity.publicQrCode = publicQrCode;
+
 			try {
 
-				this.logger.info("getListQrCodesByUserMethod", ctx.params);
+				this.logger.info("getListQrCodesByUserMethod entity", entity,);
 
 				return await Wallet.find(entity)
 					.sort("-createdAt")
@@ -927,14 +948,17 @@ module.exports = {
 		},
 
 		// wallet130
-		async getlistQrCodesOwnedByUserMethod(ctx) {
+		async getlistQrCodesOwnedByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode }) {
 			const entity = {
-				clientEmail: ctx.meta.user.userEmail,
-				qrCodeRedeemStatus: 1
+				clientEmail: userEmail,
+				qrCodeRedeemStatus
 			};
+			if (publicQrCode)
+				entity.publicQrCode = publicQrCode;
+
 			try {
 
-				this.logger.info("getlistQrCodesOwnedByUserMethod params", ctx.params);
+				this.logger.info("getlistQrCodesOwnedByUserMethod params", entity);
 
 				return await Wallet.find(entity)
 					.sort("-createdAt")
