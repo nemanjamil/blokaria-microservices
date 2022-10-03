@@ -191,7 +191,7 @@ module.exports = {
 
 					const { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDbCopy);
 
-					await ctx.call("user.reduceNumberOfTransaction", meta);
+					//await ctx.call("user.reduceNumberOfTransaction", meta);
 
 					console.log("generateNftFromExistingQrCode saveToDb", saveToDb);
 					console.log("generateNftFromExistingQrCode createCardanoNft", createCardanoNft);
