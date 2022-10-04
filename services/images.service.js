@@ -300,7 +300,7 @@ module.exports = {
 
 				let nftObj = {
 					imageIPFS: cid,
-					assetName: meta.$multipart.productName,
+					assetName: meta.$multipart.productName, // + " #" + Date.now(),
 					copyright: "Copyright Blokaria",
 					walletName: process.env.WALLET_NAME,
 					storedIntoDb: storedIntoDb,
