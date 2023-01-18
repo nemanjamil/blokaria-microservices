@@ -281,7 +281,8 @@ module.exports = {
 			try {
 				console.log("---- generateNftMethod STARTED -----");
 
-				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
+				//let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
+				let cid = await this.uploadImagetoIPFS_nft_storage(uploadDirMkDir);
 
 				console.log("\n\n  >>>  ---- uploadImagetoIPFS DONE  -----");
 
@@ -355,6 +356,24 @@ module.exports = {
 					internalErrorCode: error.internalErrorCode,
 				});
 			}
+		},
+
+		async uploadImagetoIPFS_nft_storage() {
+			let response = {
+				cid: "bafybeigxsplj4g3kjijl7r4icbeipntdmv3kkarh23weocq7tvwbi5f25m",
+				deals: [],
+				size: 396504,
+				pin: {
+					cid: "bafybeigxsplj4g3kjijl7r4icbeipntdmv3kkarh23weocq7tvwbi5f25m",
+					created: "2023-01-18T21:32:58.946Z",
+					size: 396504,
+					status: "pinned"
+				},
+				created: "2023-01-18T21:32:58.946Z"
+			};
+
+			return response.cid;
+
 		},
 		async uploadImagetoIPFS(imageDir) {
 			const web3Storage = this.createIPFSWeb3Storage();
