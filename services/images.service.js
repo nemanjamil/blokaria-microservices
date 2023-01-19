@@ -385,6 +385,9 @@ module.exports = {
 
 					console.log("UploadImagetoIPFS getCidReq", getCidReq.data);
 
+					// ovde treba dodati upit ako nema Objects[0] ili Links[0] da baci errir 
+					// @mihajlo
+
 					return getCidReq.data.Objects[0].Links[0].Hash;
 
 
