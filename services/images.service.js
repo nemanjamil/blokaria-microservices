@@ -383,7 +383,7 @@ module.exports = {
 
 					let getCidReq = await this.axiosGet(`https://dweb.link/api/v0/ls?arg=${cid}`);
 
-					console.log("UploadImagetoIPFS getCidReq", getCidReq);
+					console.log("UploadImagetoIPFS getCidReq", getCidReq.data);
 
 					return getCidReq.data.Objects[0].Links[0].Hash;
 
