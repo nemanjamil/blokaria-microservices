@@ -10,7 +10,7 @@ const path = require("path");
 const mkdir = require("mkdirp").sync;
 const has = require("lodash/has");
 const isObjectLike = require("lodash/isObjectLike");
-
+const axiosMixin = require("../mixins/axios.mixin");
 
 const { Web3Storage, getFilesFromPath } = require("web3.storage");
 
@@ -19,7 +19,7 @@ mkdir(uploadDir);
 
 module.exports = {
 	name: "image",
-	mixins: [DbService],
+	mixins: [DbService, axiosMixin],
 	adapter: dbConnection.getMongooseAdapter(),
 	model: Image,
 
@@ -388,38 +388,58 @@ module.exports = {
 					console.log(`UploadImagetoIPFS Root cid: ${cid}`);
 
 					let numberOfSeconds = 5;
-					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
+					console.log(`UploadImagetoIPFS 1 addDelay ${numberOfSeconds}sec - START `, Date.now());
 					await this.addDelay(numberOfSeconds * 1000);
-					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
+					console.log(`UploadImagetoIPFS 1 addDelay ${numberOfSeconds}sec - END`, Date.now());
 
 					const infoCidStatus = await web3Storage.status(cid);
 					console.log("UploadImagetoIPFS infoCidStatus", infoCidStatus);
 
 					numberOfSeconds = 5;
-					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
+					console.log(`UploadImagetoIPFS  2 addDelay ${numberOfSeconds}sec - START `, Date.now());
 					await this.addDelay(numberOfSeconds * 1000);
-					console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
+					console.log(`UploadImagetoIPFS  2 addDelay ${numberOfSeconds}sec - END`, Date.now());
+
+					let getCidReq = await this.axiosGet(`https://dweb.link/api/v0/ls?arg=${cid}`);
+
+					console.log("UploadImagetoIPFS getCidReq", getCidReq);
+
+					return getCidReq.data.Objects[0].Links[0].Hash;
 
 
-					console.log("UploadImagetoIPFS Received data from ipfs: ");
-					const res = await web3Storage.get(cid);
-					console.log(`UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
-					if (res.status !== 200) {
-						throw new MoleculerError("Došlo je do greške pri povlacenju slike sa IPFS-a", 501, "ERR_IPFS", {
-							message: "Došlo je do greške pri povlacenju NFT-a",
-							internalErrorCode: "ipfs10",
-						});
-					}
+					// let numberOfSeconds = 5;
+					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
+					// await this.addDelay(numberOfSeconds * 1000);
+					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
 
-					console.log("UploadImagetoIPFS Unpack File objects from the response: ", res);
-					const responseFiles = await res.files();
+					// const infoCidStatus = await web3Storage.status(cid);
+					// console.log("UploadImagetoIPFS infoCidStatus", infoCidStatus);
 
-					console.log("UploadImagetoIPFS responseFiles", responseFiles);
+					// numberOfSeconds = 5;
+					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
+					// await this.addDelay(numberOfSeconds * 1000);
+					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
 
-					console.log(`UploadImagetoIPFS ${responseFiles[0].cid} -- ${responseFiles[0].path} -- ${responseFiles[0].size}`);
-					console.log(`FINISH UploadImagetoIPFS Image url: https://${responseFiles[0].cid}.ipfs.dweb.link`);
 
-					return responseFiles[0].cid;
+					// console.log("UploadImagetoIPFS Received data from ipfs: ");
+					// const res = await web3Storage.get(cid);
+					// console.log(`UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
+					// if (res.status !== 200) {
+					// 	throw new MoleculerError("Došlo je do greške pri povlacenju slike sa IPFS-a", 501, "ERR_IPFS", {
+					// 		message: "Došlo je do greške pri povlacenju NFT-a",
+					// 		internalErrorCode: "ipfs10",
+					// 	});
+					// }
+
+					// console.log("UploadImagetoIPFS Unpack File objects from the response: ", res);
+					// const responseFiles = await res.files();
+
+					// console.log("UploadImagetoIPFS responseFiles", responseFiles);
+
+					// console.log(`UploadImagetoIPFS ${responseFiles[0].cid} -- ${responseFiles[0].path} -- ${responseFiles[0].size}`);
+					// console.log(`FINISH UploadImagetoIPFS Image url: https://${responseFiles[0].cid}.ipfs.dweb.link`);
+
+					// return responseFiles[0].cid;
 				} catch (error) {
 					console.error("Error occured while storing image to IPFS: " + error);
 					return Promise.reject(error);
