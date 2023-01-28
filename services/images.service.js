@@ -381,144 +381,150 @@ module.exports = {
 					await this.addDelay(numberOfSeconds * 1000);
 					console.log(`UploadImagetoIPFS  2 addDelay ${numberOfSeconds}sec - END`, Date.now());
 
-					let getCidReq = await this.axiosGet(`https://dweb.link/api/v0/ls?arg=${cid}`);
 
-					console.log("UploadImagetoIPFS getCidReq", getCidReq.data);
+					let getCidReq = await this.axiosGet(`https://dweb.link/api/v0/ls?arg=${cid}`).catch(function() {
+						throw new MoleculerError("Došlo je do greške pri povlacenju slike sa IPFS-a", 501, "ERR_IPFS", {
+						message: "Došlo je do greške pri povlacenju NFT-a",
+						internalErrorCode: "ipfs10",
+					});
+					});
+				
+				console.log("UploadImagetoIPFS getCidReq", getCidReq.data);
 
-					// ovde treba dodati upit ako nema Objects[0] ili Links[0] da baci errir 
-					// @mihajlo
+				// ovde treba dodati upit ako nema Objects[0] ili Links[0] da baci errir 
+				// @mihajlo
 
-					return getCidReq.data.Objects[0].Links[0].Hash;
-
-
-					// let numberOfSeconds = 5;
-					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
-					// await this.addDelay(numberOfSeconds * 1000);
-					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
-
-					// const infoCidStatus = await web3Storage.status(cid);
-					// console.log("UploadImagetoIPFS infoCidStatus", infoCidStatus);
-
-					// numberOfSeconds = 5;
-					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
-					// await this.addDelay(numberOfSeconds * 1000);
-					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
+				return getCidReq.data.Objects[0].Links[0].Hash;
 
 
-					// console.log("UploadImagetoIPFS Received data from ipfs: ");
-					// const res = await web3Storage.get(cid);
-					// console.log(`UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
-					// if (res.status !== 200) {
-					// 	throw new MoleculerError("Došlo je do greške pri povlacenju slike sa IPFS-a", 501, "ERR_IPFS", {
-					// 		message: "Došlo je do greške pri povlacenju NFT-a",
-					// 		internalErrorCode: "ipfs10",
-					// 	});
-					// }
+				// let numberOfSeconds = 5;
+				// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
+				// await this.addDelay(numberOfSeconds * 1000);
+				// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
 
-					// console.log("UploadImagetoIPFS Unpack File objects from the response: ", res);
-					// const responseFiles = await res.files();
+				// const infoCidStatus = await web3Storage.status(cid);
+				// console.log("UploadImagetoIPFS infoCidStatus", infoCidStatus);
 
-					// console.log("UploadImagetoIPFS responseFiles", responseFiles);
+				// numberOfSeconds = 5;
+				// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
+				// await this.addDelay(numberOfSeconds * 1000);
+				// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
 
-					// console.log(`UploadImagetoIPFS ${responseFiles[0].cid} -- ${responseFiles[0].path} -- ${responseFiles[0].size}`);
-					// console.log(`FINISH UploadImagetoIPFS Image url: https://${responseFiles[0].cid}.ipfs.dweb.link`);
 
-					// return responseFiles[0].cid;
-				} catch (error) {
-					console.error("Error occured while storing image to IPFS: " + error);
-					return Promise.reject(error);
-				}
-			}
-		},
+				// console.log("UploadImagetoIPFS Received data from ipfs: ");
+				// const res = await web3Storage.get(cid);
+				// console.log(`UploadImagetoIPFS IPFS web3 response! [${res.status}] ${res.statusText}`);
+				// if (res.status !== 200) {
+				// 	throw new MoleculerError("Došlo je do greške pri povlacenju slike sa IPFS-a", 501, "ERR_IPFS", {
+				// 		message: "Došlo je do greške pri povlacenju NFT-a",
+				// 		internalErrorCode: "ipfs10",
+				// 	});
+				// }
 
-		async addDelay(time) {
-			return new Promise((res) => setTimeout(res, time));
-		},
-		async createIPFSWeb3Storage() {
-			try {
-				const web3Storage = new Web3Storage({ token: process.env.WEB3_TOKEN });
-				console.log("Successfully created web3storage.");
-				return web3Storage;
+				// console.log("UploadImagetoIPFS Unpack File objects from the response: ", res);
+				// const responseFiles = await res.files();
+
+				// console.log("UploadImagetoIPFS responseFiles", responseFiles);
+
+				// console.log(`UploadImagetoIPFS ${responseFiles[0].cid} -- ${responseFiles[0].path} -- ${responseFiles[0].size}`);
+				// console.log(`FINISH UploadImagetoIPFS Image url: https://${responseFiles[0].cid}.ipfs.dweb.link`);
+
+				// return responseFiles[0].cid;
 			} catch (error) {
-				console.log("Failed to create web3storage: " + error);
-				return false;
+				console.error("Error occured while storing image to IPFS: " + error);
+				return Promise.reject(error);
 			}
-		},
-		async storeImage(ctx) {
-			return new Promise((resolve, reject) => {
-				let relativePath = `__uploads/${slugify(ctx.meta.user.userEmail)}/${ctx.meta.$multipart.walletQrId}`;
-				let uploadDirMkDir = path.join(__dirname, `../public/${relativePath}`);
-				mkdir(uploadDirMkDir);
-
-				const filePath = path.join(uploadDirMkDir, ctx.meta.filename || this.randomName());
-				const f = fs.createWriteStream(filePath);
-				f.on("close", () => {
-					resolve({ meta: ctx.meta, relativePath, filename: ctx.meta.filename, uploadDirMkDir });
-				});
-
-				ctx.params.on("error", (err) => {
-					reject(err);
-					f.destroy(err);
-				});
-
-				f.on("error", () => {
-					fs.unlinkSync(filePath);
-				});
-
-				ctx.params.pipe(f);
-			});
-		},
-		async insertProductPicture(meta, relativePath, filename) {
-			let imageRelativePath = `${relativePath}/${filename}`;
-			const entity = {
-				walletQrId: meta.$multipart.walletQrId,
-				productPicture: imageRelativePath,
-			};
-			try {
-
-
-				let checkStatusOfImage = await this.actions.getProductPicture({ walletQrId: meta.$multipart.walletQrId });
-
-				console.log("insertProductPicture checkStatusOfImage ", checkStatusOfImage);
-
-				let imageStatus = isObjectLike(checkStatusOfImage);
-
-				console.log("insertProductPicture imageStatus ", imageStatus);
-
-				if (imageStatus) {
-					console.log("insertProductPicture IMAGE EXIST ALREADY");
-					return { imageSave: checkStatusOfImage };
-				} else {
-					let image = new Image(entity);
-					let imageSave = await image.save();
-					return { imageSave, imageRelativePath };
-				}
-
-
-			} catch (error) {
-				console.error("insertProductPicture error ", error);
-				throw new MoleculerError(error.message, 401, "ERR_PICTURE_DB_INSERTING", {
-					message: "Greška pri ubacivanju linka slike u bazu podataka",
-					internalErrorCode: "image10",
-				});
-			}
-		},
-
-		async checIfUseCanCreateNft(user) {
-			const { numberOfCoupons } = user;
-
-			if (numberOfCoupons < 1) {
-				throw new MoleculerError("Nemate dovoljno kupona za gerisanje NFT-a", 501, "ERR_NFT_COUPONS_LIMIT", {
-					message: "Nemate dovoljno kupona za gerisanje NFT-a",
-					internalErrorCode: "nftCoupons10",
-				});
-			}
-		},
-
-		randomName() {
-			return "unnamed_" + Date.now() + ".png";
-		},
+		}
 	},
+
+	async addDelay(time) {
+		return new Promise((res) => setTimeout(res, time));
+	},
+	async createIPFSWeb3Storage() {
+		try {
+			const web3Storage = new Web3Storage({ token: process.env.WEB3_TOKEN });
+			console.log("Successfully created web3storage.");
+			return web3Storage;
+		} catch (error) {
+			console.log("Failed to create web3storage: " + error);
+			return false;
+		}
+	},
+	async storeImage(ctx) {
+		return new Promise((resolve, reject) => {
+			let relativePath = `__uploads/${slugify(ctx.meta.user.userEmail)}/${ctx.meta.$multipart.walletQrId}`;
+			let uploadDirMkDir = path.join(__dirname, `../public/${relativePath}`);
+			mkdir(uploadDirMkDir);
+
+			const filePath = path.join(uploadDirMkDir, ctx.meta.filename || this.randomName());
+			const f = fs.createWriteStream(filePath);
+			f.on("close", () => {
+				resolve({ meta: ctx.meta, relativePath, filename: ctx.meta.filename, uploadDirMkDir });
+			});
+
+			ctx.params.on("error", (err) => {
+				reject(err);
+				f.destroy(err);
+			});
+
+			f.on("error", () => {
+				fs.unlinkSync(filePath);
+			});
+
+			ctx.params.pipe(f);
+		});
+	},
+	async insertProductPicture(meta, relativePath, filename) {
+		let imageRelativePath = `${relativePath}/${filename}`;
+		const entity = {
+			walletQrId: meta.$multipart.walletQrId,
+			productPicture: imageRelativePath,
+		};
+		try {
+
+
+			let checkStatusOfImage = await this.actions.getProductPicture({ walletQrId: meta.$multipart.walletQrId });
+
+			console.log("insertProductPicture checkStatusOfImage ", checkStatusOfImage);
+
+			let imageStatus = isObjectLike(checkStatusOfImage);
+
+			console.log("insertProductPicture imageStatus ", imageStatus);
+
+			if (imageStatus) {
+				console.log("insertProductPicture IMAGE EXIST ALREADY");
+				return { imageSave: checkStatusOfImage };
+			} else {
+				let image = new Image(entity);
+				let imageSave = await image.save();
+				return { imageSave, imageRelativePath };
+			}
+
+
+		} catch (error) {
+			console.error("insertProductPicture error ", error);
+			throw new MoleculerError(error.message, 401, "ERR_PICTURE_DB_INSERTING", {
+				message: "Greška pri ubacivanju linka slike u bazu podataka",
+				internalErrorCode: "image10",
+			});
+		}
+	},
+
+	async checIfUseCanCreateNft(user) {
+		const { numberOfCoupons } = user;
+
+		if (numberOfCoupons < 1) {
+			throw new MoleculerError("Nemate dovoljno kupona za gerisanje NFT-a", 501, "ERR_NFT_COUPONS_LIMIT", {
+				message: "Nemate dovoljno kupona za gerisanje NFT-a",
+				internalErrorCode: "nftCoupons10",
+			});
+		}
+	},
+
+	randomName() {
+		return "unnamed_" + Date.now() + ".png";
+	},
+},
 	settings: {},
 	dependencies: [],
 	events: {},
