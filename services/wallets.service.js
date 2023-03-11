@@ -433,7 +433,8 @@ module.exports = {
 		getListQrCodesGeneral: {
 			async handler(ctx) {
 				try {
-					this.logger.info("getListQrCodesGeneral", ctx.params);
+					this.logger.info("1. getListQrCodesGeneral", ctx.params);
+					this.logger.info("2. time", new Date());
 
 					let listQrCodesByUser = await this.getListQrCodesGeneral(ctx);
 					return listQrCodesByUser;
@@ -932,15 +933,19 @@ module.exports = {
 				publicQrCode: true
 			};
 			try {
-				console.log("getListQrCodesGeneral ", ctx.params);
-				this.logger.info("getListQrCodesGeneral ", ctx.params);
+				console.log("3. getListQrCodesGeneral ", ctx.params);
+				this.logger.info("4. getListQrCodesGeneral ", ctx.params);
 
-				return await Wallet.find(entity)
+				let listWallet = await Wallet.find(entity)
 					.skip(ctx.params.skip)
 					.limit(ctx.params.limit)
 					.sort({ createdAt: -1 })
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 });
+
+				this.logger.info("5. getListQrCodesGeneral dateTime ", new Date());
+
+				return listWallet;
 
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
