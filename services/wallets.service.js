@@ -45,6 +45,10 @@ module.exports = {
 		},
 
 		addImageToQrCode: {
+			params: {
+				imageSave: { type: "any" },
+				cbnftimage: { type: "any" },
+			},
 			async handler(ctx) {
 				this.logger.info("addImageToQrCode USAO");
 				const { imageSave, cbnftimage } = ctx.params;
