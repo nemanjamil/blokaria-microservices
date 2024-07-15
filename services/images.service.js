@@ -444,7 +444,7 @@ module.exports = {
 			const { StoreMemory } = await import("@web3-storage/w3up-client/stores/memory");
 
 			//const Proof = await import("@web3-storage/w3up-client/proof");
-			const Proof = require("@web3-storage/w3up-client/proof");
+			const Proof = await import("@web3-storage/w3up-client/proof");
 			const { Signer } = await import("@web3-storage/w3up-client/principal/ed25519");
 			const { DID } = await import("@ipld/dag-ucan/did");
 
