@@ -353,6 +353,7 @@ module.exports = {
 			}
 		},
 		async uploadImagetoIPFS(imageDir) {
+			this.logger.info("USAO U uploadImagetoIPFS");
 			const web3Storage = this.createIPFSWeb3Storage();
 			if (web3Storage != false) {
 				try {
@@ -432,72 +433,24 @@ module.exports = {
 		async uploadImagetoIPFS_V2(imageDir) {
 			this.logger.info("0. uploadImagetoIPFS_V2 START", imageDir);
 
-			// ovde sam satavio await import zato sto ne moze na pocetak stranice
-			// https://web3.storage/docs/w3up-client/
-			// https://web3.storage/docs/how-to/upload/
-
-			//# did:key:z6MkeVHieXVpB4ccvxAgLzmdpExQUGr8YXVJhQ52VTqw7Li2
-			//  did:key:z6Mknq2AVvKPRCZnSAZ2CSgGm62XUzpcToVgzXQReSrtCXYf
-			// WEB3_PRIVATE_KEY :  MgCbkC7jzZxni5fllplBE5NxG9JsbCiChioqElV7kjLiRqe0BAIUNwOtsRyO/5kmpACQ0wskx3Gf6h8TJstEYMHcqDMc=
-
 			this.logger.info("0.1. importing pinata sdk");
 			const PinataSDK = require("@pinata/sdk");
 
-			this.logger.info("0.2. creating pinata client with key:",
+			this.logger.info(
+				"0.2. creating pinata client with key:",
 				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1M2M1NDdmYi01NmE2LTQwYTEtOTFiMC0xYWM1ODNiMThmNDYiLCJlbWFpbCI6Im5lbWFuamFtaWxAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImZkOTNmZGQ3NTdkYzFkY2E5YTc2Iiwic2NvcGVkS2V5U2VjcmV0IjoiMTVhZTI0ODlkZTBkNmZkNGUzMzcxYzBhOTljNGJhMGJiNThhMzdkOTQzOGYyMDlmZDgxZjY5NmQ1OWE4ZGMzNiIsImV4cCI6MTc1MjU5MTk4Nn0.RjEqQhyJrGItPHCQhdf3tK5xdE4Y87U3Jfr9lzsPr5g"
 			);
-			const pinata = new PinataSDK({ pinataJWTKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1M2M1NDdmYi01NmE2LTQwYTEtOTFiMC0xYWM1ODNiMThmNDYiLCJlbWFpbCI6Im5lbWFuamFtaWxAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImZkOTNmZGQ3NTdkYzFkY2E5YTc2Iiwic2NvcGVkS2V5U2VjcmV0IjoiMTVhZTI0ODlkZTBkNmZkNGUzMzcxYzBhOTljNGJhMGJiNThhMzdkOTQzOGYyMDlmZDgxZjY5NmQ1OWE4ZGMzNiIsImV4cCI6MTc1MjU5MTk4Nn0.RjEqQhyJrGItPHCQhdf3tK5xdE4Y87U3Jfr9lzsPr5g" });
+			const pinata = new PinataSDK({
+				pinataJWTKey:
+					"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1M2M1NDdmYi01NmE2LTQwYTEtOTFiMC0xYWM1ODNiMThmNDYiLCJlbWFpbCI6Im5lbWFuamFtaWxAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImZkOTNmZGQ3NTdkYzFkY2E5YTc2Iiwic2NvcGVkS2V5U2VjcmV0IjoiMTVhZTI0ODlkZTBkNmZkNGUzMzcxYzBhOTljNGJhMGJiNThhMzdkOTQzOGYyMDlmZDgxZjY5NmQ1OWE4ZGMzNiIsImV4cCI6MTc1MjU5MTk4Nn0.RjEqQhyJrGItPHCQhdf3tK5xdE4Y87U3Jfr9lzsPr5g",
+			});
 
 			this.logger.info("0.3. testing pinata connection");
 			const pinataRes = await pinata.testAuthentication();
 			this.logger.info("0.4. connection testing result:", pinataRes);
-			if ((!pinataRes) || (pinataRes && pinataRes.authenticated !== true)) {
+			if (!pinataRes || (pinataRes && pinataRes.authenticated !== true)) {
 				throw new Error("Failed to make connection to pinata API");
 			}
-
-			// const { Client } = await import("@web3-storage/w3up-client");
-			// const { StoreMemory } = await import("@web3-storage/w3up-client/stores/memory");
-
-			// //const Proof = await import("@web3-storage/w3up-client/proof");
-			// const Proof = await import("@web3-storage/w3up-client/proof");
-			// const { Signer } = await import("@web3-storage/w3up-client/principal/ed25519");
-			// const { DID } = await import("@ipld/dag-ucan/did");
-
-			// const principal = Signer.parse(process.env.WEB3_PRIVATE_KEY);
-			// const store = new StoreMemory();
-			// const client = await Client.create({ principal, store });
-			// // Add proof that this agent has been delegated capabilities on the space
-			// const proof = await Proof.parse(process.env.PROOF);
-			// const space = await client.addSpace(proof);
-			// await client.setCurrentSpace(space.did());
-
-			// const { create } = await import("@web3-storage/w3up-client");
-			// this.logger.info("0. uploadImagetoIPFS_V2");
-			// const client = await create();
-
-			// const space = await client.createSpace("nemanja-space");
-
-			// this.logger.info("1. uploadImagetoIPFS_V2 setCurrentSpace", space);
-
-			// let loginUser = await client.login("nemanjamil@gmail.com");
-
-			// this.logger.info("3. uploadImagetoIPFS_V2 login", loginUser);
-
-			// let provision = await loginUser.provision(space.did());
-
-			// this.logger.info("5. uploadImagetoIPFS_V2 provision", provision);
-
-			// let saveSpace = await space.save();
-
-			// this.logger.info("7. uploadImagetoIPFS_V2 saveSpace", saveSpace);
-
-			// let setCurrentSpace = await client.setCurrentSpace(space.did());
-
-			// this.logger.info("9. uploadImagetoIPFS_V2 setCurrentSpace", setCurrentSpace);
-
-			// const plan = await loginUser.plan.get();
-
-			// this.logger.info("11. uploadImagetoIPFS_V2 plan", plan);
 
 			let files = await getFilesFromPath(imageDir);
 
@@ -511,8 +464,8 @@ module.exports = {
 
 			const res = await pinata.pinFileToIPFS(stream, {
 				pinataMetadata: {
-					name: file.name.replace(/^\/*/gi, "")
-				}
+					name: file.name.replace(/^\/*/gi, ""),
+				},
 			});
 
 			this.logger.info("13. uploadImagetoIPFS_V2 pinata pin file response", res);
