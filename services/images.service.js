@@ -163,7 +163,7 @@ module.exports = {
 
 					let storedIntoDb = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode: ctx.meta.$multipart.walletQrId });
 
-					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
+					this.logger.log("generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
 
 					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb, cbnftimage: true });
 
@@ -176,6 +176,10 @@ module.exports = {
 						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
 					};
 					console.log("generateNftFromExistingQrCode updateWallet", updateWallet);
+
+					this.logger.log("generateNftFromExistingQrCode reduceNumberOfTransaction V2 START", storedIntoDb);
+					await ctx.call("user.reduceNumberOfTransaction", meta);
+					this.logger.log("generateNftFromExistingQrCode reduceNumberOfTransaction V2 END", storedIntoDb);
 
 					await ctx.call("wallet.updateDataInDb", updateWallet);
 
