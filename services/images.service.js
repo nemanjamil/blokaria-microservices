@@ -430,36 +430,59 @@ module.exports = {
 			}
 		},
 		async uploadImagetoIPFS_V2(imageDir) {
-			const { create } = await import("@web3-storage/w3up-client");
-			this.logger.info("0. uploadImagetoIPFS_V2");
-			const client = await create();
+			this.logger.info("0. uploadImagetoIPFS_V2 START", imageDir);
 
-			// const { create } = require("@web3-storage/w3up-client");
+			// ovde sam satavio await import zato sto ne moze na pocetak stranice
+			// https://web3.storage/docs/w3up-client/
+			// https://web3.storage/docs/how-to/upload/
+
+			//# did:key:z6MkeVHieXVpB4ccvxAgLzmdpExQUGr8YXVJhQ52VTqw7Li2
+			//  did:key:z6Mknq2AVvKPRCZnSAZ2CSgGm62XUzpcToVgzXQReSrtCXYf
+			// WEB3_PRIVATE_KEY :  MgCbkC7jzZxni5fllplBE5NxG9JsbCiChioqElV7kjLiRqe0BAIUNwOtsRyO/5kmpACQ0wskx3Gf6h8TJstEYMHcqDMc=
+
+			const { Client } = await import("@web3-storage/w3up-client");
+			const { StoreMemory } = await import("@web3-storage/w3up-client/stores/memory");
+
+			//const Proof = await import("@web3-storage/w3up-client/proof");
+			const Proof = require("@web3-storage/w3up-client/proof");
+			const { Signer } = await import("@web3-storage/w3up-client/principal/ed25519");
+			const { DID } = await import("@ipld/dag-ucan/did");
+
+			const principal = Signer.parse(process.env.WEB3_PRIVATE_KEY);
+			const store = new StoreMemory();
+			const client = await Client.create({ principal, store });
+			// Add proof that this agent has been delegated capabilities on the space
+			const proof = await Proof.parse(process.env.PROOF);
+			const space = await client.addSpace(proof);
+			await client.setCurrentSpace(space.did());
+
+			// const { create } = await import("@web3-storage/w3up-client");
 			// this.logger.info("0. uploadImagetoIPFS_V2");
 			// const client = await create();
-			const space = await client.createSpace("nemanja-space");
 
-			this.logger.info("1. uploadImagetoIPFS_V2 setCurrentSpace", space);
+			// const space = await client.createSpace("nemanja-space");
 
-			let loginUser = await client.login("nemanjamil@gmail.com");
+			// this.logger.info("1. uploadImagetoIPFS_V2 setCurrentSpace", space);
 
-			this.logger.info("3. uploadImagetoIPFS_V2 login", loginUser);
+			// let loginUser = await client.login("nemanjamil@gmail.com");
 
-			let provision = await loginUser.provision(space.did());
+			// this.logger.info("3. uploadImagetoIPFS_V2 login", loginUser);
 
-			this.logger.info("5. uploadImagetoIPFS_V2 provision", provision);
+			// let provision = await loginUser.provision(space.did());
 
-			let saveSpace = await space.save();
+			// this.logger.info("5. uploadImagetoIPFS_V2 provision", provision);
 
-			this.logger.info("7. uploadImagetoIPFS_V2 saveSpace", saveSpace);
+			// let saveSpace = await space.save();
 
-			let setCurrentSpace = await client.setCurrentSpace(space.did());
+			// this.logger.info("7. uploadImagetoIPFS_V2 saveSpace", saveSpace);
 
-			this.logger.info("9. uploadImagetoIPFS_V2 setCurrentSpace", setCurrentSpace);
+			// let setCurrentSpace = await client.setCurrentSpace(space.did());
 
-			const plan = await loginUser.plan.get();
+			// this.logger.info("9. uploadImagetoIPFS_V2 setCurrentSpace", setCurrentSpace);
 
-			this.logger.info("11. uploadImagetoIPFS_V2 plan", plan);
+			// const plan = await loginUser.plan.get();
+
+			// this.logger.info("11. uploadImagetoIPFS_V2 plan", plan);
 
 			let file = await getFilesFromPath(imageDir);
 
