@@ -177,9 +177,9 @@ module.exports = {
 					};
 					console.log("generateNftFromExistingQrCode updateWallet", updateWallet);
 
-					this.logger.log("generateNftFromExistingQrCode reduceNumberOfTransaction V2 START", storedIntoDb);
+					this.logger.info("generateNftFromExistingQrCode reduceNumberOfTransaction V2 START", storedIntoDb);
 					await ctx.call("user.reduceNumberOfTransaction", meta);
-					this.logger.log("generateNftFromExistingQrCode reduceNumberOfTransaction V2 END", storedIntoDb);
+					this.logger.info("generateNftFromExistingQrCode reduceNumberOfTransaction V2 END", storedIntoDb);
 
 					await ctx.call("wallet.updateDataInDb", updateWallet);
 
