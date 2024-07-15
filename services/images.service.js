@@ -167,6 +167,8 @@ module.exports = {
 
 					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb, cbnftimage: true });
 
+					this.logger.info("generateNftFromExistingQrCode addImageToQrCode DONE");
+
 					let updateWallet = {
 						searchBy: ctx.meta.$multipart.walletQrId,
 						what: "hasstory",

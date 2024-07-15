@@ -45,36 +45,36 @@ module.exports = {
 		},
 
 		addImageToQrCode: {
-
 			async handler(ctx) {
-
+				this.logger.info("addImageToQrCode USAO");
 				const { imageSave, cbnftimage } = ctx.params;
 
 				let data = {
 					_image: imageSave._id,
-					cbnftimage: cbnftimage
+					cbnftimage: cbnftimage,
 				};
 
 				let entity = {
-					walletQrId: imageSave.walletQrId
+					walletQrId: imageSave.walletQrId,
 				};
 
 				try {
-					return await Wallet.findOneAndUpdate(entity, data, { new: true });
+					let walletUpdate = await Wallet.findOneAndUpdate(entity, data, { new: true });
+					this.logger.info("addImageToQrCode walletUpdate", walletUpdate);
+					return walletUpdate;
 				} catch (error) {
 					throw new MoleculerError("Can not populate Wallet table with Image ids", 401, "POPULATE_BUG", {
 						message: "Wallet Not Found",
 						internalErrorCode: "wallet303_populate",
 					});
 				}
-			}
+			},
 		},
 
 		generateQrCodeInSystem: {
 			//rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
 				try {
-
 					let plainInsertObject = {
 						ctx,
 						user: ctx.params.data.user,
@@ -83,7 +83,6 @@ module.exports = {
 					};
 
 					return await this.plainInsertDataIntoDb(plainInsertObject);
-
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -122,9 +121,7 @@ module.exports = {
 					console.log("qrCodeStatus[0]._nfts", qrCodeStatus[0]._nfts);
 					console.log("qrCodeStatus[0]._nfts.length", qrCodeStatus[0]._nfts.length);
 
-
 					if (qrCodeStatus[0].cbnftimage && qrCodeStatus[0]._nfts.length > 0) {
-
 						console.log("\n\n\n ---- NFT START SERVER ---- \n\n\n");
 
 						console.log("Wallet >  NFT > SEND ASSET TO WALLET -  START");
@@ -137,10 +134,7 @@ module.exports = {
 						console.log("Wallet RedeemStatus NFT START");
 						redeemStatus = await this.updateRedeemStatus(ctx);
 						console.log("Wallet RedeemStatus NFT END", redeemStatus);
-
-
 					} else {
-
 						console.log("\n\n\n ---- BASIC START ---- \n\n\n");
 
 						console.log("Wallet sendTransactionFromWalletToWallet BASIC START");
@@ -172,7 +166,6 @@ module.exports = {
 						redeemStatus,
 					};
 				} catch (error) {
-
 					console.log("error FINAL", error);
 
 					throw new MoleculerError(error.message, 401, "TRANSACTION_ERROR", {
@@ -272,7 +265,7 @@ module.exports = {
 				nftimage: { type: "string", optional: true },
 				cbnftimage: { type: "boolean", default: false },
 				clientemailcb: { type: "boolean", default: true },
-				ownernamecb: { type: "boolean", default: true }
+				ownernamecb: { type: "boolean", default: true },
 			},
 			async handler(ctx) {
 				try {
@@ -327,7 +320,6 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-
 					this.logger.info("getQrCodeFromId", ctx.params);
 
 					let getWalletFromId = await Wallet.findOne({ _id: ctx.params.idcode });
@@ -340,7 +332,6 @@ module.exports = {
 						let qrcode = getWalletFromId.walletQrId;
 						return await this.actions.getQrCodeDataNoRedeem({ qrcode });
 					}
-
 				} catch (error) {
 					throw new MoleculerError("Greška - GET DATA", 401, "ERR_GET_WALLET_ID", {
 						message: error.message,
@@ -374,7 +365,6 @@ module.exports = {
 				},
 			},
 			async handler(ctx) {
-
 				const { userEmail } = ctx.meta.user;
 				const { generated } = ctx.params;
 
@@ -385,20 +375,13 @@ module.exports = {
 					this.logger.info("getListQrCodesByUserPrivate meta", ctx.meta);
 
 					if (generated) {
-
 						this.logger.info("getListQrCodesByUserPrivate generated TRUE", generated);
 
-						listQrCodesByUser = await this.getListQrCodesByUserMethod(
-							{ userEmail, qrCodeRedeemStatus: 0, publicQrCode: false }
-						);
-
+						listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: false });
 					} else {
-
 						this.logger.info("getListQrCodesByUserPrivate generated false", generated);
 
-						listQrCodesByUser = await this.getlistQrCodesOwnedByUserMethod(
-							{ userEmail, qrCodeRedeemStatus: 1, publicQrCode: false }
-						);
+						listQrCodesByUser = await this.getlistQrCodesOwnedByUserMethod({ userEmail, qrCodeRedeemStatus: 1, publicQrCode: false });
 					}
 
 					return listQrCodesByUser;
@@ -415,14 +398,11 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-
 					this.logger.info("getListQrCodesByUser", ctx.params);
 
 					const { userEmail } = ctx.params;
 
-					let listQrCodesByUser = await this.getListQrCodesByUserMethod(
-						{ userEmail, qrCodeRedeemStatus: 0, publicQrCode: true }
-					);
+					let listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: true });
 					return listQrCodesByUser;
 				} catch (error) {
 					return Promise.reject(error);
@@ -452,7 +432,6 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-
 					console.log("sendContractEmail CONSOLE.LOG", ctx.params);
 
 					const { userLang } = ctx.params;
@@ -492,7 +471,7 @@ module.exports = {
 		changeStatusOfQrCode: {
 			params: {
 				qrcode: { type: "string" },
-				status: { type: "boolean", default: true }
+				status: { type: "boolean", default: true },
 			},
 			async handler(ctx) {
 				const { qrcode, status } = ctx.params;
@@ -500,7 +479,7 @@ module.exports = {
 				let entity = { walletQrId: qrcode };
 
 				let data = {
-					publicQrCode: status
+					publicQrCode: status,
 				};
 
 				try {
@@ -517,7 +496,7 @@ module.exports = {
 		updateQrCodeText: {
 			params: {
 				qrcode: { type: "string" },
-				longText: { type: "string", optional: true, empty: true, max: 150000 }
+				longText: { type: "string", optional: true, empty: true, max: 150000 },
 			},
 			async handler(ctx) {
 				const { qrcode, longText } = ctx.params;
@@ -525,7 +504,7 @@ module.exports = {
 				let entity = { walletQrId: qrcode };
 
 				let data = {
-					longText: longText
+					longText: longText,
 				};
 
 				try {
@@ -538,7 +517,6 @@ module.exports = {
 					} else {
 						return await this.actions.getQrCodeDataNoRedeem({ qrcode });
 					}
-
 				} catch (error) {
 					throw new MoleculerError("Greška u ažuriranju podataka : updateQrCodeText ERROR", 401, "updateQrCodeText", {
 						message: error.message,
@@ -554,12 +532,11 @@ module.exports = {
 				state: { type: "boolean" },
 			},
 			async handler(ctx) {
-
 				let updateDataPayload = {
 					searchBy: ctx.params.qrCode,
 					what: "hasstory",
 					howmany: ctx.params.state,
-					emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID)
+					emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
 				};
 				try {
 					return this.actions.updateDataInDb(updateDataPayload);
@@ -569,8 +546,7 @@ module.exports = {
 						internalErrorCode: "user822",
 					});
 				}
-
-			}
+			},
 		},
 
 		updateDataInDb: {
@@ -581,7 +557,6 @@ module.exports = {
 				emailVerificationId: { type: "number" },
 			},
 			async handler(ctx) {
-
 				this.logger.info("updateDataInDb START", ctx.params);
 
 				if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
@@ -595,7 +570,7 @@ module.exports = {
 				let howmany = ctx.params.howmany;
 
 				const entity = {
-					walletQrId: searchBy
+					walletQrId: searchBy,
 				};
 
 				let data = {};
@@ -604,7 +579,6 @@ module.exports = {
 				this.logger.info("updateDataInDb data", data);
 
 				try {
-
 					let resultFromReducting = await Wallet.findOneAndUpdate(entity, data, { new: true });
 
 					if (!resultFromReducting) {
@@ -620,7 +594,7 @@ module.exports = {
 						internalErrorCode: "user80",
 					});
 				}
-			}
+			},
 		},
 	},
 
@@ -628,7 +602,6 @@ module.exports = {
 		// 10
 		async getQrCodeDataMethod({ ctx, qrRedeemCheck }) {
 			try {
-
 				await this.checkIfQrCodeExistIndb(ctx);
 				let walletIdData = await this.getQrCodeInfo(ctx);
 
@@ -684,7 +657,7 @@ module.exports = {
 				nftimage: ctx.params.nftimage ? ctx.params.nftimage : "",
 				cbnftimage: ctx.params.cbnftimage,
 				clientemailcb: ctx.params.clientemailcb,
-				ownernamecb: ctx.params.ownernamecb
+				ownernamecb: ctx.params.ownernamecb,
 			};
 
 			try {
@@ -706,11 +679,8 @@ module.exports = {
 				qrCodeRedeemStatus: 1,
 			};
 
-			if (txHash)
-				data.transactionId = txHash;
-			if (metaDataRandomNumber)
-				data.metaDataRandomNumber = metaDataRandomNumber;
-
+			if (txHash) data.transactionId = txHash;
+			if (metaDataRandomNumber) data.metaDataRandomNumber = metaDataRandomNumber;
 
 			try {
 				console.log("Wallet updateRedeemStatus entity ", entity);
@@ -731,10 +701,7 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
-				let wallet = await Wallet.find(entity)
-					.populate("_image", { productPicture: 1 })
-					.populate("_nfts")
-					.populate("_project");
+				let wallet = await Wallet.find(entity).populate("_image", { productPicture: 1 }).populate("_nfts").populate("_project");
 
 				return wallet;
 			} catch (error) {
@@ -751,7 +718,6 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
-
 				let wallet = await Wallet.exists(entity);
 				if (!wallet)
 					throw new MoleculerError("Kod ne postoji u bazi podataka", 401, "ERROR_GET_QR_CODE_DATA", {
@@ -791,7 +757,6 @@ module.exports = {
 
 		// 80
 		async plainInsertDataIntoDb({ ctx, user, wallet, image }) {
-
 			const entity = {
 				walletQrId: wallet.walletQrId,
 				userDesc: wallet.userDesc,
@@ -805,10 +770,9 @@ module.exports = {
 				hasstory: wallet.hasstory,
 				accessCode: Utils.generatePass(),
 				_creator: user.userId,
-
 			};
 
-			(image) ? entity._image = image._id : "";
+			image ? (entity._image = image._id) : "";
 
 			if (wallet.productVideo) entity.productVideo = wallet.productVideo;
 
@@ -840,7 +804,6 @@ module.exports = {
 
 		// 100
 		async sendTransactionFromWalletToWallet(qrCodeDbData) {
-
 			let newData = {
 				userDesc: qrCodeDbData[0].userDesc,
 				userFullname: qrCodeDbData[0].userFullname,
@@ -873,8 +836,8 @@ module.exports = {
 					payLoadResponse = {
 						data: {
 							rndBr: Math.floor(Math.random() * 1000),
-							txHash: "bla bla txHash"
-						}
+							txHash: "bla bla txHash",
+						},
 					};
 				} else {
 					console.log("sendTransactionFromWalletToWallet Server ENV");
@@ -887,13 +850,17 @@ module.exports = {
 				return { rndBr: payLoadResponse.data.rndBr, txHash: payLoadResponse.data.txHash };
 				//return { rndBr, cardanoRequest };
 			} catch (error) {
-
 				console.error("sendTransactionFromWalletToWallet error 4 error.response.data.error", error.response.data.error);
 
-				throw new MoleculerError("Došlo je do greške pri slanju podataka na BlockChain : sendTransactionFromWalletToWallet", 401, "ERROR_SEND_TRANSACTION_TO_CARDANO_BC", {
-					message: "Došlo je do greške pri slanju podataka na BlockChain",
-					internalErrorCode: "wallet202",
-				});
+				throw new MoleculerError(
+					"Došlo je do greške pri slanju podataka na BlockChain : sendTransactionFromWalletToWallet",
+					401,
+					"ERROR_SEND_TRANSACTION_TO_CARDANO_BC",
+					{
+						message: "Došlo je do greške pri slanju podataka na BlockChain",
+						internalErrorCode: "wallet202",
+					}
+				);
 			}
 		},
 
@@ -901,15 +868,13 @@ module.exports = {
 		async getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode }) {
 			const entity = {
 				userEmail,
-				qrCodeRedeemStatus
+				qrCodeRedeemStatus,
 			};
 
-			if (publicQrCode)
-				entity.publicQrCode = publicQrCode;
+			if (publicQrCode) entity.publicQrCode = publicQrCode;
 
 			try {
-
-				this.logger.info("getListQrCodesByUserMethod entity", entity,);
+				this.logger.info("getListQrCodesByUserMethod entity", entity);
 
 				return await Wallet.find(entity)
 					.sort("-createdAt")
@@ -930,7 +895,7 @@ module.exports = {
 		// wallet120
 		async getListQrCodesGeneral(ctx) {
 			const entity = {
-				publicQrCode: true
+				publicQrCode: true,
 			};
 			try {
 				console.log("3. getListQrCodesGeneral ", ctx.params);
@@ -946,7 +911,6 @@ module.exports = {
 				this.logger.info("5. getListQrCodesGeneral dateTime ", new Date());
 
 				return listWallet;
-
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet120" });
 			}
@@ -956,13 +920,11 @@ module.exports = {
 		async getlistQrCodesOwnedByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode }) {
 			const entity = {
 				clientEmail: userEmail,
-				qrCodeRedeemStatus
+				qrCodeRedeemStatus,
 			};
-			if (publicQrCode)
-				entity.publicQrCode = publicQrCode;
+			if (publicQrCode) entity.publicQrCode = publicQrCode;
 
 			try {
-
 				this.logger.info("getlistQrCodesOwnedByUserMethod params", entity);
 
 				return await Wallet.find(entity)
@@ -1041,7 +1003,5 @@ module.exports = {
 		async addDelay(time) {
 			return new Promise((res) => setTimeout(res, time));
 		},
-
-
 	},
 };
