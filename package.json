@@ -29,8 +29,6 @@
   "dependencies": {
     "@ipld/dag-ucan": "^3.4.0",
     "@pinata/sdk": "^2.1.0",
-    "@web3-storage/w3cli": "^7.8.2",
-    "@web3-storage/w3up-client": "^15.0.0",
     "axios": "^0.24.0",
     "bcrypt": "^5.0.1",
     "busboy": "^1.4.0",
