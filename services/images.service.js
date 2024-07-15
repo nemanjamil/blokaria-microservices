@@ -422,7 +422,7 @@ module.exports = {
 					// console.log(`UploadImagetoIPFS ${responseFiles[0].cid} -- ${responseFiles[0].path} -- ${responseFiles[0].size}`);
 					// console.log(`FINISH UploadImagetoIPFS Image url: https://${responseFiles[0].cid}.ipfs.dweb.link`);
 
-					// return responseFiles[0].cid;
+					// return responseFiles[0].cid;:1
 				} catch (error) {
 					console.error("Error occured while storing image to IPFS: " + error);
 					return Promise.reject(error);
@@ -440,21 +440,36 @@ module.exports = {
 			//  did:key:z6Mknq2AVvKPRCZnSAZ2CSgGm62XUzpcToVgzXQReSrtCXYf
 			// WEB3_PRIVATE_KEY :  MgCbkC7jzZxni5fllplBE5NxG9JsbCiChioqElV7kjLiRqe0BAIUNwOtsRyO/5kmpACQ0wskx3Gf6h8TJstEYMHcqDMc=
 
-			const { Client } = await import("@web3-storage/w3up-client");
-			const { StoreMemory } = await import("@web3-storage/w3up-client/stores/memory");
+			this.logger.info("0.1. importing pinata sdk");
+			const PinataSDK = require("@pinata/sdk");
 
-			//const Proof = await import("@web3-storage/w3up-client/proof");
-			const Proof = await import("@web3-storage/w3up-client/proof");
-			const { Signer } = await import("@web3-storage/w3up-client/principal/ed25519");
-			const { DID } = await import("@ipld/dag-ucan/did");
+			this.logger.info("0.2. creating pinata client with key:",
+				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1M2M1NDdmYi01NmE2LTQwYTEtOTFiMC0xYWM1ODNiMThmNDYiLCJlbWFpbCI6Im5lbWFuamFtaWxAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImZkOTNmZGQ3NTdkYzFkY2E5YTc2Iiwic2NvcGVkS2V5U2VjcmV0IjoiMTVhZTI0ODlkZTBkNmZkNGUzMzcxYzBhOTljNGJhMGJiNThhMzdkOTQzOGYyMDlmZDgxZjY5NmQ1OWE4ZGMzNiIsImV4cCI6MTc1MjU5MTk4Nn0.RjEqQhyJrGItPHCQhdf3tK5xdE4Y87U3Jfr9lzsPr5g"
+			);
+			const pinata = new PinataSDK({ pinataJWTKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1M2M1NDdmYi01NmE2LTQwYTEtOTFiMC0xYWM1ODNiMThmNDYiLCJlbWFpbCI6Im5lbWFuamFtaWxAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImZkOTNmZGQ3NTdkYzFkY2E5YTc2Iiwic2NvcGVkS2V5U2VjcmV0IjoiMTVhZTI0ODlkZTBkNmZkNGUzMzcxYzBhOTljNGJhMGJiNThhMzdkOTQzOGYyMDlmZDgxZjY5NmQ1OWE4ZGMzNiIsImV4cCI6MTc1MjU5MTk4Nn0.RjEqQhyJrGItPHCQhdf3tK5xdE4Y87U3Jfr9lzsPr5g" });
 
-			const principal = Signer.parse(process.env.WEB3_PRIVATE_KEY);
-			const store = new StoreMemory();
-			const client = await Client.create({ principal, store });
-			// Add proof that this agent has been delegated capabilities on the space
-			const proof = await Proof.parse(process.env.PROOF);
-			const space = await client.addSpace(proof);
-			await client.setCurrentSpace(space.did());
+			this.logger.info("0.3. testing pinata connection");
+			const pinataRes = await pinata.testAuthentication();
+			this.logger.info("0.4. connection testing result:", pinataRes);
+			if ((!pinataRes) || (pinataRes && pinataRes.authenticated !== true)) {
+				throw new Error("Failed to make connection to pinata API");
+			}
+
+			// const { Client } = await import("@web3-storage/w3up-client");
+			// const { StoreMemory } = await import("@web3-storage/w3up-client/stores/memory");
+
+			// //const Proof = await import("@web3-storage/w3up-client/proof");
+			// const Proof = await import("@web3-storage/w3up-client/proof");
+			// const { Signer } = await import("@web3-storage/w3up-client/principal/ed25519");
+			// const { DID } = await import("@ipld/dag-ucan/did");
+
+			// const principal = Signer.parse(process.env.WEB3_PRIVATE_KEY);
+			// const store = new StoreMemory();
+			// const client = await Client.create({ principal, store });
+			// // Add proof that this agent has been delegated capabilities on the space
+			// const proof = await Proof.parse(process.env.PROOF);
+			// const space = await client.addSpace(proof);
+			// await client.setCurrentSpace(space.did());
 
 			// const { create } = await import("@web3-storage/w3up-client");
 			// this.logger.info("0. uploadImagetoIPFS_V2");
@@ -484,40 +499,29 @@ module.exports = {
 
 			// this.logger.info("11. uploadImagetoIPFS_V2 plan", plan);
 
-			let file = await getFilesFromPath(imageDir);
+			let files = await getFilesFromPath(imageDir);
 
-			this.logger.info("11. uploadImagetoIPFS_V2 getFilesFromPath", file);
+			this.logger.info("11. uploadImagetoIPFS_V2 getFilesFromPath", files);
 
-			const rootCid = await client.uploadDirectory(file);
+			const file = files.pop();
 
-			this.logger.info("9. uploadImagetoIPFS_V2 rootCid", rootCid);
+			this.logger.info("12. uploadImagetoIPFS_V2 last file", file);
 
-			let numberOfSeconds = 5;
-			console.log(`UploadImagetoIPFS 1 addDelay ${numberOfSeconds}sec - START `, Date.now());
-			await this.addDelay(numberOfSeconds * 1000);
-			console.log(`UploadImagetoIPFS 1 addDelay ${numberOfSeconds}sec - END`, Date.now());
+			const stream = file.stream();
 
-			// const infoCidStatus = await client.st(rootCid);
-			// console.log("UploadImagetoIPFS infoCidStatus", infoCidStatus);
-
-			numberOfSeconds = 5;
-			console.log(`UploadImagetoIPFS  2 addDelay ${numberOfSeconds}sec - START `, Date.now());
-			await this.addDelay(numberOfSeconds * 1000);
-			console.log(`UploadImagetoIPFS  2 addDelay ${numberOfSeconds}sec - END`, Date.now());
-
-			this.logger.info("11. uploadImagetoIPFS_V2 addDelay");
-
-			let getCidReq = await this.axiosGet(`https://dweb.link/api/v0/ls?arg=${rootCid}`).catch(function () {
-				throw new Error("Došlo je do greške pri povlacenju slike sa IPFS-a");
+			const res = await pinata.pinFileToIPFS(stream, {
+				pinataMetadata: {
+					name: file.name.replace(/^\/*/gi, "")
+				}
 			});
 
-			this.logger.info("13. uploadImagetoIPFS_V2 getCidReq", getCidReq);
+			this.logger.info("13. uploadImagetoIPFS_V2 pinata pin file response", res);
 
-			if (!getCidReq.data.Objects[0].Links[0]) {
+			if (!res.IpfsHash) {
 				throw new Error("No links found in the IPFS response");
 			}
 
-			return getCidReq.data.Objects[0].Links[0].Hash;
+			return res.IpfsHash;
 		},
 
 		async addDelay(time) {
