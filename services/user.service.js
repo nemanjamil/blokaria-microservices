@@ -17,7 +17,7 @@ module.exports = {
 	mixins: [DbService],
 	adapter: dbConnection.getMongooseAdapter(),
 	settings: {
-		JWT_SECRET: process.env.JWT_SECRET
+		JWT_SECRET: process.env.JWT_SECRET,
 	},
 
 	model: User,
@@ -41,19 +41,16 @@ module.exports = {
 			async handler(ctx) {
 				const { userId } = ctx.meta.user;
 				try {
-					return await User.findOne({ _id: userId })
-						.populate(
-							{
-								path: "_projects",
-								populate: {
-									path: "_wallets",
-									// select: "productName _nfts",
-									populate: {
-										path: "_nfts"
-									}
-								}
+					return await User.findOne({ _id: userId }).populate({
+						path: "_projects",
+						populate: {
+							path: "_wallets",
+							// select: "productName _nfts",
+							populate: {
+								path: "_nfts",
 							},
-						);
+						},
+					});
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR Listing Projects", {
 						message: error.message,
@@ -73,7 +70,6 @@ module.exports = {
 				howmany: { type: "number" },
 			},
 			async handler(ctx) {
-
 				if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
 					throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
 						message: "Verification email failed",
@@ -85,7 +81,6 @@ module.exports = {
 
 				console.log(what, howmany);
 
-
 				const entity = {
 					userEmail: ctx.params.userEmail,
 				};
@@ -94,7 +89,6 @@ module.exports = {
 				data[what] = howmany;
 
 				try {
-
 					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
 
 					if (!resultFromReducting) {
@@ -110,7 +104,7 @@ module.exports = {
 						internalErrorCode: "user80",
 					});
 				}
-			}
+			},
 		},
 
 		// user70
@@ -119,22 +113,19 @@ module.exports = {
 				user: {
 					type: "object",
 					userEmail: { type: "email" },
-				}
+				},
 			},
 			async handler(ctx) {
-
 				const entity = {
 					userEmail: ctx.params.user.userEmail,
-					numberOfTransaction: { $gt: 0 }
+					numberOfTransaction: { $gt: 0 },
 				};
 
-
 				let data = {
-					$inc: { numberOfTransaction: -1 }
+					$inc: { numberOfTransaction: -1 },
 				};
 
 				try {
-
 					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
 
 					if (!resultFromReducting) {
@@ -150,37 +141,38 @@ module.exports = {
 						internalErrorCode: "user70",
 					});
 				}
-			}
+			},
 		},
 
 		// user40
 		reduceUserCoupons: {
-
 			async handler(ctx) {
-
 				const entity = {
 					userEmail: ctx.params.userEmail,
-					numberOfCoupons: { $gte: 0 }
+					numberOfCoupons: { $gte: 0 },
 				};
 				//(ctx.params.publicQrCode) ? "" : entity.numberOfCoupons = { $gte: 0 };
 
 				let data = {
-					$inc: { numberOfCoupons: -Number(1) }
+					$inc: { numberOfCoupons: -Number(1) },
 				};
 				//(ctx.params.publicQrCode) ? "" : data.$inc = { numberOfCoupons: -Number(ctx.params[0].costOfProduct) };
-
 
 				console.log("USER reduceUserCoupons entity: ", entity);
 				console.log("USER reduceUserCoupons data: ", data);
 
 				try {
-
 					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
 					if (!resultFromReducting) {
-						throw new MoleculerError("User has negative number of coupons. Please add coupons on profile page", 401, "USER_HAS_NEGATIVE_NUMBER_OF_COUPONS", {
-							message: "User has negative number of coupons",
-							internalErrorCode: "user41",
-						});
+						throw new MoleculerError(
+							"User has negative number of coupons. Please add coupons on profile page",
+							401,
+							"USER_HAS_NEGATIVE_NUMBER_OF_COUPONS",
+							{
+								message: "User has negative number of coupons",
+								internalErrorCode: "user41",
+							}
+						);
 					}
 					return resultFromReducting;
 				} catch (error) {
@@ -189,7 +181,7 @@ module.exports = {
 						internalErrorCode: "user40",
 					});
 				}
-			}
+			},
 		},
 
 		populateUserTable: {
@@ -197,18 +189,15 @@ module.exports = {
 			// 	_id: { type: Object },
 			// },
 			async handler(ctx) {
-
 				const entity = {
 					userEmail: ctx.params.userEmail,
 				};
 
 				let data = {
-					$push: { "_wallets": String(ctx.params._id) }
+					$push: { _wallets: String(ctx.params._id) },
 				};
 
-
 				try {
-
 					return await User.findOneAndUpdate(entity, data, { new: true }) // upsert: true
 						.populate("_wallets");
 
@@ -216,19 +205,16 @@ module.exports = {
 					let _wallets = userFind._wallets || []; 
 					_wallets.push(ctx.params._id);
 					const updatedPost = await User.findOneAndUpdate(entity, {_wallets: _wallets}).populate({path : "_wallets"}); */
-
-
 				} catch (error) {
 					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {
 						message: "User Not Found",
 						internalErrorCode: "user30",
 					});
 				}
-			}
+			},
 		},
 
 		addProjectToUser: {
-
 			params: {
 				userEmail: { type: "email" },
 				// project : {
@@ -240,45 +226,42 @@ module.exports = {
 					userEmail: ctx.params.userEmail,
 				};
 				let data = {
-					$push: { "_projects": String(ctx.params.project._id) }
+					$push: { _projects: String(ctx.params.project._id) },
 				};
 
 				try {
 					return await User.findOneAndUpdate(entity, data, { new: true }) // upsert: true
 						.populate("_projects");
-
 				} catch (error) {
 					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {
 						message: "User Not Found",
 						internalErrorCode: "user30",
 					});
 				}
-			}
+			},
 		},
 
 		deleteProjectFromUser: {
 			async handler(ctx) {
-
 				const { projectId, userId } = ctx.params;
 
 				const entity = {
 					_id: userId,
 				};
 				let data = {
-					$pull: { "_projects": String(projectId) }
+					$pull: { _projects: String(projectId) },
 				};
 
 				try {
 					return await User.findOneAndUpdate(entity, data, { new: true }); // upsert: true
 					//.populate("_projects");
-
 				} catch (error) {
 					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {
 						message: "User Not Found",
 						internalErrorCode: "user30",
 					});
 				}
-			}
+			},
 		},
 
 		registerUser: {
@@ -299,7 +282,7 @@ module.exports = {
 						url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaValue}`,
 						opt: {
 							responseType: "json",
-						}
+						},
 					});
 
 					if (callToGoogle.success === false) {
@@ -311,7 +294,9 @@ module.exports = {
 
 					let clearPassword = Utils.generatePass();
 					ctx.meta.clearPassword = clearPassword;
-					await this.addUserToDB({ ctx, clearPassword });
+					let userAdded = await this.addUserToDB({ ctx, clearPassword });
+
+					this.logger.info("registerUser userAdded", userAdded);
 
 					let userEmail = ctx.params.userEmail;
 					const sendEmail = await ctx.call("v1.email.registerUser", {
@@ -321,6 +306,9 @@ module.exports = {
 						authenticateLink: clearPassword,
 						userLang: ctx.params.userLang,
 					});
+
+					this.logger.info("registerUser sendEmail", sendEmail);
+
 					return { sendEmail, userEmail };
 				} catch (error) {
 					return Promise.reject(error);
@@ -336,7 +324,7 @@ module.exports = {
 			async handler(ctx) {
 				const entity = {
 					userEmail: ctx.params.userEmail,
-					clearPassword: ctx.params.id
+					clearPassword: ctx.params.id,
 				};
 				let data = { userVerified: 1 };
 				try {
@@ -353,7 +341,8 @@ module.exports = {
 			},
 		},
 
-		userFind: {  // this is for LogIn 
+		userFind: {
+			// this is for LogIn
 			rest: "POST /userfind",
 			params: {
 				userEmail: { type: "email" },
@@ -373,7 +362,6 @@ module.exports = {
 						internalErrorCode: "user20",
 					});
 				}
-
 			},
 		},
 
@@ -395,7 +383,7 @@ module.exports = {
 						userRole: 1,
 						userFullName: 1,
 						numberOfCoupons: 1,
-						userVerified: 1
+						userVerified: 1,
 					});
 					return user;
 				} catch (error) {
@@ -404,7 +392,6 @@ module.exports = {
 						internalErrorCode: "user20",
 					});
 				}
-
 			},
 		},
 
@@ -417,7 +404,6 @@ module.exports = {
 			},
 
 			async handler(ctx) {
-
 				const entity = { userEmail: ctx.params.userEmail };
 				let data = { [ctx.params.keyName]: ctx.params.valueName };
 
@@ -435,7 +421,6 @@ module.exports = {
 						internalErrorCode: "user505",
 					});
 				}
-
 			},
 		},
 
@@ -462,15 +447,14 @@ module.exports = {
 					let sentResetEmail = await ctx.call("v1.email.resetEmail", {
 						userEmail: userEmail,
 						clearPassword: getUserData[0].clearPassword,
-						userLang: userLang
+						userLang: userLang,
 					});
 
 					return sentResetEmail;
-
 				} catch (error) {
 					return Promise.reject(error);
 				}
-			}
+			},
 		},
 
 		// user50
@@ -478,22 +462,20 @@ module.exports = {
 			params: {
 				clearPassword: { type: "string" },
 				userEmail: { type: "email" },
-				userPassword: { type: "string" }
+				userPassword: { type: "string" },
 			},
 			async handler(ctx) {
-
 				const entity = {
 					userEmail: ctx.params.userEmail,
 					clearPassword: ctx.params.clearPassword,
 				};
 
 				let data = {
-					"userPassword": Utils.salt(ctx.params.userPassword),
-					"clearPassword": Utils.generatePass()
+					userPassword: Utils.salt(ctx.params.userPassword),
+					clearPassword: Utils.generatePass(),
 				};
 
 				try {
-
 					let userFind = await User.findOneAndUpdate(entity, data, { new: true });
 					if (!userFind) {
 						throw new MoleculerError("User and Hash do not match", 401, "UPDATE_PASSWORD_FAIL_HASH", {
@@ -508,15 +490,14 @@ module.exports = {
 						internalErrorCode: "user50",
 					});
 				}
-
-			}
+			},
 		},
 
 		healthcheck: {
 			async handler() {
 				return "Health is OK";
-			}
-		}
+			},
+		},
 	},
 
 	methods: {
@@ -534,6 +515,6 @@ module.exports = {
 			} catch (error) {
 				throw new MoleculerError("Došlo je do greške!", 501, "ERROR_INSERT_INTO_DB", { message: error.message, internalErrorCode: "user10" });
 			}
-		}
+		},
 	},
 };
