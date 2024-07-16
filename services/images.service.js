@@ -172,24 +172,11 @@ module.exports = {
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 COPY ", storedIntoDbCopy);
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 _image", storedIntoDbCopy._image);
 
-					storedIntoDbCopy.siki = [
-						{
-							_id: "6694d71df314fd0011c6d680",
-							productPicture: "__uploads/nemanjamil@gmail.com/ec720de5-2765-4f4c-bb91-57a8bffb339a/Paradaz_1.JPEG",
-						},
-					];
-					// storedIntoDbCopy._amir = [
-					// 	{
-					// 		_id: "6694d71df314fd0011c6d680",
-					// 		productPicture: "__uploads/nemanjamil@gmail.com/ec720de5-2765-4f4c-bb91-57a8bffb339a/Paradaz_1.JPEG",
-					// 	},
-					// ];
-
 					this.logger.info("\n\n generateNftFromExistingQrCode  TTTT", storedIntoDbCopy);
 
-					storedIntoDbCopy.fiki = JSON.parse(JSON.stringify(Object.assign({}, storedIntoDbCopy)["_image"]));
+					storedIntoDbCopy._image = JSON.parse(JSON.stringify(Object.assign({}, storedIntoDbCopy)["_image"]));
 
-					delete storedIntoDbCopy._image; // work
+					//delete storedIntoDbCopy._image; // work
 
 					this.logger.info("\n\n generateNftFromExistingQrCode TTTT AFTER", storedIntoDbCopy);
 
