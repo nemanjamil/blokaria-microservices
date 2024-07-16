@@ -45,33 +45,31 @@ module.exports = {
 		},
 
 		addImageToQrCode: {
-			params: {
-				imageSave: { type: "any" },
-				cbnftimage: { type: "any" },
-			},
 			async handler(ctx) {
 				this.logger.info("addImageToQrCode USAO");
-				const { imageSave, cbnftimage } = ctx.params;
 
-				let data = {
-					_image: imageSave._id,
-					cbnftimage: cbnftimage,
-				};
+				return "AAA";
+				//const { imageSave, cbnftimage } = ctx.params;
 
-				let entity = {
-					walletQrId: imageSave.walletQrId,
-				};
+				// let data = {
+				// 	_image: imageSave._id,
+				// 	cbnftimage: cbnftimage,
+				// };
 
-				try {
-					let walletUpdate = await Wallet.findOneAndUpdate(entity, data, { new: true });
-					this.logger.info("addImageToQrCode walletUpdate", walletUpdate);
-					return walletUpdate;
-				} catch (error) {
-					throw new MoleculerError("Can not populate Wallet table with Image ids", 401, "POPULATE_BUG", {
-						message: "Wallet Not Found",
-						internalErrorCode: "wallet303_populate",
-					});
-				}
+				// let entity = {
+				// 	walletQrId: imageSave.walletQrId,
+				// };
+
+				// try {
+				// 	let walletUpdate = await Wallet.findOneAndUpdate(entity, data, { new: true });
+				// 	this.logger.info("addImageToQrCode walletUpdate", walletUpdate);
+				// 	return walletUpdate;
+				// } catch (error) {
+				// 	throw new MoleculerError("Can not populate Wallet table with Image ids", 401, "POPULATE_BUG", {
+				// 		message: "Wallet Not Found",
+				// 		internalErrorCode: "wallet303_populate",
+				// 	});
+				// }
 			},
 		},
 
