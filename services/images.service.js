@@ -198,8 +198,14 @@ module.exports = {
 
 					delete storedIntoDbCopy._image;
 					storedIntoDbCopy.miki = obj;
+					storedIntoDbCopy.siki = [
+						{
+							_id: "6694d71df314fd0011c6d680",
+							productPicture: "__uploads/nemanjamil@gmail.com/ec720de5-2765-4f4c-bb91-57a8bffb339a/Paradaz_1.JPEG",
+						},
+					];
 
-					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
+					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
 
 					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb: storedIntoDbCopy, cbnftimage: true });
 
