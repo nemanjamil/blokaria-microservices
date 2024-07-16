@@ -181,7 +181,11 @@ module.exports = {
 
 					//delete storedIntoDbCopy._image; // work
 					//storedIntoDbCopy._image = []; // work
-					storedIntoDbCopy.fiki = Object.assign({}, storedIntoDbCopy._image)["_image"]; // not fork
+					this.logger.info("\n\n generateNftFromExistingQrCode  TTTT", storedIntoDbCopy);
+
+					storedIntoDbCopy.fiki = Object.assign({}, storedIntoDbCopy)["_image"]; // not fork
+
+					this.logger.info("\n\n generateNftFromExistingQrCode TTTT AFTER", storedIntoDbCopy);
 
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
 
