@@ -46,30 +46,26 @@ module.exports = {
 
 		addImageToQrCode: {
 			async handler(ctx) {
-				this.logger.info("addImageToQrCode USAO", ctx.params);
+				this.logger.info("addImageToQrCode ctx.params", ctx.params);
+				const { imageSave, cbnftimage } = ctx.params;
 
-				return "AAA";
-				//const { imageSave, cbnftimage } = ctx.params;
+				let data = {
+					_image: imageSave._id,
+					cbnftimage: cbnftimage,
+				};
 
-				// let data = {
-				// 	_image: imageSave._id,
-				// 	cbnftimage: cbnftimage,
-				// };
+				let entity = {
+					walletQrId: imageSave.walletQrId,
+				};
 
-				// let entity = {
-				// 	walletQrId: imageSave.walletQrId,
-				// };
-
-				// try {
-				// 	let walletUpdate = await Wallet.findOneAndUpdate(entity, data, { new: true });
-				// 	this.logger.info("addImageToQrCode walletUpdate", walletUpdate);
-				// 	return walletUpdate;
-				// } catch (error) {
-				// 	throw new MoleculerError("Can not populate Wallet table with Image ids", 401, "POPULATE_BUG", {
-				// 		message: "Wallet Not Found",
-				// 		internalErrorCode: "wallet303_populate",
-				// 	});
-				// }
+				try {
+					return await Wallet.findOneAndUpdate(entity, data, { new: true });
+				} catch (error) {
+					throw new MoleculerError("Can not populate Wallet table with Image ids", 401, "POPULATE_BUG", {
+						message: "Wallet Not Found",
+						internalErrorCode: "wallet303_populate",
+					});
+				}
 			},
 		},
 

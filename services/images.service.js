@@ -163,19 +163,13 @@ module.exports = {
 
 					let storedIntoDb = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode: ctx.meta.$multipart.walletQrId });
 
+					console.log("\n\n generateNftFromExistingQrCode START  \n\n");
 					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
-
-					console.log("\n\n  >>>  ---- AAAA START  -----");
-
 					this.logger.info("generateNftFromExistingQrCode imageSave", imageSave);
-					this.logger.info("generateNftFromExistingQrCode storedIntoDb", storedIntoDb);
-					this.logger.info("generateNftFromExistingQrCode storedIntoDb _image", storedIntoDb[0]._image);
 
-					console.log("\n\n  >>>  ---- AAAA MID  -----");
+					await ctx.call("wallet.addImageToQrCode", { imageSave, cbnftimage: true });
 
-					await ctx.call("wallet.addImageToQrCode", { storedIntoDbTwo: [...storedIntoDb] });
-
-					console.log("\n\n  >>>  ---- AAAA END  -----");
+					console.log("\n\n generateNftFromExistingQrCode END  \n\n");
 
 					this.logger.info("generateNftFromExistingQrCode addImageToQrCode DONE");
 
