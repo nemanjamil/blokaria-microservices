@@ -172,43 +172,18 @@ module.exports = {
 					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 COPY ", storedIntoDbCopy);
 					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 _image", storedIntoDbCopy._image);
 
-					let obj = {
-						qrCodeRedeemStatus: 0,
-						nftRedeemStatus: false,
-						contributorData: "",
-						publicQrCode: true,
-						costOfProduct: 1,
-						cbnftimage: true,
-						nftimage: "",
-						clientemailcb: true,
-						ownernamecb: true,
-						hasstory: false,
-						_id: "6694d6d6f314fd0011c6d67f",
-						walletQrId: "ec720de5-2765-4f4c-bb91-57a8bffb339a",
-						userDesc: "Product",
-						userFullname: "Nemanja Mili",
-						userEmail: "nemanjamil@gmail.com",
-						productName: "TestNet",
-						longText: "Second Mesage",
-						accessCode: "fuZkdAMpyMt1",
-						_creator: "62285119a2563f00122968f6",
-						createdAt: "2024-07-15T07:59:18.223Z",
-						__v: 0,
-					};
-
-					//delete storedIntoDbCopy._image;
-					storedIntoDbCopy.miki = obj;
 					storedIntoDbCopy.siki = [
 						{
 							_id: "6694d71df314fd0011c6d680",
 							productPicture: "__uploads/nemanjamil@gmail.com/ec720de5-2765-4f4c-bb91-57a8bffb339a/Paradaz_1.JPEG",
 						},
 					];
+
 					let imageCopy = [...storedIntoDb[0]._doc._image];
-
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb imageCopy", imageCopy);
-
 					storedIntoDbCopy.fiki = imageCopy;
+
+					delete storedIntoDbCopy._image;
 
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
 
