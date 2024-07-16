@@ -176,8 +176,6 @@ module.exports = {
 
 					storedIntoDbCopy._image = JSON.parse(JSON.stringify(Object.assign({}, storedIntoDbCopy)["_image"]));
 
-					//delete storedIntoDbCopy._image; // work
-
 					this.logger.info("\n\n generateNftFromExistingQrCode TTTT AFTER", storedIntoDbCopy);
 
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);

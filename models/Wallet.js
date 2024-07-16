@@ -38,21 +38,58 @@ const walletSchema = new mongoose.Schema({
 	hasstory: { type: Boolean, default: false },
 	_creator: {
 		type: ObjectId,
-		ref: "User"
+		ref: "User",
 	},
-	_image: [{
-		type: ObjectId,
-		ref: "Image"
-	}],
-	_nfts: [{
-		type: ObjectId,
-		ref: "Nftcardano"
-	}],
+	_image: [
+		{
+			type: ObjectId,
+			ref: "Image",
+		},
+	],
+	_nfts: [
+		{
+			type: ObjectId,
+			ref: "Nftcardano",
+		},
+	],
 	_project: {
 		type: ObjectId,
-		ref: "Project"
-	}
+		ref: "Project",
+	},
 });
 
+const copyFieldMiddleware = function (next) {
+	if (Array.isArray(this)) {
+		// If multiple documents are returned
+		this.forEach((doc) => {
+			if (doc._image) {
+				doc.image = doc._image;
+			}
+		});
+	} else {
+		// If a single document is returned
+		if (this._image) {
+			this.image = this._image;
+		}
+	}
+	next();
+};
+
+// Apply the middleware to various query methods
+walletSchema.post("find", function (docs, next) {
+	docs.forEach((doc) => copyFieldMiddleware.call(doc, next));
+});
+
+walletSchema.post("findOne", function (doc, next) {
+	copyFieldMiddleware.call(doc, next);
+});
+
+walletSchema.post("findOneAndUpdate", function (doc, next) {
+	copyFieldMiddleware.call(doc, next);
+});
+
+walletSchema.post("findById", function (doc, next) {
+	copyFieldMiddleware.call(doc, next);
+});
 
 module.exports = mongoose.model("Wallet", walletSchema);
