@@ -179,9 +179,7 @@ module.exports = {
 						},
 					];
 
-					// let imageCopy = [...storedIntoDb[0]._doc._image];
-					// this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb imageCopy", imageCopy);
-					storedIntoDbCopy.fiki = storedIntoDbCopy._image;
+					//storedIntoDbCopy.fiki = storedIntoDbCopy._image;
 
 					delete storedIntoDbCopy._image;
 
