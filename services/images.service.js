@@ -165,12 +165,12 @@ module.exports = {
 
 					console.log("\n\n generateNftFromExistingQrCode START  \n\n");
 					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
-					this.logger.info("generateNftFromExistingQrCode imageSave", imageSave);
+					this.logger.info("\n\n generateNftFromExistingQrCode imageSave", imageSave);
 
 					let storedIntoDbCopy = { ...storedIntoDb[0]._doc };
 
-					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 COPY ", storedIntoDbCopy);
-					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 _image", storedIntoDbCopy._image);
+					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 COPY ", storedIntoDbCopy);
+					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 _image", storedIntoDbCopy._image);
 
 					storedIntoDbCopy.siki = [
 						{
@@ -179,9 +179,9 @@ module.exports = {
 						},
 					];
 
-					let imageCopy = [...storedIntoDb[0]._doc._image];
-					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb imageCopy", imageCopy);
-					storedIntoDbCopy.fiki = imageCopy;
+					// let imageCopy = [...storedIntoDb[0]._doc._image];
+					// this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb imageCopy", imageCopy);
+					storedIntoDbCopy.fiki = storedIntoDbCopy._image;
 
 					delete storedIntoDbCopy._image;
 
