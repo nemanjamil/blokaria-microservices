@@ -58,38 +58,46 @@ const walletSchema = new mongoose.Schema({
 	},
 });
 
-const copyFieldMiddleware = function (next) {
+const normalizeUnderscoreMiddleware = function (next) {
 	if (Array.isArray(this)) {
 		// If multiple documents are returned
 		this.forEach((doc) => {
-			if (doc._image) {
-				doc.image = doc._image;
-			}
+			console.log("normalizing underscore for doc:", doc);
+			Object.keys(doc).forEach(key => {
+				if (key.startsWith("_")) {
+					console.log("normalizing", key, "field");
+					doc[key] = JSON.parse(JSON.stringify(Object.assign({}, doc)[key]));
+				}
+			});
 		});
 	} else {
 		// If a single document is returned
-		if (this._image) {
-			this.image = this._image;
-		}
+		console.log("normalizing underscore for doc(this):", this);
+		Object.keys(this).forEach(key => {
+			if (key.startsWith("_")) {
+				console.log("normalizing", key, "field");
+				this[key] = JSON.parse(JSON.stringify(Object.assign({}, this)[key]));
+			}
+		});
 	}
 	next();
 };
 
 // Apply the middleware to various query methods
 walletSchema.post("find", function (docs, next) {
-	docs.forEach((doc) => copyFieldMiddleware.call(doc, next));
+	docs.forEach((doc) => normalizeUnderscoreMiddleware.call(doc, next));
 });
 
 walletSchema.post("findOne", function (doc, next) {
-	copyFieldMiddleware.call(doc, next);
+	normalizeUnderscoreMiddleware.call(doc, next);
 });
 
 walletSchema.post("findOneAndUpdate", function (doc, next) {
-	copyFieldMiddleware.call(doc, next);
+	normalizeUnderscoreMiddleware.call(doc, next);
 });
 
 walletSchema.post("findById", function (doc, next) {
-	copyFieldMiddleware.call(doc, next);
+	normalizeUnderscoreMiddleware.call(doc, next);
 });
 
 module.exports = mongoose.model("Wallet", walletSchema);
