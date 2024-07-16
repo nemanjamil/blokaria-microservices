@@ -164,7 +164,7 @@ module.exports = {
 					let storedIntoDb = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode: ctx.meta.$multipart.walletQrId });
 
 					console.log("\n\n generateNftFromExistingQrCode START  \n\n");
-					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
+					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
 					this.logger.info("\n\n generateNftFromExistingQrCode imageSave", imageSave);
 
 					let storedIntoDbCopy = { ...storedIntoDb[0]._doc };
@@ -179,9 +179,8 @@ module.exports = {
 						},
 					];
 
-					//storedIntoDbCopy.fiki = storedIntoDbCopy._image;
-
-					delete storedIntoDbCopy._image;
+					//delete storedIntoDbCopy._image;
+					storedIntoDbCopy._image = [];
 
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
 
