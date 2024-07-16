@@ -167,16 +167,13 @@ module.exports = {
 					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
 					this.logger.info("generateNftFromExistingQrCode imageSave", imageSave);
 
-					let storedIntoDbV2 = { ...storedIntoDb[0]._doc };
+					let storedIntoDbCopy = { ...storedIntoDb[0]._doc };
 
-					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 COPY ", storedIntoDbV2);
+					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 COPY ", storedIntoDbCopy);
 
-					delete storedIntoDbV2._image;
-					delete storedIntoDbV2._nfts;
+					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
 
-					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbV2);
-
-					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDbV2, cbnftimage: true });
+					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb: storedIntoDbCopy, cbnftimage: true });
 
 					console.log("\n\n generateNftFromExistingQrCode END  \n\n");
 
@@ -194,7 +191,7 @@ module.exports = {
 
 					meta.$multipart.productName = storedIntoDb[0].productName;
 
-					const { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb[0]);
+					const { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDbCopy);
 
 					await ctx.call("user.reduceNumberOfTransaction", meta);
 
