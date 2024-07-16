@@ -39,7 +39,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "mkdirp": "^1.0.4",
-    "moleculer": "^0.14.33",
+    "moleculer": "^0.14.16",
     "moleculer-db": "^0.8.17",
     "moleculer-db-adapter-mongoose": "^0.8.12",
     "moleculer-http-client": "^0.4.2",
