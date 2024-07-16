@@ -167,12 +167,12 @@ module.exports = {
 					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
 					this.logger.info("generateNftFromExistingQrCode imageSave", imageSave);
 
-					let storedIntoDbV2 = [...storedIntoDb];
+					let storedIntoDbV2 = [...storedIntoDb[0]];
 
 					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 COPY ", storedIntoDbV2);
 
-					delete storedIntoDbV2[0]._image;
-					delete storedIntoDbV2[0]._nfts;
+					delete storedIntoDbV2._image;
+					delete storedIntoDbV2._nfts;
 
 					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbV2);
 
