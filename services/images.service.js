@@ -205,7 +205,6 @@ module.exports = {
 						},
 					];
 					storedIntoDbCopy.fiki = storedIntoDb[0]._doc._image;
-					storedIntoDbCopy._image = storedIntoDb[0]._doc._image;
 
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
 
