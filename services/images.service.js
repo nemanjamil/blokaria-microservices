@@ -179,9 +179,9 @@ module.exports = {
 						},
 					];
 
-					//storedIntoDbCopy.fiki = storedIntoDbCopy._image;
-					delete storedIntoDbCopy._image;
-					//storedIntoDbCopy._image = [];
+					//delete storedIntoDbCopy._image; // work
+					//storedIntoDbCopy._image = []; // work
+					//storedIntoDbCopy.fiki = storedIntoDbCopy._image; // not fork
 
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
 
