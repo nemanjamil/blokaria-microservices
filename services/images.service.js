@@ -164,27 +164,16 @@ module.exports = {
 					let storedIntoDb = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode: ctx.meta.$multipart.walletQrId });
 
 					console.log("\n\n generateNftFromExistingQrCode START  \n\n");
-					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
-					this.logger.info("\n\n generateNftFromExistingQrCode imageSave", imageSave);
 
 					let storedIntoDbCopy = { ...storedIntoDb[0]._doc };
 
-					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 COPY ", storedIntoDbCopy);
-					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 _image", storedIntoDbCopy._image);
-
 					this.logger.info("\n\n generateNftFromExistingQrCode  TTTT", storedIntoDbCopy);
 
-					storedIntoDbCopy._image = JSON.parse(JSON.stringify(Object.assign({}, storedIntoDbCopy)["_image"]));
+					//storedIntoDbCopy._image = JSON.parse(JSON.stringify(Object.assign({}, storedIntoDbCopy)["_image"]));
 
 					this.logger.info("\n\n generateNftFromExistingQrCode TTTT AFTER", storedIntoDbCopy);
 
-					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
-					this.logger.info("\n\n generateNftFromExistingQrCode CTX call", ctx.call);
-					this.logger.info("\n\n generateNftFromExistingQrCode CTX arguments ", { imageSave, storedIntoDb: storedIntoDbCopy, cbnftimage: true });
-
 					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb: storedIntoDbCopy, cbnftimage: true });
-
-					console.log("\n\n generateNftFromExistingQrCode END  \n\n");
 
 					this.logger.info("generateNftFromExistingQrCode addImageToQrCode DONE");
 
