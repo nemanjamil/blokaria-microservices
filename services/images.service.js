@@ -178,12 +178,18 @@ module.exports = {
 							productPicture: "__uploads/nemanjamil@gmail.com/ec720de5-2765-4f4c-bb91-57a8bffb339a/Paradaz_1.JPEG",
 						},
 					];
+					storedIntoDbCopy._amir = [
+						{
+							_id: "6694d71df314fd0011c6d680",
+							productPicture: "__uploads/nemanjamil@gmail.com/ec720de5-2765-4f4c-bb91-57a8bffb339a/Paradaz_1.JPEG",
+						},
+					];
 
-					//delete storedIntoDbCopy._image; // work
-					//storedIntoDbCopy._image = []; // work
 					this.logger.info("\n\n generateNftFromExistingQrCode  TTTT", storedIntoDbCopy);
 
 					storedIntoDbCopy.fiki = Object.assign({}, storedIntoDbCopy)["_image"];
+
+					delete storedIntoDbCopy._image; // work
 
 					this.logger.info("\n\n generateNftFromExistingQrCode TTTT AFTER", storedIntoDbCopy);
 
