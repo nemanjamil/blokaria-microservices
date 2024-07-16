@@ -46,7 +46,7 @@ module.exports = {
 
 		addImageToQrCode: {
 			async handler(ctx) {
-				this.logger.info("addImageToQrCode USAO");
+				this.logger.info("addImageToQrCode USAO", ctx.params);
 
 				return "AAA";
 				//const { imageSave, cbnftimage } = ctx.params;
