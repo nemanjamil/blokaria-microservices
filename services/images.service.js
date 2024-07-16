@@ -167,7 +167,7 @@ module.exports = {
 					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
 					this.logger.info("generateNftFromExistingQrCode imageSave", imageSave);
 
-					await ctx.call("wallet.addImageToQrCode", { imageSave, cbnftimage: true });
+					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb, cbnftimage: true });
 
 					console.log("\n\n generateNftFromExistingQrCode END  \n\n");
 
