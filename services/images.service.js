@@ -179,8 +179,8 @@ module.exports = {
 						},
 					];
 
-					delete storedIntoDbCopy._image;
-					//storedIntoDbCopy._image = [];
+					//delete storedIntoDbCopy._image;
+					storedIntoDbCopy._image = [];
 
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
 
