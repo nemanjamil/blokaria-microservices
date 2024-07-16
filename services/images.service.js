@@ -187,7 +187,7 @@ module.exports = {
 
 					this.logger.info("\n\n generateNftFromExistingQrCode  TTTT", storedIntoDbCopy);
 
-					storedIntoDbCopy.fiki = Object.assign({}, storedIntoDbCopy)["_image"];
+					//storedIntoDbCopy.fiki = Object.assign({}, storedIntoDbCopy)["_image"];
 
 					delete storedIntoDbCopy._image; // work
 
