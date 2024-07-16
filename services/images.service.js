@@ -204,7 +204,7 @@ module.exports = {
 							productPicture: "__uploads/nemanjamil@gmail.com/ec720de5-2765-4f4c-bb91-57a8bffb339a/Paradaz_1.JPEG",
 						},
 					];
-					storedIntoDbCopy.fiki = storedIntoDb[0]._doc._image;
+					//storedIntoDbCopy.fiki = storedIntoDb[0]._doc._image;
 
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
 
