@@ -701,6 +701,8 @@ module.exports = {
 			try {
 				let wallet = await Wallet.find(entity).populate("_image", { productPicture: 1 }).populate("_nfts").populate("_project");
 
+				console.log("getQrCodeInfo wallet ", wallet);
+				console.log("getQrCodeInfo wallet _image ", wallet._image);
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Greška pri čitanju QR koda", 401, "ERROR_GET_QR_CODE_DATA", {
