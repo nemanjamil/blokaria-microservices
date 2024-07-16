@@ -179,15 +179,17 @@ module.exports = {
 						},
 					];
 
-					//delete storedIntoDbCopy._image; // work
+					delete storedIntoDbCopy._image; // work
 					//storedIntoDbCopy._image = []; // work
 					this.logger.info("\n\n generateNftFromExistingQrCode  TTTT", storedIntoDbCopy);
 
-					storedIntoDbCopy.fiki = Object.assign({}, storedIntoDbCopy)["_image"]; // not fork
+					storedIntoDbCopy.fiki = Object.assign({}, storedIntoDbCopy)["_image"];
 
 					this.logger.info("\n\n generateNftFromExistingQrCode TTTT AFTER", storedIntoDbCopy);
 
 					this.logger.info("\n\n generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbCopy);
+					this.logger.info("\n\n generateNftFromExistingQrCode CTX call", ctx.call);
+					this.logger.info("\n\n generateNftFromExistingQrCode CTX arguments ", { imageSave, storedIntoDb: storedIntoDbCopy, cbnftimage: true });
 
 					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb: storedIntoDbCopy, cbnftimage: true });
 
