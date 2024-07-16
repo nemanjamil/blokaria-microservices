@@ -196,7 +196,7 @@ module.exports = {
 						__v: 0,
 					};
 
-					delete storedIntoDbCopy._image;
+					//delete storedIntoDbCopy._image;
 					storedIntoDbCopy.miki = obj;
 					storedIntoDbCopy.siki = [
 						{
