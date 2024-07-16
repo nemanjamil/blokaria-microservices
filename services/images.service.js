@@ -173,28 +173,7 @@ module.exports = {
 
 					console.log("\n\n  >>>  ---- AAAA MID  -----");
 
-					let obj = {
-						qrCodeRedeemStatus: 0,
-						nftRedeemStatus: false,
-						contributorData: "",
-						publicQrCode: true,
-						costOfProduct: 1,
-						cbnftimage: true,
-						nftimage: "",
-						clientemailcb: true,
-						ownernamecb: true,
-						hasstory: false,
-						walletQrId: "ec720de5-2765-4f4c-bb91-57a8bffb339a",
-						userDesc: "Product",
-						userFullname: "Nemanja Mili",
-						userEmail: "nemanjamil@gmail.com",
-						productName: "TestNet",
-						longText: "Second Mesage",
-						accessCode: "fuZkdAMpyMt1",
-						__v: 0,
-					};
-
-					await ctx.call("wallet.addImageToQrCode", { storedIntoDbTwo: obj });
+					await ctx.call("wallet.addImageToQrCode", { storedIntoDbTwo: [...storedIntoDb] });
 
 					console.log("\n\n  >>>  ---- AAAA END  -----");
 
