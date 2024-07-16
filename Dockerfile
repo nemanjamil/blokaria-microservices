@@ -8,11 +8,12 @@ ENV NODE_ENV=production
 RUN mkdir /app
 WORKDIR /app
 
-# Copy package.json and yarn.lock
-COPY package.json yarn.lock ./
+# Copy package.json and yarn.lock if present
+COPY package.json ./
+COPY yarn.lock ./
 
 # Install dependencies using yarn
-RUN yarn install --production
+RUN if [ -f yarn.lock ]; then yarn install --production; else yarn install --production --frozen-lockfile; fi
 
 # Copy the rest of the application code
 COPY . .
