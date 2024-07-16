@@ -172,7 +172,7 @@ module.exports = {
 
 					console.log("\n\n  >>>  ---- AAAA MID  -----");
 
-					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb });
+					await ctx.call("wallet.addImageToQrCode", { storedIntoDb });
 
 					console.log("\n\n  >>>  ---- AAAA END  -----");
 
