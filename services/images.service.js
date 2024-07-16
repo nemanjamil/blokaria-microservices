@@ -167,8 +167,11 @@ module.exports = {
 					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2", storedIntoDb);
 					this.logger.info("generateNftFromExistingQrCode imageSave", imageSave);
 
-					delete storedIntoDb._image;
-					delete storedIntoDb._nfts;
+					let storedIntoDbV2 = [...storedIntoDb];
+					delete storedIntoDbV2._image;
+					delete storedIntoDbV2._nfts;
+
+					this.logger.info("generateNftFromExistingQrCode storedIntoDb V2 Removed", storedIntoDbV2);
 
 					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb, cbnftimage: true });
 
