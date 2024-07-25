@@ -38,21 +38,66 @@ const walletSchema = new mongoose.Schema({
 	hasstory: { type: Boolean, default: false },
 	_creator: {
 		type: ObjectId,
-		ref: "User"
+		ref: "User",
 	},
-	_image: [{
-		type: ObjectId,
-		ref: "Image"
-	}],
-	_nfts: [{
-		type: ObjectId,
-		ref: "Nftcardano"
-	}],
+	_image: [
+		{
+			type: ObjectId,
+			ref: "Image",
+		},
+	],
+	_nfts: [
+		{
+			type: ObjectId,
+			ref: "Nftcardano",
+		},
+	],
 	_project: {
 		type: ObjectId,
-		ref: "Project"
-	}
+		ref: "Project",
+	},
 });
 
+const normalizeUnderscoreMiddleware = function (next) {
+	if (Array.isArray(this)) {
+		// If multiple documents are returned
+		this.forEach((doc) => {
+			console.log("normalizing underscore for doc:", doc);
+			Object.keys(doc).forEach(key => {
+				if (key.startsWith("_")) {
+					console.log("normalizing", key, "field");
+					doc[key] = JSON.parse(JSON.stringify(Object.assign({}, doc)[key]));
+				}
+			});
+		});
+	} else {
+		// If a single document is returned
+		console.log("normalizing underscore for doc(this):", this);
+		Object.keys(this).forEach(key => {
+			if (key.startsWith("_")) {
+				console.log("normalizing", key, "field");
+				this[key] = JSON.parse(JSON.stringify(Object.assign({}, this)[key]));
+			}
+		});
+	}
+	next();
+};
+
+// Apply the middleware to various query methods
+walletSchema.post("find", function (docs, next) {
+	docs.forEach((doc) => normalizeUnderscoreMiddleware.call(doc, next));
+});
+
+walletSchema.post("findOne", function (doc, next) {
+	normalizeUnderscoreMiddleware.call(doc, next);
+});
+
+walletSchema.post("findOneAndUpdate", function (doc, next) {
+	normalizeUnderscoreMiddleware.call(doc, next);
+});
+
+walletSchema.post("findById", function (doc, next) {
+	normalizeUnderscoreMiddleware.call(doc, next);
+});
 
 module.exports = mongoose.model("Wallet", walletSchema);

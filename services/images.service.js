@@ -11,8 +11,7 @@ const mkdir = require("mkdirp").sync;
 const has = require("lodash/has");
 const isObjectLike = require("lodash/isObjectLike");
 const axiosMixin = require("../mixins/axios.mixin");
-
-const { Web3Storage, getFilesFromPath } = require("web3.storage");
+const { getFilesFromPath, Web3Storage } = require("web3.storage");
 
 const uploadDir = path.join(__dirname, "../public/__uploads");
 mkdir(uploadDir);
@@ -150,7 +149,6 @@ module.exports = {
 		generateNftFromExistingQrCode: {
 			async handler(ctx) {
 				try {
-
 					console.log("generateNftFromExistingQrCode START");
 
 					const { user } = ctx.meta;
@@ -165,15 +163,25 @@ module.exports = {
 
 					let storedIntoDb = await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode: ctx.meta.$multipart.walletQrId });
 
-					console.log("generateNftFromExistingQrCode storedIntoDb", storedIntoDb);
+					console.log("\n\n generateNftFromExistingQrCode START  \n\n");
 
-					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb, cbnftimage: true });
+					let storedIntoDbCopy = { ...storedIntoDb[0]._doc };
+
+					this.logger.info("\n\n generateNftFromExistingQrCode  TTTT", storedIntoDbCopy);
+
+					//storedIntoDbCopy._image = JSON.parse(JSON.stringify(Object.assign({}, storedIntoDbCopy)["_image"]));
+
+					this.logger.info("\n\n generateNftFromExistingQrCode TTTT AFTER", storedIntoDbCopy);
+
+					await ctx.call("wallet.addImageToQrCode", { imageSave, storedIntoDb: storedIntoDbCopy, cbnftimage: true });
+
+					this.logger.info("generateNftFromExistingQrCode addImageToQrCode DONE");
 
 					let updateWallet = {
 						searchBy: ctx.meta.$multipart.walletQrId,
 						what: "hasstory",
-						howmany: (ctx.meta.$multipart.hasstory === "true"),
-						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID)
+						howmany: ctx.meta.$multipart.hasstory === "true",
+						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
 					};
 					console.log("generateNftFromExistingQrCode updateWallet", updateWallet);
 
@@ -181,7 +189,7 @@ module.exports = {
 
 					meta.$multipart.productName = storedIntoDb[0].productName;
 
-					const { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDb[0]);
+					const { saveToDb, createCardanoNft, cid } = await this.generateNftMethod(uploadDirMkDir, meta, ctx, storedIntoDbCopy);
 
 					//await ctx.call("user.reduceNumberOfTransaction", meta);
 
@@ -196,9 +204,7 @@ module.exports = {
 					console.log("generateNftFromExistingQrCode getQrCodeInfo", getQrCodeInfo);
 
 					return getQrCodeInfo[0];
-
 				} catch (error) {
-
 					console.log(error.message);
 					throw new MoleculerError("Greška pri generisanju NFT-a", 401, "ERR_PICTURE_DB_INSERTING", {
 						message: error.message,
@@ -214,7 +220,6 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-
 					console.log("generateQrCodeInSystemNoImage START", ctx.params);
 
 					let meta = ctx.meta;
@@ -268,7 +273,7 @@ module.exports = {
 					errorCorrectionLevel: "M",
 					type: "png",
 					width: "500",
-					margin: 1
+					margin: 1,
 				};
 				let QrCodeText = `${process.env.BLOKARIA_WEBSITE}/status/${storedIntoDb.walletQrId}`;
 				return QRCode.toDataURL(QrCodeText, opts);
@@ -281,7 +286,7 @@ module.exports = {
 			try {
 				console.log("---- generateNftMethod STARTED -----");
 
-				let cid = await this.uploadImagetoIPFS(uploadDirMkDir);
+				let cid = await this.uploadImagetoIPFS_V2(uploadDirMkDir);
 
 				console.log("\n\n  >>>  ---- uploadImagetoIPFS DONE  -----");
 
@@ -289,7 +294,9 @@ module.exports = {
 				console.log("meta.$multipart ", meta.$multipart);
 				let additionalMetaData = {};
 
-				additionalMetaData = (has(meta.$multipart, "finalMetaData")) ? { ...additionalMetaData, ...JSON.parse(meta.$multipart.finalMetaData) } : additionalMetaData;
+				additionalMetaData = has(meta.$multipart, "finalMetaData")
+					? { ...additionalMetaData, ...JSON.parse(meta.$multipart.finalMetaData) }
+					: additionalMetaData;
 
 				console.log("Step 1 additionalMetaData ", additionalMetaData);
 
@@ -304,9 +311,8 @@ module.exports = {
 					copyright: "Copyright Blokaria",
 					walletName: process.env.WALLET_NAME,
 					storedIntoDb: storedIntoDb,
-					additionalMetaData: additionalMetaData
+					additionalMetaData: additionalMetaData,
 				};
-
 
 				console.log("generateNftMethod NFT Object: ", nftObj, "\n");
 				console.log("generateNftMethod process.env.LOCALENV", process.env.LOCALENV, "\n");
@@ -357,6 +363,7 @@ module.exports = {
 			}
 		},
 		async uploadImagetoIPFS(imageDir) {
+			this.logger.info("USAO U uploadImagetoIPFS");
 			const web3Storage = this.createIPFSWeb3Storage();
 			if (web3Storage != false) {
 				try {
@@ -381,15 +388,19 @@ module.exports = {
 					await this.addDelay(numberOfSeconds * 1000);
 					console.log(`UploadImagetoIPFS  2 addDelay ${numberOfSeconds}sec - END`, Date.now());
 
-					let getCidReq = await this.axiosGet(`https://dweb.link/api/v0/ls?arg=${cid}`);
+					let getCidReq = await this.axiosGet(`https://dweb.link/api/v0/ls?arg=${cid}`).catch(function () {
+						throw new MoleculerError("Došlo je do greške pri povlacenju slike sa IPFS-a", 501, "ERR_IPFS", {
+							message: "Došlo je do greške pri povlacenju NFT-a",
+							internalErrorCode: "ipfs10",
+						});
+					});
 
 					console.log("UploadImagetoIPFS getCidReq", getCidReq.data);
 
-					// ovde treba dodati upit ako nema Objects[0] ili Links[0] da baci errir 
+					// ovde treba dodati upit ako nema Objects[0] ili Links[0] da baci errir
 					// @mihajlo
 
 					return getCidReq.data.Objects[0].Links[0].Hash;
-
 
 					// let numberOfSeconds = 5;
 					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
@@ -403,7 +414,6 @@ module.exports = {
 					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - START `, Date.now());
 					// await this.addDelay(numberOfSeconds * 1000);
 					// console.log(`UploadImagetoIPFS addDelay ${numberOfSeconds}sec - END`, Date.now());
-
 
 					// console.log("UploadImagetoIPFS Received data from ipfs: ");
 					// const res = await web3Storage.get(cid);
@@ -423,12 +433,58 @@ module.exports = {
 					// console.log(`UploadImagetoIPFS ${responseFiles[0].cid} -- ${responseFiles[0].path} -- ${responseFiles[0].size}`);
 					// console.log(`FINISH UploadImagetoIPFS Image url: https://${responseFiles[0].cid}.ipfs.dweb.link`);
 
-					// return responseFiles[0].cid;
+					// return responseFiles[0].cid;:1
 				} catch (error) {
 					console.error("Error occured while storing image to IPFS: " + error);
 					return Promise.reject(error);
 				}
 			}
+		},
+		async uploadImagetoIPFS_V2(imageDir) {
+			this.logger.info("0. uploadImagetoIPFS_V2 START", imageDir);
+
+			this.logger.info("0.1. importing pinata sdk");
+			const PinataSDK = require("@pinata/sdk");
+
+			this.logger.info(
+				"0.2. creating pinata client with key:",
+				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1M2M1NDdmYi01NmE2LTQwYTEtOTFiMC0xYWM1ODNiMThmNDYiLCJlbWFpbCI6Im5lbWFuamFtaWxAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImZkOTNmZGQ3NTdkYzFkY2E5YTc2Iiwic2NvcGVkS2V5U2VjcmV0IjoiMTVhZTI0ODlkZTBkNmZkNGUzMzcxYzBhOTljNGJhMGJiNThhMzdkOTQzOGYyMDlmZDgxZjY5NmQ1OWE4ZGMzNiIsImV4cCI6MTc1MjU5MTk4Nn0.RjEqQhyJrGItPHCQhdf3tK5xdE4Y87U3Jfr9lzsPr5g"
+			);
+			const pinata = new PinataSDK({
+				pinataJWTKey:
+					"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI1M2M1NDdmYi01NmE2LTQwYTEtOTFiMC0xYWM1ODNiMThmNDYiLCJlbWFpbCI6Im5lbWFuamFtaWxAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImZkOTNmZGQ3NTdkYzFkY2E5YTc2Iiwic2NvcGVkS2V5U2VjcmV0IjoiMTVhZTI0ODlkZTBkNmZkNGUzMzcxYzBhOTljNGJhMGJiNThhMzdkOTQzOGYyMDlmZDgxZjY5NmQ1OWE4ZGMzNiIsImV4cCI6MTc1MjU5MTk4Nn0.RjEqQhyJrGItPHCQhdf3tK5xdE4Y87U3Jfr9lzsPr5g",
+			});
+
+			this.logger.info("0.3. testing pinata connection");
+			const pinataRes = await pinata.testAuthentication();
+			this.logger.info("0.4. connection testing result:", pinataRes);
+			if (!pinataRes || (pinataRes && pinataRes.authenticated !== true)) {
+				throw new Error("Failed to make connection to pinata API");
+			}
+
+			let files = await getFilesFromPath(imageDir);
+
+			this.logger.info("11. uploadImagetoIPFS_V2 getFilesFromPath", files);
+
+			const file = files.pop();
+
+			this.logger.info("12. uploadImagetoIPFS_V2 last file", file);
+
+			const stream = file.stream();
+
+			const res = await pinata.pinFileToIPFS(stream, {
+				pinataMetadata: {
+					name: file.name.replace(/^\/*/gi, ""),
+				},
+			});
+
+			this.logger.info("13. uploadImagetoIPFS_V2 pinata pin file response", res);
+
+			if (!res.IpfsHash) {
+				throw new Error("No links found in the IPFS response");
+			}
+
+			return res.IpfsHash;
 		},
 
 		async addDelay(time) {
@@ -475,8 +531,6 @@ module.exports = {
 				productPicture: imageRelativePath,
 			};
 			try {
-
-
 				let checkStatusOfImage = await this.actions.getProductPicture({ walletQrId: meta.$multipart.walletQrId });
 
 				console.log("insertProductPicture checkStatusOfImage ", checkStatusOfImage);
@@ -493,8 +547,6 @@ module.exports = {
 					let imageSave = await image.save();
 					return { imageSave, imageRelativePath };
 				}
-
-
 			} catch (error) {
 				console.error("insertProductPicture error ", error);
 				throw new MoleculerError(error.message, 401, "ERR_PICTURE_DB_INSERTING", {

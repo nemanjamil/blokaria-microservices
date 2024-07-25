@@ -50,7 +50,7 @@ module.exports = {
 						webSiteLocation: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL,
 						authenticateLink: authenticateLink,
-						backEnd: process.env.MOLECULER_SERVICE_LOCATION
+						backEnd: process.env.MOLECULER_SERVICE_LOCATION,
 					};
 					const htmlToSend = template(replacements);
 
@@ -87,7 +87,6 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-
 					let userLang = ctx.params.userLang;
 
 					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
@@ -293,15 +292,12 @@ module.exports = {
 		},
 
 		sendContractEmailToOwner: {
-
 			async handler(ctx) {
-
 				console.log("sendContractEmailToOwner", ctx.params);
 
 				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.params.meta;
 				const { userEmail, userFullname, clientEmail, clientName, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
 				const { userLang } = ctx.params;
-
 
 				const source = fs.readFileSync(`./public/templates/${userLang}/initiateProgressEmail.html`, "utf-8").toString();
 
@@ -360,7 +356,6 @@ module.exports = {
 				const clientName = ctx.params.clientName;
 				const userLang = ctx.params.userLang;
 
-
 				const source = fs.readFileSync(`./public/templates/${userLang}/qrCodeApproval.html`, "utf-8").toString();
 				const template = handlebars.compile(source);
 				const replacements = {
@@ -409,6 +404,9 @@ module.exports = {
 			async handler() {
 				let adminEmail = process.env.ADMIN_EMAIL;
 				let adminPassword = process.env.PASSW_EMAIL;
+
+				this.logger.info("adminEmail", adminEmail);
+				this.logger.info("adminPassword", adminPassword);
 
 				return nodemailer.createTransport({
 					host: "mail.blokaria.com",
