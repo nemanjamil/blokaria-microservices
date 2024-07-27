@@ -205,8 +205,7 @@ module.exports = {
 
 					console.log("checkWallet response ", checkWallet);
 
-					return "Aaa";
-					//return checkWallet.data;
+					return checkWallet.data;
 				} catch (error) {
 					console.error("Error response data:", error?.response?.data);
 					console.error("Error message:", error?.message);
