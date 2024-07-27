@@ -223,10 +223,16 @@ module.exports = {
 
 			async handler(ctx) {
 				try {
+					console.log("\n\n  >>>  ---- createCardanoNft START  -----");
+
+					this.logger.info("createCardanoNft process.env.DOCKER_INTERNAL_URL", process.env.DOCKER_INTERNAL_URL);
+
 					console.log("createCardanoNft ctx.params: ", ctx.params);
 
 					let mintNft = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}generateNFT`, ctx.params);
-					//console.log("createCardanoNft-mintNft-generateNFT ", mintNft);
+
+					this.logger.info("createCardanoNft mintNft", mintNft);
+
 					if (mintNft.data.txHash) {
 						return { mintNFT: mintNft.data };
 					} else {

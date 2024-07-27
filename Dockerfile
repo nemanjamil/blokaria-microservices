@@ -1,19 +1,25 @@
-#FROM node:current-alpine
-FROM node:16.5.0-alpine
+# Use the latest alpine-based Node.js image
+FROM node:20.15.1-alpine
 
+# Set environment variable
 ENV NODE_ENV=production
 
+# Create and set the working directory
 RUN mkdir /app
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+# Copy package.json and yarn.lock if present
+COPY package.json ./
+COPY yarn.lock ./
 
-RUN npm install --production
+# Install dependencies using yarn and clean the cache
+RUN yarn install --production && yarn cache clean --force
 
+# Copy the rest of the application code
 COPY . .
-#port that will be exposed through docker config
+
+# Expose port 3022
 EXPOSE 3022
 
-#EXPOSE 3022
-
-CMD ["npm", "start"]
+# Define the command to run the application
+CMD ["yarn", "start"]
