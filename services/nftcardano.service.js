@@ -204,6 +204,8 @@ module.exports = {
 					let checkWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}checkWallet`, ctx.params);
 					return checkWallet.data;
 				} catch (error) {
+					console.error("Error response data:", error.response.data);
+					console.error("Error message:", error.message);
 					return Promise.reject(error);
 				}
 			},
