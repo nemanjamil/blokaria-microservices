@@ -34,14 +34,12 @@ module.exports = {
 		},
 
 		checkTimeForSendingAsset: {
-
 			params: {
 				qrCodeStatus: { type: "array" },
 			},
 
 			async handler(ctx) {
 				try {
-
 					const { qrCodeStatus } = ctx.params;
 
 					console.log("checkTimeForSendingAsset  qrCodeStatus ", qrCodeStatus);
@@ -57,7 +55,6 @@ module.exports = {
 					} else {
 						return "nftStatus null";
 					}
-
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "CHECK_TIME_ERROR", {
 						message: error.message,
@@ -69,11 +66,10 @@ module.exports = {
 
 		sendNftAssetToClient: {
 			params: {
-				qrcode: { type: "string" }
+				qrcode: { type: "string" },
 			},
 			async handler(ctx) {
 				try {
-
 					console.log("\n\n ====== START sendNftAssetToClient PARAMS", ctx.params);
 
 					const { qrcode } = ctx.params;
@@ -108,8 +104,6 @@ module.exports = {
 							sendAssetToWallet = await this.actions.sendAssetToWallet(nftParams);
 							console.log(">>> sendNftAssetToClient SUCCESSFULL sendAssetToWallet Has Finished \n");
 							console.log(">>> sendNftAssetToClient sendAssetToWallet ", sendAssetToWallet);
-
-
 						} else {
 							console.log("sendNftAssetToClient WalletMinting LOCAL  ENV \n");
 							sendAssetToWallet = {
@@ -129,30 +123,25 @@ module.exports = {
 							searchBy: qrCodeStatus[0].walletQrId,
 							what: "nftRedeemStatus",
 							howmany: true,
-							emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID)
+							emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
 						};
 
 						console.log("sendNftAssetToClient updateDataPayload ", updateDataPayload);
 
-
 						let updateNftRedeemStatus = await ctx.call("wallet.updateDataInDb", updateDataPayload);
-
 
 						console.log("sendNftAssetToClient updateNftRedeemStatus  \n");
 						console.log("sendNftAssetToClient updateNftRedeemStatus ", updateNftRedeemStatus);
 
 						console.log("sendNftAssetToClient >  NFT TRANSACTION FINISH \n\n");
 						return { updateDbSendingAssetDbRes, sendAssetToWalletRes: sendAssetToWallet };
-
 					} else {
 						console.warn("\n\n  === sendNftAssetToClient WalletMinting  Skipped ==== \n");
 					}
-
-
 				} catch (error) {
 					return Promise.reject(error);
 				}
-			}
+			},
 		},
 
 		// user80
@@ -165,7 +154,6 @@ module.exports = {
 				howmany: { type: "string" },
 			},
 			async handler(ctx) {
-
 				if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
 					throw new MoleculerError("Verification ID is not correct", 401, "ERR_VERIFICATION_ID", {
 						message: "Verification email failed",
@@ -177,7 +165,6 @@ module.exports = {
 
 				console.log(what, howmany);
 
-
 				const entity = {
 					walletQrId: ctx.params.walletQrId,
 				};
@@ -186,7 +173,6 @@ module.exports = {
 				data[what] = howmany;
 
 				try {
-
 					let resultFromReducting = await Nftcardano.findOneAndUpdate(entity, data, { new: true });
 
 					if (!resultFromReducting) {
@@ -202,7 +188,7 @@ module.exports = {
 						internalErrorCode: "nftcardano809",
 					});
 				}
-			}
+			},
 		},
 
 		checkWallet: {
@@ -218,6 +204,8 @@ module.exports = {
 					let checkWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}checkWallet`, ctx.params);
 					return checkWallet.data;
 				} catch (error) {
+					console.error("Error response data:", error.response.data);
+					console.error("Error message:", error.message);
 					return Promise.reject(error);
 				}
 			},
@@ -331,7 +319,6 @@ module.exports = {
 		updateDbSendingAssetDb: {
 			async handler(ctx) {
 				try {
-
 					const { sendAssetToWallet, qrCodeStatus, nftParams } = ctx.params;
 
 					console.log("\n\n\n ------ \n\n\n");
@@ -340,21 +327,20 @@ module.exports = {
 					console.log("updateDbSendingAssetDb nftParams", nftParams);
 
 					let entity = {
-						walletQrId: qrCodeStatus[0].walletQrId
+						walletQrId: qrCodeStatus[0].walletQrId,
 					};
 
 					let data = {
 						addressClientWallet: nftParams.addressWallet,
 						clientTxHash: sendAssetToWallet.sendAssetToWallet.txHash,
 						initialAmountValue: nftParams.amountValue,
-						walletNameSource: nftParams.walletName
+						walletNameSource: nftParams.walletName,
 					};
 
 					console.log("updateDbSendingAssetDb entity", entity);
 					console.log("updateDbSendingAssetDb data", data);
 
 					return await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
-
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -402,7 +388,7 @@ module.exports = {
 		updateQrCodeUrl: {
 			params: {
 				qrcode: { type: "string" },
-				nftlocation: { type: "url", optional: true, empty: true }
+				nftlocation: { type: "url", optional: true, empty: true },
 			},
 			async handler(ctx) {
 				const { qrcode, nftlocation } = ctx.params;
@@ -410,7 +396,7 @@ module.exports = {
 				let entity = { walletQrId: qrcode };
 
 				let data = {
-					nftlocation: nftlocation
+					nftlocation: nftlocation,
 				};
 
 				try {
@@ -422,7 +408,6 @@ module.exports = {
 						});
 					}
 					return await ctx.call("wallet.getQrCodeDataNoRedeem", { qrcode });
-
 				} catch (error) {
 					throw new MoleculerError("Greška u ažuriranju podataka: updateQrCodeUrl", 401, "ERR_GENERATING_CONTRACT", {
 						message: error.message,
@@ -435,7 +420,7 @@ module.exports = {
 		updateQrCodeUrlForward: {
 			params: {
 				qrcode: { type: "string" },
-				urlforwarding: { type: "boolean" }
+				urlforwarding: { type: "boolean" },
 			},
 			async handler(ctx) {
 				const { qrcode, urlforwarding } = ctx.params;
@@ -443,11 +428,10 @@ module.exports = {
 				let entity = { walletQrId: qrcode };
 
 				let data = {
-					urlforwarding: urlforwarding
+					urlforwarding: urlforwarding,
 				};
 
 				try {
-
 					let getData = await Nftcardano.findOneAndUpdate(entity, { $set: data }, { new: true });
 					if (!getData) {
 						throw new MoleculerError("Greška u ažuriranju podataka. No NFT data for this QR code", 401, "ERR_GENERATING_CONTRACT", {
@@ -469,7 +453,7 @@ module.exports = {
 		updateNftStory: {
 			params: {
 				qrcode: { type: "string" },
-				nftStory: { type: "string" }
+				nftStory: { type: "string" },
 			},
 			async handler(ctx) {
 				const { qrcode, nftStory } = ctx.params;
@@ -477,7 +461,7 @@ module.exports = {
 				let entity = { walletQrId: qrcode };
 
 				let data = {
-					nftStory: nftStory
+					nftStory: nftStory,
 				};
 
 				try {
@@ -522,6 +506,6 @@ module.exports = {
 					internalErrorCode: "wallet305_lessThen10MinElapsed",
 				});
 			}
-		}
+		},
 	},
 };
