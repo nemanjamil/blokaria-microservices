@@ -182,6 +182,7 @@ module.exports = {
 				mappingPolicy: "restrict", // restrict
 				autoAliases: false,
 				aliases: {
+					"POST user/buyTreePayment": "user.buyTreePayment",
 					"POST image/generateQrCodeInSystemNoImage": "image.generateQrCodeInSystemNoImage",
 					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
 					"POST user/registerUser": "user.registerUser",

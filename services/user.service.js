@@ -6,7 +6,7 @@ const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
-const stripe = require("stripe")("sk_test_51NC7VfA56cr17P0KtGjSSXnZ2wpWQ0ITs9PQOP9OIFUAseXxnxHlCEoKIBCUwN0XNOfyfoUdMVzbjZZRTpXzvm3I006z17i3AS");
+const stripe = require("stripe")("sk_test_51PkBQjRpUYLpu5YFHfmpaRcLCXM22CGRULZxjk3ONXm8PuzBoUtnKJWVqc8QVN0Pnbj38SgampUB0UphdHn83GJE00iCy90URb");
 
 //const Date = require("../utils/Date");
 //const { decode } = require("utf8");
@@ -527,7 +527,47 @@ module.exports = {
 						message = err.message;
 					}
 					throw new MoleculerError("Payment failed", 400, "PAYMENT_FAILED", {
-						message: err,
+						message: message,
+					});
+				}
+			},
+		},
+
+		buyTreePayment: {
+			params: {
+				quantity: { type: "any" },
+			},
+			async handler(ctx) {
+				const { quantity } = ctx.params;
+				const treePrice = 50;
+				try {
+					const session = await stripe.checkout.sessions.create({
+						payment_method_types: ["card"],
+						line_items: [
+							{
+								price_data: {
+									currency: "usd",
+									product_data: {
+										name: "Donation",
+									},
+									unit_amount: treePrice * 100, // amount in cents
+								},
+								quantity,
+							},
+						],
+						mode: "payment",
+						success_url: `http://localhost:5173/test`,
+						cancel_url: `http://localhost:5173/test`,
+					});
+					return { id: session.id };
+				} catch (err) {
+					console.error("Error processing payment:", err);
+					let message = "An error occurred while processing your payment.";
+					if (err.type === "StripeCardError") {
+						message = err.message;
+					}
+					throw new MoleculerError("Payment failed", 400, "PAYMENT_FAILED", {
+						message: message,
 					});
 				}
 			},
