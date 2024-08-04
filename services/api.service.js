@@ -185,6 +185,7 @@ module.exports = {
 				mappingPolicy: "restrict", // restrict
 				autoAliases: false,
 				aliases: {
+					"POST user/stripePayment": "user.stripePayment",
 					"POST image/generateQrCodeInSystemNoImage": "image.generateQrCodeInSystemNoImage",
 					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
 					"POST user/registerUser": "user.registerUser",
