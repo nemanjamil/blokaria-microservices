@@ -536,9 +536,10 @@ module.exports = {
 		buyTreePayment: {
 			params: {
 				quantity: { type: "any" },
+				userEmail: { type: "any" },
 			},
 			async handler(ctx) {
-				const { quantity } = ctx.params;
+				const { quantity, userEmail } = ctx.params;
 				const treePrice = 50;
 				try {
 					const session = await stripe.checkout.sessions.create({
@@ -558,6 +559,7 @@ module.exports = {
 						mode: "payment",
 						success_url: `http://localhost:5173/test`,
 						cancel_url: `http://localhost:5173/test`,
+						customer_email: userEmail,
 					});
 					return { id: session.id };
 				} catch (err) {
