@@ -6,7 +6,7 @@ const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const stripe = require("stripe")('sk_test_51NC7VfA56cr17P0KtGjSSXnZ2wpWQ0ITs9PQOP9OIFUAseXxnxHlCEoKIBCUwN0XNOfyfoUdMVzbjZZRTpXzvm3I006z17i3AS');
 
 //const Date = require("../utils/Date");
 //const { decode } = require("utf8");
