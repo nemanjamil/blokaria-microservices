@@ -27,7 +27,6 @@ const isEmpty = require("lodash/isEmpty");
 // 	res.end(next);
 // }
 
-
 module.exports = {
 	name: "api",
 	mixins: [ApiGateway],
@@ -121,6 +120,7 @@ module.exports = {
 				mappingPolicy: "restrict",
 				autoAliases: false,
 				aliases: {
+					"POST user/stripePayment": "user.stripePayment",
 					"POST user/registerUser": "user.registerUser",
 					"GET user/authenticate/:id/:userEmail": "user.authenticate",
 					"GET user/healthcheck": "user.healthcheck",
@@ -156,12 +156,9 @@ module.exports = {
 				authentication: false,
 				authorization: false,
 
-				whitelist: [
-					"http.*",
-				],
+				whitelist: ["http.*"],
 				mappingPolicy: "restrict",
 				autoAliases: true,
-
 
 				bodyParsers: {
 					json: {
@@ -185,7 +182,6 @@ module.exports = {
 				mappingPolicy: "restrict", // restrict
 				autoAliases: false,
 				aliases: {
-					"POST user/stripePayment": "user.stripePayment",
 					"POST image/generateQrCodeInSystemNoImage": "image.generateQrCodeInSystemNoImage",
 					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
 					"POST user/registerUser": "user.registerUser",
@@ -250,9 +246,7 @@ module.exports = {
 				mappingPolicy: "restrict", // restrict
 				autoAliases: false,
 				aliases: {
-					"POST nftcardano/updateQrCodeUrlForward": [
-						"nftcardano.updateQrCodeUrlForward",
-					],
+					"POST nftcardano/updateQrCodeUrlForward": ["nftcardano.updateQrCodeUrlForward"],
 					"POST nftcardano/updateQrCodeUrl": "nftcardano.updateQrCodeUrl",
 					"POST wallet/updateQrCodeText": "wallet.updateQrCodeText",
 				},
@@ -288,9 +282,7 @@ module.exports = {
 		},
 	},
 
-
 	methods: {
-
 		/**
 		 
 		 * @param {Context} ctx
@@ -300,7 +292,6 @@ module.exports = {
 		 */
 
 		async validateUpdateQrCode(ctx, route, req) {
-
 			try {
 				console.log("req", req.body);
 				console.log("meta", ctx.meta);
@@ -319,10 +310,10 @@ module.exports = {
 
 				let canPass = false;
 				switch (true) {
-					case (userEmail === userQrCodeEmail && qrCodeRedeemStatus === 0):
+					case userEmail === userQrCodeEmail && qrCodeRedeemStatus === 0:
 						canPass = true;
 						break;
-					case (userEmail === clientEmail && qrCodeRedeemStatus === 1):
+					case userEmail === clientEmail && qrCodeRedeemStatus === 1:
 						canPass = true;
 						break;
 
@@ -338,7 +329,6 @@ module.exports = {
 						internalErrorCode: "permission_error_1",
 					});
 				}
-
 			} catch (error) {
 				throw new MoleculerError(error.message, 401, "ERROR_VALIDATE_IF_USER_HAS_PRIVILAGES_TO_UPDATE", {
 					message: error.message,
@@ -371,7 +361,8 @@ module.exports = {
 						userEmail: getUser[0].userEmail,
 						userFullName: getUser[0].userFullName,
 						userId: getUser[0]._id,
-						userRole: (("userRole" in getUser[0])) ? getUser[0].userRole : 1,
+						// userRole: (("userRole" in getUser[0])) ? getUser[0].userRole : 1,
+						userRole: "userRole" in getUser[0] ? getUser[0].userRole : 1,
 						numberOfTransaction: getUser[0].numberOfTransaction,
 						numberOfCoupons: getUser[0].numberOfCoupons,
 					};

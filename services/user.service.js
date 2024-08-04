@@ -494,13 +494,11 @@ module.exports = {
 		},
 
 		stripePayment: {
-			rest: "POST /stripePayment",
 			params: {
 				donation: { type: "any" },
 			},
 			async handler(ctx) {
 				const donation = ctx.params.donation;
-
 				try {
 					return donation;
 				} catch (error) {
