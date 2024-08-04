@@ -516,7 +516,7 @@ module.exports = {
 						message = err.message;
 					}
 					throw new MoleculerError("Payment failed", 400, "PAYMENT_FAILED", {
-						message: message,
+						message: err,
 					});
 				}
 			},
