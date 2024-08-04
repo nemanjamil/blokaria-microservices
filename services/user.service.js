@@ -6,6 +6,7 @@ const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 //const Date = require("../utils/Date");
 //const { decode } = require("utf8");
@@ -500,10 +501,22 @@ module.exports = {
 			async handler(ctx) {
 				const donation = ctx.params.donation;
 				try {
-					return donation;
-				} catch (error) {
+					const charge = await stripe.charges.create({
+						amount: 5000,
+						currency: "usd",
+						source: "token",
+						description: "Charge for text@example.com",
+					});
+					console.log("charge", charge);
+					return charge;
+				} catch (err) {
+					console.error("Error processing payment:", err);
+					let message = "An error occurred while processing your payment.";
+					if (err.type === "StripeCardError") {
+						message = err.message;
+					}
 					throw new MoleculerError("Payment failed", 400, "PAYMENT_FAILED", {
-						message: "Payment failed",
+						message: message,
 					});
 				}
 			},
