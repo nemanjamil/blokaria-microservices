@@ -120,7 +120,7 @@ module.exports = {
 				mappingPolicy: "restrict",
 				autoAliases: false,
 				aliases: {
-					"POST user/stripePayment": "user.stripePayment",
+					"POST user/donationPayment": "user.donationPayment",
 					"POST user/registerUser": "user.registerUser",
 					"GET user/authenticate/:id/:userEmail": "user.authenticate",
 					"GET user/healthcheck": "user.healthcheck",

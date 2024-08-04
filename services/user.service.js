@@ -6,7 +6,7 @@ const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
-const stripe = require("stripe")('sk_test_51NC7VfA56cr17P0KtGjSSXnZ2wpWQ0ITs9PQOP9OIFUAseXxnxHlCEoKIBCUwN0XNOfyfoUdMVzbjZZRTpXzvm3I006z17i3AS');
+const stripe = require("stripe")("sk_test_51NC7VfA56cr17P0KtGjSSXnZ2wpWQ0ITs9PQOP9OIFUAseXxnxHlCEoKIBCUwN0XNOfyfoUdMVzbjZZRTpXzvm3I006z17i3AS");
 
 //const Date = require("../utils/Date");
 //const { decode } = require("utf8");
@@ -494,20 +494,21 @@ module.exports = {
 			},
 		},
 
-		stripePayment: {
+		donationPayment: {
 			params: {
-				donation: { type: "any" },
+				amount: { type: "any" },
+				token: { type: "any" },
 			},
 			async handler(ctx) {
-				const donation = ctx.params.donation;
+				const { amount, token } = ctx.params;
+				const priceOfTree = 5000;
 				try {
 					const charge = await stripe.charges.create({
-						amount: 5000,
+						amount: priceOfTree * amount,
 						currency: "usd",
-						source: "token",
-						description: "Charge for text@example.com",
+						source: token,
+						description: "Charge for green power",
 					});
-					console.log("charge", charge);
 					return charge;
 				} catch (err) {
 					console.error("Error processing payment:", err);
