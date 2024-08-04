@@ -497,19 +497,29 @@ module.exports = {
 		donationPayment: {
 			params: {
 				amount: { type: "any" },
-				token: { type: "any" },
 			},
 			async handler(ctx) {
-				const { amount, token } = ctx.params;
-				const priceOfTree = 5000;
+				const { amount } = ctx.params;
 				try {
-					const charge = await stripe.charges.create({
-						amount: priceOfTree * amount,
-						currency: "usd",
-						source: token,
-						description: "Charge for green power",
+					const session = await stripe.checkout.sessions.create({
+						payment_method_types: ["card"],
+						line_items: [
+							{
+								price_data: {
+									currency: "usd",
+									product_data: {
+										name: "Donation",
+									},
+									unit_amount: amount * 100, // amount in cents
+								},
+								quantity: 1,
+							},
+						],
+						mode: "payment",
+						success_url: `http://localhost:5173/`,
+						cancel_url: `http://localhost:5173/`,
 					});
-					return charge;
+					return { id: session.id };
 				} catch (err) {
 					console.error("Error processing payment:", err);
 					let message = "An error occurred while processing your payment.";
