@@ -516,8 +516,8 @@ module.exports = {
 							},
 						],
 						mode: "payment",
-						success_url: `http://localhost:5173/test`,
-						cancel_url: `http://localhost:5173/test`,
+						success_url: `http://localhost:5173/success`,
+						cancel_url: `http://localhost:5173/unsuccessful`
 					});
 					return { id: session.id };
 				} catch (err) {
