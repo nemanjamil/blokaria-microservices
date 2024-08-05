@@ -6,7 +6,7 @@ const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
-const stripe = require("stripe")("sk_test_51PkBQjRpUYLpu5YFHfmpaRcLCXM22CGRULZxjk3ONXm8PuzBoUtnKJWVqc8QVN0Pnbj38SgampUB0UphdHn83GJE00iCy90URb");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 //const Date = require("../utils/Date");
 //const { decode } = require("utf8");
@@ -516,8 +516,8 @@ module.exports = {
 							},
 						],
 						mode: "payment",
-						success_url: `http://localhost:5173/success`,
-						cancel_url: `http://localhost:5173/unsuccessful`
+						success_url: process.env.PAYMENT_SUCCESS_ROUTE,
+						cancel_url: process.env.PAYMENT_FAIL_ROUTE,
 					});
 					return { id: session.id };
 				} catch (err) {
@@ -557,8 +557,8 @@ module.exports = {
 							},
 						],
 						mode: "payment",
-						success_url: `http://localhost:5173/success`,
-						cancel_url: `http://localhost:5173/unsuccessful`,
+						success_url: process.env.PAYMENT_SUCCESS_ROUTE,
+						cancel_url: process.env.PAYMENT_FAIL_ROUTE,
 						customer_email: userEmail,
 					});
 					return { id: session.id };
