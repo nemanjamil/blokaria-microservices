@@ -102,7 +102,7 @@ const paymentService = {
 						payer: userId,
 					});
 					await invoice.save();
-					return { id: session.id, invoice: invoice.toJSON() };
+					return { id: session.id, invoice: invoice.toJSON(), test: ctx.meta.user };
 				} catch (err) {
 					console.error("Error processing payment:", err);
 					let message = "An error occurred while processing your payment.";
