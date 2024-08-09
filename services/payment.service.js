@@ -1,5 +1,5 @@
 const { MoleculerError } = require("moleculer").Errors;
-const { default: DbService } = require("moleculer-db");
+const DbService = require("moleculer-db");
 const StripeMixin = require("../mixins/stripe.mixin");
 const Invoice = require("../models/Invoice");
 const dbConnection = require("../utils/dbConnection");
