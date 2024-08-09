@@ -141,6 +141,7 @@ const paymentService = {
 					case "payment_intent.succeeded":
 						// Then define and call a function to handle the event payment_intent.succeeded
 						this.logger.info("Payment Intent Succeeded:", event.data.object);
+						// TODO: create an item in user's inventory (tree)
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
 					// ... handle other event types
 					case "payment_intent.canceled":
