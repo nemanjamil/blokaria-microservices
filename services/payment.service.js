@@ -70,6 +70,7 @@ const paymentService = {
 				userEmail: { type: "string" },
 			},
 			async handler(ctx) {
+				this.logger.info("Buy Tree Payment triggered:", ctx.params);
 				// TODO: Lazar kindly use ctx.meta.user to get user email
 				const { quantity, userEmail } = ctx.params;
 				const userId = ctx.meta.user.userId;
@@ -97,7 +98,7 @@ const paymentService = {
 					});
 					this.logger.info("Creating Invoice from session:", session);
 					const invoice = new Invoice({
-						amount: session.amount,
+						amount: session.amount_total,
 						invoiceId: session.id,
 						payer: userId,
 					});
@@ -136,20 +137,19 @@ const paymentService = {
 					return `Webhook Error: ${err.message}`;
 				}
 
+				this.logger.info("Stripe Event Data:", event.data);
+
 				// Handle the event
 				switch (event.type) {
-					case "payment_intent.succeeded":
-						// Then define and call a function to handle the event payment_intent.succeeded
+					case "checkout.session.completed":
+						// Then define and call a function to handle the event checkout.session.completed
 						this.logger.info("Payment Intent Succeeded:", event.data.object);
 						// TODO: create an item in user's inventory (tree)
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
 					// ... handle other event types
-					case "payment_intent.canceled":
+					case "checkout.session.async_payment_failed":
 						this.logger.info("Payment Intent Canceled:", event.data.object);
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.FAILED);
-					case "payment_intent.created":
-						this.logger.info("Payment Intent Created:", event.data.object);
-						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.CREATED);
 					case "checkout.session.expired":
 						this.logger.info("Payment Intent Expired:", event.data.object);
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.EXPIRED);
