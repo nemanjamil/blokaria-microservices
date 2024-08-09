@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.ObjectId;
 
 const InvoiceStatus = {
-	INITIALIZED: "initialized",
 	CREATED: "created",
 	COMPLETED: "completed",
 	FAILED: "failed",
@@ -11,7 +10,7 @@ const InvoiceStatus = {
 
 const invoiceSchema = new mongoose.Schema(
 	{
-		status: { type: String, default: InvoiceStatus.INITIALIZED },
+		status: { type: String, default: InvoiceStatus.CREATED },
 		amount: { type: Number, required: true },
 		invoiceId: { type: String, required: true },
 		payer: {
