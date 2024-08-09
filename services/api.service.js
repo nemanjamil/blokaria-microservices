@@ -120,7 +120,7 @@ module.exports = {
 				mappingPolicy: "restrict",
 				autoAliases: false,
 				aliases: {
-					"POST user/donationPayment": "user.donationPayment",
+					"POST payment/donation": "v1.payment.donationPayment",
 					"POST user/registerUser": "user.registerUser",
 					"GET user/authenticate/:id/:userEmail": "user.authenticate",
 					"GET user/healthcheck": "user.healthcheck",
@@ -182,7 +182,6 @@ module.exports = {
 				mappingPolicy: "restrict", // restrict
 				autoAliases: false,
 				aliases: {
-					"POST user/buyTreePayment": "user.buyTreePayment",
 					"POST image/generateQrCodeInSystemNoImage": "image.generateQrCodeInSystemNoImage",
 					"POST wallet/getListQrCodesByUser": "wallet.getListQrCodesByUser",
 					"POST user/registerUser": "user.registerUser",
@@ -211,6 +210,7 @@ module.exports = {
 					"POST wallet/updateDataInDb": "wallet.updateDataInDb",
 					"POST wallet/updateStory": "wallet.updateStory",
 					"POST nftcardano/generateNft": "nftcardano.generateNft",
+					"POST payment/plant-tree": "v1.payment.buyTreePayment",
 				},
 				callingOptions: {},
 
@@ -264,6 +264,19 @@ module.exports = {
 					},
 				},
 				logging: true,
+			},
+
+			{
+				path: "/stripe",
+				aliases: {
+					"POST /webhook": "v1.payment.handleStripeWebhook",
+				},
+				bodyParsers: {
+					json: false,
+					raw: {
+						type: "application/json",
+					},
+				},
 			},
 		],
 
