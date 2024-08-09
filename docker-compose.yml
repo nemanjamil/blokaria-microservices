@@ -41,6 +41,8 @@ services:
 
   mongo:
     image: mongo:4
+    ports:
+      - 27017:27017
     volumes:
       - data:/data/db
     networks:
