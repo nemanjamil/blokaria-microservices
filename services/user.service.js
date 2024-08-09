@@ -6,7 +6,6 @@ const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 //const Date = require("../utils/Date");
 //const { decode } = require("utf8");
@@ -489,87 +488,6 @@ module.exports = {
 					throw new MoleculerError(error.message, 401, "UPDATE_PASSWORD_FAIL", {
 						message: error.message,
 						internalErrorCode: "user50",
-					});
-				}
-			},
-		},
-
-		donationPayment: {
-			params: {
-				amount: { type: "any" },
-			},
-			async handler(ctx) {
-				const { amount } = ctx.params;
-				try {
-					const session = await stripe.checkout.sessions.create({
-						payment_method_types: ["card"],
-						line_items: [
-							{
-								price_data: {
-									currency: "usd",
-									product_data: {
-										name: "Donation",
-									},
-									unit_amount: amount * 100, // amount in cents
-								},
-								quantity: 1,
-							},
-						],
-						mode: "payment",
-						success_url: process.env.PAYMENT_SUCCESS_ROUTE,
-						cancel_url: process.env.PAYMENT_FAIL_ROUTE,
-					});
-					return { id: session.id };
-				} catch (err) {
-					console.error("Error processing payment:", err);
-					let message = "An error occurred while processing your payment.";
-					if (err.type === "StripeCardError") {
-						message = err.message;
-					}
-					throw new MoleculerError("Payment failed", 400, "PAYMENT_FAILED", {
-						message: message,
-					});
-				}
-			},
-		},
-
-		buyTreePayment: {
-			params: {
-				quantity: { type: "any" },
-				userEmail: { type: "any" },
-			},
-			async handler(ctx) {
-				const { quantity, userEmail } = ctx.params;
-				const treePrice = 50;
-				try {
-					const session = await stripe.checkout.sessions.create({
-						payment_method_types: ["card"],
-						line_items: [
-							{
-								price_data: {
-									currency: "usd",
-									product_data: {
-										name: "Donation",
-									},
-									unit_amount: treePrice * 100, // amount in cents
-								},
-								quantity,
-							},
-						],
-						mode: "payment",
-						success_url: process.env.PAYMENT_SUCCESS_ROUTE,
-						cancel_url: process.env.PAYMENT_FAIL_ROUTE,
-						customer_email: userEmail,
-					});
-					return { id: session.id };
-				} catch (err) {
-					console.error("Error processing payment:", err);
-					let message = "An error occurred while processing your payment.";
-					if (err.type === "StripeCardError") {
-						message = err.message;
-					}
-					throw new MoleculerError("Payment failed", 400, "PAYMENT_FAILED", {
-						message: message,
 					});
 				}
 			},
