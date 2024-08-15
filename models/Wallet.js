@@ -63,7 +63,7 @@ const normalizeUnderscoreMiddleware = function (next) {
 		// If multiple documents are returned
 		this.forEach((doc) => {
 			console.log("normalizing underscore for doc:", doc);
-			Object.keys(doc).forEach(key => {
+			Object.keys(doc).forEach((key) => {
 				if (key.startsWith("_")) {
 					console.log("normalizing", key, "field");
 					doc[key] = JSON.parse(JSON.stringify(Object.assign({}, doc)[key]));
@@ -73,7 +73,7 @@ const normalizeUnderscoreMiddleware = function (next) {
 	} else {
 		// If a single document is returned
 		console.log("normalizing underscore for doc(this):", this);
-		Object.keys(this).forEach(key => {
+		Object.keys(this).forEach((key) => {
 			if (key.startsWith("_")) {
 				console.log("normalizing", key, "field");
 				this[key] = JSON.parse(JSON.stringify(Object.assign({}, this)[key]));
