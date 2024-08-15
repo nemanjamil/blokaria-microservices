@@ -56,6 +56,11 @@ const walletSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: "Project",
 	},
+	_area: {
+		type: ObjectId,
+		default: null,
+		ref: "Area",
+	},
 });
 
 const normalizeUnderscoreMiddleware = function (next) {
