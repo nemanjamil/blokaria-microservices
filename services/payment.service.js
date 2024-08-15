@@ -3,6 +3,8 @@ const DbService = require("moleculer-db");
 const StripeMixin = require("../mixins/stripe.mixin");
 const Invoice = require("../models/Invoice");
 const dbConnection = require("../utils/dbConnection");
+const { v4 } = require("uuid");
+const Wallet = require("../models/Wallet");
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
@@ -103,7 +105,7 @@ const paymentService = {
 						payer: userId,
 					});
 					await invoice.save();
-					return { id: session.id, invoice: invoice.toJSON()};
+					return { id: session.id, invoice: invoice.toJSON() };
 				} catch (err) {
 					console.error("Error processing payment:", err);
 					let message = "An error occurred while processing your payment.";
@@ -161,6 +163,46 @@ const paymentService = {
 				return;
 			},
 		},
+	},
+	methods: {
+		// async createItem(user, location) {
+		// 	// {
+		// 	//     "walletQrId": "b9865c5d-e3f3-4674-8d5f-507ace1866f5",
+		// 	//     "userDesc": "52.54177259075365, 13.421598507704305",
+		// 	//     "userFullname": "Nemanja Milivojevic",
+		// 	//     "productName": "product #2",
+		// 	//     "userEmail": "nemanjamil@gmail.com",
+		// 	//     "costOfProduct": 1,
+		// 	//     "qrCodeRedeemStatus": 0,
+		// 	//     "contributorData": "",
+		// 	//     "generatenft": false,
+		// 	//     "productVideo": "",
+		// 	//     "publicQrCode": true,
+		// 	//     "longText": "longy",
+		// 	//     "userLang": "en",
+		// 	//     "productPicture": ""
+		// 	// }
+		// 	const walletQrId = v4();
+		// 	const entity = {
+		// 		walletQrId: walletQrId,
+		// 		userDesc: "",
+		// 		userFullname: user.userFullname,
+		// 		userEmail: user.userEmail,
+		// 		productName: "",
+		// 		publicQrCode: wallet.publicQrCode,
+		// 		costOfProduct: wallet.costOfProduct,
+		// 		contributorData: wallet.contributorData,
+		// 		longText: wallet.longText, // TODO: Advanced Settings
+		// 		hasstory: wallet.hasstory, // false
+		// 		accessCode: Utils.generatePass(),
+		// 		_creator: user.userId,
+		// 	};
+		// 	// longText, contributorData
+		// 	// Creating an Item
+		// 	const item = new Wallet({
+		// 		wallet,
+		// 	});
+		// },
 	},
 };
 
