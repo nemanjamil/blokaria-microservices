@@ -5,6 +5,7 @@ const Invoice = require("../models/Invoice");
 const dbConnection = require("../utils/dbConnection");
 const { v4 } = require("uuid");
 const Wallet = require("../models/Wallet");
+const Utils = require("../utils/utils");
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
@@ -147,7 +148,8 @@ const paymentService = {
 						// Then define and call a function to handle the event checkout.session.completed
 						this.logger.info("Payment Intent Succeeded:", event.data.object);
 						// TODO: create an item in user's inventory (tree)
-						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
+						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
+						return await this.createItem(event.data.object.id);
 					// ... handle other event types
 					case "checkout.session.async_payment_failed":
 						this.logger.info("Payment Intent Canceled:", event.data.object);
@@ -165,44 +167,44 @@ const paymentService = {
 		},
 	},
 	methods: {
-		// async createItem(user, location) {
-		// 	// {
-		// 	//     "walletQrId": "b9865c5d-e3f3-4674-8d5f-507ace1866f5",
-		// 	//     "userDesc": "52.54177259075365, 13.421598507704305",
-		// 	//     "userFullname": "Nemanja Milivojevic",
-		// 	//     "productName": "product #2",
-		// 	//     "userEmail": "nemanjamil@gmail.com",
-		// 	//     "costOfProduct": 1,
-		// 	//     "qrCodeRedeemStatus": 0,
-		// 	//     "contributorData": "",
-		// 	//     "generatenft": false,
-		// 	//     "productVideo": "",
-		// 	//     "publicQrCode": true,
-		// 	//     "longText": "longy",
-		// 	//     "userLang": "en",
-		// 	//     "productPicture": ""
-		// 	// }
-		// 	const walletQrId = v4();
-		// 	const entity = {
-		// 		walletQrId: walletQrId,
-		// 		userDesc: "",
-		// 		userFullname: user.userFullname,
-		// 		userEmail: user.userEmail,
-		// 		productName: "",
-		// 		publicQrCode: wallet.publicQrCode,
-		// 		costOfProduct: wallet.costOfProduct,
-		// 		contributorData: wallet.contributorData,
-		// 		longText: wallet.longText, // TODO: Advanced Settings
-		// 		hasstory: wallet.hasstory, // false
-		// 		accessCode: Utils.generatePass(),
-		// 		_creator: user.userId,
-		// 	};
-		// 	// longText, contributorData
-		// 	// Creating an Item
-		// 	const item = new Wallet({
-		// 		wallet,
-		// 	});
-		// },
+		async createItem(invoiceId) {
+			const walletQrId = v4();
+
+			const invoice = await Invoice.findOne({ invoiceId }).populate("payer").populate("area").exec();
+
+			if (!invoice) {
+				throw new MoleculerError("No Invoice Found");
+			}
+
+			const user = invoice.payer;
+			const area = invoice.area;
+
+			const entity = {
+				walletQrId: walletQrId,
+				userDesc: `${area.longitude}, ${area.latitude}`, // Use selected point
+				userFullname: user.userFullName,
+				userEmail: user.userEmail,
+				productName: `Plant in ${area.name}`, // random letters and numbers for unique names
+				publicQrCode: false,
+				costOfProduct: 1,
+				longText: "",
+				hasstory: false, // false
+				accessCode: Utils.generatePass(),
+				_creator: user.userId,
+				_area: area._id,
+			};
+
+			// Creating an Item
+			const item = new Wallet(entity);
+
+			try {
+				await item.save();
+			} catch (err) {
+				throw new MoleculerError("Item Create Failed", 500, "TREE_ITEM_CREATION", {
+					message: "An error occured while trying creating an item in db: " + err.toString(),
+				});
+			}
+		},
 	},
 };
 
