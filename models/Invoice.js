@@ -18,6 +18,11 @@ const invoiceSchema = new mongoose.Schema(
 			ref: "User",
 			required: true,
 		},
+		area: {
+			type: ObjectId,
+			ref: "Area",
+			required: true,
+		},
 	},
 	{ timestamps: true }
 );
