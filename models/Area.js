@@ -6,6 +6,8 @@ const areaSchema = new mongoose.Schema({
 	address: String,
 	longitude: Number,
 	latitude: Number,
+	// points: Array<{ lon, lat, name, id }>
+	// radius: Number, //
 	name: String,
 });
 
