@@ -147,7 +147,6 @@ const paymentService = {
 					case "checkout.session.completed":
 						// Then define and call a function to handle the event checkout.session.completed
 						this.logger.info("Payment Intent Succeeded:", event.data.object);
-						// TODO: create an item in user's inventory (tree)
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
 						return await this.createItem(event.data.object.id);
 					// ... handle other event types
