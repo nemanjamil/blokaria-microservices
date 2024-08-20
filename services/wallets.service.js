@@ -918,21 +918,31 @@ module.exports = {
 
 		// wallet130
 		async getlistQrCodesOwnedByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode }) {
-			const entity = {
-				clientEmail: userEmail,
-				qrCodeRedeemStatus,
-			};
-			if (publicQrCode) entity.publicQrCode = publicQrCode;
-
 			try {
-				this.logger.info("getlistQrCodesOwnedByUserMethod params", entity);
+				this.logger.info("getlistQrCodesOwnedByUserMethod params", {
+					clientEmail: { $exists: true, $eq: userEmail },
+					qrCodeRedeemStatus,
+					...(publicQrCode === true ? { publicQrCode } : {}),
+				});
 
-				return await Wallet.find(entity)
+				// const query = Wallet.where('clientEmail').exists(true).equals(userEmail).where('qrCodeRedeemStatus').equals(qrCodeRedeemStatus);
+				// if (publicQrCode === true) {
+				// 	query.where('publicQrCode').equals(true);
+				// }
+				// const items = query.exec();
+
+				return await Wallet.find({
+					clientEmail: { $exists: true, $eq: userEmail },
+					qrCodeRedeemStatus: 1,
+					...(publicQrCode === true ? { publicQrCode } : {}),
+				})
 					.sort("-createdAt")
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 })
-					.populate("_nfts");
+					.populate("_nfts")
+					.exec();
 			} catch (error) {
+				this.logger.debug("failed to fetch user owned qrcodes", error);
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet130" });
 			}
 		},
