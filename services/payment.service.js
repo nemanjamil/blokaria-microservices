@@ -6,6 +6,7 @@ const dbConnection = require("../utils/dbConnection");
 const { v4 } = require("uuid");
 const Wallet = require("../models/Wallet");
 const Utils = require("../utils/utils");
+const { AchievementUID } = require("../models/Achievement");
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
@@ -183,8 +184,8 @@ const paymentService = {
 				userDesc: `${area.longitude}, ${area.latitude}`, // Use selected point
 				userFullname: user.userFullName,
 				userEmail: user.userEmail,
-				productName: `Plant in ${area.name}`, // random letters and numbers for unique names
-				publicQrCode: false,
+				productName: `Plant in ${area.name}`, // TODO: random letters and numbers for unique names
+				publicQrCode: true,
 				costOfProduct: 1,
 				longText: "",
 				hasstory: false, // false
@@ -201,6 +202,31 @@ const paymentService = {
 			} catch (err) {
 				throw new MoleculerError("Item Create Failed", 500, "TREE_ITEM_CREATION", {
 					message: "An error occured while trying creating an item in db: " + err.toString(),
+				});
+			}
+
+			// Check for amount of items
+			// and assign achievement if required
+			const amount = await Wallet.countDocuments({
+				_creator: user.userId,
+			});
+
+			if (amount === 1) {
+				// beginner level achievement create
+				this.call("v1.achievement.createAchievement", {
+					uid: AchievementUID.Beginner,
+					// name: "Beginner", // from json
+					// description: // from json,
+					userId: user.userId,
+				});
+			}
+			if (amount === 5) {
+				// elementary level achievement create
+				this.call("v1.achievement.createAchievement", {
+					uid: AchievementUID.Beginner,
+					// name: "Beginner", // from json
+					// description: // from json,
+					userId: user.userId,
 				});
 			}
 		},
