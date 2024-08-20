@@ -13,7 +13,7 @@ const walletSchema = new mongoose.Schema({
 	createdAt: { type: Date, default: Date.now, index: true },
 	clientMessage: { type: String },
 	clientName: { type: String },
-	clientEmail: { type: String },
+	clientEmail: { type: String, default: "" },
 	metaDataRandomNumber: { type: Number },
 	productPicture: { type: String },
 	productVideo: { type: String },
@@ -75,7 +75,7 @@ const normalizeUnderscoreMiddleware = function (next) {
 				}
 			});
 		});
-	} else {
+	} else if (this) {
 		// If a single document is returned
 		console.log("normalizing underscore for doc(this):", this);
 		Object.keys(this).forEach((key) => {
@@ -90,6 +90,11 @@ const normalizeUnderscoreMiddleware = function (next) {
 
 // Apply the middleware to various query methods
 walletSchema.post("find", function (docs, next) {
+	if (!docs || docs.length === 0) {
+		next();
+		return;
+	}
+
 	docs.forEach((doc) => normalizeUnderscoreMiddleware.call(doc, next));
 });
 
