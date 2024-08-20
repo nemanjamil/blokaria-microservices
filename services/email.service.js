@@ -22,6 +22,7 @@ module.exports = {
 	metadata: {
 		scalable: true,
 		priority: 5,
+		bccemail: "bcc@blokaria.com",
 	},
 	actions: {
 		registerUser: {
@@ -118,6 +119,7 @@ module.exports = {
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}`,
 						cc: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
 						subject: "Informacije o pametnom ugovoru ✔",
 						html: htmlToSend,
 					};
@@ -169,6 +171,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
 						subject: "Generisanje QR koda ✔",
 						html: htmlToSend,
 						attachments: [
@@ -235,6 +238,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}, ${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
 						subject: "Email transakcije ✔",
 						html: htmlToSend,
 					};
@@ -277,6 +281,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
 						subject: "Resetovanje lozinke ✔",
 						html: htmlToSend,
 					};
@@ -333,6 +338,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
 						subject: "Korisnik je zainteresovan za Vaš proizvod ✔",
 						html: htmlToSend,
 					};
@@ -379,6 +385,7 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}`,
+						bcc: `${this.metadata.bccemail}`,
 						subject: "Zahtev odobren ✔",
 						html: htmlToSend,
 					};
