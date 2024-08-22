@@ -6,6 +6,8 @@ const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
+const Wallet = require("../models/Wallet.js");
+const { getNextLevelUID } = require("../models/Achievement.js");
 
 //const Date = require("../utils/Date");
 //const { decode } = require("utf8");
@@ -377,19 +379,61 @@ module.exports = {
 				};
 
 				try {
-					let user = await User.find(entity, {
+					const user = await User.find(entity, {
 						numberOfTransaction: 1,
 						userEmail: 1,
 						userRole: 1,
 						userFullName: 1,
 						numberOfCoupons: 1,
 						userVerified: 1,
-					});
+					}).exec();
+
+					const itemsCount = await Wallet.countDocuments({ clientEmail: user.userEmail, qrCodeRedeemStatus: 1 }).exec();
+
+					const nextLevel = getNextLevelUID(user.level);
+
+					user.plantedTreesAmount = itemsCount;
+					user.upcomingLevel = nextLevel;
+
 					return user;
 				} catch (error) {
 					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
 						message: "User Not Found",
 						internalErrorCode: "user20",
+					});
+				}
+			},
+		},
+
+		userGetMetrics: {
+			rest: "GET /userMetrics",
+			async handler(ctx) {
+				const CARBON_YEARLY_FOOTPRINT = process.env.CARBON_YEARLY_FOOTPRINT;
+				const TREE_REDUCE_FOOTPRINT = process.env.TREE_REDUCE_FOOTPRINT;
+
+				const { userId } = ctx.meta.user;
+
+				try {
+					const user = await User.findById(userId).exec();
+					if (!user) {
+						throw new MoleculerError("User not found", 400, "USER_NOT_FOUND", {
+							message: "User Not Found",
+							internalErrorCode: "user21",
+						});
+					}
+
+					const itemsAmount = await Wallet.countDocuments({ qrCodeRedeemStatus: 1, clientEmail: user.userEmail }).exec();
+
+					const value = CARBON_YEARLY_FOOTPRINT - itemsAmount * TREE_REDUCE_FOOTPRINT;
+
+					return {
+						ok: true,
+						tonsPerYear: value,
+					};
+				} catch (err) {
+					throw new MoleculerError("Failed to get metrics", 500, "METRICS_FETCH_FAILED", {
+						message: "Metrics Fetch Failed",
+						internalErrorCode: "metrics500",
 					});
 				}
 			},
