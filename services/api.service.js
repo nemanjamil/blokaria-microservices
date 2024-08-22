@@ -188,6 +188,7 @@ module.exports = {
 					"POST user/updateUser": "user.updateUser",
 					"POST user/addCouponsAndQrCodesToUser": "user.addCouponsAndQrCodesToUser",
 					"POST user/userGet": "user.userGet",
+					"GET user/userMetrics": "user.userGetMetrics",
 					"POST wallet/getListQrCodesByUserPrivate": "wallet.getListQrCodesByUserPrivate",
 					"POST wallet/getQrCodeData": "wallet.getQrCodeData",
 					"POST wallet/generateContract": "wallet.generateContract",
@@ -211,6 +212,7 @@ module.exports = {
 					"POST wallet/updateStory": "wallet.updateStory",
 					"POST nftcardano/generateNft": "nftcardano.generateNft",
 					"POST payment/plant-tree": "v1.payment.buyTreePayment",
+					"GET achievement": "v1.achievement.getUserAchievements",
 				},
 				callingOptions: {},
 
