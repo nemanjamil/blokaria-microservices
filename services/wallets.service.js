@@ -495,14 +495,16 @@ module.exports = {
 			params: {
 				qrcode: { type: "string" },
 				longText: { type: "string", optional: true, empty: true, max: 150000 },
+				productName: { type: "string", optional: true, empty: true, max: 50 },
 			},
 			async handler(ctx) {
-				const { qrcode, longText } = ctx.params;
+				const { qrcode, longText, productName } = ctx.params;
 
 				let entity = { walletQrId: qrcode };
 
 				let data = {
 					longText: longText,
+					productName: productName,
 				};
 
 				try {
