@@ -1,0 +1,275 @@
+{
+	"info": {
+		"_postman_id": "d649bb89-8618-4837-97eb-d4adfca6857b",
+		"name": "Blokaria",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31402633"
+	},
+	"item": [
+		{
+			"name": "Create Area",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"country\": \"Serbia\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"Nemanja\",\n\t\"longitude\": 43.4252099,\n\t\"latitude\": 20.6202073,\n\t\"name\": \"type\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}/api-auth/area/create",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"api-auth",
+						"area",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Areas",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}/api-auth/area/getAllAreas",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"api-auth",
+						"area",
+						"getAllAreas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Area By ID",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"66cc716e610f6fae5bf86072\"\n    // \"showConnectedItems\": true // If true then list all the items that belongs to that area\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}/api-auth/area/getAreaById",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"api-auth",
+						"area",
+						"getAreaById"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Area By ID Country",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"country\": \"Serbia\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}/api-auth/area/getAreasByCountry",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"api-auth",
+						"area",
+						"getAreasByCountry"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Area",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"66cc716e610f6fae5bf86072\",\n    \"country\": \"Serbia\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"Golija\",\n\t\"longitude\": 43.4252099,\n\t\"latitude\": 20.6202073,\n\t\"name\": \"type\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}/api-auth/area/edit",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"api-auth",
+						"area",
+						"edit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Area",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"66cc716e610f6fae5bf86072\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}/api-auth/area/delete",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"api-auth",
+						"area",
+						"delete"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "domain",
+			"value": "localhost:3022",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJlZ3lwdGlhbmVnbzE3QGdtYWlsLmNvbSIsImlhdCI6MTcyNDYwOTY5NSwiZXhwIjoxNzI1MjE0NDk1fQ.q3NLOMUaA8NeFBDsTjHMlrT6xlyjVHnXKs3zfkm8n3E",
+			"type": "string"
+		}
+	]
+}
