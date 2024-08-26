@@ -267,6 +267,36 @@ module.exports = {
 				},
 				logging: true,
 			},
+			{
+				path: "/api-auth",
+
+				authentication: true,
+				authorization: "adminAuth",
+				whitelist: ["**"],
+				mappingPolicy: "restrict", 
+				autoAliases: false,
+				aliases: {
+					"POST /area/create": "v1.area.createArea",
+					"POST /area/edit": "v1.area.editArea",
+					"POST /area/delete": "v1.area.deleteArea",
+					"GET /area/getAllAreas": "v1.area.getAllAreas",
+					"POST /area/getAreaById": "v1.area.getAreaById",
+					"POST /area/getAreasByCountry": "v1.area.getAreasByCountry",
+				},
+				callingOptions: {},
+
+				bodyParsers: {
+					json: {
+						strict: false,
+						limit: "1MB",
+					},
+					urlencoded: {
+						extended: true,
+						limit: "1MB",
+					},
+				},
+				logging: true,
+			},
 
 			{
 				path: "/stripe",
@@ -352,6 +382,45 @@ module.exports = {
 				});
 			}
 		},
+		async adminAuth(ctx, route, req) {
+			try {
+				console.log("req", req.body);
+				console.log("meta", ctx.meta);
+				
+				const { userEmail } = ctx.meta.user;
+				let users = await ctx.call("user.userFind", { userEmail });
+				const user = users ? users[0] : null;
+				
+				if (!user) {
+					throw new MoleculerClientError("User not found.", 422, "USER_FIND_ERROR", {
+						message: "User with the provided email does not exist.",
+						internalErrorCode: "auth30",
+					});
+				}
+				
+				console.log("userRole", user.userRole);
+				let canPass = false;
+
+				if (user.userRole == 1) { /* Assume 1 - admin */
+					canPass = true;
+				}
+
+				console.log("canPass", canPass);
+
+				if (!canPass) {
+					throw new MoleculerError("You do not have sufficient permissions to do this request", 401, "ERROR_ON_PERMISSIONS", {
+						message: "You do not have sufficient permissions to do this request",
+						internalErrorCode: "permission_error_1",
+					});
+				}
+			 } catch (error) {
+				throw new MoleculerError(error.message, 401, "ERROR_VALIDATE_IF_USER_HAS_PRIVILAGES_TO_UPDATE", {
+					message: error.message,
+					internalErrorCode: "update10",
+				});
+			}
+		},
+
 		/**
 		 * Authenticate the request. It check the `Authorization` token value in the request header.
 		 * Check the token value & resolve the user by the token.
