@@ -73,11 +73,12 @@ const paymentService = {
 			params: {
 				quantity: { type: "number" },
 				userEmail: { type: "string" },
+				area: { type: "object" },
 			},
 			async handler(ctx) {
 				this.logger.info("Buy Tree Payment triggered:", ctx.params);
 				// TODO: Lazar kindly use ctx.meta.user to get user email
-				const { quantity, userEmail } = ctx.params;
+				const { quantity, userEmail, area } = ctx.params;
 				const userId = ctx.meta.user.userId;
 				const treePrice = 50;
 				const stripe = this.getStripe();
@@ -106,6 +107,7 @@ const paymentService = {
 						amount: session.amount_total,
 						invoiceId: session.id,
 						payer: userId,
+						area: area
 					});
 					await invoice.save();
 
