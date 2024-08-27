@@ -213,6 +213,8 @@ module.exports = {
 					"POST nftcardano/generateNft": "nftcardano.generateNft",
 					"POST payment/plant-tree": "v1.payment.buyTreePayment",
 					"GET achievement": "v1.achievement.getUserAchievements",
+					"POST achievement": "v1.achievement.createAchievement",
+					"PUT achievement": "v1.achievement.updateAchievements",
 				},
 				callingOptions: {},
 
@@ -227,7 +229,7 @@ module.exports = {
 					},
 				},
 				logging: true,
-				/** 
+				/**
 				onBeforeCall(ctx, route, req, res) {
 					// https://github.com/teezzan/commitSpy-Core/blob/ed14a9aa28f166bc7e1482086728b64e696fcf28/services/api.service.js
 					// Set request headers to context meta
@@ -273,7 +275,7 @@ module.exports = {
 				authentication: true,
 				authorization: "adminAuth",
 				whitelist: ["**"],
-				mappingPolicy: "restrict", 
+				mappingPolicy: "restrict",
 				autoAliases: false,
 				aliases: {
 					"POST /area/create": "v1.area.createArea",
@@ -330,7 +332,7 @@ module.exports = {
 
 	methods: {
 		/**
-		 
+
 		 * @param {Context} ctx
 		 * @param {Object} route
 		 * @param {IncomingRequest} req
@@ -386,18 +388,18 @@ module.exports = {
 			try {
 				console.log("req", req.body);
 				console.log("meta", ctx.meta);
-				
+
 				const { userEmail } = ctx.meta.user;
 				let users = await ctx.call("user.userFind", { userEmail });
 				const user = users ? users[0] : null;
-				
+
 				if (!user) {
 					throw new MoleculerClientError("User not found.", 422, "USER_FIND_ERROR", {
 						message: "User with the provided email does not exist.",
 						internalErrorCode: "auth30",
 					});
 				}
-				
+
 				console.log("userRole", user.userRole);
 				let canPass = false;
 

@@ -36,13 +36,13 @@ const achievementService = {
 	actions: {
 		createAchievement: {
 			params: {
-				uid: { type: "string" },
 				name: { type: "string" },
 				description: { type: "string" },
 				userId: { type: "string" },
+				required_trees : { type: "number" }
 			},
 			async handler(ctx) {
-				const { uid, name, description, userId } = ctx.params;
+				const { name, description, userId, required_trees } = ctx.params;
 
 				try {
 					const user = await User.findById(userId);
@@ -54,15 +54,15 @@ const achievementService = {
 						});
 					}
 					const achievement = new Achievement({
-						uid,
 						name,
 						description,
 						user,
+						required_trees
 					});
 					await achievement.save();
 					return achievement.toJSON();
 				} catch (err) {
-					const message = `Failed to create achievemnt for user with id '${userId}' and uid '${uid}'`;
+					const message = `Failed to create achievemnt for user with id '${userId}'`;
 					throw new MoleculerError(message, 400, "ACHIEVEMENT_FAILED", {
 						message: err.message || message,
 					});
@@ -85,12 +85,7 @@ const achievementService = {
 						});
 					}
 
-					const achievements = await Achievement.find({ user });
-
-					return {
-						ok: true,
-						items: achievements,
-					};
+					return  await Achievement.find({ user });
 				} catch (err) {
 					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
 						message: "User Not Found",
@@ -98,6 +93,31 @@ const achievementService = {
 					});
 				}
 			},
+		},
+
+		updateAchievements: {
+			rest: "PUT achievement",
+			async handler(ctx) {
+				const { userId } = ctx.meta.user;
+
+				try {
+					const user = await User.findById(userId).exec();
+
+					const entity = {
+						userEmail: user.userEmail,
+						required_trees: { $lte: user.planted_trees_count },
+					};
+
+					const data = { $set: {completed: true} };
+
+					return await Achievement.updateMany(entity, data, {new: true});
+				} catch (err) {
+					throw new MoleculerError("Achievement update fail", 401, "ACHIEVEMENT_FAILED", {
+						message: "Achievement update fail",
+						internalErrorCode: "achiupdatefail",
+					});
+				}
+			}
 		},
 
 		sendAchievementEmail: {

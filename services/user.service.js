@@ -8,6 +8,8 @@ const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
 const Wallet = require("../models/Wallet.js");
 const { getNextLevelUID } = require("../models/Achievement.js");
+const { achievementList } = require("../data/achievement");
+const { getNextLevel } = require("../models/Achievement");
 
 //const Date = require("../utils/Date");
 //const { decode } = require("utf8");
@@ -123,12 +125,15 @@ module.exports = {
 					numberOfTransaction: { $gt: 0 },
 				};
 
-				let data = {
-					$inc: { numberOfTransaction: -1 },
+				const user = await User.findOne({ userEmail: ctx.params.user.userEmail });
+				const userNextLevel = getNextLevel(user.level,user.planted_trees_count + 1);
+
+				const data = {
+					$inc: { numberOfTransaction: -1, planted_trees_count: 1 }, $set: {level: userNextLevel}
 				};
 
 				try {
-					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
+					let resultFromReducting = await User.findOneAndUpdate(entity,data,{ new: true });
 
 					if (!resultFromReducting) {
 						throw new MoleculerError(strings.userReduceTrx, 401, "USER_HAS_NEGATIVE_NUMBER_OF_AVAILABLE_TRANSACTIONS", {
@@ -136,6 +141,9 @@ module.exports = {
 							internalErrorCode: "user71",
 						});
 					}
+
+					await ctx.call("v1.achievement.updateAchievements");
+
 					return resultFromReducting;
 				} catch (error) {
 					throw new MoleculerError(strings.userReduceTrx, 401, "ERROR_REDUCING_TRANSACTIONS", {
@@ -204,7 +212,7 @@ module.exports = {
 						.populate("_wallets");
 
 					/* let userFind = await User.findOne(entity);
-					let _wallets = userFind._wallets || []; 
+					let _wallets = userFind._wallets || [];
 					_wallets.push(ctx.params._id);
 					const updatedPost = await User.findOneAndUpdate(entity, {_wallets: _wallets}).populate({path : "_wallets"}); */
 				} catch (error) {
@@ -267,7 +275,6 @@ module.exports = {
 		},
 
 		registerUser: {
-			//rest: "POST /registerUser",
 			params: {
 				userEmail: { type: "email" },
 				userFullName: { type: "string" },
@@ -299,6 +306,17 @@ module.exports = {
 					let userAdded = await this.addUserToDB({ ctx, clearPassword });
 
 					this.logger.info("registerUser userAdded", userAdded);
+
+					// When user created, we created their achievement list as well
+					achievementList.map(async achievement => {
+						await ctx.call("v1.achievement.createAchievement", {
+							name: achievement.name,
+							description: achievement.description,
+							required_trees: achievement.required_trees,
+							userId: userAdded._id.toString()
+						});
+					});
+
 
 					let userEmail = ctx.params.userEmail;
 					const sendEmail = await ctx.call("v1.email.registerUser", {
@@ -363,7 +381,7 @@ module.exports = {
 						message: "User Not Found",
 						internalErrorCode: "user20",
 					});
-				}	
+				}
 			},
 		},
 
@@ -380,20 +398,9 @@ module.exports = {
 
 				try {
 					const user = await User.find(entity, {
-						numberOfTransaction: 1,
-						userEmail: 1,
-						userRole: 1,
-						userFullName: 1,
-						numberOfCoupons: 1,
-						userVerified: 1,
+						clearPassword: 0,
+						userPassword: 0,
 					}).exec();
-
-					const itemsCount = await Wallet.countDocuments({ clientEmail: user.userEmail, qrCodeRedeemStatus: 1 }).exec();
-
-					const nextLevel = getNextLevelUID(user.level);
-
-					user.plantedTreesAmount = itemsCount;
-					user.upcomingLevel = nextLevel;
 
 					return user;
 				} catch (error) {

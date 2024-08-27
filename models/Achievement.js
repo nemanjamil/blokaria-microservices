@@ -11,25 +11,54 @@ const AchievementUID = {
 	CarbonNeutral: "carbon-neutral-40",
 };
 
-/**
- *
- * @param {string} currentLevelUID
- * @returns {string | null} the next level uid if exists and null otherwise
- */
-const getNextLevelUID = (currentLevelUID) => {
-	const sortedLevels = Object.values(AchievementUID)
-		.map((uid) => ({ level: Number(uid.split("-").pop()), uid }))
-		.sort((a, b) => a.level - b.level);
-	const currentIndex = sortedLevels.findIndex(({ uid }) => currentLevelUID === uid);
-	if (currentIndex === -1 || currentIndex + 1 >= sortedLevels.length) return null;
-	return sortedLevels[currentIndex + 1].uid;
+const PlantRequirements = {
+	Beginner: 1,
+	Elementary: 5,
+	MidLevel: 10,
+	Advanced: 15,
+	Intermediate: 20,
+	Proficient: 30,
+	CarbonNeutral: 40,
 };
+
+const hasEnoughPlantsForNextLevel = (currentLevel, plantedTrees) => {
+	const levels = Object.keys(PlantRequirements);
+
+	if ((currentLevel=== null || currentLevel === undefined)) return plantedTrees >= PlantRequirements.Beginner;
+
+	const currentIndex = levels.indexOf(currentLevel);
+	if (currentIndex === levels.length - 1) {
+		return false;
+	}
+	const nextLevel = levels[currentIndex + 1];
+	return plantedTrees >= PlantRequirements[nextLevel];
+};
+
+const getNextLevel = (currentLevel, plantedTrees) => {
+	const levels = Object.keys(AchievementUID);
+	if ((currentLevel=== null || currentLevel === undefined) && hasEnoughPlantsForNextLevel(currentLevel, plantedTrees)) return levels[0];
+
+	const currentIndex = levels.indexOf(currentLevel);
+
+	if (currentIndex === levels.length - 1) {
+		return "Completed";
+	}
+
+	if (hasEnoughPlantsForNextLevel(currentLevel, plantedTrees)) {
+		return levels[currentIndex + 1];
+	} else {
+		return currentLevel;
+	}
+};
+
+
 
 const achievementSchema = new mongoose.Schema(
 	{
-		uid: { type: String, required: true }, // AchievementUID
 		name: { type: String, required: true },
 		description: { type: String, required: true }, // FIXME: markup or html
+		completed: { type: Boolean, default: false },
+		required_trees : { type: Number, required: true },
 		user: {
 			type: ObjectId,
 			ref: "User",
@@ -42,4 +71,4 @@ const achievementSchema = new mongoose.Schema(
 module.exports = mongoose.model("Achievement", achievementSchema);
 
 module.exports.AchievementUID = AchievementUID;
-module.exports.getNextLevelUID = getNextLevelUID;
+module.exports.getNextLevel = getNextLevel;
