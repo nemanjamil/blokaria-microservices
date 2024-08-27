@@ -6,7 +6,8 @@ const dbConnection = require("../utils/dbConnection");
 const { v4 } = require("uuid");
 const Wallet = require("../models/Wallet");
 const Utils = require("../utils/utils");
-const { AchievementUID } = require("../models/Achievement");
+const { AchievementUID, getNextLevel } = require("../models/Achievement");
+const User = require("../models/User");
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
@@ -107,6 +108,23 @@ const paymentService = {
 						payer: userId,
 					});
 					await invoice.save();
+
+					// Update user collections
+					// TODO : Create seperate function (Umut)
+					const entity = {
+						userEmail: ctx.meta.user.userEmail,
+					};
+
+					const user = await User.findOne({ userEmail: ctx.meta.user.userEmail });
+					const userNextLevel = getNextLevel(user.level,user.planted_trees_count + 1);
+
+					const data = {
+						$inc: { numberOfTransaction: -1, planted_trees_count: quantity }, $set: {level: userNextLevel}
+					};
+
+					await User.findOneAndUpdate(entity,data,{ new: true });
+
+
 					return { id: session.id, invoice: invoice.toJSON() };
 				} catch (err) {
 					console.error("Error processing payment:", err);
