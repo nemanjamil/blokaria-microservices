@@ -126,14 +126,15 @@ module.exports = {
 				};
 
 				const user = await User.findOne({ userEmail: ctx.params.user.userEmail });
-				const userNextLevel = getNextLevel(user.level,user.planted_trees_count + 1);
+				const userNextLevel = getNextLevel(user.level, user.planted_trees_count + 1);
 
 				const data = {
-					$inc: { numberOfTransaction: -1, planted_trees_count: 1 }, $set: {level: userNextLevel}
+					$inc: { numberOfTransaction: -1, planted_trees_count: 1 },
+					$set: { level: userNextLevel },
 				};
 
 				try {
-					let resultFromReducting = await User.findOneAndUpdate(entity,data,{ new: true });
+					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
 
 					if (!resultFromReducting) {
 						throw new MoleculerError(strings.userReduceTrx, 401, "USER_HAS_NEGATIVE_NUMBER_OF_AVAILABLE_TRANSACTIONS", {
@@ -308,15 +309,14 @@ module.exports = {
 					this.logger.info("registerUser userAdded", userAdded);
 
 					// When user created, we created their achievement list as well
-					achievementList.map(async achievement => {
+					achievementList.map(async (achievement) => {
 						await ctx.call("v1.achievement.createAchievement", {
 							name: achievement.name,
 							description: achievement.description,
 							required_trees: achievement.required_trees,
-							userId: userAdded._id.toString()
+							userId: userAdded._id.toString(),
 						});
 					});
-
 
 					let userEmail = ctx.params.userEmail;
 					const sendEmail = await ctx.call("v1.email.registerUser", {
