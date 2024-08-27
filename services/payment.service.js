@@ -73,7 +73,7 @@ const paymentService = {
 			params: {
 				quantity: { type: "number" },
 				userEmail: { type: "string" },
-				area: { type: "object" },
+				area: { type: "string" },
 			},
 			async handler(ctx) {
 				this.logger.info("Buy Tree Payment triggered:", ctx.params);
@@ -110,22 +110,6 @@ const paymentService = {
 						area: area
 					});
 					await invoice.save();
-
-					// Update user collections
-					// TODO : Create seperate function (Umut)
-					const entity = {
-						userEmail: ctx.meta.user.userEmail,
-					};
-
-					const user = await User.findOne({ userEmail: ctx.meta.user.userEmail });
-					const userNextLevel = getNextLevel(user.level,user.planted_trees_count + 1);
-
-					const data = {
-						$inc: { numberOfTransaction: -1, planted_trees_count: quantity }, $set: {level: userNextLevel}
-					};
-
-					await User.findOneAndUpdate(entity,data,{ new: true });
-
 
 					return { id: session.id, invoice: invoice.toJSON() };
 				} catch (err) {
@@ -169,7 +153,7 @@ const paymentService = {
 						// Then define and call a function to handle the event checkout.session.completed
 						this.logger.info("Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
-						return await this.createItem(event.data.object.id);
+						return await this.createItem(event.data.object.id, event.data.object.quantity);
 					// ... handle other event types
 					case "checkout.session.async_payment_failed":
 						this.logger.info("Payment Intent Canceled:", event.data.object);
@@ -187,7 +171,7 @@ const paymentService = {
 		},
 	},
 	methods: {
-		async createItem(invoiceId) {
+		async createItem(invoiceId,quantity) {
 			const walletQrId = v4();
 
 			const invoice = await Invoice.findOne({ invoiceId }).populate("payer").populate("area").exec();
@@ -225,30 +209,14 @@ const paymentService = {
 				});
 			}
 
-			// Check for amount of items
-			// and assign achievement if required
-			const amount = await Wallet.countDocuments({
-				_creator: user.userId,
-			});
+			const invoicedUser = await User.findOne({ userEmail: user.userEmail });
+			const userNextLevel = getNextLevel(user.level,invoicedUser.planted_trees_count + 1);
 
-			if (amount === 1) {
-				// beginner level achievement create
-				this.call("v1.achievement.createAchievement", {
-					uid: AchievementUID.Beginner,
-					// name: "Beginner", // from json
-					// description: // from json,
-					userId: user.userId,
-				});
-			}
-			if (amount === 5) {
-				// elementary level achievement create
-				this.call("v1.achievement.createAchievement", {
-					uid: AchievementUID.Beginner,
-					// name: "Beginner", // from json
-					// description: // from json,
-					userId: user.userId,
-				});
-			}
+			const data = {
+				$inc: { numberOfTransaction: -1, planted_trees_count: quantity }, $set: {level: userNextLevel}
+			};
+
+			await User.findOneAndUpdate(entity,data,{ new: true });
 		},
 	},
 };
