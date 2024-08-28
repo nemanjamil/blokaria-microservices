@@ -46,24 +46,24 @@ module.exports = {
 						expiresIn: expiresIn,
 					};
 
-					console.log(response.token);
+					// console.log(response.token);
 
-					const algorithm = 'aes-256-cbc';  // Algorithm to use for encryption
-					const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);  
-					const iv = crypto.randomBytes(16); 
+					// const algorithm = 'aes-256-cbc';  // Algorithm to use for encryption
+					// const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);  
+					// const iv = crypto.randomBytes(16); 
 
-					const cipher = crypto.createCipheriv(algorithm, key, iv);
-					let encryptedToken = cipher.update(response.token, 'utf8', 'hex');
-					encryptedToken += cipher.final('hex');
-					encryptedToken = iv.toString('hex') + ':' + encryptedToken;  
+					// const cipher = crypto.createCipheriv(algorithm, key, iv);
+					// let encryptedToken = cipher.update(response.token, 'utf8', 'hex');
+					// encryptedToken += cipher.final('hex');
+					// encryptedToken = iv.toString('hex') + ':' + encryptedToken;  
 
-					const parts = encryptedToken.split(':');
-					const iv_d = Buffer.from(parts.shift(), 'hex');
-					const encryptedText = parts.join(':');
+					// const parts = encryptedToken.split(':');
+					// const iv_d = Buffer.from(parts.shift(), 'hex');
+					// const encryptedText = parts.join(':');
 
-					const decipher = crypto.createDecipheriv(algorithm, key, iv_d);
-					let decryptedToken = decipher.update(encryptedText, 'hex', 'utf8');
-					decryptedToken += decipher.final('utf8');
+					// const decipher = crypto.createDecipheriv(algorithm, key, iv_d);
+					// let decryptedToken = decipher.update(encryptedText, 'hex', 'utf8');
+					// decryptedToken += decipher.final('utf8');
 
 					let copyUser = {
 						userEmail: user.userEmail,
@@ -76,7 +76,7 @@ module.exports = {
 						planted_trees_count: user.planted_trees_count,
 					};
 					
-					response.token = encryptedToken;
+					// response.token = encryptedToken;
 					return { tokenData: response, user: copyUser };
 				} catch (error) {
 					return Promise.reject(error);
@@ -96,18 +96,18 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-					const algorithm = 'aes-256-cbc';  // Algorithm to use for encryption
-					const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);  
+					// const algorithm = 'aes-256-cbc';  // Algorithm to use for encryption
+					// const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);  
 					
-					const parts = ctx.params.token.split(':');
-					const iv_d = Buffer.from(parts.shift(), 'hex');
-					const encryptedText = parts.join(':');
+					// const parts = ctx.params.token.split(':');
+					// const iv_d = Buffer.from(parts.shift(), 'hex');
+					// const encryptedText = parts.join(':');
 
-					const decipher = crypto.createDecipheriv(algorithm, key, iv_d);
-					let decryptedToken = decipher.update(encryptedText, 'hex', 'utf8');
-					decryptedToken += decipher.final('utf8');
+					// const decipher = crypto.createDecipheriv(algorithm, key, iv_d);
+					// let decryptedToken = decipher.update(encryptedText, 'hex', 'utf8');
+					// decryptedToken += decipher.final('utf8');
 
-					return jwt.verify(decryptedToken, process.env.JWT_SECRET);
+					return jwt.verify(ctx.params.token, process.env.JWT_SECRET);
 				} catch (error) {
 					throw new MoleculerError(
 						"Token nije verifikovan ili je istekao. Izlogujte se i ulogujte ponovo.",
