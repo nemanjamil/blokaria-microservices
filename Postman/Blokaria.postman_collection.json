@@ -23,7 +23,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"country\": \"Serbia\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"Nemanja\",\n\t\"longitude\": 43.4252099,\n\t\"latitude\": 20.6202073,\n\t\"name\": \"type\"\n}",
+					"raw": "{\n    \"country\": \"Serbia\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"Gajdobra\",\n    \"latitude\": 30.0646733,\n\t\"longitude\": 31.4059965,\n\t\"name\": \"Serbia Area\"\n}\n// 30.0646733,31.4059965",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -39,6 +39,44 @@
 						"api-auth",
 						"area",
 						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Exists Countries",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"country\": \"Germany\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"ALwafaa\",\n    \"latitude\": 30.0646733,\n\t\"longitude\": 31.4059965,\n\t\"name\": \"XAVI Area\"\n}\n// 30.0646733,31.4059965",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}/api/area/getUniqueCountries",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"api",
+						"area",
+						"getUniqueCountries"
 					]
 				}
 			},
@@ -102,7 +140,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"id\": \"66cc716e610f6fae5bf86072\"\n    // \"showConnectedItems\": true // If true then list all the items that belongs to that area\n}",
+					"raw": "{\n    \"id\": \"66cf575b224615adaaa63c98\",\n    \"showConnectedItems\": true // If true then list all the items that belongs to that area\n}",
 					"options": {
 						"raw": {
 							"language": "json"

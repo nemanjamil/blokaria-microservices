@@ -549,6 +549,25 @@ module.exports = {
 			},
 		},
 
+		getWalletsByArea: {
+            params: {
+                areaId: { type: "string" },
+            },
+            async handler(ctx) {
+                const { areaId } = ctx.params;
+
+                try {
+                    const wallets = await Wallet.find({ area: areaId });
+                    return wallets.map(wallet => wallet.toJSON());
+                } catch (err) {
+                    console.error("Error retrieving wallets by area:", err);
+                    throw new MoleculerError("Wallet Retrieval Failed", 500, "WALLET_RETRIEVAL_FAILED", {
+                        message: "An error occurred while retrieving wallets from the db.",
+                    });
+                }
+            },
+		},
+
 		updateDataInDb: {
 			params: {
 				searchBy: { type: "string" },

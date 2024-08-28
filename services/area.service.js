@@ -124,20 +124,29 @@ const areaService = {
 		getAreaById: {
 			params: {
 				id: { type: "string" },
+				showConnectedItems: { type: "boolean", optional: true },
 			},
 			async handler(ctx) {
-				const { id } = ctx.params;
-
+				const { id, showConnectedItems } = ctx.params;
+		
 				try {
 					const area = await Area.findById(id);
-
+		
 					if (!area) {
 						throw new MoleculerError("Area Not Found", 404, "AREA_NOT_FOUND", {
 							message: "The area with the given ID was not found.",
 						});
 					}
-
-					return area.toJSON();
+		
+					let result = area.toJSON();
+		
+					if (showConnectedItems) {
+						// Call the walletService to get wallets associated with the area
+						const wallets = await ctx.call("wallet.getWalletsByArea", { areaId: id });
+						result.connectedItems = wallets;
+					}
+		
+					return result;
 				} catch (err) {
 					console.error("Error retrieving area:", err);
 					const message = "An error occurred while retrieving the area from db.";
@@ -146,7 +155,7 @@ const areaService = {
 					});
 				}
 			},
-		},
+		},		
 		getAreasByCountry: {
 			params: {
 				country: { type: "string" },
