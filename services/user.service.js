@@ -1,20 +1,13 @@
 "use strict";
 const DbService = require("moleculer-db");
-//const jwt = require("jsonwebtoken");
 const { MoleculerError } = require("moleculer").Errors;
 const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
 const Wallet = require("../models/Wallet.js");
-const { getNextLevelUID } = require("../models/Achievement.js");
 const { achievementList } = require("../data/achievement");
 const { getNextLevel } = require("../models/Achievement");
-
-//const Date = require("../utils/Date");
-//const { decode } = require("utf8");
-//const LG = require("../utils/Logger");
-//const LOGGER = new LG("USER");
 
 module.exports = {
 	name: "user",
@@ -143,7 +136,7 @@ module.exports = {
 						});
 					}
 
-					await ctx.call("v1.achievement.updateAchievements");
+					// TODO: Transactions for reaching out
 
 					return resultFromReducting;
 				} catch (error) {
