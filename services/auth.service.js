@@ -2,7 +2,6 @@
 const { MoleculerClientError, MoleculerError } = require("moleculer").Errors;
 const jwt = require("jsonwebtoken");
 const Utils = require("../utils/utils");
-const crypto = require('crypto');
 module.exports = {
 	name: "auth",
 	version: 1,
