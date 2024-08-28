@@ -36,6 +36,11 @@ const walletSchema = new mongoose.Schema({
 	nftAssetToWalletTxHash: { type: String },
 	longText: { type: String },
 	hasstory: { type: Boolean, default: false },
+	area: {
+		type: String,
+		required: true,
+		default: null,
+	},
 	_creator: {
 		type: ObjectId,
 		ref: "User",
@@ -56,11 +61,7 @@ const walletSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: "Project",
 	},
-	_area: {
-		type: ObjectId,
-		default: null,
-		ref: "Area",
-	},
+
 });
 
 const normalizeUnderscoreMiddleware = function (next) {

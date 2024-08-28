@@ -771,6 +771,7 @@ module.exports = {
 				longText: wallet.longText,
 				hasstory: wallet.hasstory,
 				accessCode: Utils.generatePass(),
+				area: wallet.area,
 				_creator: user.userId,
 			};
 
