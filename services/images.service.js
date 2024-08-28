@@ -254,6 +254,7 @@ module.exports = {
 
 					return getQrCodeInfo[0];
 				} catch (error) {
+					console.error("generateQrCodeInSystemNoImage error ", error);
 					return Promise.reject(error);
 				}
 			},
