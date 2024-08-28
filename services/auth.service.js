@@ -27,7 +27,7 @@ module.exports = {
 				try {
 					let users = await ctx.call("user.userFind", { userEmail });
 					const user = users ? users[0] : null;
-					
+
 					if (!user)
 						throw new MoleculerClientError("Korisnik ne postoji.", 422, "USER_FIND_ERROR", {
 							message: "email is not found",
@@ -39,7 +39,7 @@ module.exports = {
 							message: "password do not match",
 							internalErrorCode: "auth20",
 						});
-						
+
 					let expiresIn = "168h";
 					let response = {
 						token: jwt.sign({ userEmail: userEmail }, process.env.JWT_SECRET, { expiresIn: expiresIn }),
@@ -72,6 +72,8 @@ module.exports = {
 						userRole: user.userRole,
 						numberOfTransaction: user.numberOfTransaction,
 						numberOfCoupons: user.numberOfCoupons,
+						level: user.level,
+						planted_trees_count: user.planted_trees_count,
 					};
 					
 					response.token = encryptedToken;

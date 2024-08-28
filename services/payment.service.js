@@ -153,7 +153,8 @@ const paymentService = {
 						// Then define and call a function to handle the event checkout.session.completed
 						this.logger.info("Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
-						return await this.createItem(event.data.object.id, event.data.object.quantity);
+						await this.createItem(event.data.object.id, event.data.object.quantity);
+						return await ctx.call("v1.achievement.updateAchievements");
 					// ... handle other event types
 					case "checkout.session.async_payment_failed":
 						this.logger.info("Payment Intent Canceled:", event.data.object);
