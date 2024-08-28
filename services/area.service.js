@@ -165,7 +165,21 @@ const areaService = {
 					});
 				}
 			},
-		},		
+		},
+		getUniqueCountries: {
+			async handler(ctx) {
+				try {
+					const uniqueCountries = await Area.distinct("country");
+					return uniqueCountries;
+				} catch (err) {
+					console.error("Error retrieving unique countries:", err);
+					const message = "An error occurred while retrieving unique countries from the db.";
+					throw new MoleculerError("Unique Country Retrieval Failed", 500, "COUNTRY_RETRIEVAL_FAILED", {
+						message,
+					});
+				}
+			},
+		},				
 	},
 };
 
