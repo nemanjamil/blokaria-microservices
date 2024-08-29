@@ -85,7 +85,7 @@ const achievementService = {
 						});
 					}
 
-					return  await Achievement.find({ user });
+					return  await Achievement.find({ user }).sort({required_trees: 1});
 				} catch (err) {
 					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
 						message: "User Not Found",
