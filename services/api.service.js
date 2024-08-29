@@ -135,6 +135,7 @@ module.exports = {
 					"POST wallet/getQrCodeFromId": "wallet.getQrCodeFromId",
 					"POST project/listAllProjectNrApi": "project.listAllProjectNrApi",
 					"GET project/getOneProject/:projectId": "project.getOneProject",
+					"GET area/getUniqueCountries": "v1.area.getUniqueCountries",
 				},
 				callingOptions: {},
 
@@ -215,7 +216,6 @@ module.exports = {
 					"GET achievement": "v1.achievement.getUserAchievements",
 					"POST achievement": "v1.achievement.createAchievement",
 					"PUT achievement": "v1.achievement.updateAchievements",
-					"GET area/getUniqueCountries": "v1.area.getUniqueCountries",
 				},
 				callingOptions: {},
 
