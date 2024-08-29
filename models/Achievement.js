@@ -59,6 +59,7 @@ const achievementSchema = new mongoose.Schema(
 		description: { type: String, required: true }, // FIXME: markup or html
 		completed: { type: Boolean, default: false },
 		required_trees : { type: Number, required: true },
+		is_email_send: { type: Boolean, default: false },
 		user: {
 			type: ObjectId,
 			ref: "User",

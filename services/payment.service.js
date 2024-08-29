@@ -77,7 +77,6 @@ const paymentService = {
 			},
 			async handler(ctx) {
 				this.logger.info("Buy Tree Payment triggered:", ctx.params);
-				// TODO: Lazar kindly use ctx.meta.user to get user email
 				const { quantity, userEmail, area } = ctx.params;
 				const userId = ctx.meta.user.userId;
 				const treePrice = 50;
