@@ -128,6 +128,7 @@ module.exports = {
 
 				try {
 					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
+					await ctx.call("v1.achievement.updateAchievements");
 
 					if (!resultFromReducting) {
 						throw new MoleculerError(strings.userReduceTrx, 401, "USER_HAS_NEGATIVE_NUMBER_OF_AVAILABLE_TRANSACTIONS", {
