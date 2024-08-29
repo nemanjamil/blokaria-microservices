@@ -127,6 +127,7 @@ const paymentService = {
 
 		handleStripeWebhook: {
 			async handler(ctx) {
+				// const secret = "whsec_3dcfddcd5427bacb88780b92982a2f6851ebcc7da3987c0000c3564322bf18e6";
 				const body = Buffer.from(Object.values(ctx.params));
 				this.logger.info("Stripe Webhook triggered:", body.length);
 				const headers = ctx.options.parentCtx.params.req.headers;
@@ -150,12 +151,10 @@ const paymentService = {
 				// Handle the event
 				switch (event.type) {
 					case "checkout.session.completed":
-						// Then define and call a function to handle the event checkout.session.completed
 						this.logger.info("Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
 						await this.createItem(event.data.object.id, event.data.object.quantity);
 						return await ctx.call("v1.achievement.updateAchievements");
-					// ... handle other event types
 					case "checkout.session.async_payment_failed":
 						this.logger.info("Payment Intent Canceled:", event.data.object);
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.FAILED);
