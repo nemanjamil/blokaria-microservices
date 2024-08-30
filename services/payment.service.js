@@ -8,6 +8,7 @@ const Wallet = require("../models/Wallet");
 const Utils = require("../utils/utils");
 const { AchievementUID, getNextLevel } = require("../models/Achievement");
 const User = require("../models/User");
+const axios = require('axios');
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
@@ -19,6 +20,70 @@ const updateInvoiceStatus = async (invoiceId, status) => {
 			message: err.message || message,
 		});
 	}
+};
+
+const generatePaypalAccessToken = async () => {
+    const response = await axios({
+        url: process.env.PAYPAL_BASE_URL + '/v1/oauth2/token',
+        method: 'post',
+        data: 'grant_type=client_credentials',
+        auth: {
+            username: process.env.PAYPAL_CLIENT_ID,
+            password: process.env.PAYPAL_SECRET
+        }
+    });
+
+    return response.data.access_token;
+};
+
+const createOrder = async (amount) => {
+    const accessToken = await generatePaypalAccessToken();
+
+    const response = await axios({
+        url: process.env.PAYPAL_BASE_URL + '/v2/checkout/orders',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + accessToken
+        },
+        data: JSON.stringify({
+            intent: 'CAPTURE',
+            purchase_units: [
+                {
+                    items: [
+                        {
+                            name: 'TEST Payment',
+                            description: 'TEST Description',
+                            quantity: 1,
+                            unit_amount: {
+                                currency_code: 'USD',
+                                value: amount
+                            }
+                        }
+                    ],
+                    amount: {
+                        currency_code: 'USD',
+                        value: amount,
+                        breakdown: {
+                            item_total: {
+                                currency_code: 'USD',
+                                value: amount
+                            }
+                        }
+                    }
+                }
+            ],
+            application_context: {
+                return_url: process.env.PAYMENT_SUCCESS_ROUTE,
+                cancel_url: process.env.PAYMENT_FAIL_ROUTE,
+                shipping_preference: 'NO_SHIPPING',
+                user_action: 'PAY_NOW',
+                brand_name: 'Blokaria'
+            }
+        })
+    });
+
+    return response.data.links.find(link => link.rel === 'approve').href;
 };
 
 const paymentService = {
@@ -124,6 +189,24 @@ const paymentService = {
 				}
 			},
 		},
+
+		paypalCreateOrder: {
+			params: {
+                amount: { type: "string" },
+            },
+            async handler(ctx) {
+                try {
+					const { amount } = ctx.params;
+                    const approveLink = await createOrder(amount);
+                    return { approveLink };
+                } catch (error) {
+                    this.logger.error("Error creating PayPal order:", error);
+                    throw new MoleculerError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
+                        message: error.message,
+                    });
+                }
+            },
+        },
 
 		handleStripeWebhook: {
 			async handler(ctx) {

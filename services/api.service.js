@@ -136,6 +136,7 @@ module.exports = {
 					"POST project/listAllProjectNrApi": "project.listAllProjectNrApi",
 					"GET project/getOneProject/:projectId": "project.getOneProject",
 					"GET area/getUniqueCountries": "v1.area.getUniqueCountries",
+					"POST payment/paypalCreateOrder": "v1.payment.paypalCreateOrder"
 				},
 				callingOptions: {},
 
