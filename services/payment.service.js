@@ -36,6 +36,57 @@ const generatePaypalAccessToken = async () => {
     return response.data.access_token;
 };
 
+const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
+    try {
+        const accessToken = await generatePaypalAccessToken();
+
+        const response = await axios({
+            url: process.env.PAYPAL_BASE_URL + '/v1/notifications/verify-webhook-signature',
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            data: {
+                auth_algo,
+                cert_url,
+                transmission_id,
+                transmission_sig,
+                transmission_time,
+                webhook_id,
+                webhook_event,
+            }
+        });
+
+        return response.data.verification_status === 'SUCCESS';
+    } catch (error) {
+        throw new MoleculerError("Webhook verification failed", 400, "WEBHOOK_VERIFICATION_FAILED", {
+            message: error.message,
+        });
+    }
+};
+
+const captureOrder = async (orderId) => {
+    const accessToken = await generatePaypalAccessToken();
+
+    try {
+        const response = await axios({
+            url: `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders/${orderId}/capture`,
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+		console.log("Capture response:", response.data);
+        return response.data;
+    } catch (error) {
+        throw new MoleculerError("Order capture failed", 400, "ORDER_CAPTURE_FAILED", {
+            message: error.message,
+        });
+    }
+};
+
 const createOrder = async (amount) => {
     const accessToken = await generatePaypalAccessToken();
 
@@ -85,6 +136,8 @@ const createOrder = async (amount) => {
 
     return response.data.links.find(link => link.rel === 'approve').href;
 };
+
+
 
 const paymentService = {
 	name: "payment",
@@ -199,12 +252,53 @@ const paymentService = {
                     const approveLink = await createOrder(amount);
                     return { approveLink };
                 } catch (error) {
-                    this.logger.error("Error creating PayPal order:", error);
+                    console.log("Error creating PayPal order:", error);
                     throw new MoleculerError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
                         message: error.message,
                     });
                 }
             },
+        },
+
+		paypalWebhook: {
+            async handler(ctx) {
+                const headers = ctx.options.parentCtx.params.req.headers;
+                const webhook_event = ctx.params;
+
+                const verificationParams = {
+                    auth_algo: headers['paypal-auth-algo'],
+                    cert_url: headers['paypal-cert-url'],
+                    transmission_id: headers['paypal-transmission-id'],
+                    transmission_sig: headers['paypal-transmission-sig'],
+                    transmission_time: headers['paypal-transmission-time'],
+                    webhook_id: process.env.PAYPAL_CHECKOUT_APPROVED_ID,
+                    webhook_event: webhook_event,
+                };
+
+                try {
+                    const isValid = await verifyPaypalWebhookSignature(verificationParams);
+
+                    if (isValid) {
+                        console.log("Webhook verified successfully:", webhook_event);
+						// const captureResult = await captureOrder(webhook_event.resource.id);
+
+                        // Handle the webhook event 
+                    } else {
+                        console.log("Webhook verification failed.");
+                        throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
+                            message: "Webhook signature verification failed.",
+                        });
+                    }
+
+                } catch (error) {
+                    console.log("Error processing PayPal webhook:", error);
+                    throw new MoleculerError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
+                        message: error.message,
+                    });
+                }
+
+                return "Webhook processed successfully.";
+            }
         },
 
 		handleStripeWebhook: {

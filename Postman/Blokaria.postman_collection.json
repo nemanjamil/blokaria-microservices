@@ -313,6 +313,97 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Webhook Example",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "content-length",
+								"value": "1798"
+							},
+							{
+								"key": "client-pid",
+								"value": "360542"
+							},
+							{
+								"key": "x-b3-spanid",
+								"value": "5a20fffcfc1b21bc"
+							},
+							{
+								"key": "cal-poolstack",
+								"value": "amqunphttpdeliveryd:UNPHTDLVRYHA*CalThreadId=0*TopLevelTxnStartTime=191a3e16564*Host=ccg18amqunphttpdeliveryd4"
+							},
+							{
+								"key": "correlation-id",
+								"value": "f76804432af23"
+							},
+							{
+								"key": "user-agent",
+								"value": "PayPal/AUHD-214.0-58610500"
+							},
+							{
+								"key": "content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "paypal-auth-algo",
+								"value": "SHA256withRSA"
+							},
+							{
+								"key": "paypal-cert-url",
+								"value": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-ab66f33d"
+							},
+							{
+								"key": "paypal-auth-version",
+								"value": "v2"
+							},
+							{
+								"key": "paypal-transmission-sig",
+								"value": "b7xXAa/trWyxldlp32Qmip5bVRSPvraFN/TLVwW/hTfHvVBSDdaxG1815c9bdFBtxnHh3Tu+RWtYvgspWZAiz+bMyZ9Cugw9067KQ1YVHbXDFwyZQUDNeHWzWNHV55LZYIEB3qRos6fJ0/vlgO6GLfY8TNzQA6jPmE+2eouzRgjog3/2NeUPjbO5aENgU8kTLl4pivbmMQGI7W5D+HBywydD65FaOeNo1gGrgFrlbawJeB1V03vWJpJucuHefmZMIvrL5HK02zLzDRAXAAh776iNu5NFSHPB11F8iOhTntRd/1MGQDRlrUDQvGES67XNzecE/RY28+Mb1V0/lFq/WA=="
+							},
+							{
+								"key": "paypal-transmission-time",
+								"value": "2024-08-30T15:22:13Z"
+							},
+							{
+								"key": "paypal-transmission-id",
+								"value": "a25b8190-66e3-11ef-8631-b5563cb1cd6c"
+							},
+							{
+								"key": "accept",
+								"value": "*/*"
+							},
+							{
+								"key": "host",
+								"value": "webhook.site"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"WH-03917798PK579480H-23767291YX561800R\",\"event_version\":\"1.0\",\"create_time\":\"2024-08-30T15:22:03.788Z\",\"resource_type\":\"checkout-order\",\"resource_version\":\"2.0\",\"event_type\":\"CHECKOUT.ORDER.APPROVED\",\"summary\":\"An order has been approved by buyer\",\"resource\":{\"create_time\":\"2024-08-30T15:21:14Z\",\"purchase_units\":[{\"reference_id\":\"default\",\"amount\":{\"currency_code\":\"USD\",\"value\":\"10.00\",\"breakdown\":{\"item_total\":{\"currency_code\":\"USD\",\"value\":\"10.00\"}}},\"payee\":{\"email_address\":\"sb-g47mnu32443724@business.example.com\",\"merchant_id\":\"DD7UD8TZRZEGN\",\"display_data\":{\"brand_name\":\"Blokaria\"}},\"items\":[{\"name\":\"TEST Payment\",\"unit_amount\":{\"currency_code\":\"USD\",\"value\":\"10.00\"},\"quantity\":\"1\",\"description\":\"TEST Description\"}]}],\"links\":[{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921\",\"rel\":\"self\",\"method\":\"GET\"},{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921\",\"rel\":\"update\",\"method\":\"PATCH\"},{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921/capture\",\"rel\":\"capture\",\"method\":\"POST\"}],\"id\":\"76E30833M76322921\",\"payment_source\":{\"paypal\":{\"email_address\":\"xavi@omar.com\",\"account_id\":\"UMHBLNYY357WQ\",\"account_status\":\"VERIFIED\",\"name\":{\"given_name\":\"John\",\"surname\":\"Doe\"},\"address\":{\"country_code\":\"US\"}}},\"intent\":\"CAPTURE\",\"payer\":{\"name\":{\"given_name\":\"John\",\"surname\":\"Doe\"},\"email_address\":\"xavi@omar.com\",\"payer_id\":\"UMHBLNYY357WQ\",\"address\":{\"country_code\":\"US\"}},\"status\":\"APPROVED\"},\"links\":[{\"href\":\"https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-03917798PK579480H-23767291YX561800R\",\"rel\":\"self\",\"method\":\"GET\"},{\"href\":\"https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-03917798PK579480H-23767291YX561800R/resend\",\"rel\":\"resend\",\"method\":\"POST\"}]}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{domain}}/nrapi/payment/paypalWebhook",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"nrapi",
+								"payment",
+								"paypalWebhook"
+							]
+						},
+						"description": "Generated from cURL: curl -X 'POST' 'https://webhook.site/e8d40f5e-8a6d-47e6-a198-3d7e36888903' -H 'content-length: 1798' -H 'client-pid: 360542' -H 'x-b3-spanid: 5a20fffcfc1b21bc' -H 'cal-poolstack: amqunphttpdeliveryd:UNPHTDLVRYHA*CalThreadId=0*TopLevelTxnStartTime=191a3e16564*Host=ccg18amqunphttpdeliveryd4' -H 'correlation-id: f76804432af23' -H 'user-agent: PayPal/AUHD-214.0-58610500' -H 'content-type: application/json' -H 'paypal-auth-algo: SHA256withRSA' -H 'paypal-cert-url: https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-ab66f33d' -H 'paypal-auth-version: v2' -H 'paypal-transmission-sig: b7xXAa/trWyxldlp32Qmip5bVRSPvraFN/TLVwW/hTfHvVBSDdaxG1815c9bdFBtxnHh3Tu+RWtYvgspWZAiz+bMyZ9Cugw9067KQ1YVHbXDFwyZQUDNeHWzWNHV55LZYIEB3qRos6fJ0/vlgO6GLfY8TNzQA6jPmE+2eouzRgjog3/2NeUPjbO5aENgU8kTLl4pivbmMQGI7W5D+HBywydD65FaOeNo1gGrgFrlbawJeB1V03vWJpJucuHefmZMIvrL5HK02zLzDRAXAAh776iNu5NFSHPB11F8iOhTntRd/1MGQDRlrUDQvGES67XNzecE/RY28+Mb1V0/lFq/WA==' -H 'paypal-transmission-time: 2024-08-30T15:22:13Z' -H 'paypal-transmission-id: a25b8190-66e3-11ef-8631-b5563cb1cd6c' -H 'accept: */*' -H 'host: webhook.site' -d $'{\"id\":\"WH-03917798PK579480H-23767291YX561800R\",\"event_version\":\"1.0\",\"create_time\":\"2024-08-30T15:22:03.788Z\",\"resource_type\":\"checkout-order\",\"resource_version\":\"2.0\",\"event_type\":\"CHECKOUT.ORDER.APPROVED\",\"summary\":\"An order has been approved by buyer\",\"resource\":{\"create_time\":\"2024-08-30T15:21:14Z\",\"purchase_units\":[{\"reference_id\":\"default\",\"amount\":{\"currency_code\":\"USD\",\"value\":\"10.00\",\"breakdown\":{\"item_total\":{\"currency_code\":\"USD\",\"value\":\"10.00\"}}},\"payee\":{\"email_address\":\"sb-g47mnu32443724@business.example.com\",\"merchant_id\":\"DD7UD8TZRZEGN\",\"display_data\":{\"brand_name\":\"Blokaria\"}},\"items\":[{\"name\":\"TEST Payment\",\"unit_amount\":{\"currency_code\":\"USD\",\"value\":\"10.00\"},\"quantity\":\"1\",\"description\":\"TEST Description\"}]}],\"links\":[{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921\",\"rel\":\"self\",\"method\":\"GET\"},{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921\",\"rel\":\"update\",\"method\":\"PATCH\"},{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921/capture\",\"rel\":\"capture\",\"method\":\"POST\"}],\"id\":\"76E30833M76322921\",\"payment_source\":{\"paypal\":{\"email_address\":\"xavi@omar.com\",\"account_id\":\"UMHBLNYY357WQ\",\"account_status\":\"VERIFIED\",\"name\":{\"given_name\":\"John\",\"surname\":\"Doe\"},\"address\":{\"country_code\":\"US\"}}},\"intent\":\"CAPTURE\",\"payer\":{\"name\":{\"given_name\":\"John\",\"surname\":\"Doe\"},\"email_address\":\"xavi@omar.com\",\"payer_id\":\"UMHBLNYY357WQ\",\"address\":{\"country_code\":\"US\"}},\"status\":\"APPROVED\"},\"links\":[{\"href\":\"https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-03917798PK579480H-23767291YX561800R\",\"rel\":\"self\",\"method\":\"GET\"},{\"href\":\"https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-03917798PK579480H-23767291YX561800R/resend\",\"rel\":\"resend\",\"method\":\"POST\"}]}'"
+					},
+					"response": []
 				}
 			]
 		}
