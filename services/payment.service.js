@@ -8,6 +8,7 @@ const Wallet = require("../models/Wallet");
 const Utils = require("../utils/utils");
 const { AchievementUID, getNextLevel } = require("../models/Achievement");
 const User = require("../models/User");
+const axios = require('axios');
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
@@ -20,6 +21,123 @@ const updateInvoiceStatus = async (invoiceId, status) => {
 		});
 	}
 };
+
+const generatePaypalAccessToken = async () => {
+    const response = await axios({
+        url: process.env.PAYPAL_BASE_URL + '/v1/oauth2/token',
+        method: 'post',
+        data: 'grant_type=client_credentials',
+        auth: {
+            username: process.env.PAYPAL_CLIENT_ID,
+            password: process.env.PAYPAL_SECRET
+        }
+    });
+
+    return response.data.access_token;
+};
+
+const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
+    try {
+        const accessToken = await generatePaypalAccessToken();
+
+        const response = await axios({
+            url: process.env.PAYPAL_BASE_URL + '/v1/notifications/verify-webhook-signature',
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            data: {
+                auth_algo,
+                cert_url,
+                transmission_id,
+                transmission_sig,
+                transmission_time,
+                webhook_id,
+                webhook_event,
+            }
+        });
+
+        return response.data.verification_status === 'SUCCESS';
+    } catch (error) {
+        throw new MoleculerError("Webhook verification failed", 400, "WEBHOOK_VERIFICATION_FAILED", {
+            message: error.message,
+        });
+    }
+};
+
+const captureOrder = async (orderId) => {
+    const accessToken = await generatePaypalAccessToken();
+
+    try {
+        const response = await axios({
+            url: `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders/${orderId}/capture`,
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+		console.log("Capture response:", response.data);
+        return response.data;
+    } catch (error) {
+        throw new MoleculerError("Order capture failed", 400, "ORDER_CAPTURE_FAILED", {
+            message: error.message,
+        });
+    }
+};
+
+const createOrder = async (amount) => {
+    const accessToken = await generatePaypalAccessToken();
+
+    const response = await axios({
+        url: process.env.PAYPAL_BASE_URL + '/v2/checkout/orders',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + accessToken
+        },
+        data: JSON.stringify({
+            intent: 'CAPTURE',
+            purchase_units: [
+                {
+                    items: [
+                        {
+                            name: 'TEST Payment',
+                            description: 'TEST Description',
+                            quantity: 1,
+                            unit_amount: {
+                                currency_code: 'USD',
+                                value: amount
+                            }
+                        }
+                    ],
+                    amount: {
+                        currency_code: 'USD',
+                        value: amount,
+                        breakdown: {
+                            item_total: {
+                                currency_code: 'USD',
+                                value: amount
+                            }
+                        }
+                    }
+                }
+            ],
+            application_context: {
+                return_url: process.env.PAYMENT_SUCCESS_ROUTE,
+                cancel_url: process.env.PAYMENT_FAIL_ROUTE,
+                shipping_preference: 'NO_SHIPPING',
+                user_action: 'PAY_NOW',
+                brand_name: 'Blokaria'
+            }
+        })
+    });
+
+    return response.data.links.find(link => link.rel === 'approve').href;
+};
+
+
 
 const paymentService = {
 	name: "payment",
@@ -77,7 +195,6 @@ const paymentService = {
 			},
 			async handler(ctx) {
 				this.logger.info("Buy Tree Payment triggered:", ctx.params);
-				// TODO: Lazar kindly use ctx.meta.user to get user email
 				const { quantity, userEmail, area } = ctx.params;
 				const userId = ctx.meta.user.userId;
 				const treePrice = 50;
@@ -124,6 +241,65 @@ const paymentService = {
 				}
 			},
 		},
+
+		paypalCreateOrder: {
+			params: {
+                amount: { type: "string" },
+            },
+            async handler(ctx) {
+                try {
+					const { amount } = ctx.params;
+                    const approveLink = await createOrder(amount);
+                    return { approveLink };
+                } catch (error) {
+                    console.log("Error creating PayPal order:", error);
+                    throw new MoleculerError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
+                        message: error.message,
+                    });
+                }
+            },
+        },
+
+		paypalWebhook: {
+            async handler(ctx) {
+                const headers = ctx.options.parentCtx.params.req.headers;
+                const webhook_event = ctx.params;
+
+                const verificationParams = {
+                    auth_algo: headers['paypal-auth-algo'],
+                    cert_url: headers['paypal-cert-url'],
+                    transmission_id: headers['paypal-transmission-id'],
+                    transmission_sig: headers['paypal-transmission-sig'],
+                    transmission_time: headers['paypal-transmission-time'],
+                    webhook_id: process.env.PAYPAL_CHECKOUT_APPROVED_ID,
+                    webhook_event: webhook_event,
+                };
+
+                try {
+                    const isValid = await verifyPaypalWebhookSignature(verificationParams);
+
+                    if (isValid) {
+                        console.log("Webhook verified successfully:", webhook_event);
+						// const captureResult = await captureOrder(webhook_event.resource.id);
+
+                        // Handle the webhook event 
+                    } else {
+                        console.log("Webhook verification failed.");
+                        throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
+                            message: "Webhook signature verification failed.",
+                        });
+                    }
+
+                } catch (error) {
+                    console.log("Error processing PayPal webhook:", error);
+                    throw new MoleculerError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
+                        message: error.message,
+                    });
+                }
+
+                return "Webhook processed successfully.";
+            }
+        },
 
 		handleStripeWebhook: {
 			async handler(ctx) {

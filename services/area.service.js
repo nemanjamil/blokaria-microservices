@@ -18,9 +18,10 @@ const areaService = {
 				longitude: { type: "number" },
 				latitude: { type: "number" },
 				name: { type: "string" },
+				areaPoints: { type: "array", optional: true }
 			},
 			async handler(ctx) {
-				const { country, countryCode, address, longitude, latitude, name } = ctx.params;
+				const { country, countryCode, address, longitude, latitude, name, areaPoints} = ctx.params;
 
 				const area = new Area({
 					country,
@@ -29,6 +30,7 @@ const areaService = {
 					longitude,
 					latitude,
 					name,
+					areaPoints,
 				});
 
 				try {
@@ -53,14 +55,16 @@ const areaService = {
 				longitude: { type: "number", optional: true },
 				latitude: { type: "number", optional: true },
 				name: { type: "string", optional: true },
+				areaPoints: { type: "array", optional: true }
+
 			},
 			async handler(ctx) {
-				const { id, country, countryCode, address, longitude, latitude, name } = ctx.params;
+				const { id, country, countryCode, address, longitude, latitude, name, areaPoints } = ctx.params;
 
 				try {
 					const updatedArea = await Area.findByIdAndUpdate(
 						id,
-						{ country, countryCode, address, longitude, latitude, name },
+						{ country, countryCode, address, longitude, latitude, name, areaPoints },
 						{ new: true, runValidators: true }
 					);
 

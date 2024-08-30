@@ -7,273 +7,405 @@
 	},
 	"item": [
 		{
-			"name": "Create Area",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
+			"name": "Area CRUD",
+			"item": [
+				{
+					"name": "Create Area",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"country\": \"Serbia\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"Gajdobra\",\n    \"latitude\": 30.0646733,\n\t\"longitude\": 31.4059965,\n    \"areaPoints\": [\n        { \"lat\": 30.0646733, \"lng\": 31.4059965 },\n        { \"lat\": 30.0656733, \"lng\": 31.4069965 },\n        { \"lat\": 30.0666733, \"lng\": 31.4079965 }\n    ],\n\t\"name\": \"Serbia Area\"\n}\n// 30.0646733,31.4059965",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api-auth/area/create",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api-auth",
+								"area",
+								"create"
+							]
 						}
-					]
+					},
+					"response": []
 				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"country\": \"Serbia\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"Gajdobra\",\n    \"latitude\": 30.0646733,\n\t\"longitude\": 31.4059965,\n\t\"name\": \"Serbia Area\"\n}\n// 30.0646733,31.4059965",
-					"options": {
-						"raw": {
-							"language": "json"
+				{
+					"name": "Get Exists Countries",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"country\": \"Germany\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"ALwafaa\",\n    \"latitude\": 30.0646733,\n\t\"longitude\": 31.4059965,\n\t\"name\": \"XAVI Area\"\n}\n// 30.0646733,31.4059965",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/nrapi/area/getUniqueCountries",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"nrapi",
+								"area",
+								"getUniqueCountries"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{domain}}/api-auth/area/create",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						"api-auth",
-						"area",
-						"create"
-					]
+				{
+					"name": "Get All Areas",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api-auth/area/getAllAreas",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api-auth",
+								"area",
+								"getAllAreas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Area By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"66cf5801224615adaaa63cc5\",\n    \"showConnectedItems\": true // If true then list all the items that belongs to that area\n    // \"userID\": \"user1\" only list the items for this user ID \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api-auth/area/getAreaById",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api-auth",
+								"area",
+								"getAreaById"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Area By ID Country",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"country\": \"Serbia\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api-auth/area/getAreasByCountry",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api-auth",
+								"area",
+								"getAreasByCountry"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modify Area",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"66d1cd04e527cf8eaeb8f5be\",\n    \"country\": \"Serbia\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"Golija\",\n\t\"longitude\": 43.4252099,\n\t\"latitude\": 20.6202073,\n    \"areaPoints\": [\n        { \"lat\": 30.0646733, \"lng\": 31.4059965 },\n        { \"lat\": 30.0656733, \"lng\": 31.4069965 },\n        { \"lat\": 30.0666733, \"lng\": 31.4079965 }\n    ],\n\t\"name\": \"type\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api-auth/area/edit",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api-auth",
+								"area",
+								"edit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Area",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"66cc716e610f6fae5bf86072\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api-auth/area/delete",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api-auth",
+								"area",
+								"delete"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "Get Exists Countries",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
+			"name": "Paypal",
+			"item": [
+				{
+					"name": "Create Order Link",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 100\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/nrapi/payment/paypalCreateOrder",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"nrapi",
+								"payment",
+								"paypalCreateOrder"
+							]
 						}
-					]
+					},
+					"response": []
 				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"country\": \"Germany\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"ALwafaa\",\n    \"latitude\": 30.0646733,\n\t\"longitude\": 31.4059965,\n\t\"name\": \"XAVI Area\"\n}\n// 30.0646733,31.4059965",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{domain}}/api/area/getUniqueCountries",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						"api",
-						"area",
-						"getUniqueCountries"
-					]
+				{
+					"name": "Webhook Example",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "content-length",
+								"value": "1798"
+							},
+							{
+								"key": "client-pid",
+								"value": "360542"
+							},
+							{
+								"key": "x-b3-spanid",
+								"value": "5a20fffcfc1b21bc"
+							},
+							{
+								"key": "cal-poolstack",
+								"value": "amqunphttpdeliveryd:UNPHTDLVRYHA*CalThreadId=0*TopLevelTxnStartTime=191a3e16564*Host=ccg18amqunphttpdeliveryd4"
+							},
+							{
+								"key": "correlation-id",
+								"value": "f76804432af23"
+							},
+							{
+								"key": "user-agent",
+								"value": "PayPal/AUHD-214.0-58610500"
+							},
+							{
+								"key": "content-type",
+								"value": "application/json"
+							},
+							{
+								"key": "paypal-auth-algo",
+								"value": "SHA256withRSA"
+							},
+							{
+								"key": "paypal-cert-url",
+								"value": "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-ab66f33d"
+							},
+							{
+								"key": "paypal-auth-version",
+								"value": "v2"
+							},
+							{
+								"key": "paypal-transmission-sig",
+								"value": "b7xXAa/trWyxldlp32Qmip5bVRSPvraFN/TLVwW/hTfHvVBSDdaxG1815c9bdFBtxnHh3Tu+RWtYvgspWZAiz+bMyZ9Cugw9067KQ1YVHbXDFwyZQUDNeHWzWNHV55LZYIEB3qRos6fJ0/vlgO6GLfY8TNzQA6jPmE+2eouzRgjog3/2NeUPjbO5aENgU8kTLl4pivbmMQGI7W5D+HBywydD65FaOeNo1gGrgFrlbawJeB1V03vWJpJucuHefmZMIvrL5HK02zLzDRAXAAh776iNu5NFSHPB11F8iOhTntRd/1MGQDRlrUDQvGES67XNzecE/RY28+Mb1V0/lFq/WA=="
+							},
+							{
+								"key": "paypal-transmission-time",
+								"value": "2024-08-30T15:22:13Z"
+							},
+							{
+								"key": "paypal-transmission-id",
+								"value": "a25b8190-66e3-11ef-8631-b5563cb1cd6c"
+							},
+							{
+								"key": "accept",
+								"value": "*/*"
+							},
+							{
+								"key": "host",
+								"value": "webhook.site"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"WH-03917798PK579480H-23767291YX561800R\",\"event_version\":\"1.0\",\"create_time\":\"2024-08-30T15:22:03.788Z\",\"resource_type\":\"checkout-order\",\"resource_version\":\"2.0\",\"event_type\":\"CHECKOUT.ORDER.APPROVED\",\"summary\":\"An order has been approved by buyer\",\"resource\":{\"create_time\":\"2024-08-30T15:21:14Z\",\"purchase_units\":[{\"reference_id\":\"default\",\"amount\":{\"currency_code\":\"USD\",\"value\":\"10.00\",\"breakdown\":{\"item_total\":{\"currency_code\":\"USD\",\"value\":\"10.00\"}}},\"payee\":{\"email_address\":\"sb-g47mnu32443724@business.example.com\",\"merchant_id\":\"DD7UD8TZRZEGN\",\"display_data\":{\"brand_name\":\"Blokaria\"}},\"items\":[{\"name\":\"TEST Payment\",\"unit_amount\":{\"currency_code\":\"USD\",\"value\":\"10.00\"},\"quantity\":\"1\",\"description\":\"TEST Description\"}]}],\"links\":[{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921\",\"rel\":\"self\",\"method\":\"GET\"},{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921\",\"rel\":\"update\",\"method\":\"PATCH\"},{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921/capture\",\"rel\":\"capture\",\"method\":\"POST\"}],\"id\":\"76E30833M76322921\",\"payment_source\":{\"paypal\":{\"email_address\":\"xavi@omar.com\",\"account_id\":\"UMHBLNYY357WQ\",\"account_status\":\"VERIFIED\",\"name\":{\"given_name\":\"John\",\"surname\":\"Doe\"},\"address\":{\"country_code\":\"US\"}}},\"intent\":\"CAPTURE\",\"payer\":{\"name\":{\"given_name\":\"John\",\"surname\":\"Doe\"},\"email_address\":\"xavi@omar.com\",\"payer_id\":\"UMHBLNYY357WQ\",\"address\":{\"country_code\":\"US\"}},\"status\":\"APPROVED\"},\"links\":[{\"href\":\"https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-03917798PK579480H-23767291YX561800R\",\"rel\":\"self\",\"method\":\"GET\"},{\"href\":\"https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-03917798PK579480H-23767291YX561800R/resend\",\"rel\":\"resend\",\"method\":\"POST\"}]}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{domain}}/nrapi/payment/paypalWebhook",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"nrapi",
+								"payment",
+								"paypalWebhook"
+							]
+						},
+						"description": "Generated from cURL: curl -X 'POST' 'https://webhook.site/e8d40f5e-8a6d-47e6-a198-3d7e36888903' -H 'content-length: 1798' -H 'client-pid: 360542' -H 'x-b3-spanid: 5a20fffcfc1b21bc' -H 'cal-poolstack: amqunphttpdeliveryd:UNPHTDLVRYHA*CalThreadId=0*TopLevelTxnStartTime=191a3e16564*Host=ccg18amqunphttpdeliveryd4' -H 'correlation-id: f76804432af23' -H 'user-agent: PayPal/AUHD-214.0-58610500' -H 'content-type: application/json' -H 'paypal-auth-algo: SHA256withRSA' -H 'paypal-cert-url: https://api.sandbox.paypal.com/v1/notifications/certs/CERT-360caa42-fca2a594-ab66f33d' -H 'paypal-auth-version: v2' -H 'paypal-transmission-sig: b7xXAa/trWyxldlp32Qmip5bVRSPvraFN/TLVwW/hTfHvVBSDdaxG1815c9bdFBtxnHh3Tu+RWtYvgspWZAiz+bMyZ9Cugw9067KQ1YVHbXDFwyZQUDNeHWzWNHV55LZYIEB3qRos6fJ0/vlgO6GLfY8TNzQA6jPmE+2eouzRgjog3/2NeUPjbO5aENgU8kTLl4pivbmMQGI7W5D+HBywydD65FaOeNo1gGrgFrlbawJeB1V03vWJpJucuHefmZMIvrL5HK02zLzDRAXAAh776iNu5NFSHPB11F8iOhTntRd/1MGQDRlrUDQvGES67XNzecE/RY28+Mb1V0/lFq/WA==' -H 'paypal-transmission-time: 2024-08-30T15:22:13Z' -H 'paypal-transmission-id: a25b8190-66e3-11ef-8631-b5563cb1cd6c' -H 'accept: */*' -H 'host: webhook.site' -d $'{\"id\":\"WH-03917798PK579480H-23767291YX561800R\",\"event_version\":\"1.0\",\"create_time\":\"2024-08-30T15:22:03.788Z\",\"resource_type\":\"checkout-order\",\"resource_version\":\"2.0\",\"event_type\":\"CHECKOUT.ORDER.APPROVED\",\"summary\":\"An order has been approved by buyer\",\"resource\":{\"create_time\":\"2024-08-30T15:21:14Z\",\"purchase_units\":[{\"reference_id\":\"default\",\"amount\":{\"currency_code\":\"USD\",\"value\":\"10.00\",\"breakdown\":{\"item_total\":{\"currency_code\":\"USD\",\"value\":\"10.00\"}}},\"payee\":{\"email_address\":\"sb-g47mnu32443724@business.example.com\",\"merchant_id\":\"DD7UD8TZRZEGN\",\"display_data\":{\"brand_name\":\"Blokaria\"}},\"items\":[{\"name\":\"TEST Payment\",\"unit_amount\":{\"currency_code\":\"USD\",\"value\":\"10.00\"},\"quantity\":\"1\",\"description\":\"TEST Description\"}]}],\"links\":[{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921\",\"rel\":\"self\",\"method\":\"GET\"},{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921\",\"rel\":\"update\",\"method\":\"PATCH\"},{\"href\":\"https://api.sandbox.paypal.com/v2/checkout/orders/76E30833M76322921/capture\",\"rel\":\"capture\",\"method\":\"POST\"}],\"id\":\"76E30833M76322921\",\"payment_source\":{\"paypal\":{\"email_address\":\"xavi@omar.com\",\"account_id\":\"UMHBLNYY357WQ\",\"account_status\":\"VERIFIED\",\"name\":{\"given_name\":\"John\",\"surname\":\"Doe\"},\"address\":{\"country_code\":\"US\"}}},\"intent\":\"CAPTURE\",\"payer\":{\"name\":{\"given_name\":\"John\",\"surname\":\"Doe\"},\"email_address\":\"xavi@omar.com\",\"payer_id\":\"UMHBLNYY357WQ\",\"address\":{\"country_code\":\"US\"}},\"status\":\"APPROVED\"},\"links\":[{\"href\":\"https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-03917798PK579480H-23767291YX561800R\",\"rel\":\"self\",\"method\":\"GET\"},{\"href\":\"https://api.sandbox.paypal.com/v1/notifications/webhooks-events/WH-03917798PK579480H-23767291YX561800R/resend\",\"rel\":\"resend\",\"method\":\"POST\"}]}'"
+					},
+					"response": []
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get All Areas",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{domain}}/api-auth/area/getAllAreas",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						"api-auth",
-						"area",
-						"getAllAreas"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Area By ID",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"id\": \"66cf575b224615adaaa63c98\",\n    \"showConnectedItems\": true // If true then list all the items that belongs to that area\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{domain}}/api-auth/area/getAreaById",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						"api-auth",
-						"area",
-						"getAreaById"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Area By ID Country",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"country\": \"Serbia\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{domain}}/api-auth/area/getAreasByCountry",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						"api-auth",
-						"area",
-						"getAreasByCountry"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Modify Area",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"id\": \"66cc716e610f6fae5bf86072\",\n    \"country\": \"Serbia\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"Golija\",\n\t\"longitude\": 43.4252099,\n\t\"latitude\": 20.6202073,\n\t\"name\": \"type\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{domain}}/api-auth/area/edit",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						"api-auth",
-						"area",
-						"edit"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete Area",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"id\": \"66cc716e610f6fae5bf86072\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{domain}}/api-auth/area/delete",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						"api-auth",
-						"area",
-						"delete"
-					]
-				}
-			},
-			"response": []
+			]
 		}
 	],
 	"event": [

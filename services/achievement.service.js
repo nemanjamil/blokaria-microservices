@@ -106,11 +106,22 @@ const achievementService = {
 					const entity = {
 						userEmail: user.userEmail,
 						required_trees: { $lte: user.planted_trees_count },
+						is_email_send: { $eq: false}
 					};
 
-					const data = { $set: {completed: true} };
+					const achievementList = await Achievement.find(entity);
 
+					for (const achievement of achievementList) {
+						ctx.call("v1.achievement.sendAchievementEmail", {
+							userLang: "en",
+							userEmail: user.userEmail,
+							achievement: achievement,
+						});
+					}
+
+					const data = { $set: {completed: true, is_email_send: true} };
 					return await Achievement.updateMany(entity, data, {new: true});
+
 				} catch (err) {
 					throw new MoleculerError("Achievement update fail", 401, "ACHIEVEMENT_FAILED", {
 						message: "Achievement update fail",
