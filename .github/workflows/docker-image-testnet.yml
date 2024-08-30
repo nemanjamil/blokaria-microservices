@@ -51,12 +51,12 @@ jobs:
       - name: SSH and deploy node app
         uses: appleboy/ssh-action@master
         with:
-          host: '185.193.66.140'
-          username: 'admin'
+          host: "185.193.66.140"
+          username: "admin"
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
             cd /var/www/docker-compose
-            docker-compose -f docker-compose-local.yml pull
-            docker-compose -f docker-compose-local.yml up --force-recreate -d
+            docker-compose -f docker-compose.yml pull
+            docker-compose -f docker-compose.yml up --force-recreate -d
             docker image prune -a -f
