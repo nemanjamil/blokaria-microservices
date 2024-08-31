@@ -27,7 +27,6 @@ const isEmpty = require("lodash/isEmpty");
 // 	res.end(next);
 // }
 
-
 module.exports = {
 	name: "api",
 	mixins: [ApiGateway],
@@ -121,6 +120,7 @@ module.exports = {
 				mappingPolicy: "restrict",
 				autoAliases: false,
 				aliases: {
+					"POST payment/donation": "v1.payment.donationPayment",
 					"POST user/registerUser": "user.registerUser",
 					"GET user/authenticate/:id/:userEmail": "user.authenticate",
 					"GET user/healthcheck": "user.healthcheck",
@@ -135,6 +135,11 @@ module.exports = {
 					"POST wallet/getQrCodeFromId": "wallet.getQrCodeFromId",
 					"POST project/listAllProjectNrApi": "project.listAllProjectNrApi",
 					"GET project/getOneProject/:projectId": "project.getOneProject",
+					"GET area/getUniqueCountries": "v1.area.getUniqueCountries",
+					"POST payment/paypalCreateOrder": "v1.payment.paypalCreateOrder",
+					"POST payment/paypalWebhook": "v1.payment.paypalWebhook",
+					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
+					"GET area/getUniqueCountrieDashboard": "v1.area.getUniqueCountrieDashboard",
 				},
 				callingOptions: {},
 
@@ -156,12 +161,9 @@ module.exports = {
 				authentication: false,
 				authorization: false,
 
-				whitelist: [
-					"http.*",
-				],
+				whitelist: ["http.*"],
 				mappingPolicy: "restrict",
 				autoAliases: true,
-
 
 				bodyParsers: {
 					json: {
@@ -191,6 +193,7 @@ module.exports = {
 					"POST user/updateUser": "user.updateUser",
 					"POST user/addCouponsAndQrCodesToUser": "user.addCouponsAndQrCodesToUser",
 					"POST user/userGet": "user.userGet",
+					"GET user/userMetrics": "user.userGetMetrics",
 					"POST wallet/getListQrCodesByUserPrivate": "wallet.getListQrCodesByUserPrivate",
 					"POST wallet/getQrCodeData": "wallet.getQrCodeData",
 					"POST wallet/generateContract": "wallet.generateContract",
@@ -213,6 +216,10 @@ module.exports = {
 					"POST wallet/updateDataInDb": "wallet.updateDataInDb",
 					"POST wallet/updateStory": "wallet.updateStory",
 					"POST nftcardano/generateNft": "nftcardano.generateNft",
+					"POST payment/plant-tree": "v1.payment.buyTreePayment",
+					"GET achievement": "v1.achievement.getUserAchievements",
+					"POST achievement": "v1.achievement.createAchievement",
+					"PUT achievement": "v1.achievement.updateAchievements",
 				},
 				callingOptions: {},
 
@@ -227,7 +234,7 @@ module.exports = {
 					},
 				},
 				logging: true,
-				/** 
+				/**
 				onBeforeCall(ctx, route, req, res) {
 					// https://github.com/teezzan/commitSpy-Core/blob/ed14a9aa28f166bc7e1482086728b64e696fcf28/services/api.service.js
 					// Set request headers to context meta
@@ -249,9 +256,7 @@ module.exports = {
 				mappingPolicy: "restrict", // restrict
 				autoAliases: false,
 				aliases: {
-					"POST nftcardano/updateQrCodeUrlForward": [
-						"nftcardano.updateQrCodeUrlForward",
-					],
+					"POST nftcardano/updateQrCodeUrlForward": ["nftcardano.updateQrCodeUrlForward"],
 					"POST nftcardano/updateQrCodeUrl": "nftcardano.updateQrCodeUrl",
 					"POST wallet/updateQrCodeText": "wallet.updateQrCodeText",
 				},
@@ -268,6 +273,49 @@ module.exports = {
 					},
 				},
 				logging: true,
+			},
+			{
+				path: "/api-auth",
+
+				authentication: true,
+				authorization: "adminAuth",
+				whitelist: ["**"],
+				mappingPolicy: "restrict",
+				autoAliases: false,
+				aliases: {
+					"POST /area/create": "v1.area.createArea",
+					"POST /area/edit": "v1.area.editArea",
+					"POST /area/delete": "v1.area.deleteArea",
+					"GET /area/getAllAreas": "v1.area.getAllAreas",
+					"POST /area/getAreaById": "v1.area.getAreaById",
+					"POST /area/getAreasByCountry": "v1.area.getAreasByCountry",
+				},
+				callingOptions: {},
+
+				bodyParsers: {
+					json: {
+						strict: false,
+						limit: "1MB",
+					},
+					urlencoded: {
+						extended: true,
+						limit: "1MB",
+					},
+				},
+				logging: true,
+			},
+
+			{
+				path: "/stripe",
+				aliases: {
+					"POST /webhook": "v1.payment.handleStripeWebhook",
+				},
+				bodyParsers: {
+					json: false,
+					raw: {
+						type: "application/json",
+					},
+				},
 			},
 		],
 
@@ -287,11 +335,9 @@ module.exports = {
 		},
 	},
 
-
 	methods: {
-
 		/**
-		 
+
 		 * @param {Context} ctx
 		 * @param {Object} route
 		 * @param {IncomingRequest} req
@@ -299,7 +345,6 @@ module.exports = {
 		 */
 
 		async validateUpdateQrCode(ctx, route, req) {
-
 			try {
 				console.log("req", req.body);
 				console.log("meta", ctx.meta);
@@ -318,10 +363,10 @@ module.exports = {
 
 				let canPass = false;
 				switch (true) {
-					case (userEmail === userQrCodeEmail && qrCodeRedeemStatus === 0):
+					case userEmail === userQrCodeEmail && qrCodeRedeemStatus === 0:
 						canPass = true;
 						break;
-					case (userEmail === clientEmail && qrCodeRedeemStatus === 1):
+					case userEmail === clientEmail && qrCodeRedeemStatus === 1:
 						canPass = true;
 						break;
 
@@ -337,7 +382,6 @@ module.exports = {
 						internalErrorCode: "permission_error_1",
 					});
 				}
-
 			} catch (error) {
 				throw new MoleculerError(error.message, 401, "ERROR_VALIDATE_IF_USER_HAS_PRIVILAGES_TO_UPDATE", {
 					message: error.message,
@@ -345,6 +389,45 @@ module.exports = {
 				});
 			}
 		},
+		async adminAuth(ctx, route, req) {
+			try {
+				console.log("req", req.body);
+				console.log("meta", ctx.meta);
+
+				const { userEmail } = ctx.meta.user;
+				let users = await ctx.call("user.userFind", { userEmail });
+				const user = users ? users[0] : null;
+
+				if (!user) {
+					throw new MoleculerClientError("User not found.", 422, "USER_FIND_ERROR", {
+						message: "User with the provided email does not exist.",
+						internalErrorCode: "auth30",
+					});
+				}
+
+				console.log("userRole", user.userRole);
+				let canPass = false;
+
+				if (user.userRole == 1) { /* Assume 1 - admin */
+					canPass = true;
+				}
+
+				console.log("canPass", canPass);
+
+				if (!canPass) {
+					throw new MoleculerError("You do not have sufficient permissions to do this request", 401, "ERROR_ON_PERMISSIONS", {
+						message: "You do not have sufficient permissions to do this request",
+						internalErrorCode: "permission_error_1",
+					});
+				}
+			 } catch (error) {
+				throw new MoleculerError(error.message, 401, "ERROR_VALIDATE_IF_USER_HAS_PRIVILAGES_TO_UPDATE", {
+					message: error.message,
+					internalErrorCode: "update10",
+				});
+			}
+		},
+
 		/**
 		 * Authenticate the request. It check the `Authorization` token value in the request header.
 		 * Check the token value & resolve the user by the token.
@@ -370,7 +453,8 @@ module.exports = {
 						userEmail: getUser[0].userEmail,
 						userFullName: getUser[0].userFullName,
 						userId: getUser[0]._id,
-						userRole: (("userRole" in getUser[0])) ? getUser[0].userRole : 1,
+						// userRole: (("userRole" in getUser[0])) ? getUser[0].userRole : 1,
+						userRole: "userRole" in getUser[0] ? getUser[0].userRole : 1,
 						numberOfTransaction: getUser[0].numberOfTransaction,
 						numberOfCoupons: getUser[0].numberOfCoupons,
 					};

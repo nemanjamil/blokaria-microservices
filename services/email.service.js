@@ -22,6 +22,7 @@ module.exports = {
 	metadata: {
 		scalable: true,
 		priority: 5,
+		bccemail: "bcc@blokaria.com",
 	},
 	actions: {
 		registerUser: {
@@ -118,7 +119,8 @@ module.exports = {
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}`,
 						cc: `${userEmail}`,
-						subject: "Information about the smart contract ✔",
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Informacije o pametnom ugovoru ✔",
 						html: htmlToSend,
 					};
 
@@ -169,7 +171,8 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
-						subject: "Generated QR code ✔",
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Generisanje QR koda ✔",
 						html: htmlToSend,
 						attachments: [
 							{
@@ -235,7 +238,8 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}, ${userEmail}`,
-						subject: "Transaction email ✔",
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Email transakcije ✔",
 						html: htmlToSend,
 					};
 
@@ -277,7 +281,8 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
-						subject: "Password reset ✔",
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Resetovanje lozinke ✔",
 						html: htmlToSend,
 					};
 
@@ -333,7 +338,8 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
-						subject: "User is interested in your product ✔",
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Korisnik je zainteresovan za Vaš proizvod ✔",
 						html: htmlToSend,
 					};
 
@@ -379,7 +385,8 @@ module.exports = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}`,
-						subject: "Request approved ✔",
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Zahtev odobren ✔",
 						html: htmlToSend,
 					};
 

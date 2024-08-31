@@ -2,7 +2,6 @@
 const { MoleculerClientError, MoleculerError } = require("moleculer").Errors;
 const jwt = require("jsonwebtoken");
 const Utils = require("../utils/utils");
-
 module.exports = {
 	name: "auth",
 	version: 1,
@@ -39,11 +38,31 @@ module.exports = {
 							message: "password do not match",
 							internalErrorCode: "auth20",
 						});
-					let expiresIn = "72h";
+
+					let expiresIn = "168h";
 					let response = {
 						token: jwt.sign({ userEmail: userEmail }, process.env.JWT_SECRET, { expiresIn: expiresIn }),
 						expiresIn: expiresIn,
 					};
+
+					// console.log(response.token);
+
+					// const algorithm = 'aes-256-cbc';  // Algorithm to use for encryption
+					// const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);  
+					// const iv = crypto.randomBytes(16); 
+
+					// const cipher = crypto.createCipheriv(algorithm, key, iv);
+					// let encryptedToken = cipher.update(response.token, 'utf8', 'hex');
+					// encryptedToken += cipher.final('hex');
+					// encryptedToken = iv.toString('hex') + ':' + encryptedToken;  
+
+					// const parts = encryptedToken.split(':');
+					// const iv_d = Buffer.from(parts.shift(), 'hex');
+					// const encryptedText = parts.join(':');
+
+					// const decipher = crypto.createDecipheriv(algorithm, key, iv_d);
+					// let decryptedToken = decipher.update(encryptedText, 'hex', 'utf8');
+					// decryptedToken += decipher.final('utf8');
 
 					let copyUser = {
 						userEmail: user.userEmail,
@@ -52,8 +71,11 @@ module.exports = {
 						userRole: user.userRole,
 						numberOfTransaction: user.numberOfTransaction,
 						numberOfCoupons: user.numberOfCoupons,
+						level: user.level,
+						planted_trees_count: user.planted_trees_count,
 					};
-
+					
+					// response.token = encryptedToken;
 					return { tokenData: response, user: copyUser };
 				} catch (error) {
 					return Promise.reject(error);
@@ -73,6 +95,17 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+					// const algorithm = 'aes-256-cbc';  // Algorithm to use for encryption
+					// const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);  
+					
+					// const parts = ctx.params.token.split(':');
+					// const iv_d = Buffer.from(parts.shift(), 'hex');
+					// const encryptedText = parts.join(':');
+
+					// const decipher = crypto.createDecipheriv(algorithm, key, iv_d);
+					// let decryptedToken = decipher.update(encryptedText, 'hex', 'utf8');
+					// decryptedToken += decipher.final('utf8');
+
 					return jwt.verify(ctx.params.token, process.env.JWT_SECRET);
 				} catch (error) {
 					throw new MoleculerError(

@@ -1,16 +1,13 @@
 "use strict";
 const DbService = require("moleculer-db");
-//const jwt = require("jsonwebtoken");
 const { MoleculerError } = require("moleculer").Errors;
 const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
-
-//const Date = require("../utils/Date");
-//const { decode } = require("utf8");
-//const LG = require("../utils/Logger");
-//const LOGGER = new LG("USER");
+const Wallet = require("../models/Wallet.js");
+const { achievementList } = require("../data/achievement");
+const { getNextLevel } = require("../models/Achievement");
 
 module.exports = {
 	name: "user",
@@ -121,12 +118,17 @@ module.exports = {
 					numberOfTransaction: { $gt: 0 },
 				};
 
-				let data = {
-					$inc: { numberOfTransaction: -1 },
+				const user = await User.findOne({ userEmail: ctx.params.user.userEmail });
+				const userNextLevel = getNextLevel(user.level, user.planted_trees_count + 1);
+
+				const data = {
+					$inc: { numberOfTransaction: -1, planted_trees_count: 1 },
+					$set: { level: userNextLevel },
 				};
 
 				try {
 					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
+					await ctx.call("v1.achievement.updateAchievements");
 
 					if (!resultFromReducting) {
 						throw new MoleculerError(strings.userReduceTrx, 401, "USER_HAS_NEGATIVE_NUMBER_OF_AVAILABLE_TRANSACTIONS", {
@@ -134,6 +136,9 @@ module.exports = {
 							internalErrorCode: "user71",
 						});
 					}
+
+					// TODO: Transactions for reaching out
+
 					return resultFromReducting;
 				} catch (error) {
 					throw new MoleculerError(strings.userReduceTrx, 401, "ERROR_REDUCING_TRANSACTIONS", {
@@ -202,7 +207,7 @@ module.exports = {
 						.populate("_wallets");
 
 					/* let userFind = await User.findOne(entity);
-					let _wallets = userFind._wallets || []; 
+					let _wallets = userFind._wallets || [];
 					_wallets.push(ctx.params._id);
 					const updatedPost = await User.findOneAndUpdate(entity, {_wallets: _wallets}).populate({path : "_wallets"}); */
 				} catch (error) {
@@ -265,7 +270,6 @@ module.exports = {
 		},
 
 		registerUser: {
-			//rest: "POST /registerUser",
 			params: {
 				userEmail: { type: "email" },
 				userFullName: { type: "string" },
@@ -297,6 +301,16 @@ module.exports = {
 					let userAdded = await this.addUserToDB({ ctx, clearPassword });
 
 					this.logger.info("registerUser userAdded", userAdded);
+
+					// When user created, we created their achievement list as well
+					achievementList.map(async (achievement) => {
+						await ctx.call("v1.achievement.createAchievement", {
+							name: achievement.name,
+							description: achievement.description,
+							required_trees: achievement.required_trees,
+							userId: userAdded._id.toString(),
+						});
+					});
 
 					let userEmail = ctx.params.userEmail;
 					const sendEmail = await ctx.call("v1.email.registerUser", {
@@ -377,19 +391,50 @@ module.exports = {
 				};
 
 				try {
-					let user = await User.find(entity, {
-						numberOfTransaction: 1,
-						userEmail: 1,
-						userRole: 1,
-						userFullName: 1,
-						numberOfCoupons: 1,
-						userVerified: 1,
-					});
+					const user = await User.find(entity, {
+						clearPassword: 0,
+						userPassword: 0,
+					}).exec();
+
 					return user;
 				} catch (error) {
 					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
 						message: "User Not Found",
 						internalErrorCode: "user20",
+					});
+				}
+			},
+		},
+
+		userGetMetrics: {
+			rest: "GET /userMetrics",
+			async handler(ctx) {
+				const CARBON_YEARLY_FOOTPRINT = process.env.CARBON_YEARLY_FOOTPRINT;
+				const TREE_REDUCE_FOOTPRINT = process.env.TREE_REDUCE_FOOTPRINT;
+
+				const { userId } = ctx.meta.user;
+
+				try {
+					const user = await User.findById(userId).exec();
+					if (!user) {
+						throw new MoleculerError("User not found", 400, "USER_NOT_FOUND", {
+							message: "User Not Found",
+							internalErrorCode: "user21",
+						});
+					}
+
+					const itemsAmount = await Wallet.countDocuments({ qrCodeRedeemStatus: 1, clientEmail: user.userEmail }).exec();
+
+					const value = CARBON_YEARLY_FOOTPRINT - itemsAmount * TREE_REDUCE_FOOTPRINT;
+
+					return {
+						ok: true,
+						tonsPerYear: value,
+					};
+				} catch (err) {
+					throw new MoleculerError("Failed to get metrics", 500, "METRICS_FETCH_FAILED", {
+						message: "Metrics Fetch Failed",
+						internalErrorCode: "metrics500",
 					});
 				}
 			},

@@ -13,7 +13,7 @@ const walletSchema = new mongoose.Schema({
 	createdAt: { type: Date, default: Date.now, index: true },
 	clientMessage: { type: String },
 	clientName: { type: String },
-	clientEmail: { type: String },
+	clientEmail: { type: String, default: "" },
 	metaDataRandomNumber: { type: Number },
 	productPicture: { type: String },
 	productVideo: { type: String },
@@ -36,6 +36,11 @@ const walletSchema = new mongoose.Schema({
 	nftAssetToWalletTxHash: { type: String },
 	longText: { type: String },
 	hasstory: { type: Boolean, default: false },
+	area: {
+		type: String,
+		required: true,
+		default: null,
+	},
 	_creator: {
 		type: ObjectId,
 		ref: "User",
@@ -56,6 +61,7 @@ const walletSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: "Project",
 	},
+
 });
 
 const normalizeUnderscoreMiddleware = function (next) {
@@ -63,17 +69,17 @@ const normalizeUnderscoreMiddleware = function (next) {
 		// If multiple documents are returned
 		this.forEach((doc) => {
 			console.log("normalizing underscore for doc:", doc);
-			Object.keys(doc).forEach(key => {
+			Object.keys(doc).forEach((key) => {
 				if (key.startsWith("_")) {
 					console.log("normalizing", key, "field");
 					doc[key] = JSON.parse(JSON.stringify(Object.assign({}, doc)[key]));
 				}
 			});
 		});
-	} else {
+	} else if (this) {
 		// If a single document is returned
 		console.log("normalizing underscore for doc(this):", this);
-		Object.keys(this).forEach(key => {
+		Object.keys(this).forEach((key) => {
 			if (key.startsWith("_")) {
 				console.log("normalizing", key, "field");
 				this[key] = JSON.parse(JSON.stringify(Object.assign({}, this)[key]));
@@ -85,6 +91,11 @@ const normalizeUnderscoreMiddleware = function (next) {
 
 // Apply the middleware to various query methods
 walletSchema.post("find", function (docs, next) {
+	if (!docs || docs.length === 0) {
+		next();
+		return;
+	}
+
 	docs.forEach((doc) => normalizeUnderscoreMiddleware.call(doc, next));
 });
 
