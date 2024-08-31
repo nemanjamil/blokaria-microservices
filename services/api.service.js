@@ -138,6 +138,8 @@ module.exports = {
 					"GET area/getUniqueCountries": "v1.area.getUniqueCountries",
 					"POST payment/paypalCreateOrder": "v1.payment.paypalCreateOrder",
 					"POST payment/paypalWebhook": "v1.payment.paypalWebhook",
+					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
+					"GET area/getUniqueCountrieDashboard": "v1.area.getUniqueCountrieDashboard",
 				},
 				callingOptions: {},
 

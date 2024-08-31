@@ -125,6 +125,41 @@ const areaService = {
 				}
 			},
 		},
+
+		getAllAreasDashboard: {
+			async handler(ctx) {
+				try {
+					const areas = await Area.find({});
+		
+					// Group areas by country and format each area
+					const formattedAreas = areas.reduce((result, area) => {
+						const country = area.country;
+		
+						if (!result[country]) {
+							result[country] = [];
+						}
+		
+						result[country].push({
+							id: area._id,
+							name: area.name,
+							center: { lat: area.latitude, lng: area.longitude },
+							area: area.areaPoints.map(point => [point.lat, point.lng])  // Formatting area points
+						});
+		
+						return result;
+					}, {});
+		
+					return formattedAreas;
+				} catch (err) {
+					console.error("Error retrieving areas:", err);
+					const message = "An error occurred while retrieving areas from db.";
+					throw new MoleculerError("Area Retrieval Failed", 500, "AREA_RETRIEVAL_FAILED", {
+						message,
+					});
+				}
+			},
+		},
+		
 		getAreaById: {
 			params: {
 				id: { type: "string" },
@@ -193,6 +228,29 @@ const areaService = {
 				}
 			},
 		},				
+
+		getUniqueCountrieDashboard: {
+			async handler(ctx) {
+				try {
+					// Retrieve distinct countries
+					const uniqueCountries = await Area.distinct("country");
+		
+					// Format the result with id and name, indexing the countries
+					const formattedCountries = uniqueCountries.map((country, index) => ({
+						id: index + 1,
+						name: country
+					}));
+		
+					return formattedCountries;
+				} catch (err) {
+					console.error("Error retrieving unique countries:", err);
+					const message = "An error occurred while retrieving unique countries from the db.";
+					throw new MoleculerError("Unique Country Retrieval Failed", 500, "COUNTRY_RETRIEVAL_FAILED", {
+						message,
+					});
+				}
+			},
+		},
 	},
 };
 
