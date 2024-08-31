@@ -26,7 +26,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"country\": \"Serbia\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"Gajdobra\",\n    \"latitude\": 30.0646733,\n\t\"longitude\": 31.4059965,\n    \"areaPoints\": [\n        { \"lat\": 30.0646733, \"lng\": 31.4059965 },\n        { \"lat\": 30.0656733, \"lng\": 31.4069965 },\n        { \"lat\": 30.0666733, \"lng\": 31.4079965 }\n    ],\n\t\"name\": \"Serbia Area\"\n}\n// 30.0646733,31.4059965",
+							"raw": "{\n    \"country\": \"Serbia\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"Gajdobra\",\n    \"latitude\": 30.0646733,\n\t\"longitude\": 31.4059965,\n    \"areaPoints\": [\n        { \"lat\": 44.84023132382676, \"lng\": 20.424047012371044 },\n        { \"lat\": 44.83264801892661, \"lng\": 20.446976336470094 },\n        { \"lat\": 44.82424373165372, \"lng\": 20.434837282535305 }\n        /*\n        [44.84023132382676, 20.424047012371044],\n        [44.83264801892661, 20.446976336470094],\n        [44.82424373165372, 20.434837282535305]\n        */\n    ],\n\t\"name\": \"Serbia Area\"\n}\n// 30.0646733,31.4059965",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -49,6 +49,48 @@
 				},
 				{
 					"name": "Get Exists Countries",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"country\": \"Germany\",\n\t\"countryCode\": \"381\",\n\t\"address\": \"ALwafaa\",\n    \"latitude\": 30.0646733,\n\t\"longitude\": 31.4059965,\n\t\"name\": \"XAVI Area\"\n}\n// 30.0646733,31.4059965",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/nrapi/area/getUniqueCountries/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"nrapi",
+								"area",
+								"getUniqueCountries",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Exists Countries Dashboard",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -124,6 +166,47 @@
 								"api-auth",
 								"area",
 								"getAllAreas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Areas Dashboard",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/nrapi/area/getAllAreasDashboard",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"nrapi",
+								"area",
+								"getAllAreasDashboard"
 							]
 						}
 					},
@@ -260,7 +343,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"66cc716e610f6fae5bf86072\"\n}",
+							"raw": "{\n    \"id\": \"66d32fc3b0eb1dba37868cd2\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
