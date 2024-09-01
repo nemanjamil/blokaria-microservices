@@ -6,7 +6,7 @@ const dbConnection = require("../utils/dbConnection");
 const { v4 } = require("uuid");
 const Wallet = require("../models/Wallet");
 const Utils = require("../utils/utils");
-const { AchievementUID, getNextLevel } = require("../models/Achievement");
+const { getNextLevel } = require("../models/Achievement");
 const User = require("../models/User");
 const axios = require("axios");
 
