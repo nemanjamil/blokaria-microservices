@@ -35,12 +35,20 @@ const achievementService = {
 	model: Achievement,
 	$noVersionPrefix: true,
 	actions: {
+		getAchievementPostPreview: {
+			rest: "GET achievement/getPostPreview",
+			async handler() {
+				// const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
+				this.logger.log("get achievement post template triggered");
+				return { testing: "hi" };
+			},
+		},
 		createAchievement: {
 			params: {
 				name: { type: "string" },
 				description: { type: "string" },
 				userId: { type: "string" },
-				required_trees : { type: "number" }
+				required_trees: { type: "number" },
 			},
 			async handler(ctx) {
 				const { name, description, userId, required_trees } = ctx.params;
@@ -58,7 +66,7 @@ const achievementService = {
 						name,
 						description,
 						user,
-						required_trees
+						required_trees,
 					});
 					await achievement.save();
 					return achievement.toJSON();
@@ -79,7 +87,7 @@ const achievementService = {
 				try {
 					const user = await User.findById(userId).exec();
 
-					const achievements = await Achievement.find({ user }).sort({required_trees: 1});
+					const achievements = await Achievement.find({ user }).sort({ required_trees: 1 });
 
 					if (achievements.length === 0) {
 						const initialAchievements = [];
@@ -105,7 +113,7 @@ const achievementService = {
 						});
 					}
 
-					return  await Achievement.find({ user }).sort({required_trees: 1});
+					return await Achievement.find({ user }).sort({ required_trees: 1 });
 				} catch (err) {
 					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
 						message: "User Not Found",
@@ -126,7 +134,7 @@ const achievementService = {
 					const entity = {
 						userEmail: user.userEmail,
 						required_trees: { $lte: user.planted_trees_count },
-						is_email_send: { $eq: false}
+						is_email_send: { $eq: false },
 					};
 
 					const achievementList = await Achievement.find(entity);
@@ -139,16 +147,15 @@ const achievementService = {
 						});
 					}
 
-					const data = { $set: {completed: true, is_email_send: true} };
-					return await Achievement.updateMany(entity, data, {new: true});
-
+					const data = { $set: { completed: true, is_email_send: true } };
+					return await Achievement.updateMany(entity, data, { new: true });
 				} catch (err) {
 					throw new MoleculerError("Achievement update fail", 401, "ACHIEVEMENT_FAILED", {
 						message: "Achievement update fail",
 						internalErrorCode: "achiupdatefail",
 					});
 				}
-			}
+			},
 		},
 
 		sendAchievementEmail: {

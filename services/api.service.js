@@ -220,6 +220,7 @@ module.exports = {
 					"GET achievement": "v1.achievement.getUserAchievements",
 					"POST achievement": "v1.achievement.createAchievement",
 					"PUT achievement": "v1.achievement.updateAchievements",
+					"GET achievement/getPostPreview": "v1.achievement.getAchievementPostPreview",
 				},
 				callingOptions: {},
 
@@ -408,7 +409,8 @@ module.exports = {
 				console.log("userRole", user.userRole);
 				let canPass = false;
 
-				if (user.userRole == 1) { /* Assume 1 - admin */
+				if (user.userRole == 1) {
+					/* Assume 1 - admin */
 					canPass = true;
 				}
 
@@ -420,7 +422,7 @@ module.exports = {
 						internalErrorCode: "permission_error_1",
 					});
 				}
-			 } catch (error) {
+			} catch (error) {
 				throw new MoleculerError(error.message, 401, "ERROR_VALIDATE_IF_USER_HAS_PRIVILAGES_TO_UPDATE", {
 					message: error.message,
 					internalErrorCode: "update10",
