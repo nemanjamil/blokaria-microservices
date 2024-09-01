@@ -37,9 +37,9 @@ const achievementService = {
 	actions: {
 		getAchievementPostPreview: {
 			async handler() {
-				// const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
+				const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
 				this.logger.info("get achievement post template triggered");
-				return { testing: "hi" };
+				return achievementPostTemplate;
 			},
 		},
 		createAchievement: {
