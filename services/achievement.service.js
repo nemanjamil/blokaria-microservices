@@ -36,10 +36,9 @@ const achievementService = {
 	$noVersionPrefix: true,
 	actions: {
 		getAchievementPostPreview: {
-			rest: "GET achievement/getPostPreview",
 			async handler() {
 				// const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
-				this.logger.log("get achievement post template triggered");
+				this.logger.info("get achievement post template triggered");
 				return { testing: "hi" };
 			},
 		},
