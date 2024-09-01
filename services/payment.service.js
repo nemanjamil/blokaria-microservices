@@ -283,6 +283,10 @@ const paymentService = {
 
 				this.logger.info("2. paypalWebhook verificationParams", verificationParams);
 
+				// TODO
+				// 1. Create and ITEM in that specific area
+				// 2. Update invoice details
+				// 3. Send email to the user - confirmation  return await ctx.call("v1.achievement.updateAchievements");
 				try {
 					const isValid = await verifyPaypalWebhookSignature(verificationParams);
 
@@ -292,7 +296,7 @@ const paymentService = {
 
 						const captureResult = await captureOrder(webhook_event.resource.id);
 
-						this.logger.info("2. paypalWebhook captureResult", captureResult);
+						this.logger.info("3. paypalWebhook captureResult", captureResult);
 					} else {
 						console.log("Webhook verification failed.");
 						throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
