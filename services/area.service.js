@@ -18,10 +18,10 @@ const areaService = {
 				longitude: { type: "number" },
 				latitude: { type: "number" },
 				name: { type: "string" },
-				areaPoints: { type: "array", optional: true }
+				areaPoints: { type: "array", optional: true },
 			},
 			async handler(ctx) {
-				const { country, countryCode, address, longitude, latitude, name, areaPoints} = ctx.params;
+				const { country, countryCode, address, longitude, latitude, name, areaPoints } = ctx.params;
 
 				const area = new Area({
 					country,
@@ -48,15 +48,14 @@ const areaService = {
 
 		editArea: {
 			params: {
-				id: { type: "string" }, 
+				id: { type: "string" },
 				country: { type: "string", optional: true },
 				countryCode: { type: "string", optional: true },
 				address: { type: "string", optional: true },
 				longitude: { type: "number", optional: true },
 				latitude: { type: "number", optional: true },
 				name: { type: "string", optional: true },
-				areaPoints: { type: "array", optional: true }
-
+				areaPoints: { type: "array", optional: true },
 			},
 			async handler(ctx) {
 				const { id, country, countryCode, address, longitude, latitude, name, areaPoints } = ctx.params;
@@ -87,7 +86,7 @@ const areaService = {
 
 		deleteArea: {
 			params: {
-				id: { type: "string" }, 
+				id: { type: "string" },
 			},
 			async handler(ctx) {
 				const { id } = ctx.params;
@@ -115,7 +114,10 @@ const areaService = {
 			async handler(ctx) {
 				try {
 					const areas = await Area.find({});
-					return areas.map(area => area.toJSON());
+					if (!areas.length) {
+						return "No areas";
+					}
+					return areas.map((area) => area.toJSON());
 				} catch (err) {
 					console.error("Error retrieving areas:", err);
 					const message = "An error occurred while retrieving areas from db.";
@@ -130,25 +132,25 @@ const areaService = {
 			async handler(ctx) {
 				try {
 					const areas = await Area.find({});
-		
+
 					// Group areas by country and format each area
 					const formattedAreas = areas.reduce((result, area) => {
 						const country = area.country;
-		
+
 						if (!result[country]) {
 							result[country] = [];
 						}
-		
+
 						result[country].push({
 							id: area._id,
 							name: area.name,
 							center: { lat: area.latitude, lng: area.longitude },
-							area: area.areaPoints.map(point => [point.lat, point.lng])  // Formatting area points
+							area: area.areaPoints.map((point) => [point.lat, point.lng]), // Formatting area points
 						});
-		
+
 						return result;
 					}, {});
-		
+
 					return formattedAreas;
 				} catch (err) {
 					console.error("Error retrieving areas:", err);
@@ -159,7 +161,7 @@ const areaService = {
 				}
 			},
 		},
-		
+
 		getAreaById: {
 			params: {
 				id: { type: "string" },
@@ -167,24 +169,24 @@ const areaService = {
 			},
 			async handler(ctx) {
 				const { id, showConnectedItems } = ctx.params;
-		
+
 				try {
 					const area = await Area.findById(id);
-		
+
 					if (!area) {
 						throw new MoleculerError("Area Not Found", 404, "AREA_NOT_FOUND", {
 							message: "The area with the given ID was not found.",
 						});
 					}
-		
+
 					let result = area.toJSON();
-		
+
 					if (showConnectedItems) {
 						// Call the walletService to get wallets associated with the area
 						const wallets = await ctx.call("wallet.getWalletsByArea", { areaId: id });
 						result.connectedItems = wallets;
 					}
-		
+
 					return result;
 				} catch (err) {
 					console.error("Error retrieving area:", err);
@@ -194,17 +196,17 @@ const areaService = {
 					});
 				}
 			},
-		},		
+		},
 		getAreasByCountry: {
 			params: {
 				country: { type: "string" },
 			},
 			async handler(ctx) {
 				const { country } = ctx.params;
-		
+
 				try {
 					const areas = await Area.find({ country });
-					return areas.map(area => area.toJSON());
+					return areas.map((area) => area.toJSON());
 				} catch (err) {
 					console.error("Error retrieving areas by country:", err);
 					const message = "An error occurred while retrieving areas by country from db.";
@@ -227,20 +229,20 @@ const areaService = {
 					});
 				}
 			},
-		},				
+		},
 
 		getUniqueCountrieDashboard: {
 			async handler(ctx) {
 				try {
 					// Retrieve distinct countries
 					const uniqueCountries = await Area.distinct("country");
-		
+
 					// Format the result with id and name, indexing the countries
 					const formattedCountries = uniqueCountries.map((country, index) => ({
 						id: index + 1,
-						name: country
+						name: country,
 					}));
-		
+
 					return formattedCountries;
 				} catch (err) {
 					console.error("Error retrieving unique countries:", err);
