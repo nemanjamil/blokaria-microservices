@@ -190,7 +190,7 @@ const achievementService = {
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Korisnik je zainteresovan za Vaš proizvod ✔",
+						subject: "New Achievement is created for you ✔",
 						html: htmlToSend,
 					};
 
