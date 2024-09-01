@@ -293,7 +293,7 @@ module.exports = {
 					});
 
 					let callToGoogle = await ctx.call("http.post", {
-						url: `${process.env.RECAPTCHA_VERIFY_URL}?key=${process.env.RECAPTCHA_SECRET}`,
+						url: `https://recaptchaenterprise.googleapis.com/v1/projects/projekat1-184714/assessments?key=${process.env.RECAPTCHA_SECRET}`,
 						opt: {
 							responseType: "json",
 							json: {
