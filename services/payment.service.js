@@ -268,8 +268,6 @@ const paymentService = {
 				this.logger.info("0. paypalWebhook START");
 				this.logger.info("1. paypalWebhook ctx.params", ctx.params);
 
-				return "bbb";
-
 				const headers = ctx.options.parentCtx.params.req.headers;
 				const webhook_event = ctx.params;
 
