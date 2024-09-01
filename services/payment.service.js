@@ -29,8 +29,8 @@ const generatePaypalAccessToken = async () => {
 		data: "grant_type=client_credentials",
 		auth: {
 			username: process.env.PAYPAL_CLIENT_ID,
-			password: process.env.PAYPAL_SECRET
-		}
+			password: process.env.PAYPAL_SECRET,
+		},
 	});
 
 	return response.data.access_token;
@@ -45,7 +45,7 @@ const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_
 			method: "post",
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": `Bearer ${accessToken}`
+				Authorization: `Bearer ${accessToken}`,
 			},
 			data: {
 				auth_algo,
@@ -55,7 +55,7 @@ const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_
 				transmission_time,
 				webhook_id,
 				webhook_event,
-			}
+			},
 		});
 
 		return response.data.verification_status === "SUCCESS";
@@ -75,8 +75,8 @@ const captureOrder = async (orderId) => {
 			method: "post",
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": `Bearer ${accessToken}`
-			}
+				Authorization: `Bearer ${accessToken}`,
+			},
 		});
 		console.log("Capture response:", response.data);
 		return response.data;
@@ -88,14 +88,18 @@ const captureOrder = async (orderId) => {
 };
 
 const createOrder = async (amount) => {
+	console.log("amount", amount);
+
 	const accessToken = await generatePaypalAccessToken();
+
+	console.log("accessToken", accessToken);
 
 	const response = await axios({
 		url: process.env.PAYPAL_BASE_URL + "/v2/checkout/orders",
 		method: "post",
 		headers: {
 			"Content-Type": "application/json",
-			"Authorization": "Bearer " + accessToken
+			Authorization: "Bearer " + accessToken,
 		},
 		data: JSON.stringify({
 			intent: "CAPTURE",
@@ -108,9 +112,9 @@ const createOrder = async (amount) => {
 							quantity: 1,
 							unit_amount: {
 								currency_code: "USD",
-								value: amount
-							}
-						}
+								value: amount,
+							},
+						},
 					],
 					amount: {
 						currency_code: "USD",
@@ -118,26 +122,24 @@ const createOrder = async (amount) => {
 						breakdown: {
 							item_total: {
 								currency_code: "USD",
-								value: amount
-							}
-						}
-					}
-				}
+								value: amount,
+							},
+						},
+					},
+				},
 			],
 			application_context: {
 				return_url: process.env.PAYMENT_SUCCESS_ROUTE,
 				cancel_url: process.env.PAYMENT_FAIL_ROUTE,
 				shipping_preference: "NO_SHIPPING",
 				user_action: "PAY_NOW",
-				brand_name: "Blokaria"
-			}
-		})
+				brand_name: "Blokaria",
+			},
+		}),
 	});
 
-	return response.data.links.find(link => link.rel === "approve").href;
+	return response.data.links.find((link) => link.rel === "approve").href;
 };
-
-
 
 const paymentService = {
 	name: "payment",
@@ -224,7 +226,7 @@ const paymentService = {
 						amount: session.amount_total,
 						invoiceId: session.id,
 						payer: userId,
-						area: area
+						area: area,
 					});
 					await invoice.save();
 
@@ -248,6 +250,7 @@ const paymentService = {
 			},
 			async handler(ctx) {
 				try {
+					this.logger.info("ctx params", ctx.params);
 					const { amount } = ctx.params;
 					const approveLink = await createOrder(amount);
 					return { approveLink };
@@ -262,6 +265,8 @@ const paymentService = {
 
 		paypalWebhook: {
 			async handler(ctx) {
+				this.logger.info("1. paypalWebhook ctx.params", ctx.params);
+
 				const headers = ctx.options.parentCtx.params.req.headers;
 				const webhook_event = ctx.params;
 
@@ -275,21 +280,24 @@ const paymentService = {
 					webhook_event: webhook_event,
 				};
 
+				this.logger.info("2. paypalWebhook verificationParams", verificationParams);
+
 				try {
 					const isValid = await verifyPaypalWebhookSignature(verificationParams);
 
 					if (isValid) {
 						console.log("Webhook verified successfully:", webhook_event);
-						// const captureResult = await captureOrder(webhook_event.resource.id);
+						this.logger.info("2. paypalWebhook successfully webhook_event", webhook_event);
 
-						// Handle the webhook event
+						const captureResult = await captureOrder(webhook_event.resource.id);
+
+						this.logger.info("2. paypalWebhook captureResult", captureResult);
 					} else {
 						console.log("Webhook verification failed.");
 						throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
 							message: "Webhook signature verification failed.",
 						});
 					}
-
 				} catch (error) {
 					console.log("Error processing PayPal webhook:", error);
 					throw new MoleculerError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
@@ -298,7 +306,7 @@ const paymentService = {
 				}
 
 				return "Webhook processed successfully.";
-			}
+			},
 		},
 
 		handleStripeWebhook: {
@@ -347,7 +355,7 @@ const paymentService = {
 		},
 	},
 	methods: {
-		async createItem(invoiceId,quantity) {
+		async createItem(invoiceId, quantity) {
 			const walletQrId = v4();
 
 			const invoice = await Invoice.findOne({ invoiceId }).populate("payer").populate("area").exec();
@@ -386,13 +394,14 @@ const paymentService = {
 			}
 
 			const invoicedUser = await User.findOne({ userEmail: user.userEmail });
-			const userNextLevel = getNextLevel(user.level,invoicedUser.planted_trees_count + 1);
+			const userNextLevel = getNextLevel(user.level, invoicedUser.planted_trees_count + 1);
 
 			const data = {
-				$inc: { numberOfTransaction: -1, planted_trees_count: quantity }, $set: {level: userNextLevel}
+				$inc: { numberOfTransaction: -1, planted_trees_count: quantity },
+				$set: { level: userNextLevel },
 			};
 
-			await User.findOneAndUpdate(entity,data,{ new: true });
+			await User.findOneAndUpdate(entity, data, { new: true });
 		},
 	},
 };
