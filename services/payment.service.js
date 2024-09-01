@@ -265,6 +265,7 @@ const paymentService = {
 
 		paypalWebhook: {
 			async handler(ctx) {
+				this.logger.info("0. paypalWebhook START");
 				this.logger.info("1. paypalWebhook ctx.params", ctx.params);
 
 				const headers = ctx.options.parentCtx.params.req.headers;
