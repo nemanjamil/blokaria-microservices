@@ -282,14 +282,33 @@ module.exports = {
 				try {
 					const { recaptchaValue } = ctx.params;
 
-					let callToGoogle = await ctx.call("http.post", {
-						url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaValue}`,
-						opt: {
-							responseType: "json",
+					console.log("checking recaptcha values:", recaptchaValue);
+
+					console.log("verify payload:", {
+						event: {
+							token: recaptchaValue,
+							expectedAction: "register",
+							siteKey: process.env.RECAPTCHA_SITEKEY,
 						},
 					});
 
-					if (callToGoogle.success === false) {
+					let callToGoogle = await ctx.call("http.post", {
+						url: `https://recaptchaenterprise.googleapis.com/v1/projects/projekat1-184714/assessments?key=${process.env.RECAPTCHA_SECRET}`,
+						opt: {
+							responseType: "json",
+							json: {
+								event: {
+									token: recaptchaValue,
+									expectedAction: "register",
+									siteKey: process.env.RECAPTCHA_SITEKEY,
+								},
+							},
+						},
+					});
+
+					console.log("checked recaptcha:", callToGoogle);
+
+					if (!callToGoogle || (callToGoogle && callToGoogle.riskAnalysis && callToGoogle.riskAnalysis.score < 0.5)) {
 						throw new MoleculerError("Fail in recaptchaValue", 401, "USER_CANT_REGISTRATE", {
 							message: "Fail in recaptchaValue",
 							internalErrorCode: "recaptchaValue_1",

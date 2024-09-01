@@ -10,6 +10,7 @@ const { linkedInExchangeCode, linkedInGetUserProfile, createLinkedInPost } = req
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const handlebars = require("handlebars");
+const { achievementList } = require("../data/achievement");
 
 const achievementService = {
 	name: "achievement",
@@ -77,6 +78,25 @@ const achievementService = {
 
 				try {
 					const user = await User.findById(userId).exec();
+
+					const achievements = await Achievement.find({ user }).sort({required_trees: 1});
+
+					if (achievements.length === 0) {
+						const initialAchievements = [];
+						await achievementList.map((achievement) => {
+							const data = {
+								name: achievement.name,
+								description: achievement.description,
+								required_trees: achievement.required_trees,
+								userId: user._id.toString(),
+								completed: false,
+							};
+							this.actions.createAchievement(data);
+							initialAchievements.push(data);
+						});
+
+						return initialAchievements;
+					}
 
 					if (!user) {
 						throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
