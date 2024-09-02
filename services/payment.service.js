@@ -324,7 +324,7 @@ const paymentService = {
 					this.logger.info("Creating Invoice with orderId");
 					this.logger.info("orderId", orderId);
 					this.logger.info("userId", userId);
-					this.logger.info("area", area);
+					this.logger.info("area", areaObjectId);
 					const invoice = new Invoice({
 						amount: totalAmount,
 						invoiceId: orderId,
@@ -484,10 +484,11 @@ const paymentService = {
 				_creator: user.userId,
 				_area: area._id,
 			};
+			this.logger.info("Creating Item:", entity);
 
 			// Creating an Item
 			const item = new Wallet(entity);
-
+			this.logger.info("Item:", item);
 			try {
 				await item.save();
 			} catch (err) {
