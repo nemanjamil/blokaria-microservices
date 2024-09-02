@@ -362,10 +362,6 @@ const paymentService = {
 
 				this.logger.info("2. paypalWebhook verificationParams", verificationParams);
 
-				// TODO
-				// 1. Create and ITEM in that specific area
-				// 2. Update invoice details
-				// 3. Send email to the user - confirmation  return await ctx.call("v1.achievement.updateAchievements");
 				try {
 					if (webhook_event.event_type === "CHECKOUT.ORDER.APPROVED") {
 						verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
@@ -376,12 +372,10 @@ const paymentService = {
 							this.logger.info("2. paypalWebhook successfully webhook_event", webhook_event);
 							
 							const captureResult = await captureOrder(webhook_event.resource.id);
-							this.logger.info("Capture result:", captureResult);
-							this.logger.info("Capture result status:", captureResult.status);
+	
 							orderId = webhook_event.resource.id;
 							quantity = webhook_event.resource.purchase_units[0].items[0].quantity;
-							this.logger.info("orderId", orderId);
-							this.logger.info("quantity", quantity);
+
 							if (captureResult.status === "COMPLETED") 
 							{	
 								this.logger.info("Capture completed");
@@ -390,10 +384,10 @@ const paymentService = {
 								ctx.meta.user = {
 									userEmail: user.userEmail,
 									userFullName: `${user.firstName} ${user.lastName}`,
-									userId: user._id, // Assuming _id is the field for the ObjectId
-									userRole: user.role, // Assuming 'role' field represents the user's role
-									numberOfTransaction: user.transactionsCount, // Assuming 'transactionsCount' field exists
-									numberOfCoupons: user.couponsCount, // Assuming 'couponsCount' field exists
+									userId: user._id,
+									userRole: user.role,
+									numberOfTransaction: user.transactionsCount,
+									numberOfCoupons: user.couponsCount,
 								};								
 								await ctx.call("v1.achievement.updateAchievements");
 							}
@@ -470,7 +464,6 @@ const paymentService = {
 			const walletQrId = v4();
 
 			const invoice = await Invoice.findOne({ invoiceId }).populate("payer").populate("area").exec();
-			this.logger.info("Invoice:", invoice);
 			if (!invoice) {
 				throw new MoleculerError("No Invoice Found");
 			}
@@ -492,11 +485,9 @@ const paymentService = {
 				_creator: user._id,
 				area: area._id,
 			};
-			this.logger.info("Creating Item:", entity);
 
 			// Creating an Item
 			const item = new Wallet(entity);
-			this.logger.info("Item:", item);
 			try {
 				await item.save();
 			} catch (err) {
