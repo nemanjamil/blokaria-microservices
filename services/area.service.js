@@ -255,15 +255,6 @@ const areaService = {
 			},
 		},
 	},
-	async afterConnected() {
-		const areas = await Area.find({});
-		if (areas.length === 0) {
-			areasList.map((area) => {
-				this.actions.createArea(area);
-			});
-		}
-
-	}
 };
 
 module.exports = areaService;
