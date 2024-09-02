@@ -387,7 +387,7 @@ const paymentService = {
 								this.logger.info("Capture completed");
 								await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED);
 								await this.createItem(orderId, quantity);
-								return await ctx.call("v1.achievement.updateAchievements");
+								// await ctx.call("v1.achievement.updateAchievements");
 							}
 							else 
 							{
