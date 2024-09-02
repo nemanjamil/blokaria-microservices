@@ -9,6 +9,7 @@ const Utils = require("../utils/utils");
 const { getNextLevel } = require("../models/Achievement");
 const User = require("../models/User");
 const axios = require("axios");
+const mongoose = require("mongoose");
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
@@ -318,6 +319,8 @@ const paymentService = {
 						brandName: "Blokaria"
 					});
 
+					const areaObjectId = new mongoose.Types.ObjectId(area);
+
 					this.logger.info("Creating Invoice with orderId");
 					this.logger.info("orderId", orderId);
 					this.logger.info("userId", userId);
@@ -326,7 +329,7 @@ const paymentService = {
 						amount: totalAmount,
 						invoiceId: orderId,
 						payer: userId,
-						area: area,
+						area: areaObjectId,
 					});
 					await invoice.save();
 					  
