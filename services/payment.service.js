@@ -386,8 +386,16 @@ const paymentService = {
 							{	
 								this.logger.info("Capture completed");
 								await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED);
-								await this.createItem(orderId, quantity);
-								// await ctx.call("v1.achievement.updateAchievements");
+								const user = await this.createItem(orderId, quantity);
+								ctx.meta.user = {
+									userEmail: user.userEmail,
+									userFullName: `${user.firstName} ${user.lastName}`,
+									userId: user._id, // Assuming _id is the field for the ObjectId
+									userRole: user.role, // Assuming 'role' field represents the user's role
+									numberOfTransaction: user.transactionsCount, // Assuming 'transactionsCount' field exists
+									numberOfCoupons: user.couponsCount, // Assuming 'couponsCount' field exists
+								};								
+								await ctx.call("v1.achievement.updateAchievements");
 							}
 							else 
 							{
@@ -506,6 +514,8 @@ const paymentService = {
 			};
 
 			await User.findOneAndUpdate(entity, data, { new: true });
+
+			return invoicedUser;
 		},
 	},
 };
