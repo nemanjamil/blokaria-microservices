@@ -37,9 +37,9 @@ const walletSchema = new mongoose.Schema({
 	longText: { type: String },
 	hasstory: { type: Boolean, default: false },
 	area: {
-		type: String,
+		type: ObjectId,
+		ref: "Area",
 		required: true,
-		default: null,
 	},
 	_creator: {
 		type: ObjectId,

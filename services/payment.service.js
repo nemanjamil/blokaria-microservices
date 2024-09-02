@@ -481,7 +481,7 @@ const paymentService = {
 				longText: "",
 				hasstory: false, // false
 				accessCode: Utils.generatePass(),
-				_creator: user.userId,
+				_creator: user._id,
 				_area: area._id,
 			};
 			this.logger.info("Creating Item:", entity);
