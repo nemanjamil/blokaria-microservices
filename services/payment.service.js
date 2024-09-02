@@ -319,6 +319,9 @@ const paymentService = {
 					});
 
 					this.logger.info("Creating Invoice with orderId");
+					this.logger.info("orderId", orderId);
+					this.logger.info("userId", userId);
+					this.logger.info("area", area);
 					const invoice = new Invoice({
 						amount: totalAmount,
 						invoiceId: orderId,
@@ -364,42 +367,44 @@ const paymentService = {
 					if (webhook_event.event_type === "CHECKOUT.ORDER.APPROVED") {
 						verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
 						
-							const isValid = await verifyPaypalWebhookSignature(verificationParams);
-		
-							if (isValid) {
-								this.logger.info("2. paypalWebhook successfully webhook_event", webhook_event);
-								
-								const captureResult = await captureOrder(webhook_event.resource.id);
-								this.logger.info("Capture result:", captureResult);
-								this.logger.info("Capture result status:", captureResult.status);
-								orderId = webhook_event.resource.id;
-								quantity = webhook_event.resource.purchase_units[0].items[0].quantity;
-								if (captureResult.status === "COMPLETED") 
-								{	
-									this.logger.info("Capture completed");
-									await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED);
-									await this.createItem(orderId, quantity);
-									return await ctx.call("v1.achievement.updateAchievements");
-								}
-								else 
-								{
-									this.logger.info("Capture failed");
-									await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
-								}
-								this.logger.info("3. paypalWebhook captureResult", captureResult);
-							} else {
-								console.log("Webhook verification failed.");
-								throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
-									message: "Webhook signature verification failed.",
-								});
+						const isValid = await verifyPaypalWebhookSignature(verificationParams);
+	
+						if (isValid) {
+							this.logger.info("2. paypalWebhook successfully webhook_event", webhook_event);
+							
+							const captureResult = await captureOrder(webhook_event.resource.id);
+							this.logger.info("Capture result:", captureResult);
+							this.logger.info("Capture result status:", captureResult.status);
+							orderId = webhook_event.resource.id;
+							quantity = webhook_event.resource.purchase_units[0].items[0].quantity;
+							this.logger.info("orderId", orderId);
+							this.logger.info("quantity", quantity);
+							if (captureResult.status === "COMPLETED") 
+							{	
+								this.logger.info("Capture completed");
+								await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED);
+								await this.createItem(orderId, quantity);
+								return await ctx.call("v1.achievement.updateAchievements");
 							}
+							else 
+							{
+								this.logger.info("Capture failed");
+								await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
+							}
+							this.logger.info("3. paypalWebhook captureResult", captureResult);
+						} else {
+							console.log("Webhook verification failed.");
+							throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
+								message: "Webhook signature verification failed.",
+							});
 						}
-					} catch (error) {
-						console.log("Error processing PayPal webhook:", error);
-						throw new MoleculerError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
-							message: error.message,
-						});
 					}
+				} catch (error) {
+					console.log("Error processing PayPal webhook:", error);
+					throw new MoleculerError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
+						message: error.message,
+					});
+				}
 				return "Webhook processed successfully.";
 			},
 		},
@@ -454,7 +459,7 @@ const paymentService = {
 			const walletQrId = v4();
 
 			const invoice = await Invoice.findOne({ invoiceId }).populate("payer").populate("area").exec();
-
+			this.logger.info("Invoice:", invoice);
 			if (!invoice) {
 				throw new MoleculerError("No Invoice Found");
 			}
