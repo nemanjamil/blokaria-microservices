@@ -2,7 +2,6 @@ const { MoleculerError } = require("moleculer").Errors;
 const DbService = require("moleculer-db");
 const dbConnection = require("../utils/dbConnection");
 const Area = require("../models/Area");
-const { areasList } = require("../data/areas");
 
 const areaService = {
 	name: "area",
