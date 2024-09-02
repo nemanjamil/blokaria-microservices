@@ -304,7 +304,8 @@ const paymentService = {
 					console.log("userId", ctx.meta.user);
 					const { quantityOfTrees, area } = ctx.params;
 
-					const pricePerTree = process.env.TREE_PRICE; 
+					// const pricePerTree = process.env.TREE_PRICE; 
+					const pricePerTree = 50; 
 
 					const { approveLink, orderId, totalAmount } = await createOrder({
 						amount: pricePerTree,
