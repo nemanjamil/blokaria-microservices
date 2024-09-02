@@ -87,59 +87,78 @@ const captureOrder = async (orderId) => {
 	}
 };
 
-const createOrder = async (amount) => {
+const createOrder = async ({
+	amount,
+	itemName,
+	itemDescription,
+	quantity,
+	currency = "USD",
+	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
+	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
+	brandName = "Blokaria"
+}) => {
 	console.log("amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
-
 	console.log("accessToken", accessToken);
 
 	const response = await axios({
-		url: process.env.PAYPAL_BASE_URL + "/v2/checkout/orders",
-		method: "post",
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: "Bearer " + accessToken,
-		},
-		data: JSON.stringify({
-			intent: "CAPTURE",
-			purchase_units: [
-				{
-					items: [
-						{
-							name: "TEST Payment",
-							description: "TEST Description",
-							quantity: 1,
-							unit_amount: {
-								currency_code: "USD",
-								value: amount,
-							},
-						},
-					],
-					amount: {
-						currency_code: "USD",
-						value: amount,
-						breakdown: {
-							item_total: {
-								currency_code: "USD",
-								value: amount,
-							},
-						},
-					},
+	  url: process.env.PAYPAL_BASE_URL + "/v2/checkout/orders",
+	  method: "post",
+	  headers: {
+		"Content-Type": "application/json",
+		Authorization: "Bearer " + accessToken,
+	  },
+	  data: JSON.stringify({
+		intent: "CAPTURE",
+		purchase_units: [
+		  {
+			items: [
+			  {
+				name: itemName,
+				description: itemDescription,
+				quantity: quantity,
+				unit_amount: {
+				  currency_code: currency,
+				  value: amount,
 				},
+			  },
 			],
-			application_context: {
-				return_url: process.env.PAYMENT_SUCCESS_ROUTE,
-				cancel_url: process.env.PAYMENT_FAIL_ROUTE,
-				shipping_preference: "NO_SHIPPING",
-				user_action: "PAY_NOW",
-				brand_name: "Blokaria",
+			amount: {
+			  currency_code: currency,
+			  value: amount * quantity,
+			  breakdown: {
+				item_total: {
+				  currency_code: currency,
+				  value: amount * quantity,
+				},
+			  },
 			},
-		}),
+		  },
+		],
+		application_context: {
+		  return_url: returnUrl,
+		  cancel_url: cancelUrl,
+		  shipping_preference: "NO_SHIPPING",
+		  user_action: "PAY_NOW",
+		  brand_name: brandName,
+		},
+	  }),
 	});
 
-	return response.data.links.find((link) => link.rel === "approve").href;
+	const approveLink = response.data.links.find((link) => link.rel === "approve").href;
+	const orderId = response.data.id;
+	totalAmount = amount * quantity;
+
+	console.log("response:", response.data);
+
+	return {
+		approveLink,
+		orderId,
+		totalAmount
+	};
 };
+  
 
 const paymentService = {
 	name: "payment",
@@ -244,15 +263,70 @@ const paymentService = {
 			},
 		},
 
-		paypalCreateOrder: {
+		paypalDonationCreateOrder: {
 			params: {
-				amount: { type: "string" },
+				amount: { type: "number" },
 			},
 			async handler(ctx) {
 				try {
 					this.logger.info("ctx params", ctx.params);
 					const { amount } = ctx.params;
-					const approveLink = await createOrder(amount);
+					const approveLink = await createOrder({
+						amount: amount,
+						itemName: "Donation",
+						itemDescription: "Charitable Donation",
+						quantity: 1,
+						currency: "USD",
+						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
+						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
+						brandName: "Blokaria"
+					  });					
+
+					return { approveLink };
+				} catch (error) {
+					console.log("Error creating PayPal order:", error);
+					throw new MoleculerError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
+						message: error.message,
+					});
+				}
+			},
+		},
+
+		paypalPurchaseCreateOrder: {
+			params: {
+				quantityOfTrees: { type: "number" },
+				area: { type: "string" },
+			},
+			async handler(ctx) {
+				try {
+					this.logger.info("ctx params", ctx.params);
+					const userId = ctx.meta.user.userId;
+					console.log("userId", ctx.meta.user);
+					const { quantityOfTrees, area } = ctx.params;
+
+					const pricePerTree = process.env.TREE_PRICE; 
+
+					const { approveLink, orderId, totalAmount } = await createOrder({
+						amount: pricePerTree,
+						itemName: "Tree Purchase",
+						itemDescription: "Purchase of Trees",
+						quantity: quantityOfTrees,
+						currency: "USD",
+						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
+						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
+						brandName: "Blokaria"
+					});
+
+					this.logger.info("Creating Invoice with orderId");
+					const invoice = new Invoice({
+						amount: totalAmount,
+						invoiceId: orderId,
+						payer: userId,
+						area: area,
+						status: "PENDING",
+					});
+					await invoice.save();
+					  
 					return { approveLink };
 				} catch (error) {
 					console.log("Error creating PayPal order:", error);
@@ -291,11 +365,22 @@ const paymentService = {
 					const isValid = await verifyPaypalWebhookSignature(verificationParams);
 
 					if (isValid) {
-						console.log("Webhook verified successfully:", webhook_event);
 						this.logger.info("2. paypalWebhook successfully webhook_event", webhook_event);
-
+						
 						const captureResult = await captureOrder(webhook_event.resource.id);
-
+						this.logger.info("Capture result:", captureResult);
+						this.logger.info("Capture result status:", captureResult.status);
+						if (captureResult.status === "COMPLETED") 
+						{	
+							this.logger.info("Capture completed");
+							await updateInvoiceStatus(webhook_event.resource.id, Invoice.InvoiceStatus.COMPLETED);
+							await this.createItem(webhook_event.resource.id, webhook_event.resource.quantity);
+						}
+						else 
+						{
+							this.logger.info("Capture failed");
+							await updateInvoiceStatus(webhook_event.resource.id, Invoice.InvoiceStatus.FAILED);
+						}
 						this.logger.info("3. paypalWebhook captureResult", captureResult);
 					} else {
 						console.log("Webhook verification failed.");
