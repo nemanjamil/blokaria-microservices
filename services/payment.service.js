@@ -272,8 +272,8 @@ const paymentService = {
 				try {
 					this.logger.info("ctx params", ctx.params);
 					const { amount } = ctx.params;
-					const approveLink = await createOrder({
-						paypalPurchaseCreateOrderamount: amount,
+					const {approveLink, orderId, totalAmount} = await createOrder({
+						amount: amount,
 						itemName: "Donation",
 						itemDescription: "Charitable Donation",
 						quantity: 1,
