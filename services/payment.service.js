@@ -324,7 +324,6 @@ const paymentService = {
 						invoiceId: orderId,
 						payer: userId,
 						area: area,
-						status: "PENDING",
 					});
 					await invoice.save();
 					  
@@ -345,14 +344,13 @@ const paymentService = {
 
 				const headers = ctx.options.parentCtx.params.req.headers;
 				const webhook_event = ctx.params;
-
+				
 				const verificationParams = {
 					auth_algo: headers["paypal-auth-algo"],
 					cert_url: headers["paypal-cert-url"],
 					transmission_id: headers["paypal-transmission-id"],
 					transmission_sig: headers["paypal-transmission-sig"],
 					transmission_time: headers["paypal-transmission-time"],
-					webhook_id: process.env.PAYPAL_CHECKOUT_APPROVED_ID,
 					webhook_event: webhook_event,
 				};
 
@@ -363,39 +361,45 @@ const paymentService = {
 				// 2. Update invoice details
 				// 3. Send email to the user - confirmation  return await ctx.call("v1.achievement.updateAchievements");
 				try {
-					const isValid = await verifyPaypalWebhookSignature(verificationParams);
-
-					if (isValid) {
-						this.logger.info("2. paypalWebhook successfully webhook_event", webhook_event);
+					if (webhook_event.event_type === "CHECKOUT.ORDER.APPROVED") {
+						verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
 						
-						const captureResult = await captureOrder(webhook_event.resource.id);
-						this.logger.info("Capture result:", captureResult);
-						this.logger.info("Capture result status:", captureResult.status);
-						if (captureResult.status === "COMPLETED") 
-						{	
-							this.logger.info("Capture completed");
-							await updateInvoiceStatus(webhook_event.resource.id, Invoice.InvoiceStatus.COMPLETED);
-							await this.createItem(webhook_event.resource.id, webhook_event.resource.quantity);
+							const isValid = await verifyPaypalWebhookSignature(verificationParams);
+		
+							if (isValid) {
+								this.logger.info("2. paypalWebhook successfully webhook_event", webhook_event);
+								
+								const captureResult = await captureOrder(webhook_event.resource.id);
+								this.logger.info("Capture result:", captureResult);
+								this.logger.info("Capture result status:", captureResult.status);
+								orderId = webhook_event.resource.id;
+								quantity = webhook_event.resource.purchase_units[0].items[0].quantity;
+								if (captureResult.status === "COMPLETED") 
+								{	
+									this.logger.info("Capture completed");
+									await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED);
+									await this.createItem(orderId, quantity);
+									return await ctx.call("v1.achievement.updateAchievements");
+								}
+								else 
+								{
+									this.logger.info("Capture failed");
+									await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
+								}
+								this.logger.info("3. paypalWebhook captureResult", captureResult);
+							} else {
+								console.log("Webhook verification failed.");
+								throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
+									message: "Webhook signature verification failed.",
+								});
+							}
 						}
-						else 
-						{
-							this.logger.info("Capture failed");
-							await updateInvoiceStatus(webhook_event.resource.id, Invoice.InvoiceStatus.FAILED);
-						}
-						this.logger.info("3. paypalWebhook captureResult", captureResult);
-					} else {
-						console.log("Webhook verification failed.");
-						throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
-							message: "Webhook signature verification failed.",
+					} catch (error) {
+						console.log("Error processing PayPal webhook:", error);
+						throw new MoleculerError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
+							message: error.message,
 						});
 					}
-				} catch (error) {
-					console.log("Error processing PayPal webhook:", error);
-					throw new MoleculerError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
-						message: error.message,
-					});
-				}
-
 				return "Webhook processed successfully.";
 			},
 		},
