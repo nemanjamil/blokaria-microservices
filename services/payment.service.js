@@ -273,14 +273,14 @@ const paymentService = {
 					this.logger.info("ctx params", ctx.params);
 					const { amount } = ctx.params;
 					const approveLink = await createOrder({
-						amount: amount,
+						paypalPurchaseCreateOrderamount: amount,
 						itemName: "Donation",
 						itemDescription: "Charitable Donation",
 						quantity: 1,
 						currency: "USD",
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
-						brandName: "Blokaria"
+						brandName: "Nature Planet"
 					  });					
 
 					return { approveLink };
@@ -307,7 +307,7 @@ const paymentService = {
 
 					// const pricePerTree = process.env.TREE_PRICE; 
 					const pricePerTree = 50; 
-
+					
 					const { approveLink, orderId, totalAmount } = await createOrder({
 						amount: pricePerTree,
 						itemName: "Tree Purchase",
@@ -316,15 +316,12 @@ const paymentService = {
 						currency: "USD",
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
-						brandName: "Blokaria"
+						brandName: "Nature Planet"
 					});
 
 					const areaObjectId = new mongoose.Types.ObjectId(area);
 
 					this.logger.info("Creating Invoice with orderId");
-					this.logger.info("orderId", orderId);
-					this.logger.info("userId", userId);
-					this.logger.info("area", areaObjectId);
 					const invoice = new Invoice({
 						amount: totalAmount,
 						invoiceId: orderId,
@@ -363,7 +360,8 @@ const paymentService = {
 				this.logger.info("2. paypalWebhook verificationParams", verificationParams);
 
 				try {
-					if (webhook_event.event_type === "CHECKOUT.ORDER.APPROVED") {
+					const orderType = webhook_event.resource.purchase_units[0].items[0].name; 
+					if (webhook_event.event_type === "CHECKOUT.ORDER.APPROVED" || orderType !== "Donation") {
 						verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
 						
 						const isValid = await verifyPaypalWebhookSignature(verificationParams);
