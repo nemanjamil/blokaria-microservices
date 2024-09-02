@@ -2,6 +2,7 @@ const { MoleculerError } = require("moleculer").Errors;
 const DbService = require("moleculer-db");
 const dbConnection = require("../utils/dbConnection");
 const Area = require("../models/Area");
+const { areasList } = require("../data/areas");
 
 const areaService = {
 	name: "area",
@@ -254,6 +255,15 @@ const areaService = {
 			},
 		},
 	},
+	async afterConnected() {
+		const areas = await Area.find({});
+		if (areas.length === 0) {
+			areasList.map((area) => {
+				this.actions.createArea(area);
+			});
+		}
+
+	}
 };
 
 module.exports = areaService;
