@@ -35,9 +35,20 @@ const achievementService = {
 	model: Achievement,
 	$noVersionPrefix: true,
 	actions: {
+		publishAchievementLinkedInPost: {
+			rest: "POST achievement/linkedin/post",
+			async handler(ctx) {
+				this.logger.log("publish achievement on linkedin TODO:");
+				return {
+					ok: true,
+					published: true,
+					achievement: { id: "dummy_ach_id" },
+				};
+			},
+		},
 		getAchievementPostPreview: {
 			rest: "GET achievement/getPostPreview",
-			async handler() {
+			async handler(ctx) {
 				// const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
 				this.logger.log("get achievement post template triggered");
 				return { testing: "hi" };
