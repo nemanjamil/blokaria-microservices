@@ -923,12 +923,21 @@ module.exports = {
 				console.log("3. getListQrCodesGeneral ", ctx.params);
 				this.logger.info("4. getListQrCodesGeneral ", ctx.params);
 
-				let listWallet = await Wallet.find(entity)
+				const listWallet = await Wallet.find(entity)
 					.skip(ctx.params.skip)
 					.limit(ctx.params.limit)
 					.sort({ createdAt: -1 })
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
-					.populate("_image", { productPicture: 1 });
+					.populate("_image", { productPicture: 1 })
+					.lean();
+				
+				for (let wallet of listWallet) {
+					console.log("Wallet area ", wallet.area);
+					if (wallet.area) {
+						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });
+						wallet.areaName = areaData.name;
+					}
+				}
 
 				this.logger.info("5. getListQrCodesGeneral dateTime ", new Date());
 
@@ -1031,6 +1040,12 @@ module.exports = {
 				throw new MoleculerError("Updating Data Error", 401, "ERR_UPDATING_DB", { message: error.message, internalErrorCode: "wallet170" });
 			}
 		},
+
+		// async getAreaNameById(areaId) {
+		// 	const area = await ctx.call("v1.area.getAreaById", { areaId });
+		// 	console.log("Wallet getAreaNameById area ", area);
+		// 	return area ? area.name : "Unknown Area";
+		// },
 
 		async addDelay(time) {
 			return new Promise((res) => setTimeout(res, time));
