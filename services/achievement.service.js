@@ -52,9 +52,9 @@ const achievementService = {
 			},
 		},
 		getAchievementPostPreview: {
-			async handler(ctx) {
+			async handler() {
 				const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
-				this.logger.log("get achievement post template triggered");
+				this.logger.info("get achievement post template triggered");
 				return achievementPostTemplate;
 			},
 		},
