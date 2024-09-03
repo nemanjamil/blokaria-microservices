@@ -549,7 +549,7 @@ const paymentService = {
 						orderId: orderId,
 					};
 	
-					await ctx.call("v1.payment.sendPaymentConfirmationEmail", {
+					await ctx.call("v1.email.sendPaymentConfirmationEmail", {
 						userLang: "en",
 						userEmail: user.userEmail,
 						purchaseDetails: purchaseDetails,
