@@ -12,6 +12,7 @@ const axios = require("axios");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const handlebars = require("handlebars");
+const nodemailer = require("nodemailer");
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
