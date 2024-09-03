@@ -403,7 +403,7 @@ module.exports = {
 			params: {
 				userLang: { type: "string" },
 				userEmail: { type: "string" },
-				donationDetails: { type: "object" },
+				purchaseDetails: { type: "object" },
 			},
 			async handler(ctx) {
 				try {
