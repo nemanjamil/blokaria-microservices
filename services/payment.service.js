@@ -566,6 +566,30 @@ const paymentService = {
 
 			return invoicedUser;
 		},
+		sendMailMethod: {
+			async handler() {
+				return "sendMailMethod";
+			},
+		},
+		getTransporter: {
+			async handler() {
+				let adminEmail = process.env.ADMIN_EMAIL;
+				let adminPassword = process.env.PASSW_EMAIL;
+
+				this.logger.info("adminEmail", adminEmail);
+				this.logger.info("adminPassword", adminPassword);
+
+				return nodemailer.createTransport({
+					host: "mail.blokaria.com",
+					port: 465,
+					secure: true, // true for 465, false for other ports
+					auth: {
+						user: adminEmail,
+						pass: adminPassword,
+					},
+				});
+			},
+		},
 	},
 };
 
