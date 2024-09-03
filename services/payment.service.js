@@ -387,7 +387,20 @@ const paymentService = {
 									numberOfTransaction: user.transactionsCount,
 									numberOfCoupons: user.couponsCount,
 								};								
-								await ctx.call("v1.achievement.updateAchievements");
+								
+								ctx.call("v1.achievement.updateAchievements");
+								let donationDetails = {};
+								donationDetails.name = user.firstName;
+								donationDetails.numberOfTrees = quantity;
+								donationDetails.amount = quantity * 50;
+								donationDetails.orderId = orderId;
+
+								ctx.call("v1.payment.sendDonationConfirmationEmail", {
+									userLang: "en",
+									userEmail: user.userEmail,
+									donationDetails: donationDetails,
+								});
+
 							}
 							else 
 							{
@@ -412,6 +425,51 @@ const paymentService = {
 			},
 		},
 
+		sendDonationConfirmationEmail: {
+			params: {
+				userLang: { type: "string" },
+				userEmail: { type: "string" },
+				donationDetails: { type: "object" },
+			},
+			async handler(ctx) {
+				const { userLang, userEmail, donationDetails } = ctx.params;
+		
+				try {
+
+					const source = fs.readFileSync(`./public/templates/${userLang}/donationConfirmation.html`, "utf-8").toString();
+		
+					const template = handlebars.compile(source);
+		
+					const replacements = {
+						name: donationDetails.name,
+						numberOfTrees: donationDetails.numberOfTrees,
+						amount: donationDetails.amount,
+						orderId: donationDetails.orderId,
+					};
+		
+					const htmlToSend = template(replacements);
+		
+					let transporter = await this.getTransporter();
+		
+					const mailOptions = {
+						from: '"Nature Planet 🌳" <service@natureplanet.com>',
+						to: userEmail,
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Thank You for Your Tree Purchase 🌲",
+						html: htmlToSend,
+					};
+		
+					return await transporter.sendMail(mailOptions);
+		
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
+						message: error.message,
+						internalErrorCode: "email51",
+					});
+				}
+			},
+		},
+		
 		handleStripeWebhook: {
 			async handler(ctx) {
 				// const secret = "whsec_3dcfddcd5427bacb88780b92982a2f6851ebcc7da3987c0000c3564322bf18e6";

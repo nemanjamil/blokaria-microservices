@@ -41,7 +41,7 @@ const walletSchema = new mongoose.Schema({
 		required: true,
 		default: null,
 	},
-	_creator: {
+		_creator: {
 		type: ObjectId,
 		ref: "User",
 	},
