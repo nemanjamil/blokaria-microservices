@@ -39,6 +39,11 @@ const achievementService = {
 			rest: "POST achievement/linkedin/post",
 			async handler(ctx) {
 				this.logger.log("publish achievement on linkedin TODO:");
+				await new Promise((resolve) =>
+					setTimeout(() => {
+						resolve();
+					}, 2000)
+				);
 				return {
 					ok: true,
 					published: true,
@@ -49,7 +54,7 @@ const achievementService = {
 		getAchievementPostPreview: {
 			async handler(ctx) {
 				const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
-				this.logger.info("get achievement post template triggered");
+				this.logger.log("get achievement post template triggered");
 				return achievementPostTemplate;
 			},
 		},
