@@ -585,7 +585,7 @@ const paymentService = {
 					await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED);
 					const payerEmail = webhookEvent.resource.payer.email_address;
 
-					let purchaseDetails = {
+					let donationDetails = {
 						amount: totalPrice,
 						orderId: orderId,
 					};
@@ -593,7 +593,7 @@ const paymentService = {
 					await ctx.call("v1.email.sendPaymentDonationEmail", {
 						userLang: "en",
 						userEmail: payerEmail,
-						purchaseDetails: purchaseDetails,
+						donationDetails: donationDetails,
 					});
 
 				} else {
