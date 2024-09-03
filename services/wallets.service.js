@@ -936,8 +936,12 @@ module.exports = {
 					if (wallet.area) {
 						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });
 						wallet.areaName = areaData.name;
+						wallet.lat = areaData.latitude;  
+						wallet.lon = areaData.longitude;
+						wallet.areaPoints = areaData.areaPoints;  
 					}
 				}
+					
 
 				this.logger.info("5. getListQrCodesGeneral dateTime ", new Date());
 
