@@ -221,7 +221,8 @@ module.exports = {
 					"GET achievement": "v1.achievement.getUserAchievements",
 					"POST achievement": "v1.achievement.createAchievement",
 					"PUT achievement": "v1.achievement.updateAchievements",
-					"POST achievement/getPostPreview": "v1.achievement.getAchievementPostPreview",
+					"GET achievement/getPostPreview": "v1.achievement.getAchievementPostPreview",
+					"POST achievement/linkedin/post": "v1.achievement.publishAchievementLinkedInPost",
 				},
 				callingOptions: {},
 
