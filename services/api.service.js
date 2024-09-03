@@ -140,6 +140,7 @@ module.exports = {
 					"POST payment/paypalWebhook": "v1.payment.paypalWebhook",
 					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
 					"GET area/getUniqueCountrieDashboard": "v1.area.getUniqueCountrieDashboard",
+					"POST payment/testEmail": "v1.payment.testEmail",	
 				},
 				callingOptions: {},
 

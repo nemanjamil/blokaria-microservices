@@ -275,6 +275,7 @@ const paymentService = {
 				try {
 					this.logger.info("ctx params", ctx.params);
 					const { amount } = ctx.params;
+					
 					const {approveLink, orderId, totalAmount} = await createOrder({
 						amount: amount,
 						itemName: "Donation",
@@ -285,11 +286,42 @@ const paymentService = {
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
 						brandName: "Nature Planet"
 					  });					
-
+					  
+					  this.logger.info("Creating Invoice with orderId");
+					  const invoice = new Invoice({
+						  amount: totalAmount,
+						  invoiceId: orderId,
+					  });
+					  await invoice.save();
+					  
 					return { approveLink };
 				} catch (error) {
 					console.log("Error creating PayPal order:", error);
 					throw new MoleculerError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
+						message: error.message,
+					});
+				}
+			},
+		},
+
+		testEmail: {
+			async handler(ctx) {
+				try {
+					let donationDetails = {};
+					quantity = 1
+					donationDetails.name = "XAVI";
+					donationDetails.numberOfTrees = 1;
+					donationDetails.amount = quantity * 50;
+					donationDetails.orderId = "XXXXX";
+					console.log("donationDetails", donationDetails);
+					ctx.call("v1.email.sendPaymentConfirmationEmail", {
+						userLang: "en",
+						userEmail: "abdulrahman.omar17h@gmail.com",
+						donationDetails: donationDetails,
+					});
+				} catch (error) {
+					console.log("Error sending email:", error);
+					throw new MoleculerError("Email sending error", 400, "EMAIL_SENDING_FAILED", {
 						message: error.message,
 					});
 				}
@@ -347,76 +379,34 @@ const paymentService = {
 			async handler(ctx) {
 				this.logger.info("0. paypalWebhook START");
 				this.logger.info("1. paypalWebhook ctx.params", ctx.params);
-
+		
 				const headers = ctx.options.parentCtx.params.req.headers;
-				const webhook_event = ctx.params;
-				
+				const webhookEvent = ctx.params;
+		
 				const verificationParams = {
 					auth_algo: headers["paypal-auth-algo"],
 					cert_url: headers["paypal-cert-url"],
 					transmission_id: headers["paypal-transmission-id"],
 					transmission_sig: headers["paypal-transmission-sig"],
 					transmission_time: headers["paypal-transmission-time"],
-					webhook_event: webhook_event,
+					webhook_event: webhookEvent,
 				};
-
+		
 				this.logger.info("2. paypalWebhook verificationParams", verificationParams);
-
+		
 				try {
-					const orderType = webhook_event.resource.purchase_units[0].items[0].name; 
-					if (webhook_event.event_type === "CHECKOUT.ORDER.APPROVED" || orderType !== "Donation") {
-						verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
-						
-						const isValid = await verifyPaypalWebhookSignature(verificationParams);
-	
-						if (isValid) {
-							this.logger.info("2. paypalWebhook successfully webhook_event", webhook_event);
-							
-							const captureResult = await captureOrder(webhook_event.resource.id);
-	
-							orderId = webhook_event.resource.id;
-							quantity = webhook_event.resource.purchase_units[0].items[0].quantity;
-
-							if (captureResult.status === "COMPLETED") 
-							{	
-								this.logger.info("Capture completed");
-								await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED);
-								const user = await this.createItem(orderId, quantity);
-								ctx.meta.user = {
-									userEmail: user.userEmail,
-									userFullName: `${user.firstName} ${user.lastName}`,
-									userId: user._id,
-									userRole: user.role,
-									numberOfTransaction: user.transactionsCount,
-									numberOfCoupons: user.couponsCount,
-								};								
-								
-								ctx.call("v1.achievement.updateAchievements");
-								let donationDetails = {};
-								donationDetails.name = user.firstName;
-								donationDetails.numberOfTrees = quantity;
-								donationDetails.amount = quantity * 50;
-								donationDetails.orderId = orderId;
-
-								ctx.call("v1.payment.sendDonationConfirmationEmail", {
-									userLang: "en",
-									userEmail: user.userEmail,
-									donationDetails: donationDetails,
-								});
-
-							}
-							else 
-							{
-								this.logger.info("Capture failed");
-								await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
-							}
-							this.logger.info("3. paypalWebhook captureResult", captureResult);
-						} else {
-							console.log("Webhook verification failed.");
-							throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
-								message: "Webhook signature verification failed.",
-							});
-						}
+					const orderType = webhookEvent.resource.purchase_units[0].items[0].name;
+					const eventType = webhookEvent.event_type;
+		
+					if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Tree Purchase") {
+						await this.handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx);
+					} else if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Donation") {
+						await this.handleDonationWebhook(webhookEvent, verificationParams, ctx);
+					} else {
+						this.logger.info("Unhandled webhook event type or order type", { eventType, orderType });
+						throw new MoleculerError("Unhandled webhook event type or order type", 400, "UNHANDLED_WEBHOOK", {
+							message: "The event type or order type is not supported.",
+						});
 					}
 				} catch (error) {
 					console.log("Error processing PayPal webhook:", error);
@@ -424,54 +414,105 @@ const paymentService = {
 						message: error.message,
 					});
 				}
+		
 				return "Webhook processed successfully.";
 			},
-		},
+		
+			async handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx) {
+				this.logger.info("Handling Tree Purchase Webhook");
+		
+				verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
+				const isValid = await verifyPaypalWebhookSignature(verificationParams);
+		
+				if (isValid) {
+					this.logger.info("2. Tree Purchase Webhook successfully verified", webhookEvent);
+		
+					const captureResult = await captureOrder(webhookEvent.resource.id);
+					const orderId = webhookEvent.resource.id;
+					const quantity = webhookEvent.resource.purchase_units[0].items[0].quantity;
 
-		sendDonationConfirmationEmail: {
-			params: {
-				userLang: { type: "string" },
-				userEmail: { type: "string" },
-				donationDetails: { type: "object" },
-			},
-			async handler(ctx) {
-				const { userLang, userEmail, donationDetails } = ctx.params;
+					if (captureResult.status === "COMPLETED") {
+						this.logger.info("Capture completed");
+						await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED);
+						const user = await this.createItem(orderId, quantity);
+						ctx.meta.user = {
+							userEmail: user.userEmail,
+							userFullName: `${user.firstName} ${user.lastName}`,
+							userId: user._id,
+							userRole: user.role,
+							numberOfTransaction: user.transactionsCount,
+							numberOfCoupons: user.couponsCount,
+						};
 		
-				try {
-
-					const source = fs.readFileSync(`./public/templates/${userLang}/donationConfirmation.html`, "utf-8").toString();
+						ctx.call("v1.achievement.updateAchievements");
+						let purchaseDetails = {
+							name: user.firstName,
+							numberOfTrees: quantity,
+							amount: quantity * 50,
+							orderId: orderId,
+						};
 		
-					const template = handlebars.compile(source);
-		
-					const replacements = {
-						name: donationDetails.name,
-						numberOfTrees: donationDetails.numberOfTrees,
-						amount: donationDetails.amount,
-						orderId: donationDetails.orderId,
-					};
-		
-					const htmlToSend = template(replacements);
-		
-					let transporter = await this.getTransporter();
-		
-					const mailOptions = {
-						from: '"Nature Planet 🌳" <service@natureplanet.com>',
-						to: userEmail,
-						bcc: `${this.metadata.bccemail}`,
-						subject: "Thank You for Your Tree Purchase 🌲",
-						html: htmlToSend,
-					};
-		
-					return await transporter.sendMail(mailOptions);
-		
-				} catch (error) {
-					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
-						message: error.message,
-						internalErrorCode: "email51",
+						await ctx.call("v1.payment.sendPaymentConfirmationEmail", {
+							userLang: "en",
+							userEmail: user.userEmail,
+							purchaseDetails: purchaseDetails,
+						});
+					} else {
+						this.logger.info("Capture failed");
+						await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
+					}
+					this.logger.info("3. Tree Purchase Webhook captureResult", captureResult);
+				} else {
+					console.log("Webhook verification failed.");
+					throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
+						message: "Webhook signature verification failed.",
 					});
 				}
 			},
+		
+			async handleDonationWebhook(webhookEvent, verificationParams, ctx) {
+				this.logger.info("Handling Donation Webhook");
+		
+				verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
+				const isValid = await verifyPaypalWebhookSignature(verificationParams);
+		
+				if (isValid) {
+					this.logger.info("2. Donation Webhook successfully verified", webhookEvent);
+		
+					const captureResult = await captureOrder(webhookEvent.resource.id);
+					const orderId = webhookEvent.resource.id;
+					const totalPrice = webhookEvent.resource.purchase_units[0].amount.value;
+
+					if (captureResult.status === "COMPLETED") {
+						this.logger.info("Capture completed");
+						await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED);
+						const payerEmail = webhookEvent.resource.payer.email_address;
+
+						let purchaseDetails = {
+							amount: totalPrice,
+							orderId: orderId,
+						};
+						
+						await ctx.call("v1.payment.sendPaymentDonationEmail", {
+							userLang: "en",
+							userEmail: payerEmail,
+							purchaseDetails: purchaseDetails,
+						});
+
+					} else {
+						this.logger.info("Capture failed");
+						await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
+					}
+					this.logger.info("3. Donation Webhook captureResult", captureResult);
+				} else {
+					console.log("Webhook verification failed.");
+					throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
+						message: "Webhook signature verification failed.",
+					});
+				}
+			}
 		},
+		
 		
 		handleStripeWebhook: {
 			async handler(ctx) {
@@ -566,30 +607,6 @@ const paymentService = {
 			await User.findOneAndUpdate(entity, data, { new: true });
 
 			return invoicedUser;
-		},
-		sendMailMethod: {
-			async handler() {
-				return "sendMailMethod";
-			},
-		},
-		getTransporter: {
-			async handler() {
-				let adminEmail = process.env.ADMIN_EMAIL;
-				let adminPassword = process.env.PASSW_EMAIL;
-
-				this.logger.info("adminEmail", adminEmail);
-				this.logger.info("adminPassword", adminPassword);
-
-				return nodemailer.createTransport({
-					host: "mail.blokaria.com",
-					port: 465,
-					secure: true, // true for 465, false for other ports
-					auth: {
-						user: adminEmail,
-						pass: adminPassword,
-					},
-				});
-			},
 		},
 	},
 };

@@ -110,6 +110,7 @@ const areaService = {
 				}
 			},
 		},
+		
 		getAllAreas: {
 			async handler(ctx) {
 				try {
@@ -197,6 +198,7 @@ const areaService = {
 				}
 			},
 		},
+
 		getAreasByCountry: {
 			params: {
 				country: { type: "string" },

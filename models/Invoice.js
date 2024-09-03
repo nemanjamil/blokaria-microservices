@@ -16,12 +16,14 @@ const invoiceSchema = new mongoose.Schema(
 		payer: {
 			type: ObjectId,
 			ref: "User",
-			required: true,
+			required: false,
+			default: null,
 		},
 		area: {
 			type: ObjectId,
 			ref: "Area",
-			required: true,
+			required: false,
+			default: null,
 		},
 	},
 	{ timestamps: true }

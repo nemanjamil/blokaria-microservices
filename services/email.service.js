@@ -355,6 +355,90 @@ module.exports = {
 			},
 		},
 
+		sendPaymentConfirmationEmail: {
+			rest: "POST /sendPaymentConfirmationEmail",
+			params: {
+				userLang: { type: "string" },
+				userEmail: { type: "string" },
+				purchaseDetails: { type: "object" },
+			},
+			async handler(ctx) {
+				try {
+					const { userLang, userEmail, purchaseDetails } = ctx.params;
+					const source = fs.readFileSync(`./public/templates/${userLang}/donationConfirmation.html`, "utf-8").toString();
+		
+					const template = handlebars.compile(source);
+		
+					const replacements = {
+						name: purchaseDetails.name,
+						numberOfTrees: purchaseDetails.numberOfTrees,
+						amount: purchaseDetails.amount,
+						orderId: purchaseDetails.orderId,
+					};
+		
+					const htmlToSend = template(replacements);
+		
+					let transporter = await this.getTransporter();
+					
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Blokaria 👻" <service@blokaria.com>',
+						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Payment confirmation ✔",
+						html: htmlToSend,
+					};
+
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
+		sendPaymentDonationEmail: {
+			rest: "POST /sendPaymentDonationEmail",
+			params: {
+				userLang: { type: "string" },
+				userEmail: { type: "string" },
+				donationDetails: { type: "object" },
+			},
+			async handler(ctx) {
+				try {
+					const { userLang, userEmail, donationDetails } = ctx.params;
+					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
+		
+					const template = handlebars.compile(source);
+		
+					const replacements = {
+						amount: donationDetails.amount,
+						orderId: donationDetails.orderId,
+					};
+		
+					const htmlToSend = template(replacements);
+		
+					let transporter = await this.getTransporter();
+					
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Blokaria 👻" <service@blokaria.com>',
+						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Payment confirmation ✔",
+						html: htmlToSend,
+					};
+
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
 		sendApprovalToClient: {
 			async handler(ctx) {
 				const { userEmail, userFullname, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
