@@ -365,7 +365,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { userLang, userEmail, purchaseDetails } = ctx.params;
-					const source = fs.readFileSync(`./public/templates/${userLang}/donationConfirmation.html`, "utf-8").toString();
+					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
 		
 					const template = handlebars.compile(source);
 		
@@ -408,7 +408,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { userLang, userEmail, donationDetails } = ctx.params;
-					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
+					const source = fs.readFileSync(`./public/templates/${userLang}/donationConfirmation.html`, "utf-8").toString();
 		
 					const template = handlebars.compile(source);
 		

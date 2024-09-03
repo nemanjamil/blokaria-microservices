@@ -590,7 +590,7 @@ const paymentService = {
 						orderId: orderId,
 					};
 					
-					await ctx.call("v1.payment.sendPaymentDonationEmail", {
+					await ctx.call("v1.email.sendPaymentDonationEmail", {
 						userLang: "en",
 						userEmail: payerEmail,
 						purchaseDetails: purchaseDetails,
