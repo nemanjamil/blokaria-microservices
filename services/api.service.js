@@ -224,6 +224,7 @@ module.exports = {
 					"PUT achievement": "v1.achievement.updateAchievements",
 					"POST achievement/getPostPreview": "v1.achievement.getAchievementPostPreview",
 					"POST achievement/linkedin/post": "v1.achievement.publishAchievementLinkedInPost",
+					"POST getMaxAchievementLevel": "v1.achievement.getMaxAchievementLevel",
 				},
 				callingOptions: {},
 

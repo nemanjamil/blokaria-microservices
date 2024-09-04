@@ -540,7 +540,9 @@ const paymentService = {
 						numberOfTransaction: user.transactionsCount,
 						numberOfCoupons: user.couponsCount,
 					};
-	
+
+					let userLevel = user.level;
+					console.log("userLevel", userLevel);
 					ctx.call("v1.achievement.updateAchievements");
 					let purchaseDetails = {
 						name: user.firstName,
@@ -548,12 +550,30 @@ const paymentService = {
 						amount: quantity * 50,
 						orderId: orderId,
 					};
-	
+
+					let updatedUser = await User.findById(user._id).exec();
+					if (!updatedUser) {
+						throw new Error("Updated user not found");
+					}
+
+					const newLevel = updatedUser.level;
+					const levelStatus = {
+						oldLevel: userLevel,
+						newLevel: newLevel,
+						isLevelChanged: userLevel !== newLevel
+					};
+					
+					// Log new level if it has changed
+					if (levelStatus.isLevelChanged) {
+						console.log("New Level:", newLevel);
+					}
 					await ctx.call("v1.email.sendPaymentConfirmationEmail", {
 						userLang: "en",
 						userEmail: user.userEmail,
 						purchaseDetails: purchaseDetails,
+						levelStatus: levelStatus,
 					});
+
 				} else {
 					this.logger.info("Capture failed");
 					await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
