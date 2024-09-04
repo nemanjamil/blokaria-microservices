@@ -545,7 +545,6 @@ const paymentService = {
 					console.log("userLevel", userLevel);
 					ctx.call("v1.achievement.updateAchievements");
 					let purchaseDetails = {
-						name: user.firstName,
 						numberOfTrees: quantity,
 						amount: quantity * 50,
 						orderId: orderId,
@@ -555,7 +554,7 @@ const paymentService = {
 					if (!updatedUser) {
 						throw new Error("Updated user not found");
 					}
-
+					purchaseDetails.name = updatedUser.userFullName;
 					const newLevel = updatedUser.level;
 					const levelStatus = {
 						oldLevel: userLevel,

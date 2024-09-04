@@ -374,7 +374,7 @@ module.exports = {
 					let levelUpMessage = "";
 					if (levelStatus.isLevelChanged)
 					{
-						levelUpMessage = `Congratulations! You have reached level ${levelStatus.level}!`;
+						levelUpMessage = `Congratulations! You have advanced from level ${levelStatus.oldLevel} to level ${levelStatus.newLevel}!`;
 					}
 
 					const replacements = {
