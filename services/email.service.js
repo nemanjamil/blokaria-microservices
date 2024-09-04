@@ -361,19 +361,27 @@ module.exports = {
 				userLang: { type: "string" },
 				userEmail: { type: "string" },
 				purchaseDetails: { type: "object" },
+				levelStatus: { type: "object" },
 			},
 			async handler(ctx) {
 				try {
-					const { userLang, userEmail, purchaseDetails } = ctx.params;
+					const { userLang, userEmail, purchaseDetails, levelStatus } = ctx.params;
 					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
 		
 					const template = handlebars.compile(source);
-		
+					
+					const levelUpMessage = "";
+					if (levelStatus.isLevelChanged)
+					{
+						const levelUpMessage = `Congratulations! You have reached level ${levelStatus.level}!`;
+					}
+
 					const replacements = {
 						name: purchaseDetails.name,
 						numberOfTrees: purchaseDetails.numberOfTrees,
 						amount: purchaseDetails.amount,
 						orderId: purchaseDetails.orderId,
+						levelUpMessage: levelUpMessage
 					};
 		
 					const htmlToSend = template(replacements);
