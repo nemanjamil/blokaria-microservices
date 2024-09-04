@@ -336,7 +336,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@natureplant.org>',
+						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "User is interested in your product ✔",
@@ -369,7 +369,7 @@ module.exports = {
 					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
 		
 					const template = handlebars.compile(source);
-
+					
 					const levelUpMessage = "";
 					if (levelStatus.isLevelChanged)
 					{
@@ -390,7 +390,7 @@ module.exports = {
 					
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@natureplant.org>',
+						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Payment confirmation ✔",
