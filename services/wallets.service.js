@@ -550,22 +550,22 @@ module.exports = {
 		},
 
 		getWalletsByArea: {
-            params: {
-                areaId: { type: "string" },
-            },
-            async handler(ctx) {
-                const { areaId } = ctx.params;
+			params: {
+				areaId: { type: "string" },
+			},
+			async handler(ctx) {
+				const { areaId } = ctx.params;
 
-                try {
-                    const wallets = await Wallet.find({ area: areaId });
-                    return wallets.map(wallet => wallet.toJSON());
-                } catch (err) {
-                    console.error("Error retrieving wallets by area:", err);
-                    throw new MoleculerError("Wallet Retrieval Failed", 500, "WALLET_RETRIEVAL_FAILED", {
-                        message: "An error occurred while retrieving wallets from the db.",
-                    });
-                }
-            },
+				try {
+					const wallets = await Wallet.find({ area: areaId });
+					return wallets.map((wallet) => wallet.toJSON());
+				} catch (err) {
+					console.error("Error retrieving wallets by area:", err);
+					throw new MoleculerError("Wallet Retrieval Failed", 500, "WALLET_RETRIEVAL_FAILED", {
+						message: "An error occurred while retrieving wallets from the db.",
+					});
+				}
+			},
 		},
 
 		updateDataInDb: {
@@ -930,18 +930,17 @@ module.exports = {
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 })
 					.lean();
-				
+
 				for (let wallet of listWallet) {
 					console.log("Wallet area ", wallet.area);
 					if (wallet.area) {
 						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });
 						wallet.areaName = areaData.name;
-						wallet.lat = areaData.latitude;  
+						wallet.lat = areaData.latitude;
 						wallet.lon = areaData.longitude;
-						wallet.areaPoints = areaData.areaPoints;  
+						wallet.areaPoints = areaData.areaPoints;
 					}
 				}
-					
 
 				this.logger.info("5. getListQrCodesGeneral dateTime ", new Date());
 
