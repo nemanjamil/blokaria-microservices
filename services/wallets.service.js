@@ -970,7 +970,7 @@ module.exports = {
 		async getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode }) {
 			const entity = {
 				userEmail,
-				qrCodeRedeemStatus,
+				//qrCodeRedeemStatus,
 			};
 
 			if (publicQrCode) entity.publicQrCode = publicQrCode;
