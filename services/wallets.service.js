@@ -640,6 +640,7 @@ module.exports = {
 						{
 							userFullname: clientName,
 							userEmail: clientEmail,
+							_creator: userId,
 						},
 						{ new: true }
 					);
