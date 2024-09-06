@@ -222,7 +222,7 @@ module.exports = {
 		removeItemFromUserId: {
 			params: {
 				userId: { type: "object" },
-				itemId: { type: "string" },
+				itemId: { type: "object" },
 			},
 			async handler(ctx) {
 				const { userId, itemId } = ctx.params;
@@ -253,7 +253,7 @@ module.exports = {
 		addItemToUserId: {
 			params: {
 				userId: { type: "object" },
-				itemId: { type: "string" },
+				itemId: { type: "object" },
 			},
 			async handler(ctx) {
 				const { userId, itemId } = ctx.params;
@@ -553,7 +553,7 @@ module.exports = {
 
 		getUserByItemId: {
 			params: {
-				itemId: { type: "string" },
+				itemId: { type: "object" },
 			},
 
 			async handler(ctx) {
@@ -564,7 +564,7 @@ module.exports = {
 				try {
 					return await User.findOne(
 						{
-							_wallets: mongoose.Types.ObjectId(itemId),
+							_wallets: itemId,
 						},
 						{ new: true }
 					);

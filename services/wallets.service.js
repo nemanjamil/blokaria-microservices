@@ -623,13 +623,13 @@ module.exports = {
 				clientEmail: { type: "email" },
 			},
 			async handler(ctx) {
-				this.logger.info("generateGift updateDataInDb START", ctx.params);
+				this.logger.info("1. generateGift updateDataInDb START", ctx.params);
 
 				const { qrcode, accessCode, clientName, clientEmail } = ctx.params;
 				const { userId } = ctx.meta.user;
 
-				this.logger.info("generateGift updateDataInDb userId", userId);
-				this.logger.info("generateGift updateDataInDb accessCode", accessCode);
+				this.logger.info("2. generateGift updateDataInDb userId", userId);
+				this.logger.info("3. generateGift updateDataInDb accessCode", accessCode);
 
 				try {
 					let resultUpdating = await Wallet.findOneAndUpdate(
@@ -644,7 +644,7 @@ module.exports = {
 						{ new: true }
 					);
 
-					this.logger.info("1. generateGift resultUpdating", resultUpdating);
+					this.logger.info("5. generateGift resultUpdating", resultUpdating);
 
 					if (!resultUpdating) {
 						throw new MoleculerError("Data not exist", 401, "WALLET ID DO NOT EXIST", {
@@ -653,18 +653,20 @@ module.exports = {
 						});
 					}
 
-					this.logger.info("2. generateGift resultUpdating", resultUpdating);
+					this.logger.info("7. generateGift resultUpdating", resultUpdating);
 					let itemId = resultUpdating._id;
-					this.logger.info("2. generateGift itemId: resultUpdating._id", itemId);
+					this.logger.info("9. generateGift itemId: resultUpdating._id", itemId);
 
 					const userIdWhoHoldItem = await ctx.call("user.getUserByItemId", { itemId });
-					this.logger.info("3. generateGift userIdWhoHoldItem", userIdWhoHoldItem);
+					this.logger.info("10. generateGift userIdWhoHoldItem", userIdWhoHoldItem);
 
 					const removeItemFromUserId = await ctx.call("user.removeItemFromUserId", { userId: userIdWhoHoldItem._id, itemId });
-					this.logger.info("4. generateGift removeItemFromUserId", removeItemFromUserId);
+					this.logger.info("12. generateGift removeItemFromUserId", removeItemFromUserId);
+					this.logger.info("15. generateGift userId", userId);
+					this.logger.info("17. generateGift itemId", itemId);
 
 					const addItemFromUserId = await ctx.call("user.addItemToUserId", { userId, itemId });
-					this.logger.info("5. generateGift addItemFromUserId", addItemFromUserId);
+					this.logger.info("20. generateGift addItemFromUserId", addItemFromUserId);
 
 					if (!resultUpdating) {
 						throw new MoleculerError("Data not exist", 401, "WALLET ID DO NOT EXIST", {
@@ -683,7 +685,7 @@ module.exports = {
 						{ new: true }
 					);
 
-					this.logger.info("removeAccessCode", removeAccessCode);
+					this.logger.info("22. generateGift removeAccessCode", removeAccessCode);
 
 					return true;
 				} catch (error) {
