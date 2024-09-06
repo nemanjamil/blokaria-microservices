@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.ObjectId;
 const walletSchema = new mongoose.Schema({
 	walletQrId: { type: String, index: true, required: true }, // unique: true
-	userDesc: { type: String },
+	geoLocation: { type: String },
 	userFullname: { type: String },
 	userEmail: { type: String },
 	productName: { type: String },
@@ -43,6 +43,7 @@ const walletSchema = new mongoose.Schema({
 	},
 	_creator: {
 		type: ObjectId,
+		required: true,
 		ref: "User",
 	},
 	_image: [

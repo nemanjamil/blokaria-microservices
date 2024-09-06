@@ -99,7 +99,7 @@ const createOrder = async ({
 	currency = "USD",
 	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
 	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
-	brandName = "Blokaria"
+	brandName = "NaturePlant",
 }) => {
 	console.log("amount", amount);
 
@@ -107,62 +107,61 @@ const createOrder = async ({
 	console.log("accessToken", accessToken);
 
 	const response = await axios({
-	  url: process.env.PAYPAL_BASE_URL + "/v2/checkout/orders",
-	  method: "post",
-	  headers: {
-		"Content-Type": "application/json",
-		Authorization: "Bearer " + accessToken,
-	  },
-	  data: JSON.stringify({
-		intent: "CAPTURE",
-		purchase_units: [
-		  {
-			items: [
-			  {
-				name: itemName,
-				description: itemDescription,
-				quantity: quantity,
-				unit_amount: {
-				  currency_code: currency,
-				  value: amount,
-				},
-			  },
-			],
-			amount: {
-			  currency_code: currency,
-			  value: amount * quantity,
-			  breakdown: {
-				item_total: {
-				  currency_code: currency,
-				  value: amount * quantity,
-				},
-			  },
-			},
-		  },
-		],
-		application_context: {
-		  return_url: returnUrl,
-		  cancel_url: cancelUrl,
-		  shipping_preference: "NO_SHIPPING",
-		  user_action: "PAY_NOW",
-		  brand_name: brandName,
+		url: process.env.PAYPAL_BASE_URL + "/v2/checkout/orders",
+		method: "post",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: "Bearer " + accessToken,
 		},
-	  }),
+		data: JSON.stringify({
+			intent: "CAPTURE",
+			purchase_units: [
+				{
+					items: [
+						{
+							name: itemName,
+							description: itemDescription,
+							quantity: quantity,
+							unit_amount: {
+								currency_code: currency,
+								value: amount,
+							},
+						},
+					],
+					amount: {
+						currency_code: currency,
+						value: amount * quantity,
+						breakdown: {
+							item_total: {
+								currency_code: currency,
+								value: amount * quantity,
+							},
+						},
+					},
+				},
+			],
+			application_context: {
+				return_url: returnUrl,
+				cancel_url: cancelUrl,
+				shipping_preference: "NO_SHIPPING",
+				user_action: "PAY_NOW",
+				brand_name: brandName,
+			},
+		}),
 	});
 
 	const approveLink = response.data.links.find((link) => link.rel === "approve").href;
 	const orderId = response.data.id;
-	totalAmount = amount * quantity;
+	let totalAmount = amount * quantity;
 
 	console.log("response:", response.data);
 
 	return {
 		approveLink,
 		orderId,
-		totalAmount
+		totalAmount,
 	};
 };
-  
 
 const paymentService = {
 	name: "payment",
@@ -275,8 +274,8 @@ const paymentService = {
 				try {
 					this.logger.info("ctx params", ctx.params);
 					const { amount } = ctx.params;
-					
-					const {approveLink, orderId, totalAmount} = await createOrder({
+
+					const { approveLink, orderId, totalAmount } = await createOrder({
 						amount: amount,
 						itemName: "Donation",
 						itemDescription: "Charitable Donation",
@@ -284,16 +283,16 @@ const paymentService = {
 						currency: "USD",
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
-						brandName: "Nature Planet"
-					  });					
-					  
-					  this.logger.info("Creating Invoice with orderId");
-					  const invoice = new Invoice({
-						  amount: totalAmount,
-						  invoiceId: orderId,
-					  });
-					  await invoice.save();
-					  
+						brandName: "Nature Planet",
+					});
+
+					this.logger.info("Creating Invoice with orderId");
+					const invoice = new Invoice({
+						amount: totalAmount,
+						invoiceId: orderId,
+					});
+					await invoice.save();
+
 					return { approveLink };
 				} catch (error) {
 					console.log("Error creating PayPal order:", error);
@@ -308,7 +307,7 @@ const paymentService = {
 			async handler(ctx) {
 				try {
 					let donationDetails = {};
-					quantity = 1
+					quantity = 1;
 					donationDetails.name = "XAVI";
 					donationDetails.numberOfTrees = 1;
 					donationDetails.amount = quantity * 50;
@@ -340,9 +339,9 @@ const paymentService = {
 					console.log("userId", ctx.meta.user);
 					const { quantityOfTrees, area } = ctx.params;
 
-					// const pricePerTree = process.env.TREE_PRICE; 
-					const pricePerTree = 50; 
-					
+					// const pricePerTree = process.env.TREE_PRICE;
+					const pricePerTree = 50;
+
 					const { approveLink, orderId, totalAmount } = await createOrder({
 						amount: pricePerTree,
 						itemName: "Tree Purchase",
@@ -351,7 +350,7 @@ const paymentService = {
 						currency: "USD",
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
-						brandName: "Nature Planet"
+						brandName: "NaturePlant",
 					});
 
 					const areaObjectId = new mongoose.Types.ObjectId(area);
@@ -364,7 +363,7 @@ const paymentService = {
 						area: areaObjectId,
 					});
 					await invoice.save();
-					  
+
 					return { approveLink };
 				} catch (error) {
 					console.log("Error creating PayPal order:", error);
@@ -379,10 +378,10 @@ const paymentService = {
 			async handler(ctx) {
 				this.logger.info("0. paypalWebhook START");
 				this.logger.info("1. paypalWebhook ctx.params", ctx.params);
-		
+
 				const headers = ctx.options.parentCtx.params.req.headers;
 				const webhookEvent = ctx.params;
-		
+
 				const verificationParams = {
 					auth_algo: headers["paypal-auth-algo"],
 					cert_url: headers["paypal-cert-url"],
@@ -391,13 +390,13 @@ const paymentService = {
 					transmission_time: headers["paypal-transmission-time"],
 					webhook_event: webhookEvent,
 				};
-		
+
 				this.logger.info("2. paypalWebhook verificationParams", verificationParams);
-		
+
 				try {
 					const orderType = webhookEvent.resource.purchase_units[0].items[0].name;
 					const eventType = webhookEvent.event_type;
-		
+
 					if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Tree Purchase") {
 						await this.handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx);
 					} else if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Donation") {
@@ -414,12 +413,11 @@ const paymentService = {
 						message: error.message,
 					});
 				}
-		
+
 				return "Webhook processed successfully.";
 			},
 		},
-		
-		
+
 		handleStripeWebhook: {
 			async handler(ctx) {
 				// const secret = "whsec_3dcfddcd5427bacb88780b92982a2f6851ebcc7da3987c0000c3564322bf18e6";
@@ -479,7 +477,7 @@ const paymentService = {
 
 			const entity = {
 				walletQrId: walletQrId,
-				userDesc: `${area.longitude}, ${area.latitude}`, // Use selected point
+				geoLocation: `${area.longitude}, ${area.latitude}`, // Use selected point
 				userFullname: user.userFullName,
 				userEmail: user.userEmail,
 				productName: `Plant in ${area.name}`, // TODO: random letters and numbers for unique names
@@ -517,13 +515,13 @@ const paymentService = {
 
 		async handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx) {
 			this.logger.info("Handling Tree Purchase Webhook");
-	
+
 			verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
 			const isValid = await verifyPaypalWebhookSignature(verificationParams);
-	
+
 			if (isValid) {
 				this.logger.info("2. Tree Purchase Webhook successfully verified", webhookEvent);
-	
+
 				const captureResult = await captureOrder(webhookEvent.resource.id);
 				const orderId = webhookEvent.resource.id;
 				const quantity = webhookEvent.resource.purchase_units[0].items[0].quantity;
@@ -559,9 +557,9 @@ const paymentService = {
 					const levelStatus = {
 						oldLevel: userLevel,
 						newLevel: newLevel,
-						isLevelChanged: userLevel !== newLevel
+						isLevelChanged: userLevel !== newLevel,
 					};
-					
+
 					// Log new level if it has changed
 					if (levelStatus.isLevelChanged) {
 						console.log("New Level:", newLevel);
@@ -572,7 +570,6 @@ const paymentService = {
 						purchaseDetails: purchaseDetails,
 						levelStatus: levelStatus,
 					});
-
 				} else {
 					this.logger.info("Capture failed");
 					await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
@@ -588,13 +585,13 @@ const paymentService = {
 
 		async handleDonationWebhook(webhookEvent, verificationParams, ctx) {
 			this.logger.info("Handling Donation Webhook");
-	
+
 			verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
 			const isValid = await verifyPaypalWebhookSignature(verificationParams);
-	
+
 			if (isValid) {
 				this.logger.info("2. Donation Webhook successfully verified", webhookEvent);
-	
+
 				const captureResult = await captureOrder(webhookEvent.resource.id);
 				const orderId = webhookEvent.resource.id;
 				const totalPrice = webhookEvent.resource.purchase_units[0].amount.value;
@@ -608,13 +605,12 @@ const paymentService = {
 						amount: totalPrice,
 						orderId: orderId,
 					};
-					
+
 					await ctx.call("v1.email.sendPaymentDonationEmail", {
 						userLang: "en",
 						userEmail: payerEmail,
 						donationDetails: donationDetails,
 					});
-
 				} else {
 					this.logger.info("Capture failed");
 					await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
@@ -626,7 +622,7 @@ const paymentService = {
 					message: "Webhook signature verification failed.",
 				});
 			}
-		}
+		},
 	},
 };
 

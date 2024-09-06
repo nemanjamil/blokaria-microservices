@@ -836,7 +836,7 @@ module.exports = {
 		async insertDataIntoDb(ctx, Address, transactionId) {
 			const entity = {
 				walletQrId: ctx.params.walletQrId,
-				userDesc: ctx.params.userDesc,
+				geoLocation: ctx.params.geoLocation,
 				userFullname: ctx.params.userFullname,
 				productName: ctx.params.productName,
 				userEmail: ctx.params.userEmail,
@@ -858,7 +858,7 @@ module.exports = {
 		async plainInsertDataIntoDb({ ctx, user, wallet, image }) {
 			const entity = {
 				walletQrId: wallet.walletQrId,
-				userDesc: wallet.userDesc,
+				geoLocation: wallet.geoLocation,
 				userFullname: wallet.userFullname,
 				userEmail: wallet.userEmail,
 				productName: wallet.productName,
@@ -905,28 +905,31 @@ module.exports = {
 		// 100
 		async sendTransactionFromWalletToWallet(qrCodeDbData) {
 			let newData = {
-				userDesc: qrCodeDbData[0].userDesc,
-				userFullname: qrCodeDbData[0].userFullname,
-				userEmail: qrCodeDbData[0].userEmail,
+				geoLocation: qrCodeDbData[0].geoLocation,
+				user: qrCodeDbData[0].clientemailcb ? qrCodeDbData[0].userFullname : "-",
+				email: qrCodeDbData[0].clientemailcb ? qrCodeDbData[0].userEmail : "-",
+				itemName: qrCodeDbData[0].productName,
 
-				productName: qrCodeDbData[0].productName,
-
-				clientEmail: qrCodeDbData[0].clientEmail,
-				clientMessage: qrCodeDbData[0].clientMessage,
-				clientName: qrCodeDbData[0].clientName,
-
-				walletQrId: qrCodeDbData[0].walletQrId,
-				qrCodeId: qrCodeDbData[0]._id,
-
-				contributorData: qrCodeDbData[0].contributorData,
-				clientemailcb: qrCodeDbData[0].clientemailcb,
-				ownernamecb: qrCodeDbData[0].clientemailcb,
+				qrCodeId: qrCodeDbData[0].walletQrId,
+				itemId: qrCodeDbData[0]._id,
 
 				walletName: process.env.WALLET_NAME,
 				amountValue: 1,
+				plantedBy: "NameOfPlanter",
+
+				clientMessage: qrCodeDbData[0].clientMessage,
+
+				// clientEmail: qrCodeDbData[0].clientEmail,
+				// clientMessage: qrCodeDbData[0].clientMessage,
+				// clientName: qrCodeDbData[0].clientName,
+
+				// contributorData: qrCodeDbData[0].contributorData,
+				// clientemailcb: qrCodeDbData[0].clientemailcb,
+				// ownernamecb: qrCodeDbData[0].clientemailcb,
 			};
 
-			console.log("START sendTransactionFromWalletToWallet qrCodeDbData : ", newData);
+			console.log("START sendTransactionFromWalletToWallet qrCodeDbData : ", qrCodeDbData);
+			console.log("START sendTransactionFromWalletToWallet newData : ", newData);
 			console.log("sendTransactionFromWalletToWallet DOCKER_INTERNAL_URL : ", process.env.DOCKER_INTERNAL_URL);
 
 			try {
