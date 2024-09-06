@@ -912,15 +912,11 @@ module.exports = {
 				user: qrCodeDbData[0].clientemailcb ? qrCodeDbData[0].userFullname : "-",
 				email: qrCodeDbData[0].clientemailcb ? qrCodeDbData[0].userEmail : "-",
 				itemName: qrCodeDbData[0].productName,
-
 				qrCodeId: qrCodeDbData[0].walletQrId,
-				itemId: qrCodeDbData[0]._id,
-
+				clientMessage: qrCodeDbData[0].clientMessage,
 				walletName: process.env.WALLET_NAME,
 				amountValue: 1,
 				plantedBy: "NameOfPlanter",
-
-				clientMessage: qrCodeDbData[0].clientMessage,
 
 				// clientEmail: qrCodeDbData[0].clientEmail,
 				// clientMessage: qrCodeDbData[0].clientMessage,
