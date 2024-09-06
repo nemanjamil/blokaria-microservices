@@ -226,6 +226,7 @@ module.exports = {
 					"POST achievement/linkedin/post": "v1.achievement.publishAchievementLinkedInPost",
 					"POST getMaxAchievementLevel": "v1.achievement.getMaxAchievementLevel",
 					"POST email/sendGiftEmail": "v1.email.sendGiftEmail",
+					"POST wallet/generateGift": "wallet.generateGift",
 				},
 				callingOptions: {},
 
@@ -405,7 +406,7 @@ module.exports = {
 				const user = users ? users[0] : null;
 
 				if (!user) {
-					throw new MoleculerClientError("User not found.", 422, "USER_FIND_ERROR", {
+					throw new MoleculerError("User not found.", 422, "USER_FIND_ERROR", {
 						message: "User with the provided email does not exist.",
 						internalErrorCode: "auth30",
 					});

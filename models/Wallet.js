@@ -41,7 +41,7 @@ const walletSchema = new mongoose.Schema({
 		required: true,
 		default: null,
 	},
-		_creator: {
+	_creator: {
 		type: ObjectId,
 		ref: "User",
 	},
@@ -61,54 +61,53 @@ const walletSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: "Project",
 	},
-
 });
 
-const normalizeUnderscoreMiddleware = function (next) {
-	if (Array.isArray(this)) {
-		// If multiple documents are returned
-		this.forEach((doc) => {
-			console.log("normalizing underscore for doc:", doc);
-			Object.keys(doc).forEach((key) => {
-				if (key.startsWith("_")) {
-					console.log("normalizing", key, "field");
-					doc[key] = JSON.parse(JSON.stringify(Object.assign({}, doc)[key]));
-				}
-			});
-		});
-	} else if (this) {
-		// If a single document is returned
-		console.log("normalizing underscore for doc(this):", this);
-		Object.keys(this).forEach((key) => {
-			if (key.startsWith("_")) {
-				console.log("normalizing", key, "field");
-				this[key] = JSON.parse(JSON.stringify(Object.assign({}, this)[key]));
-			}
-		});
-	}
-	next();
-};
+// const normalizeUnderscoreMiddleware = function (next) {
+// 	if (Array.isArray(this)) {
+// 		// If multiple documents are returned
+// 		this.forEach((doc) => {
+// 			console.log("normalizing underscore for doc:", doc);
+// 			Object.keys(doc).forEach((key) => {
+// 				if (key.startsWith("_")) {
+// 					console.log("normalizing", key, "field");
+// 					doc[key] = JSON.parse(JSON.stringify(Object.assign({}, doc)[key]));
+// 				}
+// 			});
+// 		});
+// 	} else if (this) {
+// 		// If a single document is returned
+// 		console.log("normalizing underscore for doc(this):", this);
+// 		Object.keys(this).forEach((key) => {
+// 			if (key.startsWith("_")) {
+// 				console.log("normalizing", key, "field");
+// 				this[key] = JSON.parse(JSON.stringify(Object.assign({}, this)[key]));
+// 			}
+// 		});
+// 	}
+// 	next();
+// };
 
 // Apply the middleware to various query methods
-walletSchema.post("find", function (docs, next) {
-	if (!docs || docs.length === 0) {
-		next();
-		return;
-	}
+// walletSchema.post("find", function (docs, next) {
+// 	if (!docs || docs.length === 0) {
+// 		next();
+// 		return;
+// 	}
 
-	docs.forEach((doc) => normalizeUnderscoreMiddleware.call(doc, next));
-});
+// 	docs.forEach((doc) => normalizeUnderscoreMiddleware.call(doc, next));
+// });
 
-walletSchema.post("findOne", function (doc, next) {
-	normalizeUnderscoreMiddleware.call(doc, next);
-});
+// walletSchema.post("findOne", function (doc, next) {
+// 	normalizeUnderscoreMiddleware.call(doc, next);
+// });
 
-walletSchema.post("findOneAndUpdate", function (doc, next) {
-	normalizeUnderscoreMiddleware.call(doc, next);
-});
+// walletSchema.post("findOneAndUpdate", function (doc, next) {
+// 	normalizeUnderscoreMiddleware.call(doc, next);
+// });
 
-walletSchema.post("findById", function (doc, next) {
-	normalizeUnderscoreMiddleware.call(doc, next);
-});
+// walletSchema.post("findById", function (doc, next) {
+// 	normalizeUnderscoreMiddleware.call(doc, next);
+// });
 
 module.exports = mongoose.model("Wallet", walletSchema);

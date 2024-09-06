@@ -3,7 +3,8 @@ const nodemailer = require("nodemailer");
 const { MoleculerError } = require("moleculer").Errors;
 const fs = require("fs");
 const handlebars = require("handlebars");
-
+const Utils = require("../utils/utils");
+const Wallet = require("../models/Wallet");
 require("dotenv").config();
 
 module.exports = {
@@ -500,11 +501,25 @@ module.exports = {
 			async handler(ctx) {
 				const { userEmail, walletQrId, userLang } = ctx.params;
 				const { user } = ctx.meta;
+
+				let accessCode = Utils.generatePass();
+
+				let updateWallet = await Wallet.findOneAndUpdate(
+					{
+						walletQrId,
+					},
+					{ accessCode },
+					{ new: true }
+				);
+
+				console.log("updateWallet", updateWallet);
+
 				const source = fs.readFileSync(`./public/templates/${userLang}/sendGiftEmail.html`, "utf-8").toString();
 				const template = handlebars.compile(source);
 				const replacements = {
 					walletQrId,
 					from: user,
+					accessCode,
 					webSiteLocation: process.env.BLOKARIA_WEBSITE,
 				};
 

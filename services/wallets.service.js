@@ -615,13 +615,93 @@ module.exports = {
 				}
 			},
 		},
+		generateGift: {
+			params: {
+				qrcode: { type: "uuid" },
+				accessCode: { type: "string" },
+				clientName: { type: "string" },
+				clientEmail: { type: "email" },
+			},
+			async handler(ctx) {
+				this.logger.info("generateGift updateDataInDb START", ctx.params);
+
+				const { qrcode, accessCode, clientName, clientEmail } = ctx.params;
+				const { userId } = ctx.meta.user;
+
+				this.logger.info("generateGift updateDataInDb userId", userId);
+				this.logger.info("generateGift updateDataInDb accessCode", accessCode);
+
+				try {
+					let resultUpdating = await Wallet.findOneAndUpdate(
+						{
+							walletQrId: qrcode,
+							accessCode,
+						},
+						{
+							userFullname: clientName,
+							userEmail: clientEmail,
+						},
+						{ new: true }
+					);
+
+					this.logger.info("1. generateGift resultUpdating", resultUpdating);
+
+					if (!resultUpdating) {
+						throw new MoleculerError("Data not exist", 401, "WALLET ID DO NOT EXIST", {
+							message: "Data not exist in the system",
+							internalErrorCode: "wallet167",
+						});
+					}
+
+					this.logger.info("2. generateGift resultUpdating", resultUpdating);
+					let itemId = resultUpdating._id;
+					this.logger.info("2. generateGift itemId: resultUpdating._id", itemId);
+
+					const userIdWhoHoldItem = await ctx.call("user.getUserByItemId", { itemId });
+					this.logger.info("3. generateGift userIdWhoHoldItem", userIdWhoHoldItem);
+
+					const removeItemFromUserId = await ctx.call("user.removeItemFromUserId", { userId: userIdWhoHoldItem._id, itemId });
+					this.logger.info("4. generateGift removeItemFromUserId", removeItemFromUserId);
+
+					const addItemFromUserId = await ctx.call("user.addItemToUserId", { userId, itemId });
+					this.logger.info("5. generateGift addItemFromUserId", addItemFromUserId);
+
+					if (!resultUpdating) {
+						throw new MoleculerError("Data not exist", 401, "WALLET ID DO NOT EXIST", {
+							message: "Data not exist in the system",
+							internalErrorCode: "wallet104",
+						});
+					}
+
+					let removeAccessCode = await Wallet.findOneAndUpdate(
+						{
+							walletQrId: qrcode,
+						},
+						{
+							accessCode: "",
+						},
+						{ new: true }
+					);
+
+					this.logger.info("removeAccessCode", removeAccessCode);
+
+					return true;
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_UPDATING_DATA", {
+						message: error.message,
+						internalErrorCode: "wallet36677",
+					});
+				}
+			},
+		},
 	},
 
 	methods: {
 		// 10
 		async getQrCodeDataMethod({ ctx, qrRedeemCheck }) {
 			try {
-				await this.checkIfQrCodeExistIndb(ctx);
+				await this.checkIfQrCodeExistIndb(ctx.params.qrcode);
+
 				let walletIdData = await this.getQrCodeInfo(ctx);
 
 				this.logger.info("getQrCodeDataMethod ctx", ctx);
@@ -734,17 +814,15 @@ module.exports = {
 		},
 
 		// 60
-		async checkIfQrCodeExistIndb(ctx) {
-			const entity = {
-				walletQrId: ctx.params.qrcode,
-			};
+		async checkIfQrCodeExistIndb(qrcode) {
 			try {
-				let wallet = await Wallet.exists(entity);
+				const wallet = await Wallet.exists({ walletQrId: qrcode });
 				if (!wallet)
 					throw new MoleculerError("Kod ne postoji u bazi podataka", 401, "ERROR_GET_QR_CODE_DATA", {
 						message: "Code do not exist into db",
 						internalErrorCode: "wallet60",
 					});
+
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Greška pri citanju postojećeg QR koda", 401, "ERROR_GET_QR_CODE_DATA", {

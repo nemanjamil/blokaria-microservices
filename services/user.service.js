@@ -8,6 +8,7 @@ const User = require("../models/User.js");
 const Wallet = require("../models/Wallet.js");
 const { achievementList } = require("../data/achievement");
 const { getNextLevel } = require("../models/Achievement");
+const mongoose = require("mongoose");
 
 module.exports = {
 	name: "user",
@@ -210,6 +211,68 @@ module.exports = {
 					let _wallets = userFind._wallets || [];
 					_wallets.push(ctx.params._id);
 					const updatedPost = await User.findOneAndUpdate(entity, {_wallets: _wallets}).populate({path : "_wallets"}); */
+				} catch (error) {
+					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {
+						message: "User Not Found",
+						internalErrorCode: "user30",
+					});
+				}
+			},
+		},
+		removeItemFromUserId: {
+			params: {
+				userId: { type: "object" },
+				itemId: { type: "string" },
+			},
+			async handler(ctx) {
+				const { userId, itemId } = ctx.params;
+
+				this.logger.info("removeItemFromUserId userId", userId);
+				this.logger.info("removeItemFromUserId itemId", itemId);
+
+				let data = {
+					$pull: { _wallets: String(itemId) },
+				};
+
+				try {
+					return await User.findOneAndUpdate(
+						{
+							_id: userId,
+						},
+						data,
+						{ new: true }
+					).populate("_wallets");
+				} catch (error) {
+					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {
+						message: "User Not Found",
+						internalErrorCode: "user30",
+					});
+				}
+			},
+		},
+		addItemToUserId: {
+			params: {
+				userId: { type: "object" },
+				itemId: { type: "string" },
+			},
+			async handler(ctx) {
+				const { userId, itemId } = ctx.params;
+
+				this.logger.info("addItemToUserId userId", userId);
+				this.logger.info("addItemToUserId itemId", itemId);
+
+				let data = {
+					$push: { _wallets: String(itemId) },
+				};
+
+				try {
+					return await User.findOneAndUpdate(
+						{
+							_id: userId,
+						},
+						data,
+						{ new: true }
+					).populate("_wallets");
 				} catch (error) {
 					throw new MoleculerError("Can not populate user table with wallet ids", 401, "POPULATE_BUG", {
 						message: "User Not Found",
@@ -483,6 +546,32 @@ module.exports = {
 					throw new MoleculerError(error.message, 401, "FAIL UPDATE USER", {
 						message: error.message,
 						internalErrorCode: "user505",
+					});
+				}
+			},
+		},
+
+		getUserByItemId: {
+			params: {
+				itemId: { type: "string" },
+			},
+
+			async handler(ctx) {
+				const { itemId } = ctx.params;
+
+				this.logger.info("getUserByItemId itemId", itemId);
+
+				try {
+					return await User.findOne(
+						{
+							_wallets: mongoose.Types.ObjectId(itemId),
+						},
+						{ new: true }
+					);
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "FAIL TO GET USER", {
+						message: error.message,
+						internalErrorCode: "user5215",
 					});
 				}
 			},
