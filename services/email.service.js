@@ -368,12 +368,11 @@ module.exports = {
 					const { userLang, userEmail, purchaseDetails, levelStatus } = ctx.params;
 					console.log("sendPaymentConfirmationEmail", ctx.params);
 					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
-		
+
 					const template = handlebars.compile(source);
-					
+
 					let levelUpMessage = "";
-					if (levelStatus.isLevelChanged)
-					{
+					if (levelStatus.isLevelChanged) {
 						levelUpMessage = `Congratulations! You have advanced from level ${levelStatus.oldLevel} to level ${levelStatus.newLevel}!`;
 					}
 
@@ -384,11 +383,11 @@ module.exports = {
 						orderId: purchaseDetails.orderId,
 						levelUpMessage: levelUpMessage,
 					};
-		
+
 					const htmlToSend = template(replacements);
-		
+
 					let transporter = await this.getTransporter();
-					
+
 					const mailOptions = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
@@ -418,18 +417,18 @@ module.exports = {
 				try {
 					const { userLang, userEmail, donationDetails } = ctx.params;
 					const source = fs.readFileSync(`./public/templates/${userLang}/donationConfirmation.html`, "utf-8").toString();
-		
+
 					const template = handlebars.compile(source);
-		
+
 					const replacements = {
 						amount: donationDetails.amount,
 						orderId: donationDetails.orderId,
 					};
-		
+
 					const htmlToSend = template(replacements);
-		
+
 					let transporter = await this.getTransporter();
-					
+
 					const mailOptions = {
 						// eslint-disable-next-line quotes
 						from: '"Blokaria 👻" <service@blokaria.com>',
@@ -480,6 +479,46 @@ module.exports = {
 						to: `${clientEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Request approved ✔",
+						html: htmlToSend,
+					};
+
+					return await transporter.sendMail(mailOptions);
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
+						message: error.message,
+						internalErrorCode: "email50",
+					});
+				}
+			},
+		},
+		sendGiftEmail: {
+			params: {
+				userEmail: { type: "email" },
+				walletQrId: { type: "uuid" },
+				userLang: { type: "string" },
+			},
+			async handler(ctx) {
+				const { userEmail, walletQrId, userLang } = ctx.params;
+				const { user } = ctx.meta;
+				const source = fs.readFileSync(`./public/templates/${userLang}/sendGiftEmail.html`, "utf-8").toString();
+				const template = handlebars.compile(source);
+				const replacements = {
+					walletQrId,
+					from: user,
+					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+				};
+
+				const htmlToSend = template(replacements);
+
+				try {
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Blokaria 👻" <service@blokaria.com>',
+						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
+						subject: "GIFT ✔",
 						html: htmlToSend,
 					};
 
