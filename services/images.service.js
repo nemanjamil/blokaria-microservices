@@ -311,7 +311,7 @@ module.exports = {
 				let nftObj = {
 					imageIPFS: cid,
 					assetName: meta.$multipart.productName,
-					copyright: "Copyright Blokaria",
+					copyright: "Copyright Nature Plant",
 					walletName: process.env.WALLET_NAME,
 					storedIntoDb: storedIntoDb,
 					additionalMetaData: additionalMetaData,
