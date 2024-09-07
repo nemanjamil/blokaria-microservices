@@ -119,6 +119,8 @@ module.exports = {
 					numberOfTransaction: { $gt: 0 },
 				};
 
+				console.log("reduceNumberOfTransaction", ctx.params);
+
 				const user = await User.findOne({ userEmail: ctx.params.user.userEmail });
 				const userNextLevel = getNextLevel(user.level, user.planted_trees_count + 1);
 
@@ -219,6 +221,7 @@ module.exports = {
 				}
 			},
 		},
+
 		removeItemFromUserId: {
 			params: {
 				userId: { type: "object" },
@@ -250,6 +253,7 @@ module.exports = {
 				}
 			},
 		},
+
 		addItemToUserId: {
 			params: {
 				userId: { type: "object" },

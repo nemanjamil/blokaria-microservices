@@ -152,6 +152,8 @@ const achievementService = {
 						is_email_send: { $eq: false },
 					};
 
+					console.log("1. updateAchievements entity", entity);
+
 					const achievementList = await Achievement.find(entity);
 
 					for (const achievement of achievementList) {

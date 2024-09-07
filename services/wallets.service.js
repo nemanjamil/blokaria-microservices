@@ -185,7 +185,7 @@ module.exports = {
 				};
 
 				try {
-					return await Wallet.findOneAndUpdate(entity, data, { new: true }).populate("_wallets");
+					return await Wallet.findOneAndUpdate(entity, data, { new: true }); // .populate("_wallets");
 				} catch (error) {
 					throw new MoleculerError("Can not populate Wallet table with NFT ids", 401, "POPULATE_BUG", {
 						message: "Wallet Not Found",
@@ -496,17 +496,20 @@ module.exports = {
 				qrcode: { type: "string" },
 				longText: { type: "string", optional: true, empty: true, max: 150000 },
 				productName: { type: "string", optional: true, empty: true, max: 50 },
+				geoLocation: { type: "string", optional: true, empty: true, max: 100 },
 			},
 			async handler(ctx) {
-				const { qrcode, longText, productName } = ctx.params;
+				const { qrcode, longText, productName, geoLocation } = ctx.params;
 
 				let entity = { walletQrId: qrcode };
 
 				let data = {
 					longText: longText,
 					productName: productName,
+					geoLocation: geoLocation,
 				};
 
+				this.logger.info("2. updateQrCodeText data", data);
 				try {
 					let getData = await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 					if (!getData) {
