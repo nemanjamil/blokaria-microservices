@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
 	clearPassword: { type: String, required: true },
 	userPassword: { type: String, required: true },
 	userVerified: { type: Number, required: true, default: 0 },
-	userRole: { type: Number, required: true, default: 1 },
+	userRole: { type: Number, required: true, default: 5 },
 	date: { type: Date, default: Date.now },
 	numberOfTransaction: { type: Number, required: true, default: parseInt(process.env.NUMBER_OF_TRANSACTIONS) },
 	numberOfCoupons: { type: Number, required: true, default: parseInt(process.env.NUMBER_OF_COUPONS) },

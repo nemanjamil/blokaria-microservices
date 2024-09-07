@@ -52,10 +52,9 @@ const achievementService = {
 			},
 		},
 		getAchievementPostPreview: {
-			rest: "GET achievement/getPostPreview",
-			async handler(ctx) {
+			async handler() {
 				const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
-				this.logger.log("get achievement post template triggered");
+				this.logger.info("get achievement post template triggered");
 				return achievementPostTemplate;
 			},
 		},
@@ -153,6 +152,8 @@ const achievementService = {
 						is_email_send: { $eq: false },
 					};
 
+					console.log("1. updateAchievements entity", entity);
+
 					const achievementList = await Achievement.find(entity);
 
 					for (const achievement of achievementList) {
@@ -207,7 +208,7 @@ const achievementService = {
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Korisnik je zainteresovan za Vaš proizvod ✔",
+						subject: "New Achievement is created for you ✔",
 						html: htmlToSend,
 					};
 

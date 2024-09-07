@@ -3,7 +3,8 @@ const nodemailer = require("nodemailer");
 const { MoleculerError } = require("moleculer").Errors;
 const fs = require("fs");
 const handlebars = require("handlebars");
-
+const Utils = require("../utils/utils");
+const Wallet = require("../models/Wallet");
 require("dotenv").config();
 
 module.exports = {
@@ -120,7 +121,7 @@ module.exports = {
 						to: `${clientEmail}`,
 						cc: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Informacije o pametnom ugovoru ✔",
+						subject: "Information about the smart contract ✔",
 						html: htmlToSend,
 					};
 
@@ -172,7 +173,7 @@ module.exports = {
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Generisanje QR koda ✔",
+						subject: "Generated QR code ✔",
 						html: htmlToSend,
 						attachments: [
 							{
@@ -239,7 +240,7 @@ module.exports = {
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}, ${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Email transakcije ✔",
+						subject: "Transaction email ✔",
 						html: htmlToSend,
 					};
 
@@ -282,7 +283,7 @@ module.exports = {
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Resetovanje lozinke ✔",
+						subject: "Password reset ✔",
 						html: htmlToSend,
 					};
 
@@ -339,7 +340,7 @@ module.exports = {
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Korisnik je zainteresovan za Vaš proizvod ✔",
+						subject: "User is interested in your product ✔",
 						html: htmlToSend,
 					};
 
@@ -351,6 +352,98 @@ module.exports = {
 						message: error.message,
 						internalErrorCode: "email50",
 					});
+				}
+			},
+		},
+
+		sendPaymentConfirmationEmail: {
+			rest: "POST /sendPaymentConfirmationEmail",
+			params: {
+				userLang: { type: "string" },
+				userEmail: { type: "string" },
+				purchaseDetails: { type: "object" },
+				levelStatus: { type: "object" },
+			},
+			async handler(ctx) {
+				try {
+					const { userLang, userEmail, purchaseDetails, levelStatus } = ctx.params;
+					console.log("sendPaymentConfirmationEmail", ctx.params);
+					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
+
+					const template = handlebars.compile(source);
+
+					let levelUpMessage = "";
+					if (levelStatus.isLevelChanged) {
+						levelUpMessage = `Congratulations! You have advanced from level ${levelStatus.oldLevel} to level ${levelStatus.newLevel}!`;
+					}
+
+					const replacements = {
+						name: purchaseDetails.name,
+						numberOfTrees: purchaseDetails.numberOfTrees,
+						amount: purchaseDetails.amount,
+						orderId: purchaseDetails.orderId,
+						levelUpMessage: levelUpMessage,
+					};
+
+					const htmlToSend = template(replacements);
+
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Blokaria 👻" <service@blokaria.com>',
+						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Payment confirmation ✔",
+						html: htmlToSend,
+					};
+
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
+		sendPaymentDonationEmail: {
+			rest: "POST /sendPaymentDonationEmail",
+			params: {
+				userLang: { type: "string" },
+				userEmail: { type: "string" },
+				donationDetails: { type: "object" },
+			},
+			async handler(ctx) {
+				try {
+					const { userLang, userEmail, donationDetails } = ctx.params;
+					const source = fs.readFileSync(`./public/templates/${userLang}/donationConfirmation.html`, "utf-8").toString();
+
+					const template = handlebars.compile(source);
+
+					const replacements = {
+						amount: donationDetails.amount,
+						orderId: donationDetails.orderId,
+					};
+
+					const htmlToSend = template(replacements);
+
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Blokaria 👻" <service@blokaria.com>',
+						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Payment confirmation ✔",
+						html: htmlToSend,
+					};
+
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
+				} catch (error) {
+					return Promise.reject(error);
 				}
 			},
 		},
@@ -386,7 +479,61 @@ module.exports = {
 						from: '"Blokaria 👻" <service@blokaria.com>',
 						to: `${clientEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Zahtev odobren ✔",
+						subject: "Request approved ✔",
+						html: htmlToSend,
+					};
+
+					return await transporter.sendMail(mailOptions);
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
+						message: error.message,
+						internalErrorCode: "email50",
+					});
+				}
+			},
+		},
+		sendGiftEmail: {
+			params: {
+				userEmail: { type: "email" },
+				walletQrId: { type: "uuid" },
+				userLang: { type: "string" },
+			},
+			async handler(ctx) {
+				const { userEmail, walletQrId, userLang } = ctx.params;
+				const { user } = ctx.meta;
+
+				let accessCode = Utils.generatePass();
+
+				let updateWallet = await Wallet.findOneAndUpdate(
+					{
+						walletQrId,
+					},
+					{ accessCode },
+					{ new: true }
+				);
+
+				console.log("updateWallet", updateWallet);
+
+				const source = fs.readFileSync(`./public/templates/${userLang}/sendGiftEmail.html`, "utf-8").toString();
+				const template = handlebars.compile(source);
+				const replacements = {
+					walletQrId,
+					from: user,
+					accessCode,
+					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+				};
+
+				const htmlToSend = template(replacements);
+
+				try {
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: '"Blokaria 👻" <service@blokaria.com>',
+						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
+						subject: "GIFT ✔",
 						html: htmlToSend,
 					};
 

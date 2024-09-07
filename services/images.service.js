@@ -220,17 +220,19 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-					console.log("generateQrCodeInSystemNoImage START", ctx.params);
+					this.logger.info("1. generateQrCodeInSystemNoImage START", ctx.params);
 
 					let meta = ctx.meta;
 					let imageSave = "";
 					meta.$multipart = ctx.params;
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
 
-					console.log("generateQRCodeStatus", storedIntoDb);
+					this.logger.info("2. generateQrCodeInSystemNoImage generateQRCodeStatus", storedIntoDb);
+
 					let qrCodeImageForStatus = await this.generateQRCodeStatus(storedIntoDb);
 
-					console.log("reduceNumberOfTransaction");
+					this.logger.info("3. generateQrCodeInSystemNoImage reduceNumberOfTransaction");
+
 					await ctx.call("user.reduceNumberOfTransaction", meta);
 
 					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
@@ -239,18 +241,18 @@ module.exports = {
 					meta.$multipart.qrCodeImageForStatus = qrCodeImageForStatus;
 					meta.$multipart.userLang = ctx.params.userLang;
 
-					console.log("meta.$multipart", meta.$multipart);
-					console.log("\n\n Send Email Started \n\n");
+					this.logger.info("4. generateQrCodeInSystemNoImage meta.$multipart", meta.$multipart);
+					this.logger.info("5. generateQrCodeInSystemNoImage generateQrCodeEmail START");
 
 					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
 
-					console.log("\n\n Send Email FINISHED \n\n");
+					this.logger.info("6. generateQrCodeInSystemNoImage generateQrCodeEmail FINISHED");
 
 					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
 						qrcode: meta.$multipart.walletQrId,
 					});
 
-					console.log("\n getQrCodeInfo \n", getQrCodeInfo);
+					this.logger.info("7. generateQrCodeInSystemNoImage getQrCodeInfo", getQrCodeInfo);
 
 					return getQrCodeInfo[0];
 				} catch (error) {
@@ -308,8 +310,8 @@ module.exports = {
 
 				let nftObj = {
 					imageIPFS: cid,
-					assetName: meta.$multipart.productName, // + " #" + Date.now(),
-					copyright: "Copyright Blokaria",
+					assetName: meta.$multipart.productName,
+					copyright: "Copyright Nature Plant",
 					walletName: process.env.WALLET_NAME,
 					storedIntoDb: storedIntoDb,
 					additionalMetaData: additionalMetaData,

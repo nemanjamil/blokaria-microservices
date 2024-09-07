@@ -136,10 +136,11 @@ module.exports = {
 					"POST project/listAllProjectNrApi": "project.listAllProjectNrApi",
 					"GET project/getOneProject/:projectId": "project.getOneProject",
 					"GET area/getUniqueCountries": "v1.area.getUniqueCountries",
-					"POST payment/paypalCreateOrder": "v1.payment.paypalCreateOrder",
+					"POST payment/paypalDonationCreateOrder": "v1.payment.paypalDonationCreateOrder",
 					"POST payment/paypalWebhook": "v1.payment.paypalWebhook",
 					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
 					"GET area/getUniqueCountrieDashboard": "v1.area.getUniqueCountrieDashboard",
+					"POST payment/testEmail": "v1.payment.testEmail",
 				},
 				callingOptions: {},
 
@@ -217,11 +218,15 @@ module.exports = {
 					"POST wallet/updateStory": "wallet.updateStory",
 					"POST nftcardano/generateNft": "nftcardano.generateNft",
 					"POST payment/plant-tree": "v1.payment.buyTreePayment",
+					"POST payment/paypalPurchaseCreateOrder": "v1.payment.paypalPurchaseCreateOrder",
 					"GET achievement": "v1.achievement.getUserAchievements",
 					"POST achievement": "v1.achievement.createAchievement",
 					"PUT achievement": "v1.achievement.updateAchievements",
-					"GET achievement/getPostPreview": "v1.achievement.getAchievementPostPreview",
+					"POST achievement/getPostPreview": "v1.achievement.getAchievementPostPreview",
 					"POST achievement/linkedin/post": "v1.achievement.publishAchievementLinkedInPost",
+					"POST getMaxAchievementLevel": "v1.achievement.getMaxAchievementLevel",
+					"POST email/sendGiftEmail": "v1.email.sendGiftEmail",
+					"POST wallet/generateGift": "wallet.generateGift",
 				},
 				callingOptions: {},
 
@@ -401,7 +406,7 @@ module.exports = {
 				const user = users ? users[0] : null;
 
 				if (!user) {
-					throw new MoleculerClientError("User not found.", 422, "USER_FIND_ERROR", {
+					throw new MoleculerError("User not found.", 422, "USER_FIND_ERROR", {
 						message: "User with the provided email does not exist.",
 						internalErrorCode: "auth30",
 					});
