@@ -10,6 +10,12 @@ const linkedInExchangeCode = async (code) => {
 	const LINKEDIN_CLIENT_SECRET = process.env["LINKEDIN_CLIENT_SECRET"];
 	const LINKEDIN_REDIRECT_URI = process.env["LINKEDIN_REDIRECT_URI"];
 
+	console.log({
+		client_id: LINKEDIN_CLIENT_ID,
+		client_secret: LINKEDIN_CLIENT_SECRET,
+		redirect_uri: LINKEDIN_REDIRECT_URI,
+	});
+
 	const url = "https://www.linkedin.com/oauth/v2/accessToken";
 	const body = {
 		grant_type: "authorization_code",
@@ -32,12 +38,16 @@ const linkedInGetUserProfile = async (accessToken) => {
 	const apiUrl = "https://api.linkedin.com/v2/userinfo";
 
 	try {
+		console.log("linkedin get user profile. sending access token:", accessToken);
+
 		const response = await axios.get(apiUrl, {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
 			},
 		});
+
+		console.log("linkedin get user profile response:", response.data);
 
 		// LinkedIn returns a `sub` field which is the user's ID
 		const userId = response.data.sub;
@@ -67,7 +77,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			specificContent: {
 				"com.linkedin.ugc.ShareContent": {
 					shareCommentary: {
-						text: `${subject}\n\n${body}`,
+						text: `${subject}\n\n${body.replace("{{achievement}}", achievement.name)}`,
 					},
 					// shareMediaCategory: imageAsset !== null ? 'IMAGE' : 'NONE',
 					shareMediaCategory: "ARTICLE",
