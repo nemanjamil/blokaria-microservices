@@ -24,7 +24,7 @@ module.exports = {
 		scalable: true,
 		priority: 5,
 		bccemail: "bcc@blokaria.com",
-		nameOfWebSite: "Nature Plant",
+		nameOfWebSite: "NaturePlant",
 	},
 	actions: {
 		registerUser: {
@@ -185,8 +185,6 @@ module.exports = {
 							},
 						],
 					};
-
-					this.logger.info("generateQrCodeEmail", mailOptions);
 
 					let info = await transporter.sendMail(mailOptions);
 
@@ -566,7 +564,7 @@ module.exports = {
 				this.logger.info("adminPassword", adminPassword);
 
 				return nodemailer.createTransport({
-					host: process.env.ADMIN_EMAIL,
+					host: process.env.MAIL_HOST,
 					port: 465,
 					secure: true, // true for 465, false for other ports
 					auth: {
