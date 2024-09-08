@@ -375,11 +375,11 @@ module.exports = {
 					if (generated) {
 						this.logger.info("getListQrCodesByUserPrivate generated TRUE", generated);
 
-						listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: false });
+						listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: false, ctx });
 					} else {
 						this.logger.info("getListQrCodesByUserPrivate generated false", generated);
 
-						listQrCodesByUser = await this.getlistQrCodesOwnedByUserMethod({ userEmail, qrCodeRedeemStatus: 1, publicQrCode: false });
+						listQrCodesByUser = await this.getlistQrCodesOwnedByUserMethod({ userEmail, qrCodeRedeemStatus: 1, publicQrCode: false, ctx });
 					}
 
 					return listQrCodesByUser;
