@@ -24,6 +24,7 @@ module.exports = {
 		scalable: true,
 		priority: 5,
 		bccemail: "bcc@blokaria.com",
+		nameOfWebSite: "Nature Plant",
 	},
 	actions: {
 		registerUser: {
@@ -60,7 +61,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						subject: "User registration ✔",
 						html: htmlToSend,
@@ -117,7 +118,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
 						to: `${clientEmail}`,
 						cc: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
@@ -170,7 +171,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Generated QR code ✔",
@@ -184,6 +185,8 @@ module.exports = {
 							},
 						],
 					};
+
+					this.logger.info("generateQrCodeEmail", mailOptions);
 
 					let info = await transporter.sendMail(mailOptions);
 
@@ -237,7 +240,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
 						to: `${clientEmail}, ${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Transaction email ✔",
@@ -280,7 +283,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Password reset ✔",
@@ -337,7 +340,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "User is interested in your product ✔",
@@ -391,7 +394,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Payment confirmation ✔",
@@ -432,7 +435,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Payment confirmation ✔",
@@ -476,7 +479,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
 						to: `${clientEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Request approved ✔",
@@ -530,7 +533,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "GIFT ✔",
@@ -563,7 +566,7 @@ module.exports = {
 				this.logger.info("adminPassword", adminPassword);
 
 				return nodemailer.createTransport({
-					host: "mail.blokaria.com",
+					host: process.env.ADMIN_EMAIL,
 					port: 465,
 					secure: true, // true for 465, false for other ports
 					auth: {
