@@ -37,25 +37,68 @@ const achievementService = {
 	actions: {
 		publishAchievementLinkedInPost: {
 			rest: "POST achievement/linkedin/post",
+			params: { code: "string" },
 			async handler(ctx) {
-				this.logger.log("publish achievement on linkedin TODO:");
-				await new Promise((resolve) =>
-					setTimeout(() => {
-						resolve();
-					}, 2000)
-				);
-				return {
-					ok: true,
-					published: true,
-					achievement: { id: "dummy_ach_id" },
-				};
+				this.logger.info("publish achievement on linkedin TODO:");
+				const code = ctx.params.code;
+				const user = ctx.meta.user;
+
+				try {
+					const achievement = await Achievement.findOne({ user: user.userId }).sort({ createdAt: -1 }).exec();
+
+					if (!achievement) {
+						const message = "User does not have any achievements";
+						throw new MoleculerError(message, 404, "ACHIEVEMENT_FETCH", {
+							message,
+						});
+					}
+
+					const response = await linkedInExchangeCode(code);
+
+					this.logger.info("1. addCertificateToLinkedIn  exchange response", response);
+
+					const userProfile = await linkedInGetUserProfile(response.access_token);
+
+					this.logger.info("2. addCertificateToLinkedIn  user profile", userProfile);
+
+					const shareResponse = await createLinkedInPost(
+						userProfile.sub,
+						response.access_token,
+						achievement,
+						"https://62cf-2a00-1f-b301-5701-ccdb-d899-b2cf-d2fe.ngrok-free.app/src/images/naturePlantDark.svg"
+					);
+
+					this.logger.info("3. addCertificateToLinkedIn  share response", shareResponse);
+
+					return {
+						ok: true,
+						share: shareResponse,
+						achievement: achievement.toJSON(),
+					};
+				} catch (err) {
+					console.log("error while uploading post to linkedin:", err);
+					const message = err ? (err.message ? err.message : "failed to upload linkedin post") : "failed to upload linkedin post";
+					throw new MoleculerError(message, 500, "LINKEDIN_API", {
+						message,
+					});
+				}
 			},
 		},
 		getAchievementPostPreview: {
-			async handler() {
+			async handler(ctx) {
+				const user = ctx.meta.user;
+				console.log("ctx.meta user: ", user);
+				const userDb = await User.findById(user.userId);
+				console.log("database fetched user: ", userDb);
+				console.log("user level:", userDb.level);
+				const achievement = await Achievement.findOne({ user: user.userId }).sort({ createdAt: -1 }).exec();
 				const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
 				this.logger.info("get achievement post template triggered");
-				return achievementPostTemplate;
+				return {
+					template: achievementPostTemplate,
+					achievement: achievement ? achievement.toJSON() : null,
+					level: userDb.level,
+				};
 			},
 		},
 		createAchievement: {
