@@ -61,7 +61,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						subject: "User registration ✔",
 						html: htmlToSend,
@@ -118,7 +118,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${clientEmail}`,
 						cc: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
@@ -171,7 +171,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Generated QR code ✔",
@@ -238,7 +238,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${clientEmail}, ${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Transaction email ✔",
@@ -281,7 +281,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Password reset ✔",
@@ -338,7 +338,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "User is interested in your product ✔",
@@ -392,7 +392,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Payment confirmation ✔",
@@ -433,7 +433,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Payment confirmation ✔",
@@ -477,7 +477,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${clientEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Request approved ✔",
@@ -531,7 +531,7 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 👻" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "GIFT ✔",
