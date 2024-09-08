@@ -400,7 +400,7 @@ module.exports = {
 
 					const { userEmail } = ctx.params;
 
-					let listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: true });
+					let listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: true, ctx });
 					return listQrCodesByUser;
 				} catch (error) {
 					return Promise.reject(error);
@@ -970,7 +970,7 @@ module.exports = {
 		},
 
 		// wallet110
-		async getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode }) {
+		async getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode, ctx }) {
 			const entity = {
 				userEmail,
 				//qrCodeRedeemStatus,
@@ -979,12 +979,28 @@ module.exports = {
 			if (publicQrCode) entity.publicQrCode = publicQrCode;
 
 			try {
-				this.logger.info("getListQrCodesByUserMethod entity", entity);
+				this.logger.info("1. getListQrCodesByUserMethod entity", entity);
 
-				return await Wallet.find(entity)
+				const listWallet = await Wallet.find(entity)
 					.sort("-createdAt")
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
-					.populate("_image", { productPicture: 1 });
+					.populate("_image", { productPicture: 1 })
+					.lean();
+
+				// TODO Xavi this can be resoled with populate
+				for (let wallet of listWallet) {
+					this.logger.info("3. getListQrCodesByUserMethod Wallet area", wallet.area);
+
+					if (wallet.area) {
+						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });
+						wallet.areaName = areaData.name;
+						wallet.lat = areaData.latitude;
+						wallet.lon = areaData.longitude;
+						wallet.areaPoints = areaData.areaPoints;
+					}
+				}
+
+				return listWallet;
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
 			}
@@ -1003,8 +1019,7 @@ module.exports = {
 				publicQrCode: true,
 			};
 			try {
-				console.log("3. getListQrCodesGeneral ", ctx.params);
-				this.logger.info("4. getListQrCodesGeneral ", ctx.params);
+				this.logger.info("1. getListQrCodesGeneral ", ctx.params);
 
 				const listWallet = await Wallet.find(entity)
 					.skip(ctx.params.skip)
@@ -1014,8 +1029,10 @@ module.exports = {
 					.populate("_image", { productPicture: 1 })
 					.lean();
 
+				// TODO Xavi this can be resoled with populate
 				for (let wallet of listWallet) {
-					console.log("Wallet area ", wallet.area);
+					this.logger.info("4. getListQrCodesByUserMethod Wallet area", wallet.area);
+
 					if (wallet.area) {
 						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });
 						wallet.areaName = areaData.name;
@@ -1025,7 +1042,7 @@ module.exports = {
 					}
 				}
 
-				this.logger.info("5. getListQrCodesGeneral dateTime ", new Date());
+				this.logger.info("5. getListQrCodesGeneral dateTime  listWallet", listWallet);
 
 				return listWallet;
 			} catch (error) {
