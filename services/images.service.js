@@ -224,6 +224,14 @@ module.exports = {
 
 					let meta = ctx.meta;
 					let imageSave = "";
+
+					if (ctx.params.userDesc) {
+						const [latitude, longitude] = ctx.params.userDesc.split(',').map(Number);
+					
+						ctx.params.latitude = latitude;
+						ctx.params.longitude = longitude;
+					}
+
 					meta.$multipart = ctx.params;
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
 

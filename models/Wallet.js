@@ -21,7 +21,9 @@ const walletSchema = new mongoose.Schema({
 	publicQrCode: { type: Boolean, default: true },
 	costOfProduct: { type: Number, default: 0 },
 	accessCode: { type: String, required: true },
-
+	latitude: { type: Number, default: null },
+	longitude: { type: Number, default: null },
+	isPlanted: { type: Boolean, default: false },
 	cbnftimage: { type: Boolean, default: false },
 	nftimage: { type: String, default: "" },
 	nftsendaddress: { type: String },

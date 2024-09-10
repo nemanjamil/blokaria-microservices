@@ -13,6 +13,12 @@ const userSchema = new mongoose.Schema({
 	numberOfCoupons: { type: Number, required: true, default: parseInt(process.env.NUMBER_OF_COUPONS) },
 	level: { type: String, default: null },
 	planted_trees_count: { type: Number, default: 0 },
+	accessibleAreas: [
+		{
+			type: ObjectId,
+			ref: "Area",
+		},
+	],
 	_wallets: [
 		{
 			type: ObjectId,

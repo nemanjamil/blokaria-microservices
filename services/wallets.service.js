@@ -73,6 +73,7 @@ module.exports = {
 			//rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
 				try {
+					console.log("generateQrCodeInSystem ctx.params", ctx.params);
 					let plainInsertObject = {
 						ctx,
 						user: ctx.params.data.user,
@@ -876,6 +877,8 @@ module.exports = {
 				accessCode: Utils.generatePass(),
 				area: wallet.area,
 				_creator: user.userId,
+				longitude: wallet.longitude,
+				latitude: wallet.latitude,
 			};
 
 			image ? (entity._image = image._id) : "";

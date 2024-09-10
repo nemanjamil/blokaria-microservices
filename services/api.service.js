@@ -224,7 +224,6 @@ module.exports = {
 					"PUT achievement": "v1.achievement.updateAchievements",
 					"POST achievement/getPostPreview": "v1.achievement.getAchievementPostPreview",
 					"POST achievement/linkedin/post": "v1.achievement.publishAchievementLinkedInPost",
-					"POST getMaxAchievementLevel": "v1.achievement.getMaxAchievementLevel",
 					"POST email/sendGiftEmail": "v1.email.sendGiftEmail",
 					"POST wallet/generateGift": "wallet.generateGift",
 				},
@@ -296,6 +295,10 @@ module.exports = {
 					"GET /area/getAllAreas": "v1.area.getAllAreas",
 					"POST /area/getAreaById": "v1.area.getAreaById",
 					"POST /area/getAreasByCountry": "v1.area.getAreasByCountry",
+					"PUT /area/addAccessibleAreas": "v1.area.addAccessibleAreas",
+					"DELETE /area/removeAccessibleAreas": "v1.area.removeAccessibleAreas",
+					"GET /area/getAllUsersWithAccessibleAreas": "v1.area.getAllUsersWithAccessibleAreas",
+					"GET /area/getAllPlanters": "v1.area.getAllPlanters",
 				},
 				callingOptions: {},
 
@@ -311,7 +314,31 @@ module.exports = {
 				},
 				logging: true,
 			},
+			{
+				path: "/papi",
 
+				authentication: true,
+				authorization: "planterOrAdminAuth",
+				whitelist: ["**"],
+				mappingPolicy: "restrict",
+				autoAliases: false,
+				aliases: {
+					"GET /area/getMyAccessibleAreas": "v1.area.getMyAccessibleAreas",
+				},
+				callingOptions: {},
+
+				bodyParsers: {
+					json: {
+						strict: false,
+						limit: "1MB",
+					},
+					urlencoded: {
+						extended: true,
+						limit: "1MB",
+					},
+				},
+				logging: true,
+			},
 			{
 				path: "/stripe",
 				aliases: {
@@ -417,6 +444,46 @@ module.exports = {
 
 				if (user.userRole == 1) {
 					/* Assume 1 - admin */
+					canPass = true;
+				}
+
+				console.log("canPass", canPass);
+
+				if (!canPass) {
+					throw new MoleculerError("You do not have sufficient permissions to do this request", 401, "ERROR_ON_PERMISSIONS", {
+						message: "You do not have sufficient permissions to do this request",
+						internalErrorCode: "permission_error_1",
+					});
+				}
+			} catch (error) {
+				throw new MoleculerError(error.message, 401, "ERROR_VALIDATE_IF_USER_HAS_PRIVILAGES_TO_UPDATE", {
+					message: error.message,
+					internalErrorCode: "update10",
+				});
+			}
+		},
+
+		async planterOrAdminAuth(ctx, route, req) {
+			try {
+				console.log("req", req.body);
+				console.log("meta", ctx.meta);
+
+				const { userEmail } = ctx.meta.user;
+				let users = await ctx.call("user.userFind", { userEmail });
+				const user = users ? users[0] : null;
+
+				if (!user) {
+					throw new MoleculerError("User not found.", 422, "USER_FIND_ERROR", {
+						message: "User with the provided email does not exist.",
+						internalErrorCode: "auth30",
+					});
+				}
+
+				console.log("userRole", user.userRole);
+				let canPass = false;
+
+				if (user.userRole == 3 || user.userRole == 1) {
+					/* Assume 1 - Admin | 3 - Planter */
 					canPass = true;
 				}
 

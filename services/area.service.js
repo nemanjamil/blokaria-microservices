@@ -2,6 +2,7 @@ const { MoleculerError } = require("moleculer").Errors;
 const DbService = require("moleculer-db");
 const dbConnection = require("../utils/dbConnection");
 const Area = require("../models/Area");
+const User = require("../models/User");
 
 const areaService = {
 	name: "area",
@@ -218,6 +219,7 @@ const areaService = {
 				}
 			},
 		},
+
 		getUniqueCountries: {
 			async handler(ctx) {
 				try {
@@ -229,6 +231,200 @@ const areaService = {
 					throw new MoleculerError("Unique Country Retrieval Failed", 500, "COUNTRY_RETRIEVAL_FAILED", {
 						message,
 					});
+				}
+			},
+		},
+
+		addAccessibleAreas: {
+			params: {
+				areas: { type: "array", items: "string" },
+			},
+			async handler(ctx) {
+				try {
+				const { areas } = ctx.params;
+				const { userId } = ctx.meta.user;
+		
+				console.log("userId", userId);
+				console.log("areas", areas);
+		
+				const user = await User.findById(userId).populate("accessibleAreas");
+		
+				if (!user) {
+					throw new MoleculerError("User Not Found", 404, "USER_NOT_FOUND", {
+					message: `The user with the ID '${userId}' was not found.`,
+					});
+				}
+		
+				const areasToAdd = [];
+		
+				for (const areaId of areas) {
+					const area = await Area.findById(areaId);
+					if (!area) {
+					throw new MoleculerError("Area Not Found", 404, "AREA_NOT_FOUND", {
+						message: `The area with the ID '${areaId}' was not found.`,
+					});
+					}
+		
+					const alreadyExists = user.accessibleAreas.some((existingArea) =>
+					existingArea._id.toString() === areaId
+					);
+		
+					if (!alreadyExists) {
+					areasToAdd.push(areaId);
+					}
+				}
+		
+				if (areasToAdd.length > 0) {
+					user.accessibleAreas.push(...areasToAdd);
+					await user.save();
+				}
+		
+				return { message: "Accessible areas updated", areasAdded: areasToAdd };
+				} catch (error) {
+				console.error("Error in addAccessibleAreas:", error);
+				throw new MoleculerError(error.message || "Internal Server Error", 500);
+				}
+			},
+		},
+
+		getAllUsersWithAccessibleAreas: {
+			async handler(ctx) {
+				try {
+					const usersWithAccessibleAreas = await User.find({
+						accessibleAreas: { $exists: true, $ne: [] }
+					})
+					.select("userFullName _id accessibleAreas")
+					.populate("accessibleAreas");
+			
+					return {
+						message: "Users with accessible areas retrieved successfully",
+						users: usersWithAccessibleAreas,
+					};
+					} catch (error) {
+					console.error("Error in getAllUsersWithAccessibleAreas:", error);
+					throw new MoleculerError(error.message || "Internal Server Error", 500);
+					}
+			},
+		},
+
+		getMyAccessibleAreas: {
+			async handler(ctx) {
+				try {
+					const { userId } = ctx.meta.user;
+		
+					const user = await User.findById(userId)
+						.select("accessibleAreas")
+						.populate("accessibleAreas");
+		
+					if (!user) {
+						throw new MoleculerError("User Not Found", 404, "USER_NOT_FOUND", {
+							message: `The user with the ID '${userId}' was not found.`,
+						});
+					}
+		
+					const accessibleAreasWithWallets = await Promise.all(user.accessibleAreas.map(async (area) => {
+						const wallets = await ctx.call("wallet.getWalletsByArea", { areaId: area._id.toString() });
+		
+						const filteredWallets = wallets.map(wallet => ({
+							_id: wallet._id.toString(),
+							name: wallet.productName,
+							longitude: wallet.longitude,
+							latitude: wallet.latitude,
+							isPlanted: wallet.isPlanted,
+						}));
+		
+						return {
+							...area.toObject(),
+							_id: area._id.toString(), // Ensure area ID is a string
+							wallets: filteredWallets, // Add filtered wallets to the area object
+						};
+					}));
+		
+					return {
+						message: "User's accessible areas with wallets retrieved successfully",
+						user: {
+							userFullName: user.userFullName,
+							_id: user._id.toString(),
+							accessibleAreas: accessibleAreasWithWallets,
+						},
+					};
+				} catch (error) {
+					console.error("Error in getMyAccessibleAreas:", error);
+					throw new MoleculerError(error.message || "Internal Server Error", 500);
+				}
+			},
+		},
+		
+
+		getAllPlanters: {
+			async handler(ctx) {
+			try {
+				const planters = await User.find({
+				userRole: 3, 
+				})
+				.select("userFullName _id accessibleAreas")
+				.populate("accessibleAreas");
+				return {
+					message: "Planters retrieved successfully",
+					users: planters,
+				};
+				} catch (error) {
+					console.error("Error in getAllPlanters:", error);
+					throw new MoleculerError(error.message || "Internal Server Error", 500);
+				}
+			},
+		},
+
+		removeAccessibleAreas: {
+			params: {
+				areas: { type: "array", items: "string" },
+				userId: { type: "string", required: true },
+			},
+			async handler(ctx) {
+				try {
+				const { areas, userId } = ctx.params;
+		
+				console.log("userId", userId);
+				console.log("areas", areas);
+		
+				const user = await User.findById(userId).populate("accessibleAreas");
+		
+				if (!user) {
+					throw new MoleculerError("User Not Found", 404, "USER_NOT_FOUND", {
+					message: `The user with the ID '${userId}' was not found.`,
+					});
+				}
+		
+				const areasToRemove = [];
+		
+				for (const areaId of areas) {
+					const area = await Area.findById(areaId);
+					if (!area) {
+					throw new MoleculerError("Area Not Found", 404, "AREA_NOT_FOUND", {
+						message: `The area with the ID '${areaId}' was not found.`,
+					});
+					}
+		
+					const exists = user.accessibleAreas.some((existingArea) =>
+					existingArea._id.toString() === areaId
+					);
+		
+					if (exists) {
+					areasToRemove.push(areaId);
+					}
+				}
+		
+				if (areasToRemove.length > 0) {
+					user.accessibleAreas = user.accessibleAreas.filter(
+					(existingArea) => !areasToRemove.includes(existingArea._id.toString())
+					);
+					await user.save();
+				}
+		
+				return { message: "Accessible areas removed", areasRemoved: areasToRemove };
+				} catch (error) {
+				console.error("Error in removeAccessibleAreas:", error);
+				throw new MoleculerError(error.message || "Internal Server Error", 500);
 				}
 			},
 		},
@@ -254,7 +450,7 @@ const areaService = {
 					});
 				}
 			},
-		},
+		},					
 	},
 };
 
