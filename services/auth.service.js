@@ -48,13 +48,13 @@ module.exports = {
 					// console.log(response.token);
 
 					// const algorithm = 'aes-256-cbc';  // Algorithm to use for encryption
-					// const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);  
-					// const iv = crypto.randomBytes(16); 
+					// const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);
+					// const iv = crypto.randomBytes(16);
 
 					// const cipher = crypto.createCipheriv(algorithm, key, iv);
 					// let encryptedToken = cipher.update(response.token, 'utf8', 'hex');
 					// encryptedToken += cipher.final('hex');
-					// encryptedToken = iv.toString('hex') + ':' + encryptedToken;  
+					// encryptedToken = iv.toString('hex') + ':' + encryptedToken;
 
 					// const parts = encryptedToken.split(':');
 					// const iv_d = Buffer.from(parts.shift(), 'hex');
@@ -74,7 +74,7 @@ module.exports = {
 						level: user.level,
 						planted_trees_count: user.planted_trees_count,
 					};
-					
+
 					// response.token = encryptedToken;
 					return { tokenData: response, user: copyUser };
 				} catch (error) {
@@ -96,8 +96,8 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					// const algorithm = 'aes-256-cbc';  // Algorithm to use for encryption
-					// const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);  
-					
+					// const key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);
+
 					// const parts = ctx.params.token.split(':');
 					// const iv_d = Buffer.from(parts.shift(), 'hex');
 					// const encryptedText = parts.join(':');
