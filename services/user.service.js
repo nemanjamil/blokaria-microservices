@@ -449,7 +449,7 @@ module.exports = {
 				};
 
 				try {
-					let user = await User.find(entity);
+					let user = await User.find(entity).populate({ path: "_achievements" }).populate({ path: "level" });
 					return user;
 				} catch (error) {
 					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {

@@ -63,7 +63,6 @@ module.exports = {
 					// const decipher = crypto.createDecipheriv(algorithm, key, iv_d);
 					// let decryptedToken = decipher.update(encryptedText, 'hex', 'utf8');
 					// decryptedToken += decipher.final('utf8');
-
 					let copyUser = {
 						userEmail: user.userEmail,
 						userFullName: user.userFullName,
@@ -73,6 +72,7 @@ module.exports = {
 						numberOfCoupons: user.numberOfCoupons,
 						level: user.level,
 						planted_trees_count: user.planted_trees_count,
+						achievements: user._achievements,
 					};
 
 					// response.token = encryptedToken;
