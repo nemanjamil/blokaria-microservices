@@ -5,14 +5,12 @@ const Invoice = require("../models/Invoice");
 const dbConnection = require("../utils/dbConnection");
 const { v4 } = require("uuid");
 const Wallet = require("../models/Wallet");
+const Achievement = require("../models/Achievement");
+const Level = require("../models/Level");
 const Utils = require("../utils/utils");
-const { getNextLevel } = require("../models/Achievement");
 const User = require("../models/User");
 const axios = require("axios");
 const mongoose = require("mongoose");
-const fs = require("fs");
-const handlebars = require("handlebars");
-const nodemailer = require("nodemailer");
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
@@ -307,7 +305,7 @@ const paymentService = {
 			async handler(ctx) {
 				try {
 					let donationDetails = {};
-					quantity = 1;
+					const quantity = 1;
 					donationDetails.name = "XAVI";
 					donationDetails.numberOfTrees = 1;
 					donationDetails.amount = quantity * 50;
@@ -446,8 +444,7 @@ const paymentService = {
 					case "checkout.session.completed":
 						this.logger.info("Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
-						await this.createItem(event.data.object.id, event.data.object.quantity);
-						return await ctx.call("v1.achievement.updateAchievements");
+						return this.createItem(event.data.object.id, event.data.object.quantity, ctx);
 					case "checkout.session.async_payment_failed":
 						this.logger.info("Payment Intent Canceled:", event.data.object);
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.FAILED);
@@ -464,7 +461,7 @@ const paymentService = {
 		},
 	},
 	methods: {
-		async createItem(invoiceId, quantity) {
+		async createItem(invoiceId, quantity, ctx) {
 			const walletQrId = v4();
 
 			const invoice = await Invoice.findOne({ invoiceId }).populate("payer").populate("area").exec();
@@ -500,15 +497,46 @@ const paymentService = {
 				});
 			}
 
-			const invoicedUser = await User.findOne({ userEmail: user.userEmail });
-			const userNextLevel = getNextLevel(user.level, invoicedUser.planted_trees_count + 1);
+			const invoicedUser = await User.findOne({ userEmail: user.userEmail }).populate({ path: "_achievements" });
+			const achievements = await Achievement.find({})
+				.populate({
+					path: "_level",
+					match: { required_trees: { $lte: invoicedUser.planted_trees_count + quantity } },
+				})
+				.exec();
 
+			// Find and update user level
+			const levels = await Level.findOne({
+				required_trees: {
+					$lte: invoicedUser.planted_trees_count + quantity,
+				},
+			})
+				.sort({ required_trees: -1 })
+				.exec();
+			const userLevel = levels[0]._id;
+
+			// Add achievements to user, it will check if its there it won't add with addToSet
+			for (let achievement in achievements) {
+				const achievementUpdate = {
+					$addToSet: { _achievements: String(achievement._id) },
+				};
+
+				await User.findOneAndUpdate({ userEmail: user.userEmail }, achievementUpdate, { new: true });
+
+				if (invoicedUser._achievements.filter((x) => x._id === achievement._id).length === 0) {
+					ctx.call("v1.achievement.sendAchievementEmail", {
+						userLang: "en",
+						userEmail: user.userEmail,
+						achievement: achievement,
+					});
+				}
+			}
+			// Update transactional data
 			const data = {
 				$inc: { numberOfTransaction: -1, planted_trees_count: quantity },
-				$set: { level: userNextLevel },
+				$set: { _level: String(userLevel) },
 			};
-
-			await User.findOneAndUpdate(entity, data, { new: true });
+			await User.findOneAndUpdate({ userEmail: user.userEmail }, data, { new: true }).populate("_achievements");
 
 			return invoicedUser;
 		},
@@ -541,7 +569,6 @@ const paymentService = {
 
 					let userLevel = user.level;
 					console.log("userLevel", userLevel);
-					ctx.call("v1.achievement.updateAchievements");
 					let purchaseDetails = {
 						numberOfTrees: quantity,
 						amount: quantity * 50,
