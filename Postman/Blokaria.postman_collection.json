@@ -755,45 +755,46 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Modify Location",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"walletId\": \"66e25ba4e8612cb381a85424\",\n    \"latitude\": 12.21,\n    \"longitude\": 12.512\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/papi/area/modifyAccessibleLocation",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"papi",
+								"area",
+								"modifyAccessibleLocation"
+							]
+						}
+					},
+					"response": []
 				}
 			]
-		},
-		{
-			"name": "getUserAchievements",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"userId\": \"66df9cdca25e199426a2f7bf\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{domain}}/api/getMaxAchievementLevel",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						"api",
-						"getMaxAchievementLevel"
-					]
-				}
-			},
-			"response": []
 		}
 	],
 	"event": [
@@ -826,7 +827,7 @@
 		},
 		{
 			"key": "token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJlZ3lwdGlhbmVnbzE3QGdtYWlsLmNvbSIsImlhdCI6MTcyNTkzMDk1NywiZXhwIjoxNzI2NTM1NzU3fQ.NzytolPZ70Q4sM8k2Gk0vC0ycLwnkmS6D8FFzohharI",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJlZ3lwdGlhbmVnbzE3QGdtYWlsLmNvbSIsImlhdCI6MTcyNjEwODc1MywiZXhwIjoxNzI2NzEzNTUzfQ.4pXKi-F1ymtMJ_3pmfnJSA3TiGbm5Ub2wuwWAUkCfNc",
 			"type": "string"
 		}
 	]
