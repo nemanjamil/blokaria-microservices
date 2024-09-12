@@ -19,7 +19,7 @@ const updateInvoiceStatus = async (invoiceId, status) => {
 	} catch (err) {
 		const message = `Failed to update invoice with id: '${invoiceId}'`;
 		throw new MoleculerError(message, 400, "PAYMENT_FAILED", {
-			message: err.message || message,
+			message: err.message || message
 		});
 	}
 };
@@ -31,14 +31,22 @@ const generatePaypalAccessToken = async () => {
 		data: "grant_type=client_credentials",
 		auth: {
 			username: process.env.PAYPAL_CLIENT_ID,
-			password: process.env.PAYPAL_SECRET,
-		},
+			password: process.env.PAYPAL_SECRET
+		}
 	});
 
 	return response.data.access_token;
 };
 
-const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
+const verifyPaypalWebhookSignature = async ({
+	auth_algo,
+	cert_url,
+	transmission_id,
+	transmission_sig,
+	transmission_time,
+	webhook_id,
+	webhook_event
+}) => {
 	try {
 		const accessToken = await generatePaypalAccessToken();
 
@@ -47,7 +55,7 @@ const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_
 			method: "post",
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: `Bearer ${accessToken}`,
+				Authorization: `Bearer ${accessToken}`
 			},
 			data: {
 				auth_algo,
@@ -56,14 +64,14 @@ const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_
 				transmission_sig,
 				transmission_time,
 				webhook_id,
-				webhook_event,
-			},
+				webhook_event
+			}
 		});
 
 		return response.data.verification_status === "SUCCESS";
 	} catch (error) {
 		throw new MoleculerError("Webhook verification failed", 400, "WEBHOOK_VERIFICATION_FAILED", {
-			message: error.message,
+			message: error.message
 		});
 	}
 };
@@ -77,28 +85,28 @@ const captureOrder = async (orderId) => {
 			method: "post",
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: `Bearer ${accessToken}`,
-			},
+				Authorization: `Bearer ${accessToken}`
+			}
 		});
 		console.log("Capture response:", response.data);
 		return response.data;
 	} catch (error) {
 		throw new MoleculerError("Order capture failed", 400, "ORDER_CAPTURE_FAILED", {
-			message: error.message,
+			message: error.message
 		});
 	}
 };
 
 const createOrder = async ({
-	amount,
-	itemName,
-	itemDescription,
-	quantity,
-	currency = "USD",
-	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
-	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
-	brandName = "NaturePlant",
-}) => {
+							   amount,
+							   itemName,
+							   itemDescription,
+							   quantity,
+							   currency = "USD",
+							   returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
+							   cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
+							   brandName = "NaturePlant"
+						   }) => {
 	console.log("amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
@@ -109,7 +117,7 @@ const createOrder = async ({
 		method: "post",
 		headers: {
 			"Content-Type": "application/json",
-			Authorization: "Bearer " + accessToken,
+			Authorization: "Bearer " + accessToken
 		},
 		data: JSON.stringify({
 			intent: "CAPTURE",
@@ -122,9 +130,9 @@ const createOrder = async ({
 							quantity: quantity,
 							unit_amount: {
 								currency_code: currency,
-								value: amount,
-							},
-						},
+								value: amount
+							}
+						}
 					],
 					amount: {
 						currency_code: currency,
@@ -132,20 +140,20 @@ const createOrder = async ({
 						breakdown: {
 							item_total: {
 								currency_code: currency,
-								value: amount * quantity,
-							},
-						},
-					},
-				},
+								value: amount * quantity
+							}
+						}
+					}
+				}
 			],
 			application_context: {
 				return_url: returnUrl,
 				cancel_url: cancelUrl,
 				shipping_preference: "NO_SHIPPING",
 				user_action: "PAY_NOW",
-				brand_name: brandName,
-			},
-		}),
+				brand_name: brandName
+			}
+		})
 	});
 
 	const approveLink = response.data.links.find((link) => link.rel === "approve").href;
@@ -157,7 +165,7 @@ const createOrder = async ({
 	return {
 		approveLink,
 		orderId,
-		totalAmount,
+		totalAmount
 	};
 };
 
@@ -171,7 +179,7 @@ const paymentService = {
 	actions: {
 		donationPayment: {
 			params: {
-				amount: { type: "number" },
+				amount: { type: "number" }
 			},
 			async handler(ctx) {
 				const { amount } = ctx.params;
@@ -184,16 +192,16 @@ const paymentService = {
 								price_data: {
 									currency: "usd",
 									product_data: {
-										name: "Donation",
+										name: "Donation"
 									},
-									unit_amount: amount * 100, // amount in cents
+									unit_amount: amount * 100 // amount in cents
 								},
-								quantity: 1,
-							},
+								quantity: 1
+							}
 						],
 						mode: "payment",
 						success_url: process.env.PAYMENT_SUCCESS_ROUTE,
-						cancel_url: process.env.PAYMENT_FAIL_ROUTE,
+						cancel_url: process.env.PAYMENT_FAIL_ROUTE
 					});
 					return { id: session.id };
 				} catch (err) {
@@ -203,17 +211,17 @@ const paymentService = {
 						message = err.message;
 					}
 					throw new MoleculerError("Payment failed", 400, "PAYMENT_FAILED", {
-						message: message,
+						message: message
 					});
 				}
-			},
+			}
 		},
 
 		buyTreePayment: {
 			params: {
 				quantity: { type: "number" },
 				userEmail: { type: "string" },
-				area: { type: "string" },
+				area: { type: "string" }
 			},
 			async handler(ctx) {
 				this.logger.info("Buy Tree Payment triggered:", ctx.params);
@@ -229,24 +237,24 @@ const paymentService = {
 								price_data: {
 									currency: "usd",
 									product_data: {
-										name: "Donation",
+										name: "Donation"
 									},
-									unit_amount: treePrice * 100, // amount in cents
+									unit_amount: treePrice * 100 // amount in cents
 								},
-								quantity,
-							},
+								quantity
+							}
 						],
 						mode: "payment",
 						success_url: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancel_url: process.env.PAYMENT_FAIL_ROUTE,
-						customer_email: userEmail,
+						customer_email: userEmail
 					});
 					this.logger.info("Creating Invoice from session:", session);
 					const invoice = new Invoice({
 						amount: session.amount_total,
 						invoiceId: session.id,
 						payer: userId,
-						area: area,
+						area: area
 					});
 					await invoice.save();
 
@@ -258,15 +266,15 @@ const paymentService = {
 						message = err.message;
 					}
 					throw new MoleculerError("Payment failed", 400, "PAYMENT_FAILED", {
-						message: message,
+						message: message
 					});
 				}
-			},
+			}
 		},
 
 		paypalDonationCreateOrder: {
 			params: {
-				amount: { type: "number" },
+				amount: { type: "number" }
 			},
 			async handler(ctx) {
 				try {
@@ -281,13 +289,13 @@ const paymentService = {
 						currency: "USD",
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
-						brandName: "Nature Planet",
+						brandName: "Nature Planet"
 					});
 
 					this.logger.info("Creating Invoice with orderId");
 					const invoice = new Invoice({
 						amount: totalAmount,
-						invoiceId: orderId,
+						invoiceId: orderId
 					});
 					await invoice.save();
 
@@ -295,10 +303,10 @@ const paymentService = {
 				} catch (error) {
 					console.log("Error creating PayPal order:", error);
 					throw new MoleculerError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
-						message: error.message,
+						message: error.message
 					});
 				}
-			},
+			}
 		},
 
 		testEmail: {
@@ -314,21 +322,21 @@ const paymentService = {
 					ctx.call("v1.email.sendPaymentConfirmationEmail", {
 						userLang: "en",
 						userEmail: "abdulrahman.omar17h@gmail.com",
-						donationDetails: donationDetails,
+						donationDetails: donationDetails
 					});
 				} catch (error) {
 					console.log("Error sending email:", error);
 					throw new MoleculerError("Email sending error", 400, "EMAIL_SENDING_FAILED", {
-						message: error.message,
+						message: error.message
 					});
 				}
-			},
+			}
 		},
 
 		paypalPurchaseCreateOrder: {
 			params: {
 				quantityOfTrees: { type: "number" },
-				area: { type: "string" },
+				area: { type: "string" }
 			},
 			async handler(ctx) {
 				try {
@@ -348,7 +356,7 @@ const paymentService = {
 						currency: "USD",
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
-						brandName: "NaturePlant",
+						brandName: "NaturePlant"
 					});
 
 					const areaObjectId = new mongoose.Types.ObjectId(area);
@@ -358,7 +366,7 @@ const paymentService = {
 						amount: totalAmount,
 						invoiceId: orderId,
 						payer: userId,
-						area: areaObjectId,
+						area: areaObjectId
 					});
 					await invoice.save();
 
@@ -366,10 +374,10 @@ const paymentService = {
 				} catch (error) {
 					console.log("Error creating PayPal order:", error);
 					throw new MoleculerError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
-						message: error.message,
+						message: error.message
 					});
 				}
-			},
+			}
 		},
 
 		paypalWebhook: {
@@ -386,7 +394,7 @@ const paymentService = {
 					transmission_id: headers["paypal-transmission-id"],
 					transmission_sig: headers["paypal-transmission-sig"],
 					transmission_time: headers["paypal-transmission-time"],
-					webhook_event: webhookEvent,
+					webhook_event: webhookEvent
 				};
 
 				this.logger.info("2. paypalWebhook verificationParams", verificationParams);
@@ -402,18 +410,18 @@ const paymentService = {
 					} else {
 						this.logger.info("Unhandled webhook event type or order type", { eventType, orderType });
 						throw new MoleculerError("Unhandled webhook event type or order type", 400, "UNHANDLED_WEBHOOK", {
-							message: "The event type or order type is not supported.",
+							message: "The event type or order type is not supported."
 						});
 					}
 				} catch (error) {
 					console.log("Error processing PayPal webhook:", error);
 					throw new MoleculerError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
-						message: error.message,
+						message: error.message
 					});
 				}
 
 				return "Webhook processed successfully.";
-			},
+			}
 		},
 
 		handleStripeWebhook: {
@@ -451,14 +459,17 @@ const paymentService = {
 					case "checkout.session.expired":
 						this.logger.info("Payment Intent Expired:", event.data.object);
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.EXPIRED);
+					case "charge.captured":
+						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
+						break;
 					default:
 						this.logger.info(`Unhandled event type ${event.type}`);
 				}
 
 				// Return a 200 response to acknowledge receipt of the event
 				return;
-			},
-		},
+			}
+		}
 	},
 	methods: {
 		async createItem(invoiceId, quantity, ctx) {
@@ -484,7 +495,7 @@ const paymentService = {
 				hasstory: false, // false
 				accessCode: Utils.generatePass(),
 				_creator: user._id,
-				area: area._id,
+				area: area._id
 			};
 
 			// Creating an Item
@@ -493,7 +504,7 @@ const paymentService = {
 				await item.save();
 			} catch (err) {
 				throw new MoleculerError("Item Create Failed", 500, "TREE_ITEM_CREATION", {
-					message: "An error occured while trying creating an item in db: " + err.toString(),
+					message: "An error occured while trying creating an item in db: " + err.toString()
 				});
 			}
 
@@ -501,15 +512,15 @@ const paymentService = {
 			const achievements = await Achievement.find({})
 				.populate({
 					path: "_level",
-					match: { required_trees: { $lte: invoicedUser.planted_trees_count + quantity } },
+					match: { required_trees: { $lte: invoicedUser.planted_trees_count + quantity } }
 				})
 				.exec();
 
 			// Find and update user level
 			const levels = await Level.findOne({
 				required_trees: {
-					$lte: invoicedUser.planted_trees_count + quantity,
-				},
+					$lte: invoicedUser.planted_trees_count + quantity
+				}
 			})
 				.sort({ required_trees: -1 })
 				.exec();
@@ -518,7 +529,7 @@ const paymentService = {
 			// Add achievements to user, it will check if its there it won't add with addToSet
 			for (let achievement in achievements) {
 				const achievementUpdate = {
-					$addToSet: { _achievements: String(achievement._id) },
+					$addToSet: { _achievements: String(achievement._id) }
 				};
 
 				await User.findOneAndUpdate({ userEmail: user.userEmail }, achievementUpdate, { new: true });
@@ -527,14 +538,14 @@ const paymentService = {
 					ctx.call("v1.achievement.sendAchievementEmail", {
 						userLang: "en",
 						userEmail: user.userEmail,
-						achievement: achievement,
+						achievement: achievement
 					});
 				}
 			}
 			// Update transactional data
 			const data = {
 				$inc: { numberOfTransaction: -1, planted_trees_count: quantity },
-				$set: { _level: String(userLevel) },
+				$set: { _level: String(userLevel) }
 			};
 			await User.findOneAndUpdate({ userEmail: user.userEmail }, data, { new: true }).populate("_achievements");
 
@@ -564,7 +575,7 @@ const paymentService = {
 						userId: user._id,
 						userRole: user.role,
 						numberOfTransaction: user.transactionsCount,
-						numberOfCoupons: user.couponsCount,
+						numberOfCoupons: user.couponsCount
 					};
 
 					let userLevel = user.level;
@@ -572,7 +583,7 @@ const paymentService = {
 					let purchaseDetails = {
 						numberOfTrees: quantity,
 						amount: quantity * 50,
-						orderId: orderId,
+						orderId: orderId
 					};
 
 					let updatedUser = await User.findById(user._id).exec();
@@ -584,7 +595,7 @@ const paymentService = {
 					const levelStatus = {
 						oldLevel: userLevel,
 						newLevel: newLevel,
-						isLevelChanged: userLevel !== newLevel,
+						isLevelChanged: userLevel !== newLevel
 					};
 
 					// Log new level if it has changed
@@ -595,7 +606,7 @@ const paymentService = {
 						userLang: "en",
 						userEmail: user.userEmail,
 						purchaseDetails: purchaseDetails,
-						levelStatus: levelStatus,
+						levelStatus: levelStatus
 					});
 				} else {
 					this.logger.info("Capture failed");
@@ -605,7 +616,7 @@ const paymentService = {
 			} else {
 				console.log("Webhook verification failed.");
 				throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
-					message: "Webhook signature verification failed.",
+					message: "Webhook signature verification failed."
 				});
 			}
 		},
@@ -630,13 +641,13 @@ const paymentService = {
 
 					let donationDetails = {
 						amount: totalPrice,
-						orderId: orderId,
+						orderId: orderId
 					};
 
 					await ctx.call("v1.email.sendPaymentDonationEmail", {
 						userLang: "en",
 						userEmail: payerEmail,
-						donationDetails: donationDetails,
+						donationDetails: donationDetails
 					});
 				} else {
 					this.logger.info("Capture failed");
@@ -646,11 +657,11 @@ const paymentService = {
 			} else {
 				console.log("Webhook verification failed.");
 				throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
-					message: "Webhook signature verification failed.",
+					message: "Webhook signature verification failed."
 				});
 			}
-		},
-	},
+		}
+	}
 };
 
 module.exports = paymentService;
