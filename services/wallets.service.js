@@ -492,6 +492,39 @@ module.exports = {
 			},
 		},
 
+		modifyWalletLocation: {
+            params: {
+                walletId: { type: "string", required: true },  
+                latitude: { type: "number", required: true },   
+                longitude: { type: "number", required: true }, 
+            },
+            async handler(ctx) {
+                const { walletId, latitude, longitude } = ctx.params;
+
+                try {
+
+                    const wallet = await Wallet.findById(walletId);
+
+                    if (!wallet) {
+                        throw new MoleculerError("Wallet not found", 404, "WALLET_NOT_FOUND");
+                    }
+
+                    wallet.geoLocation = `${latitude},${longitude}`;
+                    
+                    await wallet.save();
+
+                    return {
+                        message: "Wallet location updated successfully",
+                        wallet: wallet.toJSON(), 
+                    };
+
+                } catch (error) {
+                    console.error("Error in modifyWalletLocation:", error.message);
+                    throw new MoleculerError(error.message || "Could not update wallet location", 500);
+                }
+            },
+        },
+
 		updateQrCodeText: {
 			params: {
 				qrcode: { type: "string" },
@@ -571,6 +604,24 @@ module.exports = {
 				}
 			},
 		},
+		
+		getWalletById: {
+			params: {
+				walletId: { type: "string"},
+			},
+			async handler(ctx) {
+				const { walletId } = ctx.params;
+		
+				const wallet = await Wallet.findById(walletId).lean();
+		
+				if (!wallet) {
+					throw new MoleculerError("Wallet not found", 404, "WALLET_NOT_FOUND");
+				}
+		
+				return wallet; 
+			},
+		},
+		
 
 		updateDataInDb: {
 			params: {
@@ -877,8 +928,6 @@ module.exports = {
 				accessCode: Utils.generatePass(),
 				area: wallet.area,
 				_creator: user.userId,
-				longitude: wallet.longitude,
-				latitude: wallet.latitude,
 			};
 
 			image ? (entity._image = image._id) : "";

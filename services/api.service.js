@@ -324,6 +324,7 @@ module.exports = {
 				autoAliases: false,
 				aliases: {
 					"GET /area/getMyAccessibleAreas": "v1.area.getMyAccessibleAreas",
+					"POST /area/modifyAccessibleLocation": "v1.area.modifyAccessibleLocation",
 				},
 				callingOptions: {},
 

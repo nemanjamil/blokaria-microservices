@@ -306,6 +306,54 @@ const areaService = {
 					}
 			},
 		},
+		modifyAccessibleLocation: {
+			params: {
+				walletId: { type: "string", required: true },
+				latitude: { type: "number", required: true },
+				longitude: { type: "number", required: true },
+			},
+			async handler(ctx) {
+				const { walletId, latitude, longitude } = ctx.params;
+				const user = ctx.meta.user;
+		
+				try {
+					const planter = await User.findOne({ _id: user.userId }).populate("accessibleAreas");
+					if (!planter) {
+						throw new MoleculerError("User not found", 404, "USER_NOT_FOUND");
+					}
+		
+					let walletUpdated = false;
+		
+					for (const area of planter.accessibleAreas) {
+						const areaWallets = await ctx.call("wallet.getWalletsByArea", { areaId: area._id.toString() });
+		
+						const wallet = areaWallets.find(wallet => wallet._id.toString() === walletId);
+						if (wallet) {
+							await ctx.call("wallet.modifyWalletLocation", { walletId: wallet._id.toString(), latitude, longitude });
+							console.log(`Updated wallet location for walletId: ${walletId}`);
+							walletUpdated = true; 
+							break; 
+						}
+					}
+		
+					if (walletUpdated) {
+						return {
+							message: "Wallet location updated successfully in accessible areas.",
+						};
+					} else {
+						return {
+							message: "Failed to update wallet location: Wallet not found in any accessible area.",
+						};
+					}
+		
+				} catch (error) {
+					console.error("Error in modifyAccessibleLocation:", error);
+					throw new MoleculerError(error.message || "Internal Server Error", 500);
+				}
+			},
+		},
+		
+		
 
 		getMyAccessibleAreas: {
 			async handler(ctx) {
@@ -324,19 +372,31 @@ const areaService = {
 		
 					const accessibleAreasWithWallets = await Promise.all(user.accessibleAreas.map(async (area) => {
 						const wallets = await ctx.call("wallet.getWalletsByArea", { areaId: area._id.toString() });
-		
-						const filteredWallets = wallets.map(wallet => ({
-							_id: wallet._id.toString(),
-							name: wallet.productName,
-							longitude: wallet.longitude,
-							latitude: wallet.latitude,
-							isPlanted: wallet.isPlanted,
-						}));
-		
+					
+						const filteredWallets = wallets.map(wallet => {
+							wallet.latitude = null;
+							wallet.longitude = null;
+							wallet.isPlanted = false;
+							if (wallet.geoLocation !== null) {
+								wallet.isPlanted = true;
+								const [latitude, longitude] = wallet.geoLocation.split(',').map(coord => parseFloat(coord.trim()));
+								wallet.latitude = latitude;
+								wallet.longitude = longitude;
+							}
+					
+							return {
+								_id: wallet._id.toString(),
+								name: wallet.productName,
+								latitude: wallet.latitude,
+								longitude: wallet.longitude, 
+								isPlanted: wallet.isPlanted,
+							};
+						});
+					
 						return {
 							...area.toObject(),
-							_id: area._id.toString(), // Ensure area ID is a string
-							wallets: filteredWallets, // Add filtered wallets to the area object
+							_id: area._id.toString(), 
+							wallets: filteredWallets, 
 						};
 					}));
 		

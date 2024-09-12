@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.ObjectId;
 const walletSchema = new mongoose.Schema({
 	walletQrId: { type: String, index: true, required: true }, // unique: true
-	geoLocation: { type: String },
+	geoLocation: { type: String, default: null },
 	userFullname: { type: String },
 	userEmail: { type: String },
 	productName: { type: String },
@@ -21,9 +21,6 @@ const walletSchema = new mongoose.Schema({
 	publicQrCode: { type: Boolean, default: true },
 	costOfProduct: { type: Number, default: 0 },
 	accessCode: { type: String, required: true },
-	latitude: { type: Number, default: null },
-	longitude: { type: Number, default: null },
-	isPlanted: { type: Boolean, default: false },
 	cbnftimage: { type: Boolean, default: false },
 	nftimage: { type: String, default: "" },
 	nftsendaddress: { type: String },
