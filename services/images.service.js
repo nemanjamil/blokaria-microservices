@@ -226,8 +226,8 @@ module.exports = {
 					let imageSave = "";
 
 					if (ctx.params.userDesc) {
-						const [latitude, longitude] = ctx.params.userDesc.split(',').map(Number);
-					
+						const [latitude, longitude] = ctx.params.userDesc.split(",").map(Number);
+
 						ctx.params.latitude = latitude;
 						ctx.params.longitude = longitude;
 					}
@@ -252,15 +252,15 @@ module.exports = {
 					this.logger.info("4. generateQrCodeInSystemNoImage meta.$multipart", meta.$multipart);
 					this.logger.info("5. generateQrCodeInSystemNoImage generateQrCodeEmail START");
 
-					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
-
-					this.logger.info("6. generateQrCodeInSystemNoImage generateQrCodeEmail FINISHED");
-
 					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
 						qrcode: meta.$multipart.walletQrId,
 					});
 
 					this.logger.info("7. generateQrCodeInSystemNoImage getQrCodeInfo", getQrCodeInfo);
+
+					// await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
+
+					// this.logger.info("6. generateQrCodeInSystemNoImage generateQrCodeEmail FINISHED");
 
 					return getQrCodeInfo[0];
 				} catch (error) {
