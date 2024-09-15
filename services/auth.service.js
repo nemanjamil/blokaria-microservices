@@ -23,8 +23,11 @@ module.exports = {
 			async handler(ctx) {
 				const { userEmail, userPassword } = ctx.params;
 
+				this.logger.info("getting user by email: ", userEmail);
+
 				try {
 					let users = await ctx.call("user.userFind", { userEmail });
+					this.logger.info("got users by that email:", users);
 					const user = users ? users[0] : null;
 
 					if (!user)
