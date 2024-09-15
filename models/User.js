@@ -22,21 +22,20 @@ const userSchema = new mongoose.Schema({
 	_wallets: [
 		{
 			type: ObjectId,
-			ref: "Wallet"
-		}
+			ref: "Wallet",
+		},
 	],
 	_projects: [
 		{
 			type: ObjectId,
-			ref: "Project"
-		}
+			ref: "Project",
+		},
 	],
 	_achievements: [
 		{
 			type: ObjectId,
-			ref: "Achievement"
-		}
-	]
+			ref: "Achievement",
+		},
+	],
 });
-
 module.exports = mongoose.model("User", userSchema);
