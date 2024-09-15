@@ -4,6 +4,9 @@ const DbService = require("moleculer-db");
 const { MoleculerError } = require("moleculer").Errors;
 const dbConnection = require("../utils/dbConnection");
 const Level = require("../models/Level");
+const { levelsData } = require("../data/levels");
+const Achievement = require("../models/Achievement");
+const { achievementList } = require("../data/achievement");
 
 const levelService = {
 	name: "level",
@@ -16,7 +19,7 @@ const levelService = {
 		createLevel: {
 			params: {
 				name: { type: "string" },
-				required_trees: { type: "number" },
+				required_trees: { type: "number" }
 			},
 			async handler(ctx) {
 				const { name, required_trees } = ctx.params;
@@ -29,10 +32,10 @@ const levelService = {
 					const message = `Failed to create level for name of:'${name}'`;
 					throw new MoleculerError(message, 400, "LEVEL_CREATE_FAILED", {
 						message: err.message || message,
-						internalErrorCode: "levelCreateFailed",
+						internalErrorCode: "levelCreateFailed"
 					});
 				}
-			},
+			}
 		},
 		getLevels: {
 			async handler() {
@@ -41,16 +44,16 @@ const levelService = {
 				} catch (e) {
 					throw new MoleculerError("Failed to get levels", 400, "LEVEL_GET_FAILED", {
 						message: e.message || e,
-						internalErrorCode: "levelGetFailed",
+						internalErrorCode: "levelGetFailed"
 					});
 				}
-			},
+			}
 		},
 		updateLevel: {
 			params: {
 				id: { type: "string" },
 				name: { type: "string" },
-				required_trees: { type: "number" },
+				required_trees: { type: "number" }
 			},
 			async handler(ctx) {
 				const { id, name, required_trees } = ctx.params;
@@ -60,14 +63,14 @@ const levelService = {
 				} catch (e) {
 					throw new MoleculerError("Failed to update level", 400, "LEVEL_UPDATE_FAILED", {
 						message: e.message || e,
-						internalErrorCode: "levelUpdateFailed",
+						internalErrorCode: "levelUpdateFailed"
 					});
 				}
-			},
+			}
 		},
 		deleteLevel: {
 			params: {
-				id: { type: "string" },
+				id: { type: "string" }
 			},
 			async handler(ctx) {
 				const { id } = ctx.params;
@@ -76,12 +79,29 @@ const levelService = {
 				} catch (e) {
 					throw new MoleculerError("Failed to delete level", 400, "LEVEL_DELETE_FAILED", {
 						message: e.message || e,
-						internalErrorCode: "levelDeleteFailed",
+						internalErrorCode: "levelDeleteFailed"
 					});
 				}
-			},
-		},
+			}
+		}
 	},
+	async started() {
+		const levels = await Level.find({}).exec();
+		if (levels.length === 0) {
+			for await (const level of levelsData) {
+				this.actions.createLevel(level);
+			}
+		}
+
+		await this.broker.waitForServices("v1.achievement");
+		const achievements = await Achievement.find({}).exec();
+		if (achievements.length === 0) {
+			for await (const achievement of achievementList) {
+				this.broker.call("v1.achievement.createAchievement", achievement);
+			}
+		}
+
+	}
 };
 
 module.exports = levelService;

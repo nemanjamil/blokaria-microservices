@@ -10,7 +10,6 @@ const { linkedInExchangeCode, linkedInGetUserProfile, createLinkedInPost } = req
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const handlebars = require("handlebars");
-const { achievementList } = require("../data/achievement");
 
 const achievementService = {
 	name: "achievement",
