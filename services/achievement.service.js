@@ -72,11 +72,13 @@ const achievementService = {
 
 					this.logger.info("2. addCertificateToLinkedIn  user profile", userProfile);
 
+					const imgHost = process.env.MOLECULER_SERVICE_LOCATION;
+
 					const shareResponse = await createLinkedInPost(
 						userProfile.sub,
 						response.access_token,
 						achievement,
-						"https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.ccinsignia.com%2Fwp-content%2Fuploads%2F2020%2F03%2FCrook-Co-Sheriff-Badge-scaled.jpg&f=1&nofb=1&ipt=bc4d9aca37ca5c73fc255ca6f60c34e49d6cdfac57200d59172374dd87ad4644&ipo=images"
+						`${imgHost}levels/${achievement.name.toLowerCase()}.jpg`
 					);
 
 					this.logger.info("3. addCertificateToLinkedIn  share response", shareResponse);
@@ -99,21 +101,26 @@ const achievementService = {
 			async handler(ctx) {
 				const user = ctx.meta.user;
 				console.log("ctx.meta user: ", user);
-				const userDb = await User.findById(user.userId);
+				const userDb = await User.findById(user.userId, { _id: 1 }).populate({ path: "_level" }).exec();
 				console.log("database fetched user: ", userDb);
 				console.log("user level:", userDb.level);
 				const achievement = await Achievement.findOne({
 					user: user.userId,
 					completed: true,
-				})
-					.sort({ createdAt: -1 })
-					.exec();
+					name: user.level,
+				}).exec();
 				const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
+
+				const imgHost = process.env.MOLECULER_SERVICE_LOCATION;
+
+				const achievementUrl = `${imgHost}levels/${achievement.name.toLowerCase()}.jpg`;
+
 				this.logger.info("get achievement post template triggered");
 				return {
 					template: achievementPostTemplate,
 					achievement: achievement ? achievement.toJSON() : null,
 					level: userDb.level,
+					image: achievementUrl,
 				};
 			},
 		},
@@ -145,9 +152,27 @@ const achievementService = {
 
 		getAchievements: {
 			rest: "GET achievement",
-			async handler() {
+			async handler(ctx) {
+				const { userId } = ctx.meta.user;
+
 				try {
-					return Achievement.find({}).populate({ path: "_level" }).sort({ "_level.required_trees": 1 });
+					const user = await User.findById(userId).exec();
+					if (!user) {
+						throw new MoleculerError("Not authorized", 401, "USER_NOT_FOUND", {
+							message: "ctx.meta.user is not found in DB",
+						});
+					}
+
+					this.logger.info("getting achievements for user:", user);
+
+					const achievements = await Achievement.find({ user: user._id }).populate({ path: "_level" }).sort({ "_level.required_trees": 1 });
+
+					this.logger.info(
+						"achievements found:",
+						achievements.map((a) => ({ name: a.name, user: a.user }))
+					);
+
+					return achievements;
 				} catch (e) {
 					throw new MoleculerError("Achievements not found", 400, "ACHIEVEMENT_NOT_FOUND", {
 						message: "Achievements not found",
