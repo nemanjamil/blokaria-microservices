@@ -20,14 +20,14 @@ const achievementService = {
 			service: "gmail",
 			auth: {
 				user: "gmail.user@gmail.com",
-				pass: "yourpass",
-			},
-		},
+				pass: "yourpass"
+			}
+		}
 	},
 	metadata: {
 		scalable: true,
 		priority: 5,
-		bccemail: "bcc@blokaria.com",
+		bccemail: "bcc@blokaria.com"
 	},
 	mixins: [DbService],
 	adapter: dbConnection.getMongooseAdapter(),
@@ -46,7 +46,7 @@ const achievementService = {
 					const user = await User.findById(userId, { _id: 1 }).populate({ path: "_level" }).exec();
 					if (!user) {
 						throw new MoleculerError("User not found", 404, "USER_SEARCH_FAILED", {
-							message: "User not found",
+							message: "User not found"
 						});
 					}
 
@@ -60,7 +60,7 @@ const achievementService = {
 					if (!achievement) {
 						const message = "User does not have any achievements";
 						throw new MoleculerError(message, 404, "ACHIEVEMENT_FETCH", {
-							message,
+							message
 						});
 					}
 
@@ -86,16 +86,16 @@ const achievementService = {
 					return {
 						ok: true,
 						share: shareResponse,
-						achievement: achievement.toJSON(),
+						achievement: achievement.toJSON()
 					};
 				} catch (err) {
 					console.log("error while uploading post to linkedin:", err);
 					const message = err ? (err.message ? err.message : "failed to upload linkedin post") : "failed to upload linkedin post";
 					throw new MoleculerError(message, 500, "LINKEDIN_API", {
-						message,
+						message
 					});
 				}
-			},
+			}
 		},
 		getAchievementPostPreview: {
 			async handler(ctx) {
@@ -107,7 +107,7 @@ const achievementService = {
 				const achievement = await Achievement.findOne({
 					user: user.userId,
 					completed: true,
-					name: user.level,
+					name: user.level
 				}).exec();
 				if (!achievement) {
 					throw new MoleculerError("No achievement found for publishing", 400, "ACHIEVEMENT_NOT_FOUND", { msg: "no achievements on user" });
@@ -123,15 +123,15 @@ const achievementService = {
 					template: achievementPostTemplate,
 					achievement: achievement ? achievement.toJSON() : null,
 					level: userDb.level,
-					image: achievementUrl,
+					image: achievementUrl
 				};
-			},
+			}
 		},
 		createAchievement: {
 			params: {
 				name: { type: "string" },
 				description: { type: "string" },
-				level: { type: "string" },
+				level: { type: "string" }
 			},
 			async handler(ctx) {
 				const { name, description, level } = ctx.params;
@@ -140,49 +140,35 @@ const achievementService = {
 					const achievement = new Achievement({
 						name,
 						description,
-						_level: level,
+						_level: level
 					});
 					await achievement.save();
 					return achievement.toJSON();
 				} catch (err) {
 					const message = `Failed to create achievemnt for name of:'${name}'`;
 					throw new MoleculerError(message, 400, "ACHIEVEMENT_FAILED", {
-						message: err.message || message,
+						message: err.message || message
 					});
 				}
-			},
+			}
 		},
 
 		getAchievements: {
 			rest: "GET achievement",
-			async handler(ctx) {
-				const { userId } = ctx.meta.user;
+			async handler() {
 
 				try {
-					const user = await User.findById(userId).exec();
-					if (!user) {
-						throw new MoleculerError("Not authorized", 401, "USER_NOT_FOUND", {
-							message: "ctx.meta.user is not found in DB",
-						});
-					}
-
-					this.logger.info("getting achievements for user:", user);
-
-					const achievements = await Achievement.find({ user: user._id }).populate({ path: "_level" }).sort({ "_level.required_trees": 1 });
-
-					this.logger.info(
-						"achievements found:",
-						achievements.map((a) => ({ name: a.name, user: a.user }))
-					);
+					const achievements = await Achievement.find({}).populate({ path: "_level" }).sort({ "_level.required_trees": 1 });
 
 					return achievements;
 				} catch (e) {
+					console.log("E", e);
 					throw new MoleculerError("Achievements not found", 400, "ACHIEVEMENT_NOT_FOUND", {
 						message: "Achievements not found",
-						internalErrorCode: "achi404",
+						internalErrorCode: "achi404"
 					});
 				}
-			},
+			}
 		},
 
 		updateAchievement: {
@@ -191,7 +177,7 @@ const achievementService = {
 				id: { type: "string" },
 				name: { type: "string" },
 				description: { type: "string" },
-				level: { type: "string" },
+				level: { type: "string" }
 			},
 			async handler(ctx) {
 				const { id, name, description, level } = ctx.params;
@@ -201,14 +187,14 @@ const achievementService = {
 						{
 							name,
 							description,
-							_level: level,
+							_level: level
 						},
 						{ new: true, runValidators: true }
 					);
 
 					if (!updatedAchievement) {
 						throw new MoleculerError("Achievement Not Found", 404, "ACHIEVEMENT_NOT_FOUND", {
-							message: "The achievement with the given ID was not found.",
+							message: "The achievement with the given ID was not found."
 						});
 					}
 
@@ -216,16 +202,16 @@ const achievementService = {
 				} catch (e) {
 					throw new MoleculerError("Achievement Update failed", 400, "ACHIEVEMENT_UPDATE_FAILED", {
 						message: e.message || e.message,
-						internalErrorCode: "achifail",
+						internalErrorCode: "achifail"
 					});
 				}
-			},
+			}
 		},
 
 		deleteAchievement: {
 			rest: "DELETE achievement",
 			params: {
-				id: { type: "string" },
+				id: { type: "string" }
 			},
 			async handler(ctx) {
 				const { id } = ctx.params;
@@ -234,17 +220,17 @@ const achievementService = {
 				} catch (e) {
 					throw new MoleculerError("Achievement delete failed", 400, "ACHIEVEMENT_DELETE_FAILED", {
 						message: e.message || e.message,
-						internalErrorCode: "achideletefail",
+						internalErrorCode: "achideletefail"
 					});
 				}
-			},
+			}
 		},
 
 		sendAchievementEmail: {
 			params: {
 				userLang: { type: "string" },
 				userEmail: { type: "string" },
-				achievement: { type: "object" },
+				achievement: { type: "object" }
 			},
 			async handler(ctx) {
 				const { userLang, userEmail, achievement } = ctx.params;
@@ -256,7 +242,7 @@ const achievementService = {
 
 				const replacements = {
 					name: achievement.name,
-					achievement,
+					achievement
 				};
 
 				const htmlToSend = template(replacements);
@@ -270,11 +256,11 @@ const achievementService = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: "\"Blokaria 👻\" <service@blokaria.com>",
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "New Achievement is created for you ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					console.log("sendAchievementEmail mailOptions");
@@ -283,18 +269,18 @@ const achievementService = {
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
 						message: error.message,
-						internalErrorCode: "email50",
+						internalErrorCode: "email50"
 					});
 				}
-			},
-		},
+			}
+		}
 	},
 
 	methods: {
 		sendMailMethod: {
 			async handler() {
 				return "sendMailMethod";
-			},
+			}
 		},
 		getTransporter: {
 			async handler() {
@@ -310,12 +296,12 @@ const achievementService = {
 					secure: true, // true for 465, false for other ports
 					auth: {
 						user: adminEmail,
-						pass: adminPassword,
-					},
+						pass: adminPassword
+					}
 				});
-			},
-		},
-	},
+			}
+		}
+	}
 };
 
 module.exports = achievementService;

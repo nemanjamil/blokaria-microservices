@@ -86,17 +86,22 @@ const levelService = {
 		}
 	},
 	async started() {
-		const levels = await Level.find({}).exec();
+		const levels = await Level.find({});
+		const levelsArray = [];
 		if (levels.length === 0) {
 			for await (const level of levelsData) {
-				this.actions.createLevel(level);
+				const createdLevel = await this.actions.createLevel(level);
+				levelsArray.push(String(createdLevel._id));
 			}
 		}
 
 		await this.broker.waitForServices("v1.achievement");
-		const achievements = await Achievement.find({}).exec();
+		const achievements = await Achievement.find({});
 		if (achievements.length === 0) {
-			for await (const achievement of achievementList) {
+			let i = 0;
+			for (const element of achievementList) {
+				const achievement = { ...element, level: levelsArray[i] };
+				i += 1;
 				this.broker.call("v1.achievement.createAchievement", achievement);
 			}
 		}

@@ -1,6 +1,11 @@
 module.exports = {
 	levelsData: [
 		{
+			"_id": "66e0318cfb6f7815a5cafe14",
+			"name": "Beginner",
+			"required_trees": 1
+		},
+		{
 			"_id": "66e0223ef465873db5fa753e",
 			"name": "Elementary",
 			"required_trees": 5
@@ -29,11 +34,6 @@ module.exports = {
 			"_id": "66e022a0f465873db5fa754d",
 			"name": "CarbonNeutral",
 			"required_trees": 40
-		},
-		{
-			"_id": "66e0318cfb6f7815a5cafe14",
-			"name": "Beginner",
-			"required_trees": 1
 		}
 	]
 };

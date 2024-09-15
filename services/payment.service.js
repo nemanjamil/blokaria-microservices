@@ -508,46 +508,49 @@ const paymentService = {
 				});
 			}
 
-			const invoicedUser = await User.findOne({ userEmail: user.userEmail }).populate({ path: "_achievements" });
+			const invoicedUser = await User.findOne({ userEmail: ctx.params.user.userEmail });
 			const achievements = await Achievement.find({})
 				.populate({
 					path: "_level",
-					match: { required_trees: { $lte: invoicedUser.planted_trees_count + quantity } }
-				})
-				.exec();
+					match: { "required_trees": { $lte: isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + quantity } }
+				});
 
 			// Find and update user level
 			const levels = await Level.findOne({
 				required_trees: {
-					$lte: invoicedUser.planted_trees_count + quantity
+					$lte: isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + quantity
 				}
-			})
-				.sort({ required_trees: -1 })
-				.exec();
-			const userLevel = levels[0]._id;
+			}).sort({ required_trees: -1 });
+			const userLevel = levels._id;
+
 
 			// Add achievements to user, it will check if its there it won't add with addToSet
-			for (let achievement in achievements) {
-				const achievementUpdate = {
-					$addToSet: { _achievements: String(achievement._id) }
-				};
+			for (const element of achievements.filter(x => x._level !== null)) {
+				if (element._level) {
+					if (invoicedUser._achievements && invoicedUser._achievements.filter((x) => x === element._id).length === 0) {
+						const achievementUpdate = {
+							$addToSet: { _achievements: String(element._id) }
+						};
 
-				await User.findOneAndUpdate({ userEmail: user.userEmail }, achievementUpdate, { new: true });
+						const updatedUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, achievementUpdate, { new: true })
+							.populate("_achievements")
+							.exec();
 
-				if (invoicedUser._achievements.filter((x) => x._id === achievement._id).length === 0) {
-					ctx.call("v1.achievement.sendAchievementEmail", {
-						userLang: "en",
-						userEmail: user.userEmail,
-						achievement: achievement
-					});
+						ctx.call("v1.achievement.sendAchievementEmail", {
+							userLang: "en",
+							userEmail: updatedUser.userEmail,
+							achievement: element
+						});
+					}
 				}
 			}
+
 			// Update transactional data
 			const data = {
 				$inc: { numberOfTransaction: -1, planted_trees_count: quantity },
 				$set: { _level: String(userLevel) }
 			};
-			await User.findOneAndUpdate({ userEmail: user.userEmail }, data, { new: true }).populate("_achievements");
+			await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
 
 			return invoicedUser;
 		},
