@@ -109,6 +109,9 @@ const achievementService = {
 					completed: true,
 					name: user.level,
 				}).exec();
+				if (!achievement) {
+					throw new MoleculerError("No achievement found for publishing", 400, "ACHIEVEMENT_NOT_FOUND", { msg: "no achievements on user" });
+				}
 				const achievementPostTemplate = require("../public/templates/en/achievementPost.json");
 
 				const imgHost = process.env.MOLECULER_SERVICE_LOCATION;
