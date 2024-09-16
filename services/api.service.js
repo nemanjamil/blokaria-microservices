@@ -89,6 +89,16 @@ module.exports = {
 						},
 						action: "image.generateNftFromExistingQrCode",
 					},
+					"POST /profile": {
+						type: "multipart",
+						busboyConfig: {
+							limits: {
+								files: 1,
+								fileSize: 2 * 1024 * 1024, // 2MB - ADD RESIZE IN CODE
+							},
+						},
+						action: "image.storeProfilePicture",
+					},
 				},
 
 				// onAfterCall(ctx, route, req, res, data) {

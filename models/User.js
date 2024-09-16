@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
 	userVerified: { type: Number, required: true, default: 0 },
 	userRole: { type: Number, required: true, default: 5 },
 	date: { type: Date, default: Date.now },
+	image: { type: String },
 	numberOfTransaction: { type: Number, required: true, default: parseInt(process.env.NUMBER_OF_TRANSACTIONS) },
 	numberOfCoupons: { type: Number, required: true, default: parseInt(process.env.NUMBER_OF_COUPONS) },
 	planted_trees_count: { type: Number, default: 0 },
