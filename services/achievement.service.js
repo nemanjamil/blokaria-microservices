@@ -131,16 +131,18 @@ const achievementService = {
 			params: {
 				name: { type: "string" },
 				description: { type: "string" },
-				level: { type: "string" }
+				level: { type: "string" },
+				image: { type: "string" }
 			},
 			async handler(ctx) {
-				const { name, description, level } = ctx.params;
+				const { name, description, level, image } = ctx.params;
 
 				try {
 					const achievement = new Achievement({
 						name,
 						description,
-						_level: level
+						_level: level,
+						image
 					});
 					await achievement.save();
 					return achievement.toJSON();
@@ -177,17 +179,19 @@ const achievementService = {
 				id: { type: "string" },
 				name: { type: "string" },
 				description: { type: "string" },
-				level: { type: "string" }
+				level: { type: "string" },
+				image: { type: "string" }
 			},
 			async handler(ctx) {
-				const { id, name, description, level } = ctx.params;
+				const { id, name, description, level, image } = ctx.params;
 				try {
 					const updatedAchievement = Achievement.findByIdAndUpdate(
 						id,
 						{
 							name,
 							description,
-							_level: level
+							_level: level,
+							image
 						},
 						{ new: true, runValidators: true }
 					);
