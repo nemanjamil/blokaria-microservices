@@ -435,6 +435,7 @@ const paymentService = {
 
 		handleStripeWebhook: {
 			async handler(ctx) {
+				this.logger.info("0. handleStripeWebhook ctx.params:", ctx.params);
 				// const secret = "whsec_3dcfddcd5427bacb88780b92982a2f6851ebcc7da3987c0000c3564322bf18e6";
 				const body = Buffer.from(Object.values(ctx.params));
 				this.logger.info("1. handleStripeWebhook Stripe Webhook triggered:", body.length);
