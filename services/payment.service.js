@@ -221,11 +221,15 @@ const paymentService = {
 				area: { type: "string" },
 			},
 			async handler(ctx) {
-				this.logger.info("Buy Tree Payment triggered:", ctx.params);
+				this.logger.info("1. buyTreePayment Buy Tree Payment triggered:", ctx.params);
 				const { quantity, userEmail, area } = ctx.params;
+
+				this.logger.info("3. buyTreePayment quantity, userEmail, area", quantity, userEmail, area);
+
 				const userId = ctx.meta.user.userId;
-				const treePrice = 50;
+				const treePrice = 50; // TODO fix this price
 				const stripe = this.getStripe();
+
 				try {
 					const session = await stripe.checkout.sessions.create({
 						payment_method_types: ["card"],
@@ -246,14 +250,22 @@ const paymentService = {
 						cancel_url: process.env.PAYMENT_FAIL_ROUTE,
 						customer_email: userEmail,
 					});
-					this.logger.info("Creating Invoice from session:", session);
+					this.logger.info("5. buyTreePayment Creating Invoice from session:", session);
+
 					const invoice = new Invoice({
 						amount: session.amount_total,
 						invoiceId: session.id,
 						payer: userId,
 						area: area,
 					});
-					await invoice.save();
+
+					this.logger.info("7. buyTreePayment invoice:", invoice);
+
+					let invoiceRes = await invoice.save();
+
+					this.logger.info("10. buyTreePayment invoiceRes:", invoiceRes);
+
+					this.logger.info("12. buyTreePayment Res:", { id: session.id, invoice: invoice.toJSON() });
 
 					return { id: session.id, invoice: invoice.toJSON() };
 				} catch (err) {
