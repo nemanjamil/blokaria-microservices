@@ -126,20 +126,20 @@ module.exports = {
 				const achievements = await Achievement.find({})
 					.populate({
 						path: "_level",
-						match: { "required_trees": { $lte: isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + 1 } }
+						match: { "required_trees": { $lte: invoicedUser.planted_trees_count || 1 } }
 					});
 
 				// Find and update user level
 				const levels = await Level.findOne({
 					required_trees: {
-						$lte: isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + 1
+						$lte: invoicedUser.planted_trees_count + 1
 					}
 				}).sort({ required_trees: -1 });
 				const userLevel = levels._id;
 
 
 				// Add achievements to user, it will check if its there it won't add with addToSet
-				for (const element of achievements.filter(x=> x._level !== null)) {
+				for (const element of achievements.filter(x => x._level !== null)) {
 					if (element._level) {
 						if (invoicedUser._achievements && invoicedUser._achievements.filter((x) => x === element._id).length === 0) {
 							const achievementUpdate = {
@@ -164,11 +164,10 @@ module.exports = {
 					$inc: { numberOfTransaction: -1, planted_trees_count: 1 },
 					$set: { _level: String(userLevel) }
 				};
-				await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
 
 
 				try {
-					let resultFromReducting = await User.findOneAndUpdate(entity, data, { new: true });
+					let resultFromReducting = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
 
 					if (!resultFromReducting) {
 						throw new MoleculerError(strings.userReduceTrx, 401, "USER_HAS_NEGATIVE_NUMBER_OF_AVAILABLE_TRANSACTIONS", {
@@ -553,10 +552,13 @@ module.exports = {
 					const itemsAmount = user._wallets?.length || 0;
 
 					const value = CARBON_YEARLY_FOOTPRINT - itemsAmount * TREE_REDUCE_FOOTPRINT;
+					const percentage = TREE_REDUCE_FOOTPRINT / CARBON_YEARLY_FOOTPRINT * 100;
 
 					return {
 						ok: true,
-						tonsPerYear: value
+						tonsPerYear: CARBON_YEARLY_FOOTPRINT,
+						tonsUserConsume: value,
+						percentage: percentage
 					};
 				} catch (err) {
 					throw new MoleculerError("Failed to get metrics", 500, "METRICS_FETCH_FAILED", {
