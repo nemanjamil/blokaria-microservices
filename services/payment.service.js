@@ -14,7 +14,12 @@ const mongoose = require("mongoose");
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
+		this.logger.info("1. updateInvoiceStatus invoiceId status", invoiceId, status);
+
 		const invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: { status } }, { new: true });
+
+		this.logger.info("2. updateInvoiceStatus invoice", invoice);
+
 		return invoice.toJSON();
 	} catch (err) {
 		const message = `Failed to update invoice with id: '${invoiceId}'`;
@@ -470,9 +475,16 @@ const paymentService = {
 	},
 	methods: {
 		async createItem(invoiceId, quantity, ctx) {
+			this.logger.info("1. createItem start invoiceId, quantity", invoiceId, quantity);
+
 			const walletQrId = v4();
 
+			this.logger.info("3. createItem walletQrId", walletQrId);
+
 			const invoice = await Invoice.findOne({ invoiceId }).populate("payer").populate("area").exec();
+
+			this.logger.info("5. createItem invoice", invoice);
+
 			if (!invoice) {
 				throw new MoleculerError("No Invoice Found");
 			}
@@ -495,6 +507,8 @@ const paymentService = {
 				area: area._id,
 			};
 
+			this.logger.info("7. createItem entity", entity);
+
 			// Creating an Item
 			const item = new Wallet(entity);
 			try {
@@ -505,11 +519,18 @@ const paymentService = {
 				});
 			}
 
+			this.logger.info("9. createItem item", item);
+
 			const invoicedUser = await User.findOne({ userEmail: ctx.params.user.userEmail });
+
+			this.logger.info("11. createItem invoicedUser", invoicedUser);
+
 			const achievements = await Achievement.find({}).populate({
 				path: "_level",
 				match: { required_trees: { $lte: isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + quantity } },
 			});
+
+			this.logger.info("13. createItem achievements", achievements);
 
 			// Find and update user level
 			const levels = await Level.findOne({
@@ -518,6 +539,8 @@ const paymentService = {
 				},
 			}).sort({ required_trees: -1 });
 			const userLevel = levels._id;
+
+			this.logger.info("15. createItem userLevel", userLevel);
 
 			// Add achievements to user, it will check if its there it won't add with addToSet
 			for (const element of achievements.filter((x) => x._level !== null)) {
@@ -540,12 +563,19 @@ const paymentService = {
 				}
 			}
 
+			this.logger.info("17. createItem Add achievements to user", true);
+
 			// Update transactional data
 			const data = {
 				$inc: { numberOfTransaction: -1, planted_trees_count: quantity },
 				$set: { _level: String(userLevel) },
 			};
+
+			this.logger.info("19. createItem Update transactional data", data);
+
 			await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
+
+			this.logger.info("22. createItem Done", data);
 
 			return invoicedUser;
 		},
