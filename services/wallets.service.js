@@ -4,8 +4,10 @@ const dbConnection = require("../utils/dbConnection");
 const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/Wallet.js");
+const User = require("../models/User.js");
 const Utils = require("../utils/utils");
 const random = require("lodash/random");
+const { log } = require("handlebars");
 
 require("dotenv").config();
 
@@ -492,36 +494,70 @@ module.exports = {
 			},
 		},
 
-		modifyWalletLocation: {
+		modifyAccessibleLocation: {
 			params: {
 				walletId: { type: "string", required: true },
 				latitude: { type: "number", required: true },
 				longitude: { type: "number", required: true },
+				photo: { type: "string", optional: true },  
 			},
 			async handler(ctx) {
-				const { walletId, latitude, longitude } = ctx.params;
-
+				const { walletId, latitude, longitude, photo } = ctx.params;
+				const user = ctx.meta.user;
+		
 				try {
-					const wallet = await Wallet.findById(walletId);
-
-					if (!wallet) {
-						throw new MoleculerError("Wallet not found", 404, "WALLET_NOT_FOUND");
+					const planter = await User.findOne({ _id: user.userId }).populate("accessibleAreas");
+					if (!planter) {
+						throw new MoleculerError("User not found", 404, "USER_NOT_FOUND");
 					}
+		
+					let walletUpdated = false;
+					for (const area of planter.accessibleAreas) {
+						const wallets = await Wallet.find({ area: area._id });
+						let wallet = wallets.find(wallet => wallet._id.toString() === walletId);
+						if (wallet) {
 
-					wallet.geoLocation = `${latitude},${longitude}`;
+							wallet = await Wallet.findById(wallet._id);
+							wallet.geoLocation = `${latitude},${longitude}`;
+							console.log(`Updated wallet location for walletId: ${walletId}`);
+		
+							if (photo) {
+								wallet = await ctx.call("image.updateTreeImage", { wallet, photo, user });
+							}
+							await wallet.save();
 
-					await wallet.save();
+							ctx.call("v1.email.sendTreePlantingConfirmationEmail", {
+								userLang: "en",
+								userEmails: [user.userEmail, wallet.userEmail],
+								plantingDetails: {
+									latitude: latitude,
+									longitude: longitude,
+									area: area.name,
+									photo: photo,
+								},
+							});
 
-					return {
-						message: "Wallet location updated successfully",
-						wallet: wallet.toJSON(),
-					};
+							walletUpdated = true; 
+							break; 
+						}
+					}
+		
+					if (walletUpdated) {
+						return {
+							message: "Wallet location updated successfully in accessible areas.",
+						};
+					} else {
+						return {
+							message: "Failed to update wallet location: Wallet not found in any accessible area.",
+						};
+					}
+		
 				} catch (error) {
-					console.error("Error in modifyWalletLocation:", error.message);
-					throw new MoleculerError(error.message || "Could not update wallet location", 500);
+					console.error("Error in modifyAccessibleLocation:", error);
+					throw new MoleculerError(error.message || "Internal Server Error", 500);
 				}
 			},
-		},
+		},		
 
 		updateQrCodeText: {
 			params: {
@@ -602,23 +638,24 @@ module.exports = {
 				}
 			},
 		},
-
+		
 		getWalletById: {
 			params: {
-				walletId: { type: "string" },
+				walletId: { type: "string"},
 			},
 			async handler(ctx) {
 				const { walletId } = ctx.params;
-
+		
 				const wallet = await Wallet.findById(walletId).lean();
-
+		
 				if (!wallet) {
 					throw new MoleculerError("Wallet not found", 404, "WALLET_NOT_FOUND");
 				}
-
-				return wallet;
+		
+				return wallet; 
 			},
 		},
+		
 
 		updateDataInDb: {
 			params: {
@@ -1038,8 +1075,7 @@ module.exports = {
 
 				// TODO Xavi this can be resoled with populate
 				for (let wallet of listWallet) {
-					this.logger.info("3.1 getListQrCodesByUserMethod wallet", wallet);
-					this.logger.info("3.2 getListQrCodesByUserMethod Wallet area", wallet.area);
+					this.logger.info("3. getListQrCodesByUserMethod Wallet area", wallet.area);
 
 					if (wallet.area) {
 						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });
