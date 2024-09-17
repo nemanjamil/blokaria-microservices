@@ -592,6 +592,8 @@ const paymentService = {
 				this.logger.info(`22.${iterationNumber} createItem: element`, element);
 
 				if (element._level) {
+					this.logger.info(`23.${iterationNumber} createItem element._level`, element._level);
+
 					if (invoicedUser._achievements && invoicedUser._achievements.filter((x) => x === element._id).length === 0) {
 						const achievementUpdate = {
 							$addToSet: { _achievements: String(element._id) },
@@ -606,11 +608,11 @@ const paymentService = {
 							userEmail: updatedUser.userEmail,
 							achievement: element,
 						};
-						this.logger.info(`23.${iterationNumber} createItem achPayload`, achPayload);
+						this.logger.info(`24.${iterationNumber} createItem achPayload`, achPayload);
 
-						let sendEmailAch = ctx.call("v1.achievement.sendAchievementEmail", achPayload);
+						let sendEmailAch = await ctx.call("v1.achievement.sendAchievementEmail", achPayload);
 
-						this.logger.info(`24.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
+						this.logger.info(`25.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
 					} else {
 						this.logger.info(`26.${iterationNumber} createItem - Achievement already exists for user.`);
 					}
@@ -618,6 +620,8 @@ const paymentService = {
 					this.logger.info(`28.${iterationNumber} createItem - element._level does not exist.`);
 				}
 				iterationNumber++;
+
+				this.logger.info("\n\n\n");
 			}
 
 			const walletUpdate = {
