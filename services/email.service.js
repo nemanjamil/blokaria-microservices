@@ -144,7 +144,7 @@ module.exports = {
 				userEmail: { type: "email" },
 				productName: { type: "string" },
 				accessCode: { type: "string" },
-				qrCodeImageForStatus: { type: "string" },
+				qrCodeImageForStatus: { type: "string", optional: true },
 				userLang: { type: "string" },
 			},
 			async handler(ctx) {
@@ -184,16 +184,18 @@ module.exports = {
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Generated Tree Item ✔",
 						html: htmlToSend,
-						attachments: [
+					};
+
+					if (qrCodeImageForStatus) {
+						mailOptions.attachments = [
 							{
 								// encoded string as an attachment
 								filename: `qr-code-${ctx.params.walletQrId}.png`,
 								content: qrCodeImageForStatus.split("base64,")[1],
 								encoding: "base64",
 							},
-						],
-					};
-
+						];
+					}
 					let info = await transporter.sendMail(mailOptions);
 
 					this.logger.info("5. generateQrCodeEmail DONE", info);
@@ -464,58 +466,58 @@ module.exports = {
 			params: {
 				userLang: { type: "string" },
 				userEmails: { type: "array", items: "string" },
-				plantingDetails: { 
-				type: "object", 
-				props: {
-					latitude: { type: "number" },
-					longitude: { type: "number" },
-					area: { type: "string" },
-					photo: { type: "string" }, // base64 encoded photo
-				},
+				plantingDetails: {
+					type: "object",
+					props: {
+						latitude: { type: "number" },
+						longitude: { type: "number" },
+						area: { type: "string" },
+						photo: { type: "string" }, // base64 encoded photo
+					},
 				},
 			},
 			async handler(ctx) {
 				try {
-				const { userLang, userEmails, plantingDetails } = ctx.params;
-				const source = fs.readFileSync(`./public/templates/${userLang}/treePlantingConfirmation.html`, "utf-8").toString();
-			
-				const template = handlebars.compile(source);
-			
-				// Pass the planting details to the template
-				const replacements = {
-					latitude: plantingDetails.latitude,
-					longitude: plantingDetails.longitude,
-					area: plantingDetails.area,
-				};
-			
-				const htmlToSend = template(replacements);
-			
-				let transporter = await this.getTransporter();
-			
-				const mailOptions = {
-					from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
-					to: userEmails.join(','),
-					bcc: `${this.metadata.bccemail}`,
-					subject: "Tree Planting Confirmation ✔",
-					html: htmlToSend,
-					attachments: [
-					{
-						filename: 'tree_photo.png',
-						content: plantingDetails.photo,
-						encoding: 'base64',
-					}
-					],
-				};
-			
-				let info = await transporter.sendMail(mailOptions);
-			
-				return info;
+					const { userLang, userEmails, plantingDetails } = ctx.params;
+					const source = fs.readFileSync(`./public/templates/${userLang}/treePlantingConfirmation.html`, "utf-8").toString();
+
+					const template = handlebars.compile(source);
+
+					// Pass the planting details to the template
+					const replacements = {
+						latitude: plantingDetails.latitude,
+						longitude: plantingDetails.longitude,
+						area: plantingDetails.area,
+					};
+
+					const htmlToSend = template(replacements);
+
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
+						to: userEmails.join(","),
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Tree Planting Confirmation ✔",
+						html: htmlToSend,
+						attachments: [
+							{
+								filename: "tree_photo.png",
+								content: plantingDetails.photo,
+								encoding: "base64",
+							},
+						],
+					};
+
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
 				} catch (error) {
-				return Promise.reject(error);
+					return Promise.reject(error);
 				}
 			},
-			},
-			
+		},
+
 		sendApprovalToClient: {
 			async handler(ctx) {
 				const { userEmail, userFullname, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];

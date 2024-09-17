@@ -698,8 +698,6 @@ const paymentService = {
 					this.logger.info("24. handleTreePurchaseWebhook generateQrCodeEmailData", generateQrCodeEmailData);
 
 					await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
-
-					// TODO Achievement email
 				} else {
 					this.logger.info("Capture failed");
 					await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
