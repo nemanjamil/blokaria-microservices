@@ -537,6 +537,7 @@ module.exports = {
 
 				const { userId } = ctx.meta.user;
 
+				this.logger.info("1. userMetrics userId", userId);
 				try {
 					const user = await User.findById(userId).exec();
 					if (!user) {
@@ -545,6 +546,21 @@ module.exports = {
 							internalErrorCode: "user212",
 						});
 					}
+
+					//this.logger.info("2. userMetrics user", user);
+
+					const noOfWallets = await Wallet.find({ userEmail: user.userEmail }).exec();
+
+					this.logger.info("3. userMetrics noOfWallets.length", noOfWallets.length);
+
+					if (noOfWallets.length !== user._wallets.length) {
+						throw new MoleculerError("Wallet numner are not equal", 400, "NUMBERS ARE NOT EQUAL", {
+							message: "Items are not equeal",
+							internalErrorCode: "notequal123",
+						});
+					}
+
+					this.logger.info("5. userMetrics user._wallets?.length", user._wallets?.length);
 
 					// Check the number of items in user._wallets
 					const itemsAmount = user._wallets?.length || 0;
