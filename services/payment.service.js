@@ -617,7 +617,7 @@ const paymentService = {
 					this.logger.info(`23.B.${iterationNumber} createItem invoicedUser._achievements`, invoicedUser._achievements);
 
 					//if (invoicedUser._achievements && invoicedUser._achievements.filter((x) => x === element._id).length === 0) {
-					if (invoicedUser._achievements && !invoicedUser._achievements.includes(element.id)) {
+					if (invoicedUser._achievements && !invoicedUser._achievements.includes(element._id)) {
 						const achievementUpdate = {
 							$addToSet: { _achievements: String(element._id) },
 						};
