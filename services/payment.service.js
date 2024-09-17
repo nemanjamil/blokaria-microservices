@@ -634,7 +634,7 @@ const paymentService = {
 
 					this.logger.info("12. handleTreePurchaseWebhook updateInvoiceStatusRes", updateInvoiceStatusRes);
 
-					const user = await this.createItem(orderId, quantity);
+					const user = await this.createItem(orderId, quantity, ctx);
 
 					this.logger.info("14. handleTreePurchaseWebhook user", user);
 
