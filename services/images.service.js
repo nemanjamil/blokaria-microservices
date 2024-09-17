@@ -11,7 +11,7 @@ const mkdir = require("mkdirp").sync;
 const has = require("lodash/has");
 const isObjectLike = require("lodash/isObjectLike");
 const axiosMixin = require("../mixins/axios.mixin");
-const User = require("../models/User")
+const User = require("../models/User");
 const { getFilesFromPath, Web3Storage } = require("web3.storage");
 
 const uploadDir = path.join(__dirname, "../public/__uploads");
@@ -151,49 +151,47 @@ module.exports = {
 			params: {
 				photo: { type: "string" }, // base64-encoded image
 				wallet: { type: "object" },
-				user: { type: "object" }   
+				user: { type: "object" },
 			},
 			async handler(ctx) {
 				try {
 					console.log("updateTree imageSave START");
-		
+
 					const { user, wallet, photo } = ctx.params;
-		
+
 					const uploadDir = path.join(__dirname, `../public/__uploads/${slugify(user.userEmail)}/${wallet.walletQrId}`);
-					const newFileBuffer = Buffer.from(photo, 'base64');
+					const newFileBuffer = Buffer.from(photo, "base64");
 					const newFileName = `${wallet._id}_photo.jpg`;
-		
+
 					const newImagePath = await this.replaceFile({
-						oldFilePath: wallet._treeImageDir ? path.join(__dirname, '../public', wallet._treeImageDir) : null,
+						oldFilePath: wallet._treeImageDir ? path.join(__dirname, "../public", wallet._treeImageDir) : null,
 						newFileBuffer,
 						newFileName,
-						uploadDir
+						uploadDir,
 					});
-		
+
 					// let image = await Image.findOne({ walletQrId: wallet.walletQrId });
 					// if (image)
 					// {
 					// 	image.productPicture = newImagePath;
 					// 	await image.save();
 					// }
-					
+
 					wallet._treeImageDir = newImagePath;
 					await wallet.save();
 
 					console.log("Image updated successfully");
-		
-					return wallet; 
-		
+
+					return wallet;
 				} catch (error) {
 					console.error("updateTree error", error);
 					throw new MoleculerError("SAVE_IMAGE_AND_DATA", 501, "ERROR_SAVE_IMAGE", {
 						message: error.message,
-						internalErrorCode: "internal5055"
+						internalErrorCode: "internal5055",
 					});
 				}
-			}
+			},
 		},
-		
 
 		generateNftFromExistingQrCode: {
 			async handler(ctx) {
@@ -666,24 +664,24 @@ module.exports = {
 					fs.unlinkSync(oldFilePath);
 					console.log("Old file removed:", oldFilePath);
 				}
-		
+
 				// Ensure the upload directory exists
 				if (!fs.existsSync(uploadDir)) {
-					fs.mkdirSync(uploadDir, { recursive: true });  // Create parent directories if they don't exist
+					fs.mkdirSync(uploadDir, { recursive: true }); // Create parent directories if they don't exist
 				}
-		
+
 				const newFilePath = path.join(uploadDir, newFileName);
-		
+
 				fs.writeFileSync(newFilePath, newFileBuffer);
 				console.log("New file saved:", newFilePath);
-				const relativePath = path.relative(path.join(__dirname, '../public'), newFilePath);
+				const relativePath = path.relative(path.join(__dirname, "../public"), newFilePath);
 				return relativePath;
 			} catch (error) {
 				console.error("File management error:", error);
 				throw new Error("Failed to replace file");
 			}
 		},
-				
+
 		async checIfUseCanCreateNft(user) {
 			const { numberOfCoupons } = user;
 
@@ -700,7 +698,7 @@ module.exports = {
 			if (!matches) {
 				throw new Error("Invalid base64 string");
 			}
-	
+
 			const buffer = Buffer.from(matches[2], "base64"); // Decode base64 data to buffer
 			return buffer;
 		},
