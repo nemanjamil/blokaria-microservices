@@ -436,11 +436,13 @@ const paymentService = {
 		handleStripeWebhook: {
 			async handler(ctx) {
 				this.logger.info("0. handleStripeWebhook START ctx.params:", ctx.params);
-				this.logger.info("0. handleStripeWebhook START ctx.meta.rawBody:", ctx.meta.rawBody);
+
 				// const secret = "whsec_3dcfddcd5427bacb88780b92982a2f6851ebcc7da3987c0000c3564322bf18e6";
 				const body = Buffer.from(Object.values(ctx.params));
 				this.logger.info("1. handleStripeWebhook Stripe Webhook triggered:", body.length);
+
 				this.logger.info("1.1 handleStripeWebhook Stripe Webhook triggered: body", body);
+
 				const headers = ctx.options.parentCtx.params.req.headers;
 				const sig = headers["stripe-signature"];
 
@@ -454,7 +456,7 @@ const paymentService = {
 
 				try {
 					this.logger.info("4. handleStripeWebhook comparing signatures:", sig, ":", process.env.STRIPE_SECRET_KEY);
-					event = stripe.webhooks.constructEvent(ctx.meta.rawBody, sig, process.env.STRIPE_SECRET_KEY);
+					event = stripe.webhooks.constructEvent(ctx.params, sig, process.env.STRIPE_SECRET_KEY);
 
 					this.logger.info("6. handleStripeWebhook event", event);
 				} catch (err) {
