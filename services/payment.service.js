@@ -74,7 +74,11 @@ const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_
 };
 
 const captureOrder = async (orderId) => {
+	this.logger.info("1. captureOrder START orderId", orderId);
+
 	const accessToken = await generatePaypalAccessToken();
+
+	this.logger.info("3. captureOrder accessToken", accessToken);
 
 	try {
 		const response = await axios({
@@ -85,7 +89,8 @@ const captureOrder = async (orderId) => {
 				Authorization: `Bearer ${accessToken}`,
 			},
 		});
-		console.log("Capture response:", response.data);
+		this.logger.info("3. captureOrder response DONE", response.data);
+
 		return response.data;
 	} catch (error) {
 		throw new MoleculerError("Order capture failed", 400, "ORDER_CAPTURE_FAILED", {
