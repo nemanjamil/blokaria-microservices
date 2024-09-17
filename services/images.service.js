@@ -174,13 +174,14 @@ module.exports = {
 						uploadDir
 					});
 		
-					let image = await Image.findOne({ walletQrId: wallet.walletQrId });
-					if (image)
-					{
-						image.productPicture = newImagePath;
-						await image.save();
-					}
-		
+					// let image = await Image.findOne({ walletQrId: wallet.walletQrId });
+					// if (image)
+					// {
+					// 	image.productPicture = newImagePath;
+					// 	await image.save();
+					// }
+					
+					wallet._treeImageDir = newImagePath;
 					await wallet.save();
 
 					console.log("Image updated successfully");
