@@ -592,14 +592,18 @@ const paymentService = {
 							.populate("_achievements")
 							.exec();
 
-						let sendEmailAch = ctx.call("v1.achievement.sendAchievementEmail", {
+						let achPayload = {
 							userLang: "en",
 							userEmail: updatedUser.userEmail,
 							achievement: element,
-						});
-						this.logger.info(`17.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
+						};
+						this.logger.info(`17.${iterationNumber} createItem achPayload`, achPayload);
+
+						let sendEmailAch = ctx.call("v1.achievement.sendAchievementEmail", achPayload);
+
+						this.logger.info(`18.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
 					} else {
-						this.logger.info(`18.${iterationNumber} createItem - Achievement already exists for user.`);
+						this.logger.info(`19.${iterationNumber} createItem - Achievement already exists for user.`);
 					}
 				} else {
 					this.logger.info(`20.${iterationNumber} createItem - element._level does not exist.`);
