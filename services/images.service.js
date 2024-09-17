@@ -178,10 +178,10 @@ module.exports = {
 					if (image)
 					{
 						image.productPicture = newImagePath;
+						await image.save();
 					}
 		
 					await wallet.save();
-					await image.save();
 
 					console.log("Image updated successfully");
 		
