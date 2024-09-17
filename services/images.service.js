@@ -158,9 +158,9 @@ module.exports = {
 					console.log("updateTree imageSave START");
 
 					const { user, wallet, photo } = ctx.params;
-		
+
 					const uploadDir = path.join(__dirname, `../public/__uploads/${wallet.walletQrId}`);
-					const newFileBuffer = Buffer.from(photo, 'base64');
+					const newFileBuffer = Buffer.from(photo, "base64");
 					const newFileName = `${wallet._id}_photo.jpg`;
 
 					const newImagePath = await this.replaceFile({
@@ -292,7 +292,9 @@ module.exports = {
 
 					this.logger.info("3. generateQrCodeInSystemNoImage reduceNumberOfTransaction");
 
-					await ctx.call("user.reduceNumberOfTransaction", meta);
+					let userData = await ctx.call("user.reduceNumberOfTransaction", meta);
+
+					this.logger.info("5. generateQrCodeInSystemNoImage userData", userData);
 
 					meta.$multipart.emailVerificationId = parseInt(process.env.EMAIL_VERIFICATION_ID);
 					meta.$multipart.accessCode = storedIntoDb.accessCode;
@@ -300,18 +302,27 @@ module.exports = {
 					meta.$multipart.qrCodeImageForStatus = qrCodeImageForStatus;
 					meta.$multipart.userLang = ctx.params.userLang;
 
-					this.logger.info("4. generateQrCodeInSystemNoImage meta.$multipart", meta.$multipart);
-					this.logger.info("5. generateQrCodeInSystemNoImage generateQrCodeEmail START");
+					this.logger.info("7. generateQrCodeInSystemNoImage meta.$multipart", meta.$multipart);
+					this.logger.info("8. generateQrCodeInSystemNoImage generateQrCodeEmail START");
 
 					let getQrCodeInfo = await ctx.call("wallet.getQrCodeDataOnlyLocalCall", {
 						qrcode: meta.$multipart.walletQrId,
 					});
 
-					this.logger.info("7. generateQrCodeInSystemNoImage getQrCodeInfo", getQrCodeInfo);
+					const walletUpdate = {
+						$addToSet: { _wallets: String(storedIntoDb._id) },
+					};
+					let updatedWalletUser = await User.findOneAndUpdate({ userEmail: userData.userEmail }, walletUpdate, { new: true })
+						.populate("_wallets")
+						.exec();
+
+					this.logger.info("10. generateQrCodeInSystemNoImage updatedWalletUser", updatedWalletUser);
+
+					this.logger.info("11. generateQrCodeInSystemNoImage getQrCodeInfo", getQrCodeInfo);
 
 					await ctx.call("v1.email.generateQrCodeEmail", meta.$multipart);
 
-					this.logger.info("6. generateQrCodeInSystemNoImage generateQrCodeEmail FINISHED");
+					this.logger.info("12. generateQrCodeInSystemNoImage generateQrCodeEmail --- DONE ---");
 
 					return getQrCodeInfo[0];
 				} catch (error) {
