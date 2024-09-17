@@ -544,8 +544,9 @@ const paymentService = {
 			}
 
 			this.logger.info("9. createItem item", item);
+			this.logger.info("10. createItem item.userEmail", item.userEmail);
 
-			const invoicedUser = await User.findOne({ userEmail: ctx.params.user.userEmail });
+			const invoicedUser = await User.findOne({ userEmail: item.userEmail });
 
 			this.logger.info("11. createItem invoicedUser", invoicedUser);
 
