@@ -541,6 +541,32 @@ const paymentService = {
 
 			this.logger.info("7. createItem entity", entity);
 
+			const invoicedUser = await User.findOne({ userEmail: user.userEmail });
+
+			this.logger.info("8. createItem invoicedUser", invoicedUser);
+			this.logger.info("9. createItem invoicedUser WALLETS.length", invoicedUser._wallets.length);
+			this.logger.info("10. createItem invoicedUser PLANTED_TREES_COUNT", invoicedUser.planted_trees_count);
+
+			const noOfWallets = await Wallet.find({ userEmail: user.userEmail }).exec();
+
+			this.logger.info("11. createItem NoOfWALLETS.length", noOfWallets.length);
+
+			if (noOfWallets.length === invoicedUser._wallets.length && invoicedUser._wallets.length === invoicedUser.planted_trees_count) {
+				this.logger.info(
+					"12. createItem noOfWallets.length === invoicedUser._wallets.length === invoicedUser.planted_trees_count ---- ALL OK ----",
+					noOfWallets.length,
+					invoicedUser._wallets.length,
+					invoicedUser.planted_trees_count
+				);
+			} else {
+				this.logger.error(
+					"13. createItem noOfWallets.length !== invoicedUser._wallets.length or !== invoicedUser.planted_trees_count",
+					noOfWallets.length,
+					invoicedUser._wallets.length,
+					invoicedUser.planted_trees_count
+				);
+			}
+
 			// Creating an Item
 			const item = new Wallet(entity);
 			try {
@@ -551,33 +577,26 @@ const paymentService = {
 				});
 			}
 
-			this.logger.info("9. createItem item", item);
-			this.logger.info("10. createItem item.userEmail", item.userEmail);
+			this.logger.info("14. createItem item", item);
+			this.logger.info("15. createItem item.userEmail", item.userEmail);
 
-			const invoicedUser = await User.findOne({ userEmail: item.userEmail });
+			const threshold = isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + quantity;
 
-			this.logger.info("11. createItem invoicedUser", invoicedUser);
-			this.logger.info("13. createItem invoicedUser wallets.length", invoicedUser._wallets.length);
+			this.logger.info("16. createItem threshold", threshold);
 
-			const noOfWallets = await Wallet.find({ userEmail: user.userEmail }).exec();
-
-			this.logger.info("15. createItem noOfWallets.length", noOfWallets.length);
-
-			if (noOfWallets.length !== invoicedUser._wallets.length) {
-				this.logger.error("16. createItem noOfWallets.length !== invoicedUser._wallets.length", noOfWallets.length, invoicedUser._wallets.length);
-			}
-
-			const achievements = await Achievement.find({}).populate({
+			let achievements = await Achievement.find({}).populate({
 				path: "_level",
-				match: { required_trees: { $lte: isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + quantity } },
+				match: { required_trees: { $lte: threshold } },
 			});
+
+			achievements = achievements.filter((achievement) => achievement._level && achievement._level.required_trees <= threshold);
 
 			this.logger.info("17. createItem achievements", achievements);
 
 			// Find and update user level
 			const levels = await Level.findOne({
 				required_trees: {
-					$lte: isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + quantity,
+					$lte: threshold,
 				},
 			}).sort({ required_trees: -1 });
 			const userLevel = levels._id;
