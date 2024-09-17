@@ -163,7 +163,7 @@ module.exports = {
 		
 					const { user, wallet, photo } = ctx.params;
 		
-					const uploadDir = path.join(__dirname, `../public/__uploads/${slugify(user.userEmail)}/${wallet.walletQrId}`);
+					const uploadDir = path.join(__dirname, `../public/__uploads/${wallet.walletQrId}`);
 					const newFileBuffer = Buffer.from(photo, 'base64');
 					const newFileName = `${wallet._id}_photo.jpg`;
 		
@@ -180,7 +180,7 @@ module.exports = {
 					// 	image.productPicture = newImagePath;
 					// 	await image.save();
 					// }
-					
+
 					wallet._treeImageDir = newImagePath;
 					await wallet.save();
 
