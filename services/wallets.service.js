@@ -493,37 +493,35 @@ module.exports = {
 		},
 
 		modifyWalletLocation: {
-            params: {
-                walletId: { type: "string", required: true },  
-                latitude: { type: "number", required: true },   
-                longitude: { type: "number", required: true }, 
-            },
-            async handler(ctx) {
-                const { walletId, latitude, longitude } = ctx.params;
+			params: {
+				walletId: { type: "string", required: true },
+				latitude: { type: "number", required: true },
+				longitude: { type: "number", required: true },
+			},
+			async handler(ctx) {
+				const { walletId, latitude, longitude } = ctx.params;
 
-                try {
+				try {
+					const wallet = await Wallet.findById(walletId);
 
-                    const wallet = await Wallet.findById(walletId);
+					if (!wallet) {
+						throw new MoleculerError("Wallet not found", 404, "WALLET_NOT_FOUND");
+					}
 
-                    if (!wallet) {
-                        throw new MoleculerError("Wallet not found", 404, "WALLET_NOT_FOUND");
-                    }
+					wallet.geoLocation = `${latitude},${longitude}`;
 
-                    wallet.geoLocation = `${latitude},${longitude}`;
-                    
-                    await wallet.save();
+					await wallet.save();
 
-                    return {
-                        message: "Wallet location updated successfully",
-                        wallet: wallet.toJSON(), 
-                    };
-
-                } catch (error) {
-                    console.error("Error in modifyWalletLocation:", error.message);
-                    throw new MoleculerError(error.message || "Could not update wallet location", 500);
-                }
-            },
-        },
+					return {
+						message: "Wallet location updated successfully",
+						wallet: wallet.toJSON(),
+					};
+				} catch (error) {
+					console.error("Error in modifyWalletLocation:", error.message);
+					throw new MoleculerError(error.message || "Could not update wallet location", 500);
+				}
+			},
+		},
 
 		updateQrCodeText: {
 			params: {
@@ -604,24 +602,23 @@ module.exports = {
 				}
 			},
 		},
-		
+
 		getWalletById: {
 			params: {
-				walletId: { type: "string"},
+				walletId: { type: "string" },
 			},
 			async handler(ctx) {
 				const { walletId } = ctx.params;
-		
+
 				const wallet = await Wallet.findById(walletId).lean();
-		
+
 				if (!wallet) {
 					throw new MoleculerError("Wallet not found", 404, "WALLET_NOT_FOUND");
 				}
-		
-				return wallet; 
+
+				return wallet;
 			},
 		},
-		
 
 		updateDataInDb: {
 			params: {
@@ -1041,7 +1038,8 @@ module.exports = {
 
 				// TODO Xavi this can be resoled with populate
 				for (let wallet of listWallet) {
-					this.logger.info("3. getListQrCodesByUserMethod Wallet area", wallet.area);
+					this.logger.info("3.1 getListQrCodesByUserMethod wallet", wallet);
+					this.logger.info("3.2 getListQrCodesByUserMethod Wallet area", wallet.area);
 
 					if (wallet.area) {
 						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });

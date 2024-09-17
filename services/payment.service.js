@@ -265,7 +265,7 @@ const paymentService = {
 
 					this.logger.info("10. buyTreePayment invoiceRes:", invoiceRes);
 
-					this.logger.info("12. buyTreePayment Res:", { id: session.id, invoice: invoice.toJSON() });
+					this.logger.info("12. buyTreePayment DONE:", { id: session.id, invoice: invoice.toJSON() });
 
 					return { id: session.id, invoice: invoice.toJSON() };
 				} catch (err) {
@@ -448,8 +448,8 @@ const paymentService = {
 				let event;
 
 				try {
-					this.logger.info("4. handleStripeWebhook comparing signatures:", sig, ":", process.env.STRIPE_ENDPOINT_SECRET);
-					event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_ENDPOINT_SECRET);
+					this.logger.info("4. handleStripeWebhook comparing signatures:", sig, ":", process.env.STRIPE_SECRET_KEY);
+					event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_SECRET_KEY);
 
 					this.logger.info("6. handleStripeWebhook event", event);
 				} catch (err) {
