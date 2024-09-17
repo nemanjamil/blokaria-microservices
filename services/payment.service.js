@@ -602,7 +602,7 @@ const paymentService = {
 
 			this.logger.info("22. createItem Done", data);
 
-			return invoicedUser;
+			return { user: invoicedUser, itemTree: entity };
 		},
 
 		async handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx) {
@@ -634,13 +634,14 @@ const paymentService = {
 
 					this.logger.info("12. handleTreePurchaseWebhook updateInvoiceStatusRes", updateInvoiceStatusRes);
 
-					const user = await this.createItem(orderId, quantity, ctx);
+					const { user, itemTree } = await this.createItem(orderId, quantity, ctx);
 
 					this.logger.info("14. handleTreePurchaseWebhook user", user);
+					this.logger.info("15. handleTreePurchaseWebhook itemTree", itemTree);
 
 					ctx.meta.user = {
 						userEmail: user.userEmail,
-						userFullName: `${user.firstName} ${user.lastName}`,
+						userFullName: `${user.userFullName}`,
 						userId: user._id,
 						userRole: user.role,
 						numberOfTransaction: user.transactionsCount,
@@ -683,11 +684,27 @@ const paymentService = {
 					});
 
 					this.logger.info("22. handleTreePurchaseWebhook sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
+
+					let generateQrCodeEmailData = {
+						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
+						walletQrId: itemTree.itemTree,
+						userFullname: user.userFullName,
+						userEmail: user.userEmail,
+						productName: itemTree.productName,
+						accessCode: itemTree.accessCode,
+						userLang: "en",
+					};
+
+					this.logger.info("24. handleTreePurchaseWebhook generateQrCodeEmailData", generateQrCodeEmailData);
+
+					await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
+
+					// TODO Achievement email
 				} else {
 					this.logger.info("Capture failed");
 					await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
 				}
-				this.logger.info("26. handleTreePurchaseWebhook captureResult", captureResult);
+				this.logger.info("26. handleTreePurchaseWebhook captureResult DONE", captureResult);
 			} else {
 				console.log("Webhook verification failed.");
 				throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {

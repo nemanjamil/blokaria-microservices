@@ -149,11 +149,17 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
+					this.logger.info("0. generateQrCodeEmail START", ctx.params);
+
 					const { qrCodeImageForStatus, userLang } = ctx.params;
+
 					const source = fs.readFileSync(`./public/templates/${userLang}/generatingQrCodeEmail.html`, "utf-8").toString();
 					const template = handlebars.compile(source);
 
 					let userEmail = ctx.params.userEmail;
+
+					this.logger.info("1. generateQrCodeEmail userEmail", userEmail);
+
 					const replacements = {
 						walletQrId: ctx.params.walletQrId,
 						userFullname: ctx.params.userFullname,
@@ -165,6 +171,8 @@ module.exports = {
 						domainEmail: process.env.ADMIN_EMAIL,
 					};
 
+					this.logger.info("2. generateQrCodeEmail replacements", replacements);
+
 					const htmlToSend = template(replacements);
 
 					let transporter = await this.getTransporter();
@@ -174,7 +182,7 @@ module.exports = {
 						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Generated QR code ✔",
+						subject: "Generated Tree Item ✔",
 						html: htmlToSend,
 						attachments: [
 							{
@@ -187,6 +195,8 @@ module.exports = {
 					};
 
 					let info = await transporter.sendMail(mailOptions);
+
+					this.logger.info("5. generateQrCodeEmail DONE", info);
 
 					return info;
 				} catch (error) {
