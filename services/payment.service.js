@@ -523,13 +523,13 @@ const paymentService = {
 
 			const user = invoice.payer;
 			const area = invoice.area;
-
+			const randomString = await this.generateRandomString(5);
 			const entity = {
 				walletQrId: walletQrId,
 				geoLocation: `${area.longitude}, ${area.latitude}`, // Use selected point
 				userFullname: user.userFullName,
 				userEmail: user.userEmail,
-				productName: `Plant in ${area.name} - ${this.generateRandomString(5)}`,
+				productName: `Plant in ${area.name} - ${randomString}`,
 				publicQrCode: true,
 				costOfProduct: 1,
 				longText: "",
