@@ -498,6 +498,14 @@ const paymentService = {
 		},
 	},
 	methods: {
+		async generateRandomString(length) {
+			const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			let result = "";
+			for (let i = 0; i < length; i++) {
+				result += characters.charAt(Math.floor(Math.random() * characters.length));
+			}
+			return result;
+		},
 		async createItem(invoiceId, quantity, ctx) {
 			this.logger.info("1. createItem start invoiceId, quantity", invoiceId, quantity);
 
@@ -521,7 +529,7 @@ const paymentService = {
 				geoLocation: `${area.longitude}, ${area.latitude}`, // Use selected point
 				userFullname: user.userFullName,
 				userEmail: user.userEmail,
-				productName: `Plant in ${area.name}`, // TODO: random letters and numbers for unique names
+				productName: `Plant in ${area.name} - ${this.generateRandomString(5)}`,
 				publicQrCode: true,
 				costOfProduct: 1,
 				longText: "",
