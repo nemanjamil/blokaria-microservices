@@ -7,6 +7,7 @@ const Wallet = require("../models/Wallet.js");
 const User = require("../models/User.js");
 const Utils = require("../utils/utils");
 const random = require("lodash/random");
+const { log } = require("handlebars");
 
 require("dotenv").config();
 
@@ -511,7 +512,6 @@ module.exports = {
 					}
 		
 					let walletUpdated = false;
-		
 					for (const area of planter.accessibleAreas) {
 						const wallets = await Wallet.find({ area: area._id });
 						let wallet = wallets.find(wallet => wallet._id.toString() === walletId);
@@ -525,7 +525,18 @@ module.exports = {
 								wallet = await ctx.call("image.updateTreeImage", { wallet, photo, user });
 							}
 							await wallet.save();
-		
+
+							ctx.call("v1.email.sendTreePlantingConfirmationEmail", {
+								userLang: "en",
+								userEmails: [user.userEmail, wallet.userEmail],
+								plantingDetails: {
+									latitude: latitude,
+									longitude: longitude,
+									area: area.name,
+									photo: photo,
+								},
+							});
+
 							walletUpdated = true; 
 							break; 
 						}

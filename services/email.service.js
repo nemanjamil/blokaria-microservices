@@ -449,6 +449,63 @@ module.exports = {
 			},
 		},
 
+		sendTreePlantingConfirmationEmail: {
+			rest: "POST /sendTreePlantingConfirmationEmail",
+			params: {
+				userLang: { type: "string" },
+				userEmails: { type: "array", items: "string" },
+				plantingDetails: { 
+				type: "object", 
+				props: {
+					latitude: { type: "number" },
+					longitude: { type: "number" },
+					area: { type: "string" },
+					photo: { type: "string" }, // base64 encoded photo
+				},
+				},
+			},
+			async handler(ctx) {
+				try {
+				const { userLang, userEmails, plantingDetails } = ctx.params;
+				const source = fs.readFileSync(`./public/templates/${userLang}/treePlantingConfirmation.html`, "utf-8").toString();
+			
+				const template = handlebars.compile(source);
+			
+				// Pass the planting details to the template
+				const replacements = {
+					latitude: plantingDetails.latitude,
+					longitude: plantingDetails.longitude,
+					area: plantingDetails.area,
+				};
+			
+				const htmlToSend = template(replacements);
+			
+				let transporter = await this.getTransporter();
+			
+				const mailOptions = {
+					from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
+					to: userEmails.join(','),
+					bcc: `${this.metadata.bccemail}`,
+					subject: "Tree Planting Confirmation ✔",
+					html: htmlToSend,
+					attachments: [
+					{
+						filename: 'tree_photo.png',
+						content: plantingDetails.photo,
+						encoding: 'base64',
+					}
+					],
+				};
+			
+				let info = await transporter.sendMail(mailOptions);
+			
+				return info;
+				} catch (error) {
+				return Promise.reject(error);
+				}
+			},
+			},
+			
 		sendApprovalToClient: {
 			async handler(ctx) {
 				const { userEmail, userFullname, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
