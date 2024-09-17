@@ -552,11 +552,13 @@ module.exports = {
 					const itemsAmount = user._wallets?.length || 0;
 
 					const value = CARBON_YEARLY_FOOTPRINT - itemsAmount * TREE_REDUCE_FOOTPRINT;
+					const percentage = TREE_REDUCE_FOOTPRINT / CARBON_YEARLY_FOOTPRINT * 100;
 
 					return {
 						ok: true,
 						tonsPerYear: CARBON_YEARLY_FOOTPRINT,
-						tonsUserConsume: value
+						tonsUserConsume: value,
+						percentage: percentage
 					};
 				} catch (err) {
 					throw new MoleculerError("Failed to get metrics", 500, "METRICS_FETCH_FAILED", {
