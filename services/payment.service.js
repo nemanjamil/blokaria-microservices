@@ -433,13 +433,15 @@ const paymentService = {
 				try {
 					this.logger.info("4. handleStripeWebhook comparing signatures:", sig, ":", process.env.STRIPE_ENDPOINT_SECRET);
 					event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_ENDPOINT_SECRET);
+
+					this.logger.info("6. handleStripeWebhook event", event);
 				} catch (err) {
-					this.logger.error(`5. handleStripeWebhook Webhook Error: ${err.message}`);
+					this.logger.error(`8. handleStripeWebhook Webhook Error: ${err.message}`);
 					ctx.meta.$statusCode = 400;
 					return `Webhook Error: ${err.message}`;
 				}
 
-				this.logger.info("7. handleStripeWebhook Stripe Event Data:", event.data);
+				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
 
 				// Handle the event
 				switch (event.type) {
