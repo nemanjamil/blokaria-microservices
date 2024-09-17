@@ -573,10 +573,15 @@ const paymentService = {
 			}).sort({ required_trees: -1 });
 			const userLevel = levels._id;
 
+			this.logger.info("14. createItem levels", levels);
 			this.logger.info("15. createItem userLevel", userLevel);
 
+			let iterationNumber = 0;
 			// Add achievements to user, it will check if its there it won't add with addToSet
 			for (const element of achievements.filter((x) => x._level !== null)) {
+				this.logger.info("\n\n\n");
+				this.logger.info(`16.${iterationNumber} createItem: element`, element);
+
 				if (element._level) {
 					if (invoicedUser._achievements && invoicedUser._achievements.filter((x) => x === element._id).length === 0) {
 						const achievementUpdate = {
@@ -587,13 +592,19 @@ const paymentService = {
 							.populate("_achievements")
 							.exec();
 
-						ctx.call("v1.achievement.sendAchievementEmail", {
+						let sendEmailAch = ctx.call("v1.achievement.sendAchievementEmail", {
 							userLang: "en",
 							userEmail: updatedUser.userEmail,
 							achievement: element,
 						});
+						this.logger.info(`17.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
+					} else {
+						this.logger.info(`18.${iterationNumber} createItem - Achievement already exists for user.`);
 					}
+				} else {
+					this.logger.info(`20.${iterationNumber} createItem - element._level does not exist.`);
 				}
+				iterationNumber++;
 			}
 
 			const walletUpdate = {
@@ -601,7 +612,7 @@ const paymentService = {
 			};
 			let updatedWalletUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, walletUpdate, { new: true }).populate("_wallets").exec();
 
-			this.logger.info("17. createItem Add updatedWalletUser", updatedWalletUser);
+			this.logger.info("22. createItem Add updatedWalletUser", updatedWalletUser);
 
 			// Update transactional data
 			const data = {
@@ -609,11 +620,11 @@ const paymentService = {
 				$set: { _level: String(userLevel) },
 			};
 
-			this.logger.info("19. createItem Update transactional data", data);
+			this.logger.info("24. createItem Update transactional data", data);
 
 			await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
 
-			this.logger.info("22. createItem Done", data);
+			this.logger.info("26. createItem ----- DONE -----", data);
 
 			return { user: invoicedUser, itemTree: entity };
 		},
