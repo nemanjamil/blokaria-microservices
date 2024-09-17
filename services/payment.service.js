@@ -74,12 +74,12 @@ const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_
 };
 
 const captureOrder = async (orderId) => {
-	this.logger.info("1. captureOrder START");
-	this.logger.info("2. captureOrder START orderId", orderId);
+	console.log("1. captureOrder START");
+	console.log("2. captureOrder START orderId", orderId);
 
 	const accessToken = await generatePaypalAccessToken();
 
-	this.logger.info("3. captureOrder accessToken", accessToken);
+	console.log("3. captureOrder accessToken", accessToken);
 
 	try {
 		const response = await axios({
@@ -90,7 +90,7 @@ const captureOrder = async (orderId) => {
 				Authorization: `Bearer ${accessToken}`,
 			},
 		});
-		this.logger.info("3. captureOrder response DONE", response.data);
+		console.log("3. captureOrder response DONE", response.data);
 
 		return response.data;
 	} catch (error) {
