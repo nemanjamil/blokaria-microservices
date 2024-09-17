@@ -420,42 +420,45 @@ const paymentService = {
 			async handler(ctx) {
 				// const secret = "whsec_3dcfddcd5427bacb88780b92982a2f6851ebcc7da3987c0000c3564322bf18e6";
 				const body = Buffer.from(Object.values(ctx.params));
-				this.logger.info("Stripe Webhook triggered:", body.length);
+				this.logger.info("1. handleStripeWebhook Stripe Webhook triggered:", body.length);
 				const headers = ctx.options.parentCtx.params.req.headers;
 				const sig = headers["stripe-signature"];
 
 				const stripe = this.getStripe();
 
+				this.logger.info("3. handleStripeWebhook stripe", stripe);
+
 				let event;
 
 				try {
-					this.logger.info("comparing signatures:", sig, ":", process.env.STRIPE_ENDPOINT_SECRET);
+					this.logger.info("4. handleStripeWebhook comparing signatures:", sig, ":", process.env.STRIPE_ENDPOINT_SECRET);
 					event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_ENDPOINT_SECRET);
 				} catch (err) {
-					this.logger.error(`Webhook Error: ${err.message}`);
+					this.logger.error(`5. handleStripeWebhook Webhook Error: ${err.message}`);
 					ctx.meta.$statusCode = 400;
 					return `Webhook Error: ${err.message}`;
 				}
 
-				this.logger.info("Stripe Event Data:", event.data);
+				this.logger.info("7. handleStripeWebhook Stripe Event Data:", event.data);
 
 				// Handle the event
 				switch (event.type) {
 					case "checkout.session.completed":
-						this.logger.info("Payment Intent Succeeded:", event.data.object);
+						this.logger.info("10. handleStripeWebhook Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
 						return this.createItem(event.data.object.id, event.data.object.quantity, ctx);
 					case "checkout.session.async_payment_failed":
-						this.logger.info("Payment Intent Canceled:", event.data.object);
+						this.logger.info("12. handleStripeWebhook Payment Intent Canceled:", event.data.object);
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.FAILED);
 					case "checkout.session.expired":
-						this.logger.info("Payment Intent Expired:", event.data.object);
+						this.logger.info("14. handleStripeWebhook Payment Intent Expired:", event.data.object);
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.EXPIRED);
 					case "charge.captured":
+						this.logger.info("16. handleStripeWebhook Payment charge.captured:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
 						break;
 					default:
-						this.logger.info(`Unhandled event type ${event.type}`);
+						this.logger.info(`16. handleStripeWebhook default  Unhandled event type ${event.type}`);
 				}
 
 				// Return a 200 response to acknowledge receipt of the event
