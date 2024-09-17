@@ -580,7 +580,7 @@ const paymentService = {
 			this.logger.info("14. createItem item", item);
 			this.logger.info("15. createItem item.userEmail", item.userEmail);
 
-			const threshold = isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + quantity;
+			const threshold = isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + Number(quantity);
 
 			this.logger.info("16. createItem threshold", threshold);
 
@@ -589,9 +589,11 @@ const paymentService = {
 				match: { required_trees: { $lte: threshold } },
 			});
 
+			this.logger.info("17.A createItem achievements ALL", achievements);
+
 			achievements = achievements.filter((achievement) => achievement._level && achievement._level.required_trees <= threshold);
 
-			this.logger.info("17. createItem achievements", achievements);
+			this.logger.info("17.B createItem achievements filtered", achievements);
 
 			// Find and update user level
 			const levels = await Level.findOne({
