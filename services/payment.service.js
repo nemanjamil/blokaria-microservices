@@ -438,6 +438,7 @@ const paymentService = {
 				// const secret = "whsec_3dcfddcd5427bacb88780b92982a2f6851ebcc7da3987c0000c3564322bf18e6";
 				const body = Buffer.from(Object.values(ctx.params));
 				this.logger.info("1. handleStripeWebhook Stripe Webhook triggered:", body.length);
+				this.logger.info("1.1 handleStripeWebhook Stripe Webhook triggered: body", body);
 				const headers = ctx.options.parentCtx.params.req.headers;
 				const sig = headers["stripe-signature"];
 
