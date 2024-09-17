@@ -145,10 +145,14 @@ module.exports = {
 
 				this.logger.info("6. reduceNumberOfTransaction levels", levels);
 
+				let iterationNumber = 0;
+
 				// Add achievements to user, it will check if its there it won't add with addToSet
 				for (const element of achievements.filter((x) => x._level !== null)) {
 					if (element._level) {
-						if (invoicedUser._achievements && invoicedUser._achievements.filter((x) => x === element._id).length === 0) {
+						if (invoicedUser._achievements && !invoicedUser._achievements.includes(element._id)) {
+							this.logger.info(`8.${iterationNumber} reduceNumberOfTransaction - New Achievement created.`);
+
 							const achievementUpdate = {
 								$addToSet: { _achievements: String(element._id) },
 							};
@@ -162,8 +166,14 @@ module.exports = {
 								userEmail: updatedUser.userEmail,
 								achievement: element,
 							});
+						} else {
+							this.logger.info(`10.${iterationNumber} reduceNumberOfTransaction - Achievement already exists for user.`);
 						}
+					} else {
+						this.logger.info(`12.${iterationNumber} reduceNumberOfTransaction - element._level does not exist.`);
 					}
+
+					iterationNumber++;
 				}
 
 				// Update transactional data
