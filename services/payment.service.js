@@ -611,6 +611,7 @@ const paymentService = {
 
 			if (isValid) {
 				this.logger.info("2. handleTreePurchaseWebhook Tree Purchase Webhook successfully verified", webhookEvent);
+				this.logger.info("2. handleTreePurchaseWebhook Tree Purchase Webhook webhookEvent.resource.id", webhookEvent.resource.id);
 
 				const captureResult = await captureOrder(webhookEvent.resource.id);
 
