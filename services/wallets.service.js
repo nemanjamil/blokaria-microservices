@@ -4,6 +4,7 @@ const dbConnection = require("../utils/dbConnection");
 const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/Wallet.js");
+const User = require("../models/User.js");
 const Utils = require("../utils/utils");
 const random = require("lodash/random");
 
@@ -492,38 +493,60 @@ module.exports = {
 			},
 		},
 
-		modifyWalletLocation: {
-            params: {
-                walletId: { type: "string", required: true },  
-                latitude: { type: "number", required: true },   
-                longitude: { type: "number", required: true }, 
-            },
-            async handler(ctx) {
-                const { walletId, latitude, longitude } = ctx.params;
+		modifyAccessibleLocation: {
+			params: {
+				walletId: { type: "string", required: true },
+				latitude: { type: "number", required: true },
+				longitude: { type: "number", required: true },
+				photo: { type: "string", optional: true },  
+			},
+			async handler(ctx) {
+				const { walletId, latitude, longitude, photo } = ctx.params;
+				const user = ctx.meta.user;
+		
+				try {
+					const planter = await User.findOne({ _id: user.userId }).populate("accessibleAreas");
+					if (!planter) {
+						throw new MoleculerError("User not found", 404, "USER_NOT_FOUND");
+					}
+		
+					let walletUpdated = false;
+		
+					for (const area of planter.accessibleAreas) {
+						const wallets = await Wallet.find({ area: area._id });
+						let wallet = wallets.find(wallet => wallet._id.toString() === walletId);
+						if (wallet) {
 
-                try {
-
-                    const wallet = await Wallet.findById(walletId);
-
-                    if (!wallet) {
-                        throw new MoleculerError("Wallet not found", 404, "WALLET_NOT_FOUND");
-                    }
-
-                    wallet.geoLocation = `${latitude},${longitude}`;
-                    
-                    await wallet.save();
-
-                    return {
-                        message: "Wallet location updated successfully",
-                        wallet: wallet.toJSON(), 
-                    };
-
-                } catch (error) {
-                    console.error("Error in modifyWalletLocation:", error.message);
-                    throw new MoleculerError(error.message || "Could not update wallet location", 500);
-                }
-            },
-        },
+							wallet = await Wallet.findById(wallet._id);
+							wallet.geoLocation = `${latitude},${longitude}`;
+							console.log(`Updated wallet location for walletId: ${walletId}`);
+		
+							if (photo) {
+								wallet = await ctx.call("image.updateTreeImage", { wallet, photo, user });
+							}
+							await wallet.save();
+		
+							walletUpdated = true; 
+							break; 
+						}
+					}
+		
+					if (walletUpdated) {
+						return {
+							message: "Wallet location updated successfully in accessible areas.",
+						};
+					} else {
+						return {
+							message: "Failed to update wallet location: Wallet not found in any accessible area.",
+						};
+					}
+		
+				} catch (error) {
+					console.error("Error in modifyAccessibleLocation:", error);
+					throw new MoleculerError(error.message || "Internal Server Error", 500);
+				}
+			},
+		},		
 
 		updateQrCodeText: {
 			params: {

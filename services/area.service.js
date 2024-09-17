@@ -306,54 +306,6 @@ const areaService = {
 					}
 			},
 		},
-		modifyAccessibleLocation: {
-			params: {
-				walletId: { type: "string", required: true },
-				latitude: { type: "number", required: true },
-				longitude: { type: "number", required: true },
-			},
-			async handler(ctx) {
-				const { walletId, latitude, longitude } = ctx.params;
-				const user = ctx.meta.user;
-		
-				try {
-					const planter = await User.findOne({ _id: user.userId }).populate("accessibleAreas");
-					if (!planter) {
-						throw new MoleculerError("User not found", 404, "USER_NOT_FOUND");
-					}
-		
-					let walletUpdated = false;
-		
-					for (const area of planter.accessibleAreas) {
-						const areaWallets = await ctx.call("wallet.getWalletsByArea", { areaId: area._id.toString() });
-		
-						const wallet = areaWallets.find(wallet => wallet._id.toString() === walletId);
-						if (wallet) {
-							await ctx.call("wallet.modifyWalletLocation", { walletId: wallet._id.toString(), latitude, longitude });
-							console.log(`Updated wallet location for walletId: ${walletId}`);
-							walletUpdated = true; 
-							break; 
-						}
-					}
-		
-					if (walletUpdated) {
-						return {
-							message: "Wallet location updated successfully in accessible areas.",
-						};
-					} else {
-						return {
-							message: "Failed to update wallet location: Wallet not found in any accessible area.",
-						};
-					}
-		
-				} catch (error) {
-					console.error("Error in modifyAccessibleLocation:", error);
-					throw new MoleculerError(error.message || "Internal Server Error", 500);
-				}
-			},
-		},
-		
-		
 
 		getMyAccessibleAreas: {
 			async handler(ctx) {

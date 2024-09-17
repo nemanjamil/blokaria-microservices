@@ -25,6 +25,7 @@ const walletSchema = new mongoose.Schema({
 	nftimage: { type: String, default: "" },
 	nftsendaddress: { type: String },
 
+	_treeImageDir: { type: String },
 	clientemailcb: { type: Boolean, default: true },
 	ownernamecb: { type: Boolean, default: true },
 
