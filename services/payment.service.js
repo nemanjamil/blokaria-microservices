@@ -441,6 +441,8 @@ const paymentService = {
 				const headers = ctx.options.parentCtx.params.req.headers;
 				const sig = headers["stripe-signature"];
 
+				this.logger.info("2. handleStripeWebhook sig", sig);
+
 				const stripe = this.getStripe();
 
 				this.logger.info("3. handleStripeWebhook stripe", stripe);
