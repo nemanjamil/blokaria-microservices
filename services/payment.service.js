@@ -613,7 +613,8 @@ const paymentService = {
 				this.logger.info(`22.${iterationNumber} createItem: element`, element);
 
 				if (element._level) {
-					this.logger.info(`23.${iterationNumber} createItem element._level`, element._level);
+					this.logger.info(`23.A${iterationNumber} createItem element._level`, element._id);
+					this.logger.info(`23.B.${iterationNumber} createItem invoicedUser._achievements`, invoicedUser._achievements);
 
 					if (invoicedUser._achievements && invoicedUser._achievements.filter((x) => x === element._id).length === 0) {
 						const achievementUpdate = {
