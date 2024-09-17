@@ -498,6 +498,14 @@ const paymentService = {
 		},
 	},
 	methods: {
+		async generateRandomString(length) {
+			const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			let result = "";
+			for (let i = 0; i < length; i++) {
+				result += characters.charAt(Math.floor(Math.random() * characters.length));
+			}
+			return result;
+		},
 		async createItem(invoiceId, quantity, ctx) {
 			this.logger.info("1. createItem start invoiceId, quantity", invoiceId, quantity);
 
@@ -515,13 +523,13 @@ const paymentService = {
 
 			const user = invoice.payer;
 			const area = invoice.area;
-
+			const randomString = await this.generateRandomString(5);
 			const entity = {
 				walletQrId: walletQrId,
 				geoLocation: `${area.longitude}, ${area.latitude}`, // Use selected point
 				userFullname: user.userFullName,
 				userEmail: user.userEmail,
-				productName: `Plant in ${area.name}`, // TODO: random letters and numbers for unique names
+				productName: `Plant in ${area.name} - ${randomString}`,
 				publicQrCode: true,
 				costOfProduct: 1,
 				longText: "",
@@ -588,7 +596,12 @@ const paymentService = {
 				}
 			}
 
-			this.logger.info("17. createItem Add achievements to user", true);
+			const walletUpdate = {
+				$addToSet: { _wallets: String(item._id) },
+			};
+			let updatedWalletUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, walletUpdate, { new: true }).populate("_wallets").exec();
+
+			this.logger.info("17. createItem Add updatedWalletUser", updatedWalletUser);
 
 			// Update transactional data
 			const data = {
@@ -602,7 +615,7 @@ const paymentService = {
 
 			this.logger.info("22. createItem Done", data);
 
-			return invoicedUser;
+			return { user: invoicedUser, itemTree: entity };
 		},
 
 		async handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx) {
@@ -634,13 +647,14 @@ const paymentService = {
 
 					this.logger.info("12. handleTreePurchaseWebhook updateInvoiceStatusRes", updateInvoiceStatusRes);
 
-					const user = await this.createItem(orderId, quantity, ctx);
+					const { user, itemTree } = await this.createItem(orderId, quantity, ctx);
 
 					this.logger.info("14. handleTreePurchaseWebhook user", user);
+					this.logger.info("15. handleTreePurchaseWebhook itemTree", itemTree);
 
 					ctx.meta.user = {
 						userEmail: user.userEmail,
-						userFullName: `${user.firstName} ${user.lastName}`,
+						userFullName: `${user.userFullName}`,
 						userId: user._id,
 						userRole: user.role,
 						numberOfTransaction: user.transactionsCount,
@@ -683,11 +697,25 @@ const paymentService = {
 					});
 
 					this.logger.info("22. handleTreePurchaseWebhook sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
+
+					let generateQrCodeEmailData = {
+						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
+						walletQrId: itemTree.walletQrId,
+						userFullname: user.userFullName,
+						userEmail: user.userEmail,
+						productName: itemTree.productName,
+						accessCode: itemTree.accessCode,
+						userLang: "en",
+					};
+
+					this.logger.info("24. handleTreePurchaseWebhook generateQrCodeEmailData", generateQrCodeEmailData);
+
+					await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
 				} else {
 					this.logger.info("Capture failed");
 					await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
 				}
-				this.logger.info("26. handleTreePurchaseWebhook captureResult", captureResult);
+				this.logger.info("26. handleTreePurchaseWebhook captureResult DONE", captureResult);
 			} else {
 				console.log("Webhook verification failed.");
 				throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
