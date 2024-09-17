@@ -74,7 +74,8 @@ const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_
 };
 
 const captureOrder = async (orderId) => {
-	this.logger.info("1. captureOrder START orderId", orderId);
+	this.logger.info("1. captureOrder START");
+	this.logger.info("2. captureOrder START orderId", orderId);
 
 	const accessToken = await generatePaypalAccessToken();
 
@@ -611,13 +612,14 @@ const paymentService = {
 
 			if (isValid) {
 				this.logger.info("2. handleTreePurchaseWebhook Tree Purchase Webhook successfully verified", webhookEvent);
-				this.logger.info("2. handleTreePurchaseWebhook Tree Purchase Webhook webhookEvent.resource.id", webhookEvent.resource.id);
-
-				const captureResult = await captureOrder(webhookEvent.resource.id);
-
-				this.logger.info("4. handleTreePurchaseWebhook captureResult", captureResult);
 
 				const orderId = webhookEvent.resource.id;
+
+				this.logger.info("2. handleTreePurchaseWebhook orderId", orderId);
+
+				const captureResult = await captureOrder(orderId);
+
+				this.logger.info("4. handleTreePurchaseWebhook captureResult", captureResult);
 
 				this.logger.info("6. handleTreePurchaseWebhook orderId", orderId);
 
