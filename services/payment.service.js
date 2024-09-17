@@ -14,11 +14,11 @@ const mongoose = require("mongoose");
 
 const updateInvoiceStatus = async (invoiceId, status) => {
 	try {
-		this.logger.info("1. updateInvoiceStatus invoiceId status", invoiceId, status);
+		console.log("1. updateInvoiceStatus invoiceId status", invoiceId, status);
 
 		const invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: { status } }, { new: true });
 
-		this.logger.info("2. updateInvoiceStatus invoice", invoice);
+		console.log("2. updateInvoiceStatus invoice", invoice);
 
 		return invoice.toJSON();
 	} catch (err) {
