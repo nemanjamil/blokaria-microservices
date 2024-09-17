@@ -596,7 +596,12 @@ const paymentService = {
 				}
 			}
 
-			this.logger.info("17. createItem Add achievements to user", true);
+			const walletUpdate = {
+				$addToSet: { _wallets: String(item._id) },
+			};
+			let updatedWalletUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, walletUpdate, { new: true }).populate("_wallets").exec();
+
+			this.logger.info("17. createItem Add updatedWalletUser", updatedWalletUser);
 
 			// Update transactional data
 			const data = {
