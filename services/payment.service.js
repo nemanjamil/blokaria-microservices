@@ -687,7 +687,7 @@ const paymentService = {
 
 					let generateQrCodeEmailData = {
 						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
-						walletQrId: itemTree.itemTree,
+						walletQrId: itemTree.walletQrId,
 						userFullname: user.userFullName,
 						userEmail: user.userEmail,
 						productName: itemTree.productName,
