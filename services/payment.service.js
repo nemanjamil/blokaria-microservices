@@ -580,7 +580,7 @@ const paymentService = {
 			this.logger.info("14. createItem item", item);
 			this.logger.info("15. createItem item.userEmail", item.userEmail);
 
-			const threshold = isNaN(Number(invoicedUser.planted_trees_count)) ? 1 : Number(invoicedUser.planted_trees_count) + Number(quantity);
+			const threshold = invoicedUser.planted_trees_count + quantity || quantity;
 
 			this.logger.info("16. createItem threshold", threshold);
 

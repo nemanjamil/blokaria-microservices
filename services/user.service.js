@@ -113,11 +113,6 @@ module.exports = {
 				},
 			},
 			async handler(ctx) {
-				const entity = {
-					userEmail: ctx.params.user.userEmail,
-					numberOfTransaction: { $gt: 0 },
-				};
-
 				const invoicedUser = await User.findOne({ userEmail: ctx.params.user.userEmail });
 
 				const threshold = invoicedUser.planted_trees_count + 1 || 1;
