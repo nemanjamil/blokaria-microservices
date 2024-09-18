@@ -238,11 +238,11 @@ const areaService = {
 		addAccessibleAreas: {
 			params: {
 				areas: { type: "array", items: "string" },
+				userId: { type: "string", required: true },
 			},
 			async handler(ctx) {
 				try {
-				const { areas } = ctx.params;
-				const { userId } = ctx.meta.user;
+				const { areas, userId } = ctx.params;
 		
 				console.log("userId", userId);
 				console.log("areas", areas);
