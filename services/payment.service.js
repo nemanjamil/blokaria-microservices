@@ -496,6 +496,8 @@ const paymentService = {
 						this.logger.info(`16. handleStripeWebhook default  Unhandled event type ${event.type}`);
 				}
 
+				this.logger.info("10. handleStripeWebhook  ---- Done ---");
+
 				// Return a 200 response to acknowledge receipt of the event
 				return;
 			},
