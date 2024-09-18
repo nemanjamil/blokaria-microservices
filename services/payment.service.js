@@ -529,7 +529,7 @@ const paymentService = {
 				geoLocation: "",
 				userFullname: user.userFullName,
 				userEmail: user.userEmail,
-				productName: `Plant in ${area.name} - ${randomString}`,
+				productName: `Tree-${randomString} in ${area.name}`,
 				publicQrCode: true,
 				costOfProduct: 1,
 				longText: "",
