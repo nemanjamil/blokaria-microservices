@@ -480,12 +480,15 @@ const paymentService = {
 
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
 
+				const lineItems = stripe.checkout.sessions.listLineItems(event.id);
+				const quantity = lineItems.length > 0 ? lineItems[0].quantity : 1;
+
 				// Handle the event
 				switch (event.type) {
 					case "checkout.session.completed":
 						this.logger.info("10. handleStripeWebhook Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
-						return this.createItem(event.data.object.id, event.data.object.line_items.quantity || 1, ctx);
+						return this.createItem(event.data.object.id, quantity, ctx);
 					case "checkout.session.async_payment_failed":
 						this.logger.info("12. handleStripeWebhook Payment Intent Canceled:", event.data.object);
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.FAILED);
