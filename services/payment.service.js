@@ -485,7 +485,7 @@ const paymentService = {
 					case "checkout.session.completed":
 						this.logger.info("10. handleStripeWebhook Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
-						return this.createItem(event.data.object.id, event.data.object.line_items[0].quantity, ctx);
+						return this.createItem(event.data.object.id, event.data.object.line_items.quantity || 1, ctx);
 					case "checkout.session.async_payment_failed":
 						this.logger.info("12. handleStripeWebhook Payment Intent Canceled:", event.data.object);
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.FAILED);
