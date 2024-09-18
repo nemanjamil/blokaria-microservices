@@ -607,17 +607,20 @@ const paymentService = {
 			this.logger.info("20. createItem userLevel", userLevel);
 
 			let iterationNumber = 0;
+
+			this.logger.info("\n\n\n ---- ACHIEVEMENTS START ---- \n\n\n");
+
 			// Add achievements to user, it will check if its there it won't add with addToSet
 			for (const element of achievements.filter((x) => x._level !== null)) {
-				this.logger.info("\n\n\n");
 				this.logger.info(`22.${iterationNumber} createItem: element`, element);
 
 				if (element._level) {
 					this.logger.info(`23.A.${iterationNumber} createItem element._level`, element._id);
 					this.logger.info(`23.B.${iterationNumber} createItem invoicedUser._achievements`, invoicedUser._achievements);
 
-					//if (invoicedUser._achievements && invoicedUser._achievements.filter((x) => x === element._id).length === 0) {
 					if (invoicedUser._achievements && !invoicedUser._achievements.includes(element._id)) {
+						this.logger.info(`24.${iterationNumber} reduceNumberOfTransaction - New Achievement created.`);
+
 						const achievementUpdate = {
 							$addToSet: { _achievements: String(element._id) },
 						};
@@ -631,13 +634,13 @@ const paymentService = {
 							userEmail: updatedUser.userEmail,
 							achievement: element,
 						};
-						this.logger.info(`24.${iterationNumber} createItem achPayload`, achPayload);
+						this.logger.info(`25.${iterationNumber} createItem achPayload`, achPayload);
 
 						let sendEmailAch = await ctx.call("v1.achievement.sendAchievementEmail", achPayload);
 
-						this.logger.info(`25.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
+						this.logger.info(`26.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
 					} else {
-						this.logger.info(`26.${iterationNumber} createItem - Achievement already exists for user.`);
+						this.logger.info(`27.${iterationNumber} createItem - Achievement already exists for user.`);
 					}
 				} else {
 					this.logger.info(`28.${iterationNumber} createItem - element._level does not exist.`);
