@@ -4,8 +4,10 @@ const dbConnection = require("../utils/dbConnection");
 const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/Wallet.js");
+const User = require("../models/User.js");
 const Utils = require("../utils/utils");
 const random = require("lodash/random");
+const { log } = require("handlebars");
 
 require("dotenv").config();
 
@@ -73,6 +75,7 @@ module.exports = {
 			//rest: "POST /generateQrCodeInSystem",
 			async handler(ctx) {
 				try {
+					console.log("generateQrCodeInSystem ctx.params", ctx.params);
 					let plainInsertObject = {
 						ctx,
 						user: ctx.params.data.user,
@@ -185,7 +188,7 @@ module.exports = {
 				};
 
 				try {
-					return await Wallet.findOneAndUpdate(entity, data, { new: true }).populate("_wallets");
+					return await Wallet.findOneAndUpdate(entity, data, { new: true }); // .populate("_wallets");
 				} catch (error) {
 					throw new MoleculerError("Can not populate Wallet table with NFT ids", 401, "POPULATE_BUG", {
 						message: "Wallet Not Found",
@@ -375,11 +378,11 @@ module.exports = {
 					if (generated) {
 						this.logger.info("getListQrCodesByUserPrivate generated TRUE", generated);
 
-						listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: false });
+						listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: false, ctx });
 					} else {
 						this.logger.info("getListQrCodesByUserPrivate generated false", generated);
 
-						listQrCodesByUser = await this.getlistQrCodesOwnedByUserMethod({ userEmail, qrCodeRedeemStatus: 1, publicQrCode: false });
+						listQrCodesByUser = await this.getlistQrCodesOwnedByUserMethod({ userEmail, qrCodeRedeemStatus: 1, publicQrCode: false, ctx });
 					}
 
 					return listQrCodesByUser;
@@ -400,7 +403,7 @@ module.exports = {
 
 					const { userEmail } = ctx.params;
 
-					let listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: true });
+					let listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: true, ctx });
 					return listQrCodesByUser;
 				} catch (error) {
 					return Promise.reject(error);
@@ -491,22 +494,90 @@ module.exports = {
 			},
 		},
 
+		modifyAccessibleLocation: {
+			params: {
+				walletId: { type: "string", required: true },
+				latitude: { type: "number", required: true },
+				longitude: { type: "number", required: true },
+				photo: { type: "string", optional: true },  
+			},
+			async handler(ctx) {
+				const { walletId, latitude, longitude, photo } = ctx.params;
+				const user = ctx.meta.user;
+		
+				try {
+					const planter = await User.findOne({ _id: user.userId }).populate("accessibleAreas");
+					if (!planter) {
+						throw new MoleculerError("User not found", 404, "USER_NOT_FOUND");
+					}
+		
+					let walletUpdated = false;
+					for (const area of planter.accessibleAreas) {
+						const wallets = await Wallet.find({ area: area._id });
+						let wallet = wallets.find(wallet => wallet._id.toString() === walletId);
+						if (wallet) {
+
+							wallet = await Wallet.findById(wallet._id);
+							wallet.geoLocation = `${latitude},${longitude}`;
+							console.log(`Updated wallet location for walletId: ${walletId}`);
+		
+							if (photo) {
+								wallet = await ctx.call("image.updateTreeImage", { wallet, photo, user });
+							}
+							await wallet.save();
+
+							ctx.call("v1.email.sendTreePlantingConfirmationEmail", {
+								userLang: "en",
+								userEmails: [user.userEmail, wallet.userEmail],
+								plantingDetails: {
+									latitude: latitude,
+									longitude: longitude,
+									area: area.name,
+									photo: photo,
+								},
+							});
+
+							walletUpdated = true; 
+							break; 
+						}
+					}
+		
+					if (walletUpdated) {
+						return {
+							message: "Wallet location updated successfully in accessible areas.",
+						};
+					} else {
+						return {
+							message: "Failed to update wallet location: Wallet not found in any accessible area.",
+						};
+					}
+		
+				} catch (error) {
+					console.error("Error in modifyAccessibleLocation:", error);
+					throw new MoleculerError(error.message || "Internal Server Error", 500);
+				}
+			},
+		},		
+
 		updateQrCodeText: {
 			params: {
 				qrcode: { type: "string" },
 				longText: { type: "string", optional: true, empty: true, max: 150000 },
 				productName: { type: "string", optional: true, empty: true, max: 50 },
+				geoLocation: { type: "string", optional: true, empty: true, max: 100 },
 			},
 			async handler(ctx) {
-				const { qrcode, longText, productName } = ctx.params;
+				const { qrcode, longText, productName, geoLocation } = ctx.params;
 
 				let entity = { walletQrId: qrcode };
 
 				let data = {
 					longText: longText,
 					productName: productName,
+					geoLocation: geoLocation,
 				};
 
+				this.logger.info("2. updateQrCodeText data", data);
 				try {
 					let getData = await Wallet.findOneAndUpdate(entity, { $set: data }, { new: true });
 					if (!getData) {
@@ -550,23 +621,41 @@ module.exports = {
 		},
 
 		getWalletsByArea: {
-            params: {
-                areaId: { type: "string" },
-            },
-            async handler(ctx) {
-                const { areaId } = ctx.params;
+			params: {
+				areaId: { type: "string" },
+			},
+			async handler(ctx) {
+				const { areaId } = ctx.params;
 
-                try {
-                    const wallets = await Wallet.find({ area: areaId });
-                    return wallets.map(wallet => wallet.toJSON());
-                } catch (err) {
-                    console.error("Error retrieving wallets by area:", err);
-                    throw new MoleculerError("Wallet Retrieval Failed", 500, "WALLET_RETRIEVAL_FAILED", {
-                        message: "An error occurred while retrieving wallets from the db.",
-                    });
-                }
-            },
+				try {
+					const wallets = await Wallet.find({ area: areaId });
+					return wallets.map((wallet) => wallet.toJSON());
+				} catch (err) {
+					console.error("Error retrieving wallets by area:", err);
+					throw new MoleculerError("Wallet Retrieval Failed", 500, "WALLET_RETRIEVAL_FAILED", {
+						message: "An error occurred while retrieving wallets from the db.",
+					});
+				}
+			},
 		},
+		
+		getWalletById: {
+			params: {
+				walletId: { type: "string"},
+			},
+			async handler(ctx) {
+				const { walletId } = ctx.params;
+		
+				const wallet = await Wallet.findById(walletId).lean();
+		
+				if (!wallet) {
+					throw new MoleculerError("Wallet not found", 404, "WALLET_NOT_FOUND");
+				}
+		
+				return wallet; 
+			},
+		},
+		
 
 		updateDataInDb: {
 			params: {
@@ -615,13 +704,96 @@ module.exports = {
 				}
 			},
 		},
+		generateGift: {
+			params: {
+				qrcode: { type: "uuid" },
+				accessCode: { type: "string" },
+				clientName: { type: "string" },
+				clientEmail: { type: "email" },
+			},
+			async handler(ctx) {
+				this.logger.info("1. generateGift updateDataInDb START", ctx.params);
+
+				const { qrcode, accessCode, clientName, clientEmail } = ctx.params;
+				const { userId } = ctx.meta.user;
+
+				this.logger.info("2. generateGift updateDataInDb userId", userId);
+				this.logger.info("3. generateGift updateDataInDb accessCode", accessCode);
+
+				try {
+					let resultUpdating = await Wallet.findOneAndUpdate(
+						{
+							walletQrId: qrcode,
+							accessCode,
+						},
+						{
+							userFullname: clientName,
+							userEmail: clientEmail,
+							_creator: userId,
+						},
+						{ new: true }
+					);
+
+					this.logger.info("5. generateGift resultUpdating", resultUpdating);
+
+					if (!resultUpdating) {
+						throw new MoleculerError("Data not exist", 401, "WALLET ID DO NOT EXIST", {
+							message: "Data not exist in the system",
+							internalErrorCode: "wallet167",
+						});
+					}
+
+					this.logger.info("7. generateGift resultUpdating", resultUpdating);
+					let itemId = resultUpdating._id;
+					this.logger.info("9. generateGift itemId: resultUpdating._id", itemId);
+
+					const userIdWhoHoldItem = await ctx.call("user.getUserByItemId", { itemId });
+					this.logger.info("10. generateGift userIdWhoHoldItem", userIdWhoHoldItem);
+
+					const removeItemFromUserId = await ctx.call("user.removeItemFromUserId", { userId: userIdWhoHoldItem._id, itemId });
+					this.logger.info("12. generateGift removeItemFromUserId", removeItemFromUserId);
+					this.logger.info("15. generateGift userId", userId);
+					this.logger.info("17. generateGift itemId", itemId);
+
+					const addItemFromUserId = await ctx.call("user.addItemToUserId", { userId, itemId });
+					this.logger.info("20. generateGift addItemFromUserId", addItemFromUserId);
+
+					if (!resultUpdating) {
+						throw new MoleculerError("Data not exist", 401, "WALLET ID DO NOT EXIST", {
+							message: "Data not exist in the system",
+							internalErrorCode: "wallet104",
+						});
+					}
+
+					let removeAccessCode = await Wallet.findOneAndUpdate(
+						{
+							walletQrId: qrcode,
+						},
+						{
+							accessCode: "",
+						},
+						{ new: true }
+					);
+
+					this.logger.info("22. generateGift removeAccessCode", removeAccessCode);
+
+					return true;
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_UPDATING_DATA", {
+						message: error.message,
+						internalErrorCode: "wallet36677",
+					});
+				}
+			},
+		},
 	},
 
 	methods: {
 		// 10
 		async getQrCodeDataMethod({ ctx, qrRedeemCheck }) {
 			try {
-				await this.checkIfQrCodeExistIndb(ctx);
+				await this.checkIfQrCodeExistIndb(ctx.params.qrcode);
+
 				let walletIdData = await this.getQrCodeInfo(ctx);
 
 				this.logger.info("getQrCodeDataMethod ctx", ctx);
@@ -734,17 +906,15 @@ module.exports = {
 		},
 
 		// 60
-		async checkIfQrCodeExistIndb(ctx) {
-			const entity = {
-				walletQrId: ctx.params.qrcode,
-			};
+		async checkIfQrCodeExistIndb(qrcode) {
 			try {
-				let wallet = await Wallet.exists(entity);
+				const wallet = await Wallet.exists({ walletQrId: qrcode });
 				if (!wallet)
 					throw new MoleculerError("Kod ne postoji u bazi podataka", 401, "ERROR_GET_QR_CODE_DATA", {
 						message: "Code do not exist into db",
 						internalErrorCode: "wallet60",
 					});
+
 				return wallet;
 			} catch (error) {
 				throw new MoleculerError("Greška pri citanju postojećeg QR koda", 401, "ERROR_GET_QR_CODE_DATA", {
@@ -758,7 +928,7 @@ module.exports = {
 		async insertDataIntoDb(ctx, Address, transactionId) {
 			const entity = {
 				walletQrId: ctx.params.walletQrId,
-				userDesc: ctx.params.userDesc,
+				geoLocation: ctx.params.geoLocation,
 				userFullname: ctx.params.userFullname,
 				productName: ctx.params.productName,
 				userEmail: ctx.params.userEmail,
@@ -780,7 +950,7 @@ module.exports = {
 		async plainInsertDataIntoDb({ ctx, user, wallet, image }) {
 			const entity = {
 				walletQrId: wallet.walletQrId,
-				userDesc: wallet.userDesc,
+				geoLocation: wallet.geoLocation,
 				userFullname: wallet.userFullname,
 				userEmail: wallet.userEmail,
 				productName: wallet.productName,
@@ -827,28 +997,27 @@ module.exports = {
 		// 100
 		async sendTransactionFromWalletToWallet(qrCodeDbData) {
 			let newData = {
-				userDesc: qrCodeDbData[0].userDesc,
-				userFullname: qrCodeDbData[0].userFullname,
-				userEmail: qrCodeDbData[0].userEmail,
-
-				productName: qrCodeDbData[0].productName,
-
-				clientEmail: qrCodeDbData[0].clientEmail,
+				geoLocation: qrCodeDbData[0].geoLocation,
+				user: qrCodeDbData[0].clientemailcb ? qrCodeDbData[0].userFullname : "-",
+				email: qrCodeDbData[0].clientemailcb ? qrCodeDbData[0].userEmail : "-",
+				itemName: qrCodeDbData[0].productName,
+				qrCodeId: qrCodeDbData[0].walletQrId,
 				clientMessage: qrCodeDbData[0].clientMessage,
-				clientName: qrCodeDbData[0].clientName,
-
-				walletQrId: qrCodeDbData[0].walletQrId,
-				qrCodeId: qrCodeDbData[0]._id,
-
-				contributorData: qrCodeDbData[0].contributorData,
-				clientemailcb: qrCodeDbData[0].clientemailcb,
-				ownernamecb: qrCodeDbData[0].clientemailcb,
-
 				walletName: process.env.WALLET_NAME,
 				amountValue: 1,
+				plantedBy: "NameOfPlanter",
+
+				// clientEmail: qrCodeDbData[0].clientEmail,
+				// clientMessage: qrCodeDbData[0].clientMessage,
+				// clientName: qrCodeDbData[0].clientName,
+
+				// contributorData: qrCodeDbData[0].contributorData,
+				// clientemailcb: qrCodeDbData[0].clientemailcb,
+				// ownernamecb: qrCodeDbData[0].clientemailcb,
 			};
 
-			console.log("START sendTransactionFromWalletToWallet qrCodeDbData : ", newData);
+			console.log("START sendTransactionFromWalletToWallet qrCodeDbData : ", qrCodeDbData);
+			console.log("START sendTransactionFromWalletToWallet newData : ", newData);
 			console.log("sendTransactionFromWalletToWallet DOCKER_INTERNAL_URL : ", process.env.DOCKER_INTERNAL_URL);
 
 			try {
@@ -887,21 +1056,37 @@ module.exports = {
 		},
 
 		// wallet110
-		async getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode }) {
+		async getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode, ctx }) {
 			const entity = {
 				userEmail,
-				qrCodeRedeemStatus,
+				//qrCodeRedeemStatus,
 			};
 
 			if (publicQrCode) entity.publicQrCode = publicQrCode;
 
 			try {
-				this.logger.info("getListQrCodesByUserMethod entity", entity);
+				this.logger.info("1. getListQrCodesByUserMethod entity", entity);
 
-				return await Wallet.find(entity)
+				const listWallet = await Wallet.find(entity)
 					.sort("-createdAt")
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
-					.populate("_image", { productPicture: 1 });
+					.populate("_image", { productPicture: 1 })
+					.lean();
+
+				// TODO Xavi this can be resoled with populate
+				for (let wallet of listWallet) {
+					this.logger.info("3. getListQrCodesByUserMethod Wallet area", wallet.area);
+
+					if (wallet.area) {
+						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });
+						wallet.areaName = areaData.name;
+						wallet.lat = areaData.latitude;
+						wallet.lon = areaData.longitude;
+						wallet.areaPoints = areaData.areaPoints;
+					}
+				}
+
+				return listWallet;
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
 			}
@@ -920,17 +1105,30 @@ module.exports = {
 				publicQrCode: true,
 			};
 			try {
-				console.log("3. getListQrCodesGeneral ", ctx.params);
-				this.logger.info("4. getListQrCodesGeneral ", ctx.params);
+				this.logger.info("1. getListQrCodesGeneral ", ctx.params);
 
-				let listWallet = await Wallet.find(entity)
+				const listWallet = await Wallet.find(entity)
 					.skip(ctx.params.skip)
 					.limit(ctx.params.limit)
 					.sort({ createdAt: -1 })
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
-					.populate("_image", { productPicture: 1 });
+					.populate("_image", { productPicture: 1 })
+					.lean();
 
-				this.logger.info("5. getListQrCodesGeneral dateTime ", new Date());
+				// TODO Xavi this can be resoled with populate
+				for (let wallet of listWallet) {
+					this.logger.info("4. getListQrCodesByUserMethod Wallet area", wallet.area);
+
+					if (wallet.area) {
+						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });
+						wallet.areaName = areaData.name;
+						wallet.lat = areaData.latitude;
+						wallet.lon = areaData.longitude;
+						wallet.areaPoints = areaData.areaPoints;
+					}
+				}
+
+				this.logger.info("5. getListQrCodesGeneral dateTime  listWallet", listWallet);
 
 				return listWallet;
 			} catch (error) {
@@ -1031,6 +1229,12 @@ module.exports = {
 				throw new MoleculerError("Updating Data Error", 401, "ERR_UPDATING_DB", { message: error.message, internalErrorCode: "wallet170" });
 			}
 		},
+
+		// async getAreaNameById(areaId) {
+		// 	const area = await ctx.call("v1.area.getAreaById", { areaId });
+		// 	console.log("Wallet getAreaNameById area ", area);
+		// 	return area ? area.name : "Unknown Area";
+		// },
 
 		async addDelay(time) {
 			return new Promise((res) => setTimeout(res, time));

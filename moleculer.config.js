@@ -198,7 +198,8 @@ module.exports = {
 
 	// Enable/disable built-in metrics function. More info: https://moleculer.services/docs/0.14/metrics.html
 	metrics: {
-		enabled: process.env.LOCALENV === "true" ? false : true,
+		//enabled: process.env.LOCALENV === "true" ? false : true,
+		enabled: false,
 		// Available built-in reporters: "Console", "CSV", "Event", "Prometheus", "Datadog", "StatsD"
 		reporter: [
 			{
@@ -242,7 +243,8 @@ module.exports = {
 
 	// Enable built-in tracing function. More info: https://moleculer.services/docs/0.14/tracing.html
 	tracing: {
-		enabled: process.env.LOCALENV === "true" ? false : true,
+		//enabled: process.env.LOCALENV === "true" ? false : true,
+		enabled: false,
 		// Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
 		exporter: [
 			{

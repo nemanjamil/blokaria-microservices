@@ -3,7 +3,8 @@ const nodemailer = require("nodemailer");
 const { MoleculerError } = require("moleculer").Errors;
 const fs = require("fs");
 const handlebars = require("handlebars");
-
+const Utils = require("../utils/utils");
+const Wallet = require("../models/Wallet");
 require("dotenv").config();
 
 module.exports = {
@@ -23,6 +24,7 @@ module.exports = {
 		scalable: true,
 		priority: 5,
 		bccemail: "bcc@blokaria.com",
+		nameOfWebSite: "NaturePlant",
 	},
 	actions: {
 		registerUser: {
@@ -59,9 +61,9 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
-						subject: "Registracija korisnika ✔",
+						subject: "User registration ✔",
 						html: htmlToSend,
 					};
 
@@ -116,11 +118,11 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${clientEmail}`,
 						cc: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Informacije o pametnom ugovoru ✔",
+						subject: "Information about the smart contract ✔",
 						html: htmlToSend,
 					};
 
@@ -142,16 +144,22 @@ module.exports = {
 				userEmail: { type: "email" },
 				productName: { type: "string" },
 				accessCode: { type: "string" },
-				qrCodeImageForStatus: { type: "string" },
+				qrCodeImageForStatus: { type: "string", optional: true },
 				userLang: { type: "string" },
 			},
 			async handler(ctx) {
 				try {
+					this.logger.info("0. generateQrCodeEmail START", ctx.params);
+
 					const { qrCodeImageForStatus, userLang } = ctx.params;
+
 					const source = fs.readFileSync(`./public/templates/${userLang}/generatingQrCodeEmail.html`, "utf-8").toString();
 					const template = handlebars.compile(source);
 
 					let userEmail = ctx.params.userEmail;
+
+					this.logger.info("1. generateQrCodeEmail userEmail", userEmail);
+
 					const replacements = {
 						walletQrId: ctx.params.walletQrId,
 						userFullname: ctx.params.userFullname,
@@ -163,28 +171,34 @@ module.exports = {
 						domainEmail: process.env.ADMIN_EMAIL,
 					};
 
+					this.logger.info("2. generateQrCodeEmail replacements", replacements);
+
 					const htmlToSend = template(replacements);
 
 					let transporter = await this.getTransporter();
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Generisanje QR koda ✔",
+						subject: "Generated Tree Item ✔",
 						html: htmlToSend,
-						attachments: [
+					};
+
+					if (qrCodeImageForStatus) {
+						mailOptions.attachments = [
 							{
 								// encoded string as an attachment
 								filename: `qr-code-${ctx.params.walletQrId}.png`,
 								content: qrCodeImageForStatus.split("base64,")[1],
 								encoding: "base64",
 							},
-						],
-					};
-
+						];
+					}
 					let info = await transporter.sendMail(mailOptions);
+
+					this.logger.info("5. generateQrCodeEmail DONE", info);
 
 					return info;
 				} catch (error) {
@@ -236,10 +250,10 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${clientEmail}, ${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Email transakcije ✔",
+						subject: "Transaction email ✔",
 						html: htmlToSend,
 					};
 
@@ -279,10 +293,10 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Resetovanje lozinke ✔",
+						subject: "Password reset ✔",
 						html: htmlToSend,
 					};
 
@@ -336,10 +350,10 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Korisnik je zainteresovan za Vaš proizvod ✔",
+						subject: "User is interested in your product ✔",
 						html: htmlToSend,
 					};
 
@@ -351,6 +365,155 @@ module.exports = {
 						message: error.message,
 						internalErrorCode: "email50",
 					});
+				}
+			},
+		},
+
+		sendPaymentConfirmationEmail: {
+			rest: "POST /sendPaymentConfirmationEmail",
+			params: {
+				userLang: { type: "string" },
+				userEmail: { type: "string" },
+				purchaseDetails: { type: "object" },
+				levelStatus: { type: "object" },
+			},
+			async handler(ctx) {
+				try {
+					const { userLang, userEmail, purchaseDetails, levelStatus } = ctx.params;
+					console.log("sendPaymentConfirmationEmail", ctx.params);
+					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
+
+					const template = handlebars.compile(source);
+
+					let levelUpMessage = "";
+					if (levelStatus.isLevelChanged) {
+						levelUpMessage = `Congratulations! You have advanced from level ${levelStatus.oldLevel} to level ${levelStatus.newLevel}!`;
+					}
+
+					const replacements = {
+						name: purchaseDetails.name,
+						numberOfTrees: purchaseDetails.numberOfTrees,
+						amount: purchaseDetails.amount,
+						orderId: purchaseDetails.orderId,
+						levelUpMessage: levelUpMessage,
+					};
+
+					const htmlToSend = template(replacements);
+
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
+						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Payment confirmation ✔",
+						html: htmlToSend,
+					};
+
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
+		sendPaymentDonationEmail: {
+			rest: "POST /sendPaymentDonationEmail",
+			params: {
+				userLang: { type: "string" },
+				userEmail: { type: "string" },
+				donationDetails: { type: "object" },
+			},
+			async handler(ctx) {
+				try {
+					const { userLang, userEmail, donationDetails } = ctx.params;
+					const source = fs.readFileSync(`./public/templates/${userLang}/donationConfirmation.html`, "utf-8").toString();
+
+					const template = handlebars.compile(source);
+
+					const replacements = {
+						amount: donationDetails.amount,
+						orderId: donationDetails.orderId,
+					};
+
+					const htmlToSend = template(replacements);
+
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
+						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Payment confirmation ✔",
+						html: htmlToSend,
+					};
+
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			},
+		},
+
+		sendTreePlantingConfirmationEmail: {
+			rest: "POST /sendTreePlantingConfirmationEmail",
+			params: {
+				userLang: { type: "string" },
+				userEmails: { type: "array", items: "string" },
+				plantingDetails: {
+					type: "object",
+					props: {
+						latitude: { type: "number" },
+						longitude: { type: "number" },
+						area: { type: "string" },
+						photo: { type: "string" }, // base64 encoded photo
+					},
+				},
+			},
+			async handler(ctx) {
+				try {
+					const { userLang, userEmails, plantingDetails } = ctx.params;
+					const source = fs.readFileSync(`./public/templates/${userLang}/treePlantingConfirmation.html`, "utf-8").toString();
+
+					const template = handlebars.compile(source);
+
+					// Pass the planting details to the template
+					const replacements = {
+						latitude: plantingDetails.latitude,
+						longitude: plantingDetails.longitude,
+						area: plantingDetails.area,
+					};
+
+					const htmlToSend = template(replacements);
+
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
+						to: userEmails.join(","),
+						bcc: `${this.metadata.bccemail}`,
+						subject: "Tree Planting Confirmation ✔",
+						html: htmlToSend,
+						attachments: [
+							{
+								filename: "tree_photo.png",
+								content: plantingDetails.photo,
+								encoding: "base64",
+							},
+						],
+					};
+
+					let info = await transporter.sendMail(mailOptions);
+
+					return info;
+				} catch (error) {
+					return Promise.reject(error);
 				}
 			},
 		},
@@ -383,10 +546,64 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: '"Blokaria 👻" <service@blokaria.com>',
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${clientEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Zahtev odobren ✔",
+						subject: "Request approved ✔",
+						html: htmlToSend,
+					};
+
+					return await transporter.sendMail(mailOptions);
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
+						message: error.message,
+						internalErrorCode: "email50",
+					});
+				}
+			},
+		},
+		sendGiftEmail: {
+			params: {
+				userEmail: { type: "email" },
+				walletQrId: { type: "uuid" },
+				userLang: { type: "string" },
+			},
+			async handler(ctx) {
+				const { userEmail, walletQrId, userLang } = ctx.params;
+				const { user } = ctx.meta;
+
+				let accessCode = Utils.generatePass();
+
+				let updateWallet = await Wallet.findOneAndUpdate(
+					{
+						walletQrId,
+					},
+					{ accessCode },
+					{ new: true }
+				);
+
+				console.log("updateWallet", updateWallet);
+
+				const source = fs.readFileSync(`./public/templates/${userLang}/sendGiftEmail.html`, "utf-8").toString();
+				const template = handlebars.compile(source);
+				const replacements = {
+					walletQrId,
+					from: user,
+					accessCode,
+					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+				};
+
+				const htmlToSend = template(replacements);
+
+				try {
+					let transporter = await this.getTransporter();
+
+					const mailOptions = {
+						// eslint-disable-next-line quotes
+						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
+						to: `${userEmail}`,
+						bcc: `${this.metadata.bccemail}`,
+						subject: "GIFT ✔",
 						html: htmlToSend,
 					};
 
@@ -416,7 +633,7 @@ module.exports = {
 				this.logger.info("adminPassword", adminPassword);
 
 				return nodemailer.createTransport({
-					host: "mail.blokaria.com",
+					host: process.env.MAIL_HOST,
 					port: 465,
 					secure: true, // true for 465, false for other ports
 					auth: {

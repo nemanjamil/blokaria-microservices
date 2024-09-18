@@ -199,11 +199,16 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					console.log("checkWallet ctx.params: call ", ctx.params);
-					console.log("checkWallet process.env.DOCKER_INTERNAL_URL ", process.env.DOCKER_INTERNAL_URL);
+					console.log("checkWallet process.env.DOCKER_INTERNAL_URL", process.env.DOCKER_INTERNAL_URL);
 
 					let checkWallet = await this.axiosPost(`${process.env.DOCKER_INTERNAL_URL}checkWallet`, ctx.params);
+
+					console.log("checkWallet response ", checkWallet);
+
 					return checkWallet.data;
 				} catch (error) {
+					console.error("Error response data:", error?.response?.data);
+					console.error("Error message:", error?.message);
 					return Promise.reject(error);
 				}
 			},
