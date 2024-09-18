@@ -6,9 +6,6 @@ const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
 const User = require("../models/User.js");
 const Wallet = require("../models/Wallet.js");
-const { achievementList } = require("../data/achievement");
-const { getNextLevel } = require("../models/Achievement");
-const mongoose = require("mongoose");
 const Achievement = require("../models/Achievement");
 const Level = require("../models/Level");
 
@@ -116,30 +113,41 @@ module.exports = {
 				},
 			},
 			async handler(ctx) {
-				const entity = {
-					userEmail: ctx.params.user.userEmail,
-					numberOfTransaction: { $gt: 0 },
-				};
-
 				const invoicedUser = await User.findOne({ userEmail: ctx.params.user.userEmail });
 
-				const achievements = await Achievement.find({}).populate({
+				const threshold = Number(invoicedUser.planted_trees_count) + 1 || 1;
+
+				this.logger.info("1. reduceNumberOfTransaction threshold", threshold);
+
+				let achievements = await Achievement.find({}).populate({
 					path: "_level",
-					match: { required_trees: { $lte: invoicedUser.planted_trees_count || 1 } },
+					match: { required_trees: { $lte: threshold } },
 				});
+
+				this.logger.info("2. reduceNumberOfTransaction achievements", achievements);
+
+				achievements = achievements.filter((achievement) => achievement._level && achievement._level.required_trees <= threshold);
+
+				this.logger.info("4. reduceNumberOfTransaction achievements filtered", achievements);
 
 				// Find and update user level
 				const levels = await Level.findOne({
 					required_trees: {
-						$lte: invoicedUser.planted_trees_count + 1,
+						$lte: threshold,
 					},
 				}).sort({ required_trees: -1 });
 				const userLevel = levels._id;
 
+				this.logger.info("6. reduceNumberOfTransaction levels", levels);
+
+				let iterationNumber = 0;
+
 				// Add achievements to user, it will check if its there it won't add with addToSet
 				for (const element of achievements.filter((x) => x._level !== null)) {
 					if (element._level) {
-						if (invoicedUser._achievements && invoicedUser._achievements.filter((x) => x === element._id).length === 0) {
+						if (invoicedUser._achievements && !invoicedUser._achievements.includes(element._id)) {
+							this.logger.info(`8.${iterationNumber} reduceNumberOfTransaction - New Achievement created.`);
+
 							const achievementUpdate = {
 								$addToSet: { _achievements: String(element._id) },
 							};
@@ -153,8 +161,14 @@ module.exports = {
 								userEmail: updatedUser.userEmail,
 								achievement: element,
 							});
+						} else {
+							this.logger.info(`10.${iterationNumber} reduceNumberOfTransaction - Achievement already exists for user.`);
 						}
+					} else {
+						this.logger.info(`12.${iterationNumber} reduceNumberOfTransaction - element._level does not exist.`);
 					}
+
+					iterationNumber++;
 				}
 
 				// Update transactional data

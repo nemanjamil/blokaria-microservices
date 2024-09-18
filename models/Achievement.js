@@ -7,7 +7,7 @@ const achievementSchema = new mongoose.Schema(
 	{
 		name: { type: String, required: true },
 		description: { type: String, required: true },
-		image: { type: String, default: "" },
+		image: { type: Object },
 		_level: {
 			type: ObjectId,
 			ref: "Level"
