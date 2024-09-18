@@ -115,7 +115,7 @@ module.exports = {
 			async handler(ctx) {
 				const invoicedUser = await User.findOne({ userEmail: ctx.params.user.userEmail });
 
-				const threshold = invoicedUser.planted_trees_count + 1 || 1;
+				const threshold = Number(invoicedUser.planted_trees_count) + 1 || 1;
 
 				this.logger.info("1. reduceNumberOfTransaction threshold", threshold);
 
