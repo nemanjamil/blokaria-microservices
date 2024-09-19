@@ -496,29 +496,36 @@ const paymentService = {
 				const quantity = lineItems.length > 0 ? lineItems[0].quantity : 1;
 
 				// Handle the event
+
+				let status = "";
 				switch (event.type) {
 					case "checkout.session.completed":
 						this.logger.info("10. handleStripeWebhook Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
-						return this.createItem(event.data.object.id, quantity, ctx, event.data.object.customer_details.email);
+						status = this.createItem(event.data.object.id, quantity, ctx, event.data.object.customer_details.email);
+						break;
 					case "checkout.session.async_payment_failed":
 						this.logger.info("12. handleStripeWebhook Payment Intent Canceled:", event.data.object);
-						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.FAILED);
+						status = await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.FAILED);
+						break;
 					case "checkout.session.expired":
 						this.logger.info("14. handleStripeWebhook Payment Intent Expired:", event.data.object);
-						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.EXPIRED);
+						status = await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.EXPIRED);
+						break;
 					case "charge.captured":
 						this.logger.info("16. handleStripeWebhook Payment charge.captured:", event.data.object);
-						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
+						status = await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
 						break;
 					default:
 						this.logger.info(`16. handleStripeWebhook default  Unhandled event type ${event.type}`);
+						status = "default";
+						break;
 				}
 
-				this.logger.info("10. handleStripeWebhook  ---- Done ---");
+				this.logger.info("10. handleStripeWebhook  ---- Done ---", status);
 
 				// Return a 200 response to acknowledge receipt of the event
-				return;
+				return true;
 			},
 		},
 	},
