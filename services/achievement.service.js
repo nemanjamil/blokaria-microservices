@@ -76,6 +76,8 @@ const achievementService = {
 
 					const imgHost = process.env.MOLECULER_SERVICE_LOCATION;
 
+					this.logger.info("13. publishAchievementLinkedInPost imgHost", imgHost);
+
 					const shareResponse = await createLinkedInPost(
 						userProfile.sub,
 						response.access_token,
