@@ -587,16 +587,16 @@ const paymentService = {
 			if (noOfWallets.length === invoicedUser?._wallets.length && invoicedUser?._wallets.length === invoicedUser?.planted_trees_count) {
 				this.logger.info(
 					"12. createItem noOfWallets.length === invoicedUser._wallets.length === invoicedUser.planted_trees_count ---- ALL OK ----",
-					noOfWallets.length,
-					invoicedUser._wallets.length,
-					invoicedUser.planted_trees_count
+					noOfWallets?.length,
+					invoicedUser?._wallets.length,
+					invoicedUser?.planted_trees_count
 				);
 			} else {
 				this.logger.error(
 					"13. createItem noOfWallets.length !== invoicedUser._wallets.length or !== invoicedUser.planted_trees_count",
-					noOfWallets.length,
-					invoicedUser._wallets.length,
-					invoicedUser.planted_trees_count
+					noOfWallets?.length,
+					invoicedUser?._wallets.length,
+					invoicedUser?.planted_trees_count
 				);
 			}
 
