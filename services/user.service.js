@@ -567,14 +567,14 @@ module.exports = {
 
 					this.logger.info("3. userMetrics noOfWallets.length", noOfWallets.length);
 
+					this.logger.info("5. userMetrics user._wallets?.length", user._wallets?.length);
+
 					if (noOfWallets.length !== user._wallets.length) {
 						throw new MoleculerClientError("Wallet numbers are not equal", 400, "NUMBERS ARE NOT EQUAL", {
 							message: "Items are not equeal",
 							internalErrorCode: "notequal123",
 						});
 					}
-
-					this.logger.info("5. userMetrics user._wallets?.length", user._wallets?.length);
 
 					// Check the number of items in user._wallets
 					const itemsAmount = user._wallets?.length || 0;
