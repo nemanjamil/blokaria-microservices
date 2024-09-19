@@ -319,6 +319,7 @@ const paymentService = {
 					const invoice = new Invoice({
 						amount: totalAmount,
 						invoiceId: orderId,
+						area: process.env.DONATION_AREA,
 					});
 					await invoice.save();
 
@@ -522,7 +523,7 @@ const paymentService = {
 						break;
 				}
 
-				this.logger.info("10. handleStripeWebhook  ---- Done ---", status);
+				this.logger.info("10. handleStripeWebhook  ---- DONE ---", status);
 
 				// Return a 200 response to acknowledge receipt of the event
 				return true;
