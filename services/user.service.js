@@ -581,10 +581,15 @@ module.exports = {
 
 					const value = CARBON_YEARLY_FOOTPRINT - itemsAmount * TREE_REDUCE_FOOTPRINT;
 
+					this.logger.info("7. userMetrics itemsAmount", itemsAmount);
+					this.logger.info("8. userMetrics value", value);
+
 					let percentage = 0;
 					if (itemsAmount > 0) {
 						percentage = (TREE_REDUCE_FOOTPRINT / CARBON_YEARLY_FOOTPRINT) * 100 * itemsAmount;
 					}
+
+					this.logger.info("9. userMetrics percentage", percentage);
 
 					return {
 						ok: true,
