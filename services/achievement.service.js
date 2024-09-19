@@ -38,7 +38,7 @@ const achievementService = {
 			rest: "POST achievement/linkedin/post",
 			params: { code: "string" },
 			async handler(ctx) {
-				this.logger.info("publish achievement on linkedin TODO:");
+				this.logger.info("1. publishAchievementLinkedInPost publish achievement on linkedin TODO:");
 				const code = ctx.params.code;
 				const { userId } = ctx.meta.user;
 
@@ -50,12 +50,14 @@ const achievementService = {
 						});
 					}
 
-					this.logger.info("populated user: ", user);
-					this.logger.info("populated user (JSON): ", user.toJSON());
+					this.logger.info("3. publishAchievementLinkedInPost populated user: ", user);
+					this.logger.info("5. publishAchievementLinkedInPostpopulated user (JSON): ", user.toJSON());
 
-					this.logger.info("user's current level: ", user._level);
+					this.logger.info("7. publishAchievementLinkedInPost user's current level: ", user._level);
 
-					const achievement = await Achievement.findOne({ user, completed: true, name: user.level }).exec();
+					const achievement = await Achievement.findOne({ _id: user._level }).exec();
+
+					this.logger.info("9. publishAchievementLinkedInPost user's current level: ", user._level);
 
 					if (!achievement) {
 						const message = "User does not have any achievements";
@@ -121,7 +123,7 @@ const achievementService = {
 
 				const achievementUrl = `${imgHost}${achievement.image.completed}`;
 
-				this.logger.info("20. getAchievementPostPreview get achievement post template triggered");
+				this.logger.info("10. getAchievementPostPreview get achievement post template triggered");
 				return {
 					template: achievementPostTemplate,
 					achievement: achievement ? achievement : null,
