@@ -513,7 +513,7 @@ module.exports = {
 
 					let walletUpdated = false;
 					for (const area of planter.accessibleAreas) {
-						const wallets = await Wallet.find({ area: area._id });
+						const wallets = await Wallet.find({ _area: area._id });
 						let wallet = wallets.find((wallet) => wallet._id.toString() === walletId);
 						if (wallet) {
 							wallet = await Wallet.findById(wallet._id);
@@ -626,7 +626,7 @@ module.exports = {
 				const { areaId } = ctx.params;
 
 				try {
-					const wallets = await Wallet.find({ area: areaId });
+					const wallets = await Wallet.find({ _area: areaId });
 					return wallets.map((wallet) => wallet.toJSON());
 				} catch (err) {
 					console.error("Error retrieving wallets by area:", err);
@@ -889,7 +889,7 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
-				let wallet = await Wallet.find(entity).populate("_image", { productPicture: 1 }).populate("_nfts").populate("_project").populate("area");
+				let wallet = await Wallet.find(entity).populate("_image", { productPicture: 1 }).populate("_nfts").populate("_project").populate("_area");
 
 				console.log("getQrCodeInfo wallet ", wallet);
 				console.log("getQrCodeInfo wallet _image ", wallet._image);
@@ -957,7 +957,7 @@ module.exports = {
 				longText: wallet.longText,
 				hasstory: wallet.hasstory,
 				accessCode: Utils.generatePass(),
-				area: wallet.area,
+				_area: wallet.area,
 				_creator: user.userId,
 			};
 
@@ -1072,10 +1072,10 @@ module.exports = {
 
 				// TODO Xavi this can be resoled with populate
 				for (let wallet of listWallet) {
-					this.logger.info("3. getListQrCodesByUserMethod Wallet area", wallet.area);
+					this.logger.info("3. getListQrCodesByUserMethod Wallet area", wallet._area);
 
 					if (wallet.area) {
-						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });
+						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet._area, showConnectedItems: false });
 						wallet.areaName = areaData.name;
 						wallet.lat = areaData.latitude;
 						wallet.lon = areaData.longitude;
@@ -1114,10 +1114,10 @@ module.exports = {
 
 				// TODO Xavi this can be resoled with populate
 				for (let wallet of listWallet) {
-					this.logger.info("4. getListQrCodesByUserMethod Wallet area", wallet.area);
+					this.logger.info("4. getListQrCodesByUserMethod Wallet area", wallet._area);
 
-					if (wallet.area) {
-						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet.area, showConnectedItems: false });
+					if (wallet._area) {
+						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet._area, showConnectedItems: false });
 						wallet.areaName = areaData.name;
 						wallet.lat = areaData.latitude;
 						wallet.lon = areaData.longitude;
