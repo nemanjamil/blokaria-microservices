@@ -497,7 +497,7 @@ const paymentService = {
 					case "checkout.session.completed":
 						this.logger.info("10. handleStripeWebhook Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
-						return this.createItem(event.data.object.id, quantity, ctx);
+						return this.createItem(event.data.object.id, quantity, ctx, event.data.object.customer_details.email);
 					case "checkout.session.async_payment_failed":
 						this.logger.info("12. handleStripeWebhook Payment Intent Canceled:", event.data.object);
 						return await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.FAILED);
@@ -528,7 +528,7 @@ const paymentService = {
 			}
 			return result;
 		},
-		async createItem(invoiceId, quantity, ctx) {
+		async createItem(invoiceId, quantity, ctx, email) {
 			this.logger.info("1. createItem start invoiceId, quantity", invoiceId, quantity);
 
 			const walletQrId = v4();
@@ -549,27 +549,27 @@ const paymentService = {
 			const entity = {
 				walletQrId: walletQrId,
 				geoLocation: "",
-				userFullname: user.userFullName,
-				userEmail: user.userEmail,
-				productName: `Tree-${randomString} in ${area.name}`,
+				userFullname: user?.userFullName,
+				userEmail: user?.userEmail,
+				productName: `Tree-${randomString} in ${area?.name}`,
 				publicQrCode: true,
 				costOfProduct: 1,
 				longText: "",
 				hasstory: false, // false
 				accessCode: Utils.generatePass(),
-				_creator: user._id,
-				area: area._id
+				_creator: user?._id,
+				area: area?._id
 			};
 
 			this.logger.info("7. createItem entity", entity);
 
-			const invoicedUser = await User.findOne({ userEmail: user.userEmail });
+			const invoicedUser = await User.findOne({ userEmail: email || user.userEmail });
 
 			this.logger.info("8. createItem invoicedUser", invoicedUser);
 			this.logger.info("9. createItem invoicedUser WALLETS.length", invoicedUser._wallets.length);
 			this.logger.info("10. createItem invoicedUser PLANTED_TREES_COUNT", invoicedUser.planted_trees_count);
 
-			const noOfWallets = await Wallet.find({ userEmail: user.userEmail }).exec();
+			const noOfWallets = await Wallet.find({ userEmail: email || user.userEmail }).exec();
 
 			this.logger.info("11. createItem NoOfWALLETS.length", noOfWallets.length);
 
