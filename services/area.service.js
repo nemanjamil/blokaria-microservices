@@ -15,7 +15,7 @@ const areaService = {
 	actions: {
 		createArea: {
 			params: {
-				_id: { type: "object" },
+				_id: { type: "object", optional: true },
 				country: { type: "string" },
 				countryCode: { type: "string" },
 				address: { type: "string" },
@@ -27,8 +27,7 @@ const areaService = {
 			async handler(ctx) {
 				const { _id, country, countryCode, address, longitude, latitude, name, areaPoints } = ctx.params;
 
-				const area = new Area({
-					_id,
+				let area = new Area({
 					country,
 					countryCode,
 					address,
@@ -37,6 +36,11 @@ const areaService = {
 					name,
 					areaPoints
 				});
+
+				if (_id) {
+					area._id = _id;
+				}
+
 
 				try {
 					await area.save();
