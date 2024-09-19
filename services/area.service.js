@@ -3,6 +3,8 @@ const DbService = require("moleculer-db");
 const dbConnection = require("../utils/dbConnection");
 const Area = require("../models/Area");
 const User = require("../models/User");
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 
 const areaService = {
 	name: "area",
@@ -13,6 +15,7 @@ const areaService = {
 	actions: {
 		createArea: {
 			params: {
+				_id: { type: "object" },
 				country: { type: "string" },
 				countryCode: { type: "string" },
 				address: { type: "string" },
@@ -22,9 +25,10 @@ const areaService = {
 				areaPoints: { type: "array", optional: true }
 			},
 			async handler(ctx) {
-				const { country, countryCode, address, longitude, latitude, name, areaPoints } = ctx.params;
+				const { _id, country, countryCode, address, longitude, latitude, name, areaPoints } = ctx.params;
 
 				const area = new Area({
+					_id,
 					country,
 					countryCode,
 					address,
@@ -466,9 +470,7 @@ const areaService = {
 	},
 	async started() {
 		const area = {
-			"_id": {
-				"$oid": "66ebef1bad440ed7abcad62b"
-			},
+			"_id": new ObjectId("66ebef1bad440ed7abcad62b"),
 			"country": "Mars",
 			"countryCode": "123",
 			"address": "Mars 12",
@@ -495,7 +497,7 @@ const areaService = {
 			"__v": 0
 		};
 
-		const arealist = await Area.find({ country: process.env.DONATION_AREA });
+		const arealist = await Area.find({ _id: process.env.DONATION_AREA });
 		if (arealist.length === 0) {
 			await this.actions.createArea(area);
 		}
