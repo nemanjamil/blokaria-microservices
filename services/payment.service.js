@@ -414,26 +414,34 @@ const paymentService = {
 
 				this.logger.info("2. paypalWebhook verificationParams", verificationParams);
 
+				let response = "";
 				try {
 					const orderType = webhookEvent.resource.purchase_units[0].items[0].name;
 					const eventType = webhookEvent.event_type;
 
 					if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Tree Purchase") {
-						await this.handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx);
+						this.logger.info("5. paypalWebhook eventType orderType", eventType, orderType);
+
+						response = await this.handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx);
 					} else if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Donation") {
-						await this.handleDonationWebhook(webhookEvent, verificationParams, ctx);
+						this.logger.info("7. paypalWebhook eventType orderType", eventType, orderType);
+
+						response = await this.handleDonationWebhook(webhookEvent, verificationParams, ctx);
 					} else {
-						this.logger.info("Unhandled webhook event type or order type", { eventType, orderType });
+						this.logger.error("9. paypalWebhook Unhandled webhook event type or order type ERROR ", { eventType, orderType });
 						throw new MoleculerError("Unhandled webhook event type or order type", 400, "UNHANDLED_WEBHOOK", {
 							message: "The event type or order type is not supported.",
 						});
 					}
 				} catch (error) {
-					console.log("Error processing PayPal webhook:", error);
+					this.logger.error("11. paypalWebhook ERROR processing PayPal webhook", error);
+
 					throw new MoleculerError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
 						message: error.message,
 					});
 				}
+
+				this.logger.info("15. paypalWebhook ----- DONE ----- response", response);
 
 				return "Webhook processed successfully.";
 			},
@@ -816,21 +824,25 @@ const paymentService = {
 
 					this.logger.info("9. handleDonationWebhook donationDetails", donationDetails);
 
-					let sendPaymentDonationEmailRes = await ctx.call("v1.email.sendPaymentDonationEmail", {
+					let sendObject = {
 						userLang: "en",
 						userEmail: payerEmail,
 						donationDetails: donationDetails,
-					});
+					};
+
+					this.logger.info("10. handleDonationWebhook sendObject", sendObject);
+
+					let sendPaymentDonationEmailRes = await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
 
 					this.logger.info("11. handleDonationWebhook sendPaymentDonationEmailRes", sendPaymentDonationEmailRes);
 				} else {
-					this.logger.error("X. handleDonationWebhook ERROR");
+					this.logger.error("13. handleDonationWebhook ERROR");
 					let updateInvoiceStatusErr = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
-					this.logger.error("X. handleDonationWebhook ERROR updateInvoiceStatusErr", updateInvoiceStatusErr);
+					this.logger.error("15. handleDonationWebhook ERROR updateInvoiceStatusErr", updateInvoiceStatusErr);
 				}
-				this.logger.info("13. handleDonationWebhook Donation Webhook captureResult DONE", captureResult);
+				this.logger.info("17. handleDonationWebhook Donation Webhook captureResult DONE", captureResult);
 			} else {
-				this.logger.info("X.1 handleDonationWebhook Webhook verification failed");
+				this.logger.error("19. handleDonationWebhook  Webhook ERROR verification failed");
 				throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
 					message: "Webhook signature verification failed.",
 				});
