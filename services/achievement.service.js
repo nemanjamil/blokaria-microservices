@@ -68,11 +68,11 @@ const achievementService = {
 
 					const response = await linkedInExchangeCode(code);
 
-					this.logger.info("1. addCertificateToLinkedIn  exchange response", response);
+					this.logger.info("10. publishAchievementLinkedInPost exchange response", response);
 
 					const userProfile = await linkedInGetUserProfile(response.access_token);
 
-					this.logger.info("2. addCertificateToLinkedIn  user profile", userProfile);
+					this.logger.info("12. publishAchievementLinkedInPost user profile", userProfile);
 
 					const imgHost = process.env.MOLECULER_SERVICE_LOCATION;
 
@@ -80,10 +80,10 @@ const achievementService = {
 						userProfile.sub,
 						response.access_token,
 						achievement,
-						`${imgHost}levels/${achievement.name.toLowerCase()}.jpg`
+						`${imgHost}${achievement.image.completed}`
 					);
 
-					this.logger.info("3. addCertificateToLinkedIn  share response", shareResponse);
+					this.logger.info("15. publishAchievementLinkedInPost share response --- DONE -----", shareResponse);
 
 					return {
 						ok: true,

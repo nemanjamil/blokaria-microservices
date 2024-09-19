@@ -68,6 +68,8 @@ const linkedInGetUserProfile = async (accessToken) => {
 const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) => {
 	const LINKEDIN_API_URL = "https://api.linkedin.com/v2/ugcPosts";
 
+	console.log("createLinkedInPost START");
+
 	try {
 		const { subject, body } = postTemplate;
 
@@ -101,7 +103,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			},
 		};
 
-		console.log("Post Data:", JSON.stringify(postData, null, 2));
+		console.log("createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
 
 		const response = await axios.post(LINKEDIN_API_URL, postData, {
 			headers: {
@@ -112,7 +114,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			},
 		});
 
-		console.log("Post created successfully:", response.data);
+		console.log("createLinkedInPost Post created successfully ---- DONE ----:", response.data);
 
 		return response.data;
 	} catch (error) {
