@@ -55,9 +55,9 @@ const achievementService = {
 
 					this.logger.info("7. publishAchievementLinkedInPost user's current level: ", user._level);
 
-					const achievement = await Achievement.findOne({ _id: user._level }).exec();
+					const achievement = await Achievement.findOne({ _level: user._level._id }).exec();
 
-					this.logger.info("9. publishAchievementLinkedInPost user's current level: ", user._level);
+					this.logger.info("9. publishAchievementLinkedInPost achievement: ", achievement);
 
 					if (!achievement || Object.keys(achievement).length === 0) {
 						const message = "User does not have any achievements";
