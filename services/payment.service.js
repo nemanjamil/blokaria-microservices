@@ -569,7 +569,7 @@ const paymentService = {
 				hasstory: false, // false
 				accessCode: Utils.generatePass(),
 				_creator: user?._id,
-				area: area?._id || "Mars"
+				area: area?._id || process.env.DONATION_AREA
 			};
 
 			this.logger.info("7. createItem entity", entity);
