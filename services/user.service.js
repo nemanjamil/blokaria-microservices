@@ -566,10 +566,10 @@ module.exports = {
 					const noOfWallets = await Wallet.find({ userEmail: user.userEmail }).exec();
 
 					this.logger.info("3. userMetrics noOfWallets.length", noOfWallets.length);
+					this.logger.info("4. userMetrics user._wallets?.length", user._wallets?.length);
+					this.logger.info("5. userMetrics user.planted_trees_count", user.planted_trees_count);
 
-					this.logger.info("5. userMetrics user._wallets?.length", user._wallets?.length);
-
-					if (noOfWallets.length !== user._wallets.length) {
+					if (noOfWallets.length !== user._wallets.length && user.planted_trees_count !== user._wallets.length) {
 						throw new MoleculerClientError("Wallet numbers are not equal", 400, "NUMBERS ARE NOT EQUAL", {
 							message: "Items are not equeal",
 							internalErrorCode: "notequal123",
