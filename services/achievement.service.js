@@ -59,7 +59,7 @@ const achievementService = {
 
 					this.logger.info("9. publishAchievementLinkedInPost user's current level: ", user._level);
 
-					if (!achievement) {
+					if (!achievement || Object.keys(achievement).length === 0) {
 						const message = "User does not have any achievements";
 						throw new MoleculerError(message, 404, "ACHIEVEMENT_FETCH", {
 							message,
