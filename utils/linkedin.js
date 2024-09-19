@@ -82,7 +82,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 						text: `${subject}\n\n${body.replace("{{achievement}}", achievement.name)}`,
 					},
 					// shareMediaCategory: imageAsset !== null ? 'IMAGE' : 'NONE',
-					shareMediaCategory: "IMAGE",
+					shareMediaCategory: "ARTICLE",
 					media: [
 						{
 							status: "READY",
