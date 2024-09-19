@@ -36,10 +36,10 @@ const walletSchema = new mongoose.Schema({
 	nftAssetToWalletTxHash: { type: String },
 	longText: { type: String },
 	hasstory: { type: Boolean, default: false },
-	area: {
-		type: String,
+	_area: {
+		type: ObjectId,
 		required: true,
-		default: null,
+		ref: "Area",
 	},
 	_creator: {
 		type: ObjectId,
