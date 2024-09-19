@@ -593,6 +593,7 @@ module.exports = {
 						percentage: percentage,
 					};
 				} catch (err) {
+					this.logger.error("10. userMetrics ERROR", err);
 					throw new MoleculerError("Failed to get metrics", 500, "METRICS_FETCH_FAILED", {
 						message: "Metrics Fetch Failed",
 						internalErrorCode: "metrics500",
