@@ -558,7 +558,7 @@ const paymentService = {
 				hasstory: false, // false
 				accessCode: Utils.generatePass(),
 				_creator: user?._id,
-				area: area?._id
+				area: area?._id || "Mars"
 			};
 
 			this.logger.info("7. createItem entity", entity);
