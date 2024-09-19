@@ -22,10 +22,11 @@ const areaService = {
 				longitude: { type: "number" },
 				latitude: { type: "number" },
 				name: { type: "string" },
-				areaPoints: { type: "array", optional: true }
+				areaPoints: { type: "array", optional: true },
+				active: { type: "boolean", optional: true },
 			},
 			async handler(ctx) {
-				const { _id, country, countryCode, address, longitude, latitude, name, areaPoints } = ctx.params;
+				const { _id, country, countryCode, address, longitude, latitude, name, areaPoints, active } = ctx.params;
 
 				let area = new Area({
 					country,
@@ -39,6 +40,7 @@ const areaService = {
 
 				if (_id) {
 					area._id = _id;
+					area.active = active;
 				}
 
 
@@ -480,6 +482,7 @@ const areaService = {
 			"address": "Mars 12",
 			"longitude": -38.455728048040726,
 			"latitude": 79.02992065941754,
+			"active": false,
 			"areaPoints": [
 				{
 					"lat": 80.58437789211486,
