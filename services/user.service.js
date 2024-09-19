@@ -1,6 +1,6 @@
 "use strict";
 const DbService = require("moleculer-db");
-const { MoleculerError } = require("moleculer").Errors;
+const { MoleculerError, MoleculerClientError } = require("moleculer").Errors;
 const Utils = require("../utils/utils");
 const { strings } = require("../utils/strings");
 const dbConnection = require("../utils/dbConnection");
@@ -568,7 +568,7 @@ module.exports = {
 					this.logger.info("3. userMetrics noOfWallets.length", noOfWallets.length);
 
 					if (noOfWallets.length !== user._wallets.length) {
-						throw new MoleculerError("Wallet numner are not equal", 400, "NUMBERS ARE NOT EQUAL", {
+						throw new MoleculerClientError("Wallet numbers are not equal", 400, "NUMBERS ARE NOT EQUAL", {
 							message: "Items are not equeal",
 							internalErrorCode: "notequal123",
 						});
