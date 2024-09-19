@@ -6,10 +6,16 @@ const areaSchema = new mongoose.Schema({
 	address: String,
 	longitude: Number,
 	latitude: Number,
-	areaPoints: [{                            
-		lat: Number,                   
-		lng: Number                        
-	  }],
+	active: {
+		type: Boolean,
+		default: true,
+	},
+	areaPoints: [
+		{
+			lat: Number,
+			lng: Number,
+		},
+	],
 	name: String,
 });
 
