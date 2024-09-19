@@ -499,28 +499,27 @@ module.exports = {
 				walletId: { type: "string", required: true },
 				latitude: { type: "number", required: true },
 				longitude: { type: "number", required: true },
-				photo: { type: "string", optional: true },  
+				photo: { type: "string", optional: true },
 			},
 			async handler(ctx) {
 				const { walletId, latitude, longitude, photo } = ctx.params;
 				const user = ctx.meta.user;
-		
+
 				try {
 					const planter = await User.findOne({ _id: user.userId }).populate("accessibleAreas");
 					if (!planter) {
 						throw new MoleculerError("User not found", 404, "USER_NOT_FOUND");
 					}
-		
+
 					let walletUpdated = false;
 					for (const area of planter.accessibleAreas) {
 						const wallets = await Wallet.find({ area: area._id });
-						let wallet = wallets.find(wallet => wallet._id.toString() === walletId);
+						let wallet = wallets.find((wallet) => wallet._id.toString() === walletId);
 						if (wallet) {
-
 							wallet = await Wallet.findById(wallet._id);
 							wallet.geoLocation = `${latitude},${longitude}`;
 							console.log(`Updated wallet location for walletId: ${walletId}`);
-		
+
 							if (photo) {
 								wallet = await ctx.call("image.updateTreeImage", { wallet, photo, user });
 							}
@@ -537,11 +536,11 @@ module.exports = {
 								},
 							});
 
-							walletUpdated = true; 
-							break; 
+							walletUpdated = true;
+							break;
 						}
 					}
-		
+
 					if (walletUpdated) {
 						return {
 							message: "Wallet location updated successfully in accessible areas.",
@@ -551,13 +550,12 @@ module.exports = {
 							message: "Failed to update wallet location: Wallet not found in any accessible area.",
 						};
 					}
-		
 				} catch (error) {
 					console.error("Error in modifyAccessibleLocation:", error);
 					throw new MoleculerError(error.message || "Internal Server Error", 500);
 				}
 			},
-		},		
+		},
 
 		updateQrCodeText: {
 			params: {
@@ -638,24 +636,23 @@ module.exports = {
 				}
 			},
 		},
-		
+
 		getWalletById: {
 			params: {
-				walletId: { type: "string"},
+				walletId: { type: "string" },
 			},
 			async handler(ctx) {
 				const { walletId } = ctx.params;
-		
+
 				const wallet = await Wallet.findById(walletId).lean();
-		
+
 				if (!wallet) {
 					throw new MoleculerError("Wallet not found", 404, "WALLET_NOT_FOUND");
 				}
-		
-				return wallet; 
+
+				return wallet;
 			},
 		},
-		
 
 		updateDataInDb: {
 			params: {
@@ -892,7 +889,7 @@ module.exports = {
 				walletQrId: ctx.params.qrcode,
 			};
 			try {
-				let wallet = await Wallet.find(entity).populate("_image", { productPicture: 1 }).populate("_nfts").populate("_project");
+				let wallet = await Wallet.find(entity).populate("_image", { productPicture: 1 }).populate("_nfts").populate("_project").populate("area");
 
 				console.log("getQrCodeInfo wallet ", wallet);
 				console.log("getQrCodeInfo wallet _image ", wallet._image);
