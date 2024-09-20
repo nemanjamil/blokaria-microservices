@@ -70,7 +70,7 @@ const downloadFileAsStream = async (fileUrl) => {
 			responseType: "stream", // Important: This tells axios to return the response as a stream
 		});
 
-		console.log("2. downloadFileAsStream --- DONE ---", response.data);
+		console.log("2. downloadFileAsStream --- DONE ---");
 
 		return response.data; // This is the stream
 	} catch (error) {
