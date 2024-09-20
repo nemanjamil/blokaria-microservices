@@ -112,7 +112,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 	try {
 		const fileStream = await downloadFileAsStream(imageUrl);
 
-		console.log("2. uploadLinkedInImage fileStream", fileStream);
+		console.log("2. uploadLinkedInImage fileStream");
 
 		const initResponse = await axios.post(linkedInInitUrl, {
 			initializeUploadRequest: {
