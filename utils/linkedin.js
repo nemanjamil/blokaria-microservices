@@ -77,14 +77,22 @@ const downloadFileAsStream = async (fileUrl) => {
 };
 
 const getLinkedInImage = async (imageUrn) => {
+	console.log("1. getLinkedInImage START");
+
 	const linkedGetUrl = `https://api.linkedin.com/rest/images/${imageUrn}`;
+
+	console.log("1. getLinkedInImage linkedGetUrl", linkedGetUrl);
 
 	try {
 		const imageRes = await axios.get(linkedGetUrl);
 
+		console.log("3. getLinkedInImage imageRes", imageRes);
+
 		if (!imageRes || !imageRes.data) {
 			throw new Error("Failed to get image information from LinkedIn");
 		}
+
+		console.log("3. getLinkedInImage ---- DONE ----", imageRes.data);
 
 		return imageRes.data;
 	} catch (err) {
@@ -94,6 +102,8 @@ const getLinkedInImage = async (imageUrn) => {
 };
 
 const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
+	console.log("1. uploadLinkedInImage START");
+
 	const linkedInInitUrl = "https://api.linkedin.com/rest/images?action=initializeUpload";
 
 	try {
@@ -109,6 +119,8 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			throw new Error("Failed to initialize upload for image through LinkedIn");
 		}
 
+		console.log("2. uploadLinkedInImage initResponse", initResponse);
+
 		const imgUpload = await axios.default.put(initResponse.data.value.uploadUrl, fileStream, {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
@@ -118,11 +130,15 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			},
 		});
 
+		console.log("3. uploadLinkedInImage imgUpload", imgUpload);
+
 		if (imgUpload.status !== 201 && imgUpload.status !== 200) {
 			throw new Error("Failed to upload image file stream");
 		}
 
 		const imgInfo = await getLinkedInImage(initResponse.data.value.image);
+
+		console.log("3. uploadLinkedInImage ----- DONE -----", imgInfo);
 
 		return imgInfo;
 	} catch (err) {
@@ -144,6 +160,8 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 
 	try {
 		const img = await uploadLinkedInImage(userId, imageUrl, accessToken);
+
+		console.log("2. createLinkedInPost img", img);
 
 		const { subject, body } = postTemplate;
 
@@ -181,7 +199,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			},
 		};
 
-		console.log("2. createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
+		console.log("3. createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
 
 		const response = await axios.post(LINKEDIN_API_URL, postData, {
 			headers: {
