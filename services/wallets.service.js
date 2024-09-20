@@ -1112,6 +1112,8 @@ module.exports = {
 					.populate("_image", { productPicture: 1 })
 					.lean();
 
+				this.logger.info("2. getListQrCodesGeneral listWallet", listWallet);
+
 				// TODO Xavi this can be resoled with populate
 				for (let wallet of listWallet) {
 					this.logger.info("4. getListQrCodesByUserMethod Wallet area", wallet._area);
