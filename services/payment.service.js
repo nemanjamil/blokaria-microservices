@@ -689,6 +689,8 @@ const paymentService = {
 					this.logger.info("\n\n\n");
 				}
 
+				this.logger.info("29. createItem walletUpdate START");
+
 				const walletUpdate = {
 					$addToSet: { _wallets: String(item._id) },
 				};
@@ -708,7 +710,7 @@ const paymentService = {
 
 				let userUpdate = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
 
-				this.logger.info("34. createItem userUpdate", userUpdate);
+				this.logger.info("34. createItem userUpdate");
 			}
 
 			this.logger.info("35. createItem ----- DONE -----");
