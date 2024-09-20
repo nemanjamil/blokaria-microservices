@@ -177,7 +177,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 	try {
 		const img = await uploadLinkedInImage(userId, imageUrl, accessToken);
 
-		console.log("2. createLinkedInPost img", img);
+		console.log("2. createLinkedInPost img");
 
 		const { subject, body } = postTemplate;
 
@@ -226,7 +226,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			},
 		});
 
-		console.log("4. createLinkedInPost Post created successfully ---- DONE ----:", response.data);
+		console.log("4. createLinkedInPost Post created successfully ---- DONE ----:");
 
 		return response.data;
 	} catch (error) {
