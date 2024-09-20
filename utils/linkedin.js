@@ -114,11 +114,22 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 
 		console.log("2. uploadLinkedInImage fileStream");
 
-		const initResponse = await axios.post(linkedInInitUrl, {
-			initializeUploadRequest: {
-				owner: `urn:li:person:${userId}`,
+		const initResponse = await axios.post(
+			linkedInInitUrl,
+			{
+				initializeUploadRequest: {
+					owner: `urn:li:person:${userId}`,
+				},
 			},
-		});
+			{
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					"Content-Type": "application/json",
+					"X-Restli-Protocol-Version": "2.0.0",
+					"LinkedIn-Version": "202405",
+				},
+			}
+		);
 
 		if (!initResponse || !initResponse.data) {
 			throw new Error("Failed to initialize upload for image through LinkedIn");

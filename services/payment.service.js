@@ -705,10 +705,12 @@ const paymentService = {
 
 				this.logger.info("32. createItem Update transactional data", data);
 
-				await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
+				let userUpdate = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
 
-				this.logger.info("34. createItem ----- DONE -----", data);
+				this.logger.info("34. createItem userUpdate", userUpdate);
 			}
+
+			this.logger.info("35. createItem ----- DONE -----");
 
 			return { user: invoicedUser, itemTree: entity };
 		},
