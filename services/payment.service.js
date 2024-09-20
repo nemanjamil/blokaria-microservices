@@ -462,7 +462,7 @@ const paymentService = {
 		handleStripeWebhook: {
 			async handler(ctx) {
 				this.logger.info("0. handleStripeWebhook START DATE : ", Date.now());
-				this.logger.info("0. handleStripeWebhook START ctx.params:", ctx.params);
+				this.logger.info("0. handleStripeWebhook START ctx.params:");
 
 				// const secret = "whsec_3dcfddcd5427bacb88780b92982a2f6851ebcc7da3987c0000c3564322bf18e6";
 				const body = Buffer.from(Object.values(ctx.params));
@@ -476,7 +476,7 @@ const paymentService = {
 
 				const stripe = this.getStripe();
 
-				this.logger.info("3. handleStripeWebhook stripe", stripe);
+				this.logger.info("3. handleStripeWebhook stripe");
 
 				let event;
 
