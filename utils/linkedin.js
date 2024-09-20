@@ -44,6 +44,8 @@ const linkedInGetUserProfile = async (accessToken) => {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
+				"X-Restli-Protocol-Version": "2.0.0",
+				"LinkedIn-Version": "202405",
 			},
 		});
 
