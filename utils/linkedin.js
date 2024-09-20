@@ -135,7 +135,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			throw new Error("Failed to initialize upload for image through LinkedIn");
 		}
 
-		console.log("3. uploadLinkedInImage initResponse", initResponse);
+		console.log("3. uploadLinkedInImage initResponse");
 
 		const imgUpload = await axios.default.put(initResponse.data.value.uploadUrl, fileStream, {
 			headers: {
