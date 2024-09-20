@@ -140,7 +140,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) => {
 	const LINKEDIN_API_URL = "https://api.linkedin.com/v2/ugcPosts";
 
-	console.log("createLinkedInPost START");
+	console.log("1. createLinkedInPost START");
 
 	try {
 		const img = await uploadLinkedInImage(userId, imageUrl, accessToken);
@@ -181,7 +181,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			},
 		};
 
-		console.log("createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
+		console.log("2. createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
 
 		const response = await axios.post(LINKEDIN_API_URL, postData, {
 			headers: {
@@ -192,7 +192,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			},
 		});
 
-		console.log("createLinkedInPost Post created successfully ---- DONE ----:", response.data);
+		console.log("4. createLinkedInPost Post created successfully ---- DONE ----:", response.data);
 
 		return response.data;
 	} catch (error) {
