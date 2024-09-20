@@ -59,6 +59,76 @@ const linkedInGetUserProfile = async (accessToken) => {
 	}
 };
 
+const downloadFileAsStream = async (fileUrl) => {
+	try {
+		const response = await axios({
+			method: "get",
+			url: fileUrl,
+			responseType: "stream", // Important: This tells axios to return the response as a stream
+		});
+
+		return response.data; // This is the stream
+	} catch (error) {
+		console.error("Error downloading the file:", error);
+		throw error;
+	}
+};
+
+const getLinkedInImage = async (imageUrn) => {
+	const linkedGetUrl = `https://api.linkedin.com/rest/images/${imageUrn}`;
+
+	try {
+		const imageRes = await axios.get(linkedGetUrl);
+
+		if (!imageRes || !imageRes.data) {
+			throw new Error("Failed to get image information from LinkedIn");
+		}
+
+		return imageRes.data;
+	} catch (err) {
+		console.log("Error while getting image information from LinkedIn:", err.message || err);
+		throw err;
+	}
+};
+
+const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
+	const linkedInInitUrl = "https://api.linkedin.com/rest/images?action=initializeUpload";
+
+	try {
+		const fileStream = await downloadFileAsStream(imageUrl);
+
+		const initResponse = await axios.post(linkedInInitUrl, {
+			initializeUploadRequest: {
+				owner: `urn:li:person:${userId}`,
+			},
+		});
+
+		if (!initResponse || !initResponse.data) {
+			throw new Error("Failed to initialize upload for image through LinkedIn");
+		}
+
+		const imgUpload = await axios.default.put(initResponse.data.value.uploadUrl, fileStream, {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				"Content-Type": "application/json",
+				"X-Restli-Protocol-Version": "2.0.0",
+				"LinkedIn-Version": "202405",
+			},
+		});
+
+		if (imgUpload.status !== 201 && imgUpload.status !== 200) {
+			throw new Error("Failed to upload image file stream");
+		}
+
+		const imgInfo = await getLinkedInImage(initResponse.data.value.image);
+
+		return imgInfo;
+	} catch (err) {
+		console.log("Error while uploading image to linkedin:", err.message || err);
+		throw err;
+	}
+};
+
 /**
  *
  * @param {string} userId User LinkedIn unique ID
@@ -71,6 +141,8 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 	console.log("createLinkedInPost START");
 
 	try {
+		const img = await uploadLinkedInImage(userId, imageUrl, accessToken);
+
 		const { subject, body } = postTemplate;
 
 		const postData = {
@@ -84,16 +156,20 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 					// shareMediaCategory: imageAsset !== null ? 'IMAGE' : 'NONE',
 					shareMediaCategory: "ARTICLE",
 					media: [
+						// {
+						// 	status: "READY",
+						// 	description: {
+						// 		text: achievement.description,
+						// 	},
+						// 	// media: imageAsset,
+						// 	originalUrl: imageUrl,
+						// 	title: {
+						// 		text: achievement.name,
+						// 	},
+						// },
 						{
-							status: "READY",
-							description: {
-								text: achievement.description,
-							},
-							// media: imageAsset,
-							originalUrl: imageUrl,
-							title: {
-								text: achievement.name,
-							},
+							altText: achievement.description,
+							id: img.id,
 						},
 					],
 				},
