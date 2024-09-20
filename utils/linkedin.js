@@ -146,7 +146,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			},
 		});
 
-		console.log("4. uploadLinkedInImage imgUpload", imgUpload);
+		console.log("4. uploadLinkedInImage imgUpload");
 
 		if (imgUpload.status !== 201 && imgUpload.status !== 200) {
 			throw new Error("Failed to upload image file stream");
@@ -154,7 +154,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 
 		const imgInfo = await getLinkedInImage(initResponse.data.value.image);
 
-		console.log("5. uploadLinkedInImage ----- DONE -----", imgInfo);
+		console.log("5. uploadLinkedInImage ----- DONE -----");
 
 		return imgInfo;
 	} catch (err) {
