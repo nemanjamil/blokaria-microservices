@@ -62,12 +62,15 @@ const linkedInGetUserProfile = async (accessToken) => {
 };
 
 const downloadFileAsStream = async (fileUrl) => {
+	console.log("1. downloadFileAsStream START");
 	try {
 		const response = await axios({
 			method: "get",
 			url: fileUrl,
 			responseType: "stream", // Important: This tells axios to return the response as a stream
 		});
+
+		console.log("2. downloadFileAsStream --- DONE ---", response.data);
 
 		return response.data; // This is the stream
 	} catch (error) {
@@ -109,6 +112,8 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 	try {
 		const fileStream = await downloadFileAsStream(imageUrl);
 
+		console.log("2. uploadLinkedInImage fileStream", fileStream);
+
 		const initResponse = await axios.post(linkedInInitUrl, {
 			initializeUploadRequest: {
 				owner: `urn:li:person:${userId}`,
@@ -119,7 +124,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			throw new Error("Failed to initialize upload for image through LinkedIn");
 		}
 
-		console.log("2. uploadLinkedInImage initResponse", initResponse);
+		console.log("3. uploadLinkedInImage initResponse", initResponse);
 
 		const imgUpload = await axios.default.put(initResponse.data.value.uploadUrl, fileStream, {
 			headers: {
@@ -130,7 +135,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			},
 		});
 
-		console.log("3. uploadLinkedInImage imgUpload", imgUpload);
+		console.log("4. uploadLinkedInImage imgUpload", imgUpload);
 
 		if (imgUpload.status !== 201 && imgUpload.status !== 200) {
 			throw new Error("Failed to upload image file stream");
@@ -138,7 +143,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 
 		const imgInfo = await getLinkedInImage(initResponse.data.value.image);
 
-		console.log("3. uploadLinkedInImage ----- DONE -----", imgInfo);
+		console.log("5. uploadLinkedInImage ----- DONE -----", imgInfo);
 
 		return imgInfo;
 	} catch (err) {
