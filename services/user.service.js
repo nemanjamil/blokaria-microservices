@@ -570,10 +570,15 @@ module.exports = {
 					this.logger.info("5. userMetrics user.planted_trees_count", user.planted_trees_count);
 
 					if (noOfWallets.length !== user._wallets.length && user.planted_trees_count !== user._wallets.length) {
-						throw new MoleculerClientError("Wallet numbers are not equal", 400, "NUMBERS ARE NOT EQUAL", {
-							message: "Items are not equeal",
-							internalErrorCode: "notequal123",
-						});
+						throw new MoleculerClientError(
+							`Wallet numbers are not equal noOfWallets=${noOfWallets.length} : user._wallets=${user._wallets?.length} : planted_trees_count=${user.planted_trees_count}`,
+							400,
+							"NUMBERS ARE NOT EQUAL",
+							{
+								message: "Items are not equeal",
+								internalErrorCode: "notequal123",
+							}
+						);
 					}
 
 					// Check the number of items in user._wallets
