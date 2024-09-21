@@ -621,7 +621,13 @@ const paymentService = {
 			const item = new Wallet(entity);
 			try {
 				await item.save();
+			} catch (err) {
+				throw new MoleculerError("Item Create Failed", 500, "TREE_ITEM_CREATION", {
+					message: "An error occured while trying creating an item in db: " + err.toString()
+				});
+			}
 
+			try {
 				const purchaseDetails = {
 					name: invoicedUser?.userFullName || email,
 					numberOfTrees: quantity,
@@ -634,9 +640,9 @@ const paymentService = {
 					userEmail: email || user?.userEmail,
 					purchaseDetails: purchaseDetails
 				});
-			} catch (err) {
-				throw new MoleculerError("Item Create Failed", 500, "TREE_ITEM_CREATION", {
-					message: "An error occured while trying creating an item in db: " + err.toString()
+			} catch (e) {
+				throw new MoleculerError("Payment confirmation email failed", 400, "PAYMENT_EMAIL", {
+					message: err
 				});
 			}
 
