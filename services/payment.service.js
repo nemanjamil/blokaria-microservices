@@ -629,7 +629,7 @@ const paymentService = {
 
 				const sendPaymentConfirmationEmail = await ctx.call("v1.email.sendPaymentConfirmationEmail", {
 					userLang: "en",
-					userEmail: user.userEmail,
+					userEmail: email || user?.userEmail,
 					purchaseDetails: purchaseDetails,
 				});
 
@@ -639,7 +639,7 @@ const paymentService = {
 					emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
 					walletQrId: treeItem.walletQrId,
 					userFullname: user?.userFullName || email,
-					userEmail: email || user.userEmail,
+					userEmail: email || user?.userEmail,
 					productName: treeItem.productName,
 					accessCode: treeItem.accessCode,
 					userLang: "en"
