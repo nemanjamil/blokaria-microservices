@@ -920,19 +920,19 @@ const paymentService = {
 
 					this.logger.info("22. handleTreePurchaseWebhook sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
 
-					let generateQrCodeEmailData = {
-						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
-						walletQrId: itemTree.walletQrId,
-						userFullname: user.userFullName,
-						userEmail: user.userEmail,
-						productName: itemTree.productName,
-						accessCode: itemTree.accessCode,
-						userLang: "en"
-					};
+					// let generateQrCodeEmailData = {
+					// 	emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
+					// 	walletQrId: itemTree.walletQrId,
+					// 	userFullname: user.userFullName,
+					// 	userEmail: user.userEmail,
+					// 	productName: itemTree.productName,
+					// 	accessCode: itemTree.accessCode,
+					// 	userLang: "en"
+					// };
 
-					this.logger.info("24. handleTreePurchaseWebhook generateQrCodeEmailData", generateQrCodeEmailData);
+					// this.logger.info("24. handleTreePurchaseWebhook generateQrCodeEmailData", generateQrCodeEmailData);
 
-					await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
+					// await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
 				} else {
 					this.logger.info("Capture failed");
 					await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
