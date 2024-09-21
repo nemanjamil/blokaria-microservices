@@ -480,7 +480,6 @@ const paymentService = {
 				this.logger.info("0. handleStripeWebhook START DATE : ", Date.now());
 				this.logger.info("0. handleStripeWebhook START ctx.params:");
 
-				// const secret = "whsec_3dcfddcd5427bacb88780b92982a2f6851ebcc7da3987c0000c3564322bf18e6";
 				const body = Buffer.from(Object.values(ctx.params));
 				this.logger.info("1. handleStripeWebhook Stripe Webhook triggered:", body.length);
 				this.logger.info("1.1 handleStripeWebhook Stripe Webhook triggered: body", body);
@@ -640,9 +639,10 @@ const paymentService = {
 					userEmail: email || user?.userEmail,
 					purchaseDetails: purchaseDetails
 				});
-			} catch (e) {
+			} catch (err) {
 				throw new MoleculerError("Payment confirmation email failed", 400, "PAYMENT_EMAIL", {
-					message: err
+					message: err,
+					requestObject: JSON.stringify(purchaseDetails)
 				});
 			}
 
