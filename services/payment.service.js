@@ -621,6 +621,20 @@ const paymentService = {
 			try {
 				const treeItem = await item.save();
 
+				const purchaseDetails = {
+					numberOfTrees: quantity,
+					amount: quantity * 50,
+					orderId: invoiceId,
+				};
+
+				const sendPaymentConfirmationEmail = await ctx.call("v1.email.sendPaymentConfirmationEmail", {
+					userLang: "en",
+					userEmail: user.userEmail,
+					purchaseDetails: purchaseDetails,
+				});
+
+				this.logger.info("createItem sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
+
 				const generateQrCodeEmailData = {
 					emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
 					walletQrId: treeItem.walletQrId,
@@ -630,6 +644,8 @@ const paymentService = {
 					accessCode: treeItem.accessCode,
 					userLang: "en"
 				};
+
+				this.logger.info("createItem generateQrCodeEmailData", generateQrCodeEmailData);
 
 				await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
 			} catch (err) {
