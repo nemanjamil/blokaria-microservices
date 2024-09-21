@@ -619,29 +619,22 @@ const paymentService = {
 			// Creating an Item
 			const item = new Wallet(entity);
 			try {
-				await item.save();
+				const treeItem = await item.save();
+
+				const generateQrCodeEmailData = {
+					emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
+					walletQrId: treeItem.walletQrId,
+					userFullname: user?.userFullName || email,
+					userEmail: email || user.userEmail,
+					productName: treeItem.productName,
+					accessCode: treeItem.accessCode,
+					userLang: "en"
+				};
+
+				await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
 			} catch (err) {
 				throw new MoleculerError("Item Create Failed", 500, "TREE_ITEM_CREATION", {
 					message: "An error occured while trying creating an item in db: " + err.toString()
-				});
-			}
-
-			const generateQrCodeEmailData = {
-				emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
-				walletQrId: item.walletQrId,
-				userFullname: user?.userFullName || email,
-				userEmail: email || user.userEmail,
-				productName: item.productName,
-				accessCode: item.accessCode,
-				userLang: "en"
-			};
-
-			try {
-				await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
-			} catch (err) {
-				throw new MoleculerError("Payment confirmation email failed", 400, "PAYMENT_EMAIL", {
-					message: err,
-					requestObject: JSON.stringify(generateQrCodeEmailData)
 				});
 			}
 
