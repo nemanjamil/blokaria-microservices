@@ -724,8 +724,8 @@ const paymentService = {
 				});
 			}
 
-			this.logger.info("22. createItem item", item);
-			this.logger.info("23. createItem item.userEmail", item.userEmail);
+			this.logger.info("22. createItem item", treeItems);
+			//this.logger.info("23. createItem item.userEmail", item.userEmail);
 
 			if (invoicedUser) {
 				let threshold = isNaN(invoicedUser?.planted_trees_count) ? Number(quantity) : Number(invoicedUser?.planted_trees_count) + Number(quantity);
