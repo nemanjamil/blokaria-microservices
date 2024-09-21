@@ -940,11 +940,13 @@ const paymentService = {
 					// this.logger.info("24. handleTreePurchaseWebhook generateQrCodeEmailData", generateQrCodeEmailData);
 
 					// await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
+
+					return "COMPLETED";
 				} else {
 					this.logger.info("Capture failed");
 					await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
 				}
-				this.logger.info("26. handleTreePurchaseWebhook captureResult DONE", captureResult);
+				this.logger.info("26. handleTreePurchaseWebhook captureResult ---- DONE ----", captureResult);
 			} else {
 				console.log("Webhook verification failed.");
 				throw new MoleculerClientError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
