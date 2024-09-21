@@ -665,10 +665,9 @@ const paymentService = {
 					invoicedUser?.planted_trees_count
 				);
 			}
+			const treeItems = await Wallet.insertMany(entities);
 
 			try {
-				const treeItems = await Wallet.insertMany(entities);
-
 				this.logger.info("14. createItem treeItems", treeItems);
 
 				const purchaseDetails = {
@@ -804,7 +803,7 @@ const paymentService = {
 					this.logger.info("\n\n\n");
 				}
 
-				this.logger.info("52. createItem walletUpdate START");
+				this.logger.info("52. createItem walletUpdate START", treeItems);
 
 				const walletIds = treeItems.map((wallet) => String(wallet._id));
 
