@@ -1,4 +1,4 @@
-const { MoleculerError } = require("moleculer").Errors;
+const { MoleculerError, MoleculerClientError } = require("moleculer").Errors;
 const DbService = require("moleculer-db");
 const StripeMixin = require("../mixins/stripe.mixin");
 const Invoice = require("../models/Invoice");
@@ -667,9 +667,9 @@ const paymentService = {
 			}
 
 			try {
-				const treeItem = await Wallet.insertMany(entities);
+				const treeItems = await Wallet.insertMany(entities);
 
-				this.logger.info("14. createItem treeItem", treeItem);
+				this.logger.info("14. createItem treeItems", treeItems);
 
 				const purchaseDetails = {
 					numberOfTrees: quantity,
@@ -703,21 +703,23 @@ const paymentService = {
 
 					await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
 				} else {
-					const generateQrCodeEmailData = {
-						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
-						walletQrId: treeItem.walletQrId,
-						userFullname: user?.userFullName || email,
-						userEmail: email || user?.userEmail,
-						productName: treeItem.productName,
-						accessCode: treeItem.accessCode,
-						userLang: "en"
-					};
+					for (const treeItem of treeItems) {
+						const generateQrCodeEmailData = {
+							emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
+							walletQrId: treeItem.walletQrId,
+							userFullname: user?.userFullName || email,
+							userEmail: email || user?.userEmail,
+							productName: treeItem.productName,
+							accessCode: treeItem.accessCode,
+							userLang: "en"
+						};
 
-					this.logger.info("20. createItem generateQrCodeEmailData", generateQrCodeEmailData);
-					await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
+						this.logger.info("20. createItem generateQrCodeEmailData", generateQrCodeEmailData);
+						await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
+					}
 				}
 			} catch (err) {
-				throw new MoleculerError("Item Create Failed", 500, "TREE_ITEM_CREATION", {
+				throw new MoleculerClientError(err.message, 500, "TREE_ITEM_CREATION", {
 					message: "An error occured while trying creating an item in db: " + err.toString()
 				});
 			}
@@ -802,7 +804,7 @@ const paymentService = {
 
 				this.logger.info("52. createItem walletUpdate START");
 
-				const walletIds = treeItem.map((wallet) => String(wallet._id));
+				const walletIds = treeItems.map((wallet) => String(wallet._id));
 
 				this.logger.info("54. createItem walletIds", walletIds);
 
