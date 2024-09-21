@@ -407,7 +407,7 @@ module.exports = {
 						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Purchase confirmation ✔",
+						subject: "Purchase confirmation 🤗",
 						html: htmlToSend
 					};
 
