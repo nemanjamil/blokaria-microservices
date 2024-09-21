@@ -386,7 +386,7 @@ module.exports = {
 					const template = handlebars.compile(source);
 
 					let levelUpMessage = "";
-					if (levelStatus.isLevelChanged) {
+					if (levelStatus?.isLevelChanged) {
 						levelUpMessage = `Congratulations! You have advanced from level ${levelStatus.oldLevel} to level ${levelStatus.newLevel}!`;
 					}
 
