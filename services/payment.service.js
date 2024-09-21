@@ -212,17 +212,23 @@ const paymentService = {
 						],
 						custom_fields: [{
 							key: "eventType",
-							label: "Payment Type",
+							label: {
+								type: "custom",
+								custom: "Payment Type"
+							},
 							text: {
-								"value": "Donation"
+								default_value: "Donation"
 							},
 							type: "text"
 						},
 							{
 								key: "quantity",
-								label: "Quantity",
+								label: {
+									type: "custom",
+									custom: "Quantity"
+								},
 								text: {
-									value: 1
+									default_value: "1"
 								},
 								type: "numeric"
 							}
@@ -282,22 +288,29 @@ const paymentService = {
 										name: "Donation"
 									},
 									unit_amount: treePrice * 100 // amount in cents
-								}
+								},
+								quantity: quantity
 							}
 						],
 						custom_fields: [{
 							key: "eventType",
-							label: "Payment Type",
+							label: {
+								type: "custom",
+								custom: "Payment Type"
+							},
 							text: {
-								"value": "Purchase"
+								default_value: "Purchase"
 							},
 							type: "text"
 						},
 							{
 								key: "quantity",
-								label: "Quantity",
+								label: {
+									type: "custom",
+									custom: "Quantity"
+								},
 								text: {
-									value: quantity
+									default_value: quantity
 								},
 								type: "numeric"
 							}],
