@@ -1,4 +1,4 @@
-const { MoleculerError, MoleculerClientError } = require("moleculer").Errors;
+const { MoleculerClientError } = require("moleculer").Errors;
 const DbService = require("moleculer-db");
 const StripeMixin = require("../mixins/stripe.mixin");
 const Invoice = require("../models/Invoice");
@@ -23,7 +23,7 @@ const updateInvoiceStatus = async (invoiceId, status) => {
 		return invoice.toJSON();
 	} catch (err) {
 		const message = `Failed to update invoice with id: '${invoiceId}'`;
-		throw new MoleculerError(message, 400, "PAYMENT_FAILED", {
+		throw new MoleculerClientError(message, 400, "PAYMENT_FAILED", {
 			message: err.message || message
 		});
 	}
@@ -67,7 +67,7 @@ const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_
 
 		return response.data.verification_status === "SUCCESS";
 	} catch (error) {
-		throw new MoleculerError("Webhook verification failed", 400, "WEBHOOK_VERIFICATION_FAILED", {
+		throw new MoleculerClientError("Webhook verification failed", 400, "WEBHOOK_VERIFICATION_FAILED", {
 			message: error.message
 		});
 	}
@@ -94,7 +94,7 @@ const captureOrder = async (orderId) => {
 
 		return response.data;
 	} catch (error) {
-		throw new MoleculerError("Order capture failed", 400, "ORDER_CAPTURE_FAILED", {
+		throw new MoleculerClientError("Order capture failed", 400, "ORDER_CAPTURE_FAILED", {
 			message: error.message
 		});
 	}
@@ -247,7 +247,7 @@ const paymentService = {
 					if (err.type === "StripeCardError") {
 						message = err.message;
 					}
-					throw new MoleculerError("Payment failed", 400, "PAYMENT_FAILED", {
+					throw new MoleculerClientError("Payment failed", 400, "PAYMENT_FAILED", {
 						message: message
 					});
 				}
@@ -340,7 +340,7 @@ const paymentService = {
 					if (err.type === "StripeCardError") {
 						message = err.message;
 					}
-					throw new MoleculerError("Payment failed", 400, "PAYMENT_FAILED", {
+					throw new MoleculerClientError("Payment failed", 400, "PAYMENT_FAILED", {
 						message: message
 					});
 				}
@@ -380,7 +380,7 @@ const paymentService = {
 					return { approveLink };
 				} catch (error) {
 					console.log("Error creating PayPal order:", error);
-					throw new MoleculerError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
+					throw new MoleculerClientError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
 						message: error.message
 					});
 				}
@@ -404,7 +404,7 @@ const paymentService = {
 					});
 				} catch (error) {
 					console.log("Error sending email:", error);
-					throw new MoleculerError("Email sending error", 400, "EMAIL_SENDING_FAILED", {
+					throw new MoleculerClientError("Email sending error", 400, "EMAIL_SENDING_FAILED", {
 						message: error.message
 					});
 				}
@@ -453,7 +453,7 @@ const paymentService = {
 					return { approveLink };
 				} catch (error) {
 					console.log("Error creating PayPal order:", error);
-					throw new MoleculerError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
+					throw new MoleculerClientError("Order creation failed", 400, "ORDER_CREATION_FAILED", {
 						message: error.message
 					});
 				}
@@ -497,14 +497,14 @@ const paymentService = {
 							eventType,
 							orderType
 						});
-						throw new MoleculerError("Unhandled webhook event type or order type", 400, "UNHANDLED_WEBHOOK", {
+						throw new MoleculerClientError("Unhandled webhook event type or order type", 400, "UNHANDLED_WEBHOOK", {
 							message: "The event type or order type is not supported."
 						});
 					}
 				} catch (error) {
 					this.logger.error("11. paypalWebhook ERROR processing PayPal webhook", error);
 
-					throw new MoleculerError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
+					throw new MoleculerClientError("Webhook processing failed", 400, "WEBHOOK_PROCESSING_FAILED", {
 						message: error.message
 					});
 				}
@@ -603,7 +603,7 @@ const paymentService = {
 			this.logger.info("3. createItem invoice", invoice);
 
 			if (!invoice) {
-				throw new MoleculerError("No Invoice Found");
+				throw new MoleculerClientError("No Invoice Found");
 			}
 
 			const user = invoice.payer;
@@ -944,7 +944,7 @@ const paymentService = {
 				this.logger.info("26. handleTreePurchaseWebhook captureResult DONE", captureResult);
 			} else {
 				console.log("Webhook verification failed.");
-				throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
+				throw new MoleculerClientError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
 					message: "Webhook signature verification failed."
 				});
 			}
@@ -997,7 +997,7 @@ const paymentService = {
 				this.logger.info("17. handleDonationWebhook Donation Webhook captureResult DONE", captureResult);
 			} else {
 				this.logger.error("19. handleDonationWebhook  Webhook ERROR verification failed");
-				throw new MoleculerError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
+				throw new MoleculerClientError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
 					message: "Webhook signature verification failed."
 				});
 			}
