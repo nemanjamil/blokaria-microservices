@@ -380,7 +380,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { userLang, userEmail, purchaseDetails, levelStatus } = ctx.params;
-					console.log("sendPaymentConfirmationEmail", ctx.params);
+					this.logger.info("1. sendPaymentConfirmationEmail", ctx.params);
 					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
 
 					const template = handlebars.compile(source);
@@ -398,6 +398,8 @@ module.exports = {
 						levelUpMessage: levelUpMessage
 					};
 
+					this.logger.info("2. sendPaymentConfirmationEmail replacements", replacements);
+
 					const htmlToSend = template(replacements);
 
 					let transporter = await this.getTransporter();
@@ -407,11 +409,15 @@ module.exports = {
 						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: `Purchase confirmation 👍 OrderId: ${orderId}`,
+						subject: `Purchase confirmation 👍 OrderId: ${purchaseDetails.orderId}`,
 						html: htmlToSend
 					};
 
+					this.logger.info("4. sendPaymentConfirmationEmail mailOptions");
+
 					let info = await transporter.sendMail(mailOptions);
+
+					this.logger.info("6. sendPaymentConfirmationEmail ---DONE---");
 
 					return info;
 				} catch (error) {
