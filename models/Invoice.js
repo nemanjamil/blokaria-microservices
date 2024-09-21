@@ -13,6 +13,16 @@ const invoiceSchema = new mongoose.Schema(
 		status: { type: String, default: InvoiceStatus.CREATED },
 		amount: { type: Number, required: true },
 		invoiceId: { type: String, required: true },
+		paymentSource: {
+			type: String,
+			required: true,
+			enum: ["paypal", "stripe"],
+		},
+		paymentType: {
+			type: String,
+			required: true,
+			enum: ["purchase", "donation"],
+		},
 		payer: {
 			type: ObjectId,
 			ref: "User",

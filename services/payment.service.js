@@ -210,6 +210,8 @@ const paymentService = {
 					const invoice = new Invoice({
 						amount: session.amount_total,
 						invoiceId: session.id,
+						paymentSource: "stripe",
+						paymentType: "donation",
 					});
 
 					let invoiceRes = await invoice.save();
@@ -271,6 +273,8 @@ const paymentService = {
 						invoiceId: session.id,
 						payer: userId,
 						area: area,
+						paymentSource: "stripe",
+						paymentType: "purchase",
 					});
 
 					this.logger.info("7. buyTreePayment invoice:", invoice);
@@ -320,6 +324,8 @@ const paymentService = {
 						amount: totalAmount,
 						invoiceId: orderId,
 						area: process.env.DONATION_AREA,
+						paymentSource: "paypal",
+						paymentType: "donation",
 					});
 					await invoice.save();
 
@@ -391,6 +397,8 @@ const paymentService = {
 						invoiceId: orderId,
 						payer: userId,
 						area: areaObjectId,
+						paymentSource: "paypal",
+						paymentType: "purchase",
 					});
 					await invoice.save();
 
