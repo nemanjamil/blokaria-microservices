@@ -210,6 +210,21 @@ const paymentService = {
 								quantity: 1
 							}
 						],
+						custom_fields: [{
+							"key": "eventType",
+							"label": "Payment Type",
+							"text": {
+								"value": "Donation"
+							}
+						},
+							{
+								"key": "quantity",
+								"label": "Quantity",
+								"text": {
+									"value": "1"
+								}
+							}
+						],
 						mode: "payment",
 						success_url: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancel_url: process.env.PAYMENT_FAIL_ROUTE
@@ -265,10 +280,22 @@ const paymentService = {
 										name: "Donation"
 									},
 									unit_amount: treePrice * 100 // amount in cents
-								},
-								quantity: quantity
+								}
 							}
 						],
+						custom_fields: [{
+							"key": "eventType",
+							"label": "Payment Type",
+							"text": {
+								"value": "Purchase"
+							}
+						}, {
+							"key": "quantity",
+							"label": "Quantity",
+							"text": {
+								"value": quantity
+							}
+						}],
 						mode: "payment",
 						success_url: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancel_url: process.env.PAYMENT_FAIL_ROUTE,
@@ -507,9 +534,8 @@ const paymentService = {
 				}
 
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
-
-				const lineItems = stripe.checkout.sessions.listLineItems(event.id);
-				const quantity = lineItems.length > 0 ? lineItems[0].quantity : 1;
+				const quantity = event.data.custom_fields["quantity"] || 1;
+				const paymentType = event.data.custom_fields["eventType"] || "Purchase";
 
 				// Handle the event
 
@@ -518,7 +544,7 @@ const paymentService = {
 					case "checkout.session.completed":
 						this.logger.info("10. handleStripeWebhook Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
-						status = await this.createItem(event.data.object.id, quantity, ctx, event.data.object.customer_details.email);
+						status = await this.createItem(event.data.object.id, quantity, ctx, event.data.object.customer_details.email, paymentType);
 						this.logger.info("10.A handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
 						break;
 					case "checkout.session.async_payment_failed":
@@ -555,7 +581,7 @@ const paymentService = {
 			}
 			return result;
 		},
-		async createItem(invoiceId, quantity, ctx, email) {
+		async createItem(invoiceId, quantity, ctx, email, paymentType) {
 			this.logger.info("1. createItem start invoiceId, quantity", invoiceId, quantity);
 
 			const walletQrId = v4();
@@ -621,33 +647,52 @@ const paymentService = {
 			try {
 				const treeItem = await item.save();
 
-				// const purchaseDetails = {
-				// 	numberOfTrees: quantity,
-				// 	amount: quantity * 50,
-				// 	orderId: invoiceId,
-				// };
-				//
-				// const sendPaymentConfirmationEmail = await ctx.call("v1.email.sendPaymentConfirmationEmail", {
-				// 	userLang: "en",
-				// 	userEmail: email || user?.userEmail,
-				// 	purchaseDetails: purchaseDetails,
-				// });
-				//
-				// this.logger.info("createItem sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
-				//
-				// const generateQrCodeEmailData = {
-				// 	emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
-				// 	walletQrId: treeItem.walletQrId,
-				// 	userFullname: user?.userFullName || email,
-				// 	userEmail: email || user?.userEmail,
-				// 	productName: treeItem.productName,
-				// 	accessCode: treeItem.accessCode,
-				// 	userLang: "en"
-				// };
-				//
-				// this.logger.info("createItem generateQrCodeEmailData", generateQrCodeEmailData);
-				//
-				// await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
+				const purchaseDetails = {
+					numberOfTrees: quantity,
+					amount: quantity * 50,
+					orderId: invoiceId
+				};
+
+				const sendPaymentConfirmationEmail = await ctx.call("v1.email.sendPaymentConfirmationEmail", {
+					userLang: "en",
+					userEmail: email || user?.userEmail,
+					purchaseDetails: purchaseDetails
+				});
+
+				this.logger.info("createItem sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
+
+				if (paymentType === "Donation") {
+					const donationDetails = {
+						amount: invoice?.amount,
+						orderId: invoiceId
+					};
+
+					this.logger.info("createItem donationDetails", donationDetails);
+
+					let sendObject = {
+						userLang: "en",
+						userEmail: email || user?.userEmail,
+						donationDetails: donationDetails
+					};
+
+					this.logger.info(" createItem sendObject", sendObject);
+
+					await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
+				} else {
+					const generateQrCodeEmailData = {
+						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
+						walletQrId: treeItem.walletQrId,
+						userFullname: user?.userFullName || email,
+						userEmail: email || user?.userEmail,
+						productName: treeItem.productName,
+						accessCode: treeItem.accessCode,
+						userLang: "en"
+					};
+
+					this.logger.info("createItem generateQrCodeEmailData", generateQrCodeEmailData);
+					await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
+				}
+
 			} catch (err) {
 				throw new MoleculerError("Item Create Failed", 500, "TREE_ITEM_CREATION", {
 					message: "An error occured while trying creating an item in db: " + err.toString()
