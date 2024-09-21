@@ -552,9 +552,9 @@ const paymentService = {
 				}
 
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
-				this.logger.info(" handleStripeWebhook Stripe Event Data Custom Fields:", event.data.custom_fields);
-				const quantity = event.data.custom_fields.filter(x => x.key === "quantity")["quantity"] || 1;
-				const paymentType = event.data.custom_fields.filter(x => x.key === "eventType")["eventType"] || "Purchase";
+				this.logger.info(" handleStripeWebhook Stripe Event Data Custom Fields:", event.data.object.custom_fields);
+				const quantity = event.data.object.custom_fields.filter(x => x.key === "quantity")["quantity"] || 1;
+				const paymentType = event.data.object.custom_fields.filter(x => x.key === "eventType")["eventType"] || "Purchase";
 
 				// Handle the event
 
