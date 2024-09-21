@@ -831,6 +831,8 @@ const paymentService = {
 				let userUpdate = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
 
 				this.logger.info("62. createItem userUpdate");
+			} else {
+				this.logger.info("68. createItem Not invoicedUser");
 			}
 
 			this.logger.info("70. createItem ----- DONE -----");
