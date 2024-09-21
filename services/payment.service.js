@@ -626,14 +626,13 @@ const paymentService = {
 				});
 			}
 
+			const purchaseDetails = {
+				name: invoicedUser?.userFullName || email,
+				numberOfTrees: quantity,
+				amount: quantity * 50,
+				orderId: invoiceId
+			};
 			try {
-				const purchaseDetails = {
-					name: invoicedUser?.userFullName || email,
-					numberOfTrees: quantity,
-					amount: quantity * 50,
-					orderId: invoiceId
-				};
-
 				await ctx.call("v1.email.sendPaymentConfirmationEmail", {
 					userLang: "en",
 					userEmail: email || user?.userEmail,
