@@ -16,15 +16,15 @@ module.exports = {
 			service: "gmail",
 			auth: {
 				user: "gmail.user@gmail.com",
-				pass: "yourpass",
-			},
-		},
+				pass: "yourpass"
+			}
+		}
 	},
 	metadata: {
 		scalable: true,
 		priority: 5,
 		bccemail: "bcc@blokaria.com",
-		nameOfWebSite: "NaturePlant",
+		nameOfWebSite: "NaturePlant"
 	},
 	actions: {
 		registerUser: {
@@ -34,7 +34,7 @@ module.exports = {
 				userOrgPass: { type: "string" },
 				userFullName: { type: "string" },
 				authenticateLink: { type: "string" },
-				userLang: { type: "string" },
+				userLang: { type: "string" }
 			},
 			async handler(ctx) {
 				let userEmail = ctx.params.userEmail;
@@ -53,7 +53,7 @@ module.exports = {
 						webSiteLocation: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL,
 						authenticateLink: authenticateLink,
-						backEnd: process.env.MOLECULER_SERVICE_LOCATION,
+						backEnd: process.env.MOLECULER_SERVICE_LOCATION
 					};
 					const htmlToSend = template(replacements);
 
@@ -64,7 +64,7 @@ module.exports = {
 						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						subject: "User registration ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					let info = await transporter.sendMail(mailOptions);
@@ -73,7 +73,7 @@ module.exports = {
 				} catch (error) {
 					return Promise.reject(error);
 				}
-			},
+			}
 		},
 
 		// za sada ga nigde ne koristimo
@@ -85,7 +85,7 @@ module.exports = {
 				walletQrId: { type: "string" },
 				userFullname: { type: "string" },
 				userEmail: { type: "email" },
-				productName: { type: "string" },
+				productName: { type: "string" }
 				//data: { type: "object" }, // { type: "object", optional: true },
 			},
 			async handler(ctx) {
@@ -95,7 +95,7 @@ module.exports = {
 					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
 						throw new MoleculerError("Verification ID is not correct", 501, "ERR_VERIFICATION_ID", {
 							message: "Verification email failed",
-							internalErrorCode: "email20",
+							internalErrorCode: "email20"
 						});
 					const source = fs.readFileSync(`./public/templates/${userLang}/contractEmail.html`, "utf-8").toString();
 					const template = handlebars.compile(source);
@@ -109,7 +109,7 @@ module.exports = {
 						userEmail: userEmail,
 						productName: ctx.params.productName,
 						domainEmail: process.env.ADMIN_EMAIL,
-						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						webSiteLocation: process.env.BLOKARIA_WEBSITE
 					};
 
 					const htmlToSend = template(replacements);
@@ -123,7 +123,7 @@ module.exports = {
 						cc: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Information about the smart contract ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					let info = await transporter.sendMail(mailOptions);
@@ -132,7 +132,7 @@ module.exports = {
 				} catch (error) {
 					return Promise.reject(error);
 				}
-			},
+			}
 		},
 
 		generateQrCodeEmail: {
@@ -145,7 +145,7 @@ module.exports = {
 				productName: { type: "string" },
 				accessCode: { type: "string" },
 				qrCodeImageForStatus: { type: "string", optional: true },
-				userLang: { type: "string" },
+				userLang: { type: "string" }
 			},
 			async handler(ctx) {
 				try {
@@ -168,7 +168,7 @@ module.exports = {
 						accessCode: ctx.params.accessCode,
 						publicQrCode: ctx.params.publicQrCode,
 						webSiteLocation: process.env.BLOKARIA_WEBSITE,
-						domainEmail: process.env.ADMIN_EMAIL,
+						domainEmail: process.env.ADMIN_EMAIL
 					};
 
 					this.logger.info("2. generateQrCodeEmail replacements", replacements);
@@ -183,7 +183,7 @@ module.exports = {
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Generated Tree Item ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					if (qrCodeImageForStatus) {
@@ -192,8 +192,8 @@ module.exports = {
 								// encoded string as an attachment
 								filename: `qr-code-${ctx.params.walletQrId}.png`,
 								content: qrCodeImageForStatus.split("base64,")[1],
-								encoding: "base64",
-							},
+								encoding: "base64"
+							}
 						];
 					}
 					let info = await transporter.sendMail(mailOptions);
@@ -204,7 +204,7 @@ module.exports = {
 				} catch (error) {
 					return Promise.reject(error);
 				}
-			},
+			}
 		},
 
 		sendTransactionEmail: {
@@ -217,14 +217,14 @@ module.exports = {
 				productName: { type: "string" },
 				clientEmail: { type: "email" },
 				clientName: { type: "string" },
-				userLang: { type: "string" },
+				userLang: { type: "string" }
 			},
 			async handler(ctx) {
 				try {
 					if (ctx.params.emailVerificationId !== parseInt(process.env.EMAIL_VERIFICATION_ID))
 						throw new MoleculerError("Verification Id is not correct", 501, "ERR_VERIFICATION_ID", {
 							message: "Verification email failed",
-							internalErrorCode: "sendTransactionEmail10",
+							internalErrorCode: "sendTransactionEmail10"
 						});
 					const { userLang } = ctx.params;
 					const source = fs.readFileSync(`./public/templates/${userLang}/transactionConfirmationEmail.html`, "utf-8").toString();
@@ -241,7 +241,7 @@ module.exports = {
 						clientEmail: clientEmail,
 						clientName: ctx.params.clientName,
 						webSiteLocation: process.env.BLOKARIA_WEBSITE,
-						domainEmail: process.env.ADMIN_EMAIL,
+						domainEmail: process.env.ADMIN_EMAIL
 					};
 
 					const htmlToSend = template(replacements);
@@ -254,7 +254,7 @@ module.exports = {
 						to: `${clientEmail}, ${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Transaction email ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					let info = await transporter.sendMail(mailOptions);
@@ -263,14 +263,14 @@ module.exports = {
 				} catch (error) {
 					return Promise.reject(error);
 				}
-			},
+			}
 		},
 
 		resetEmail: {
 			params: {
 				userEmail: { type: "email" },
 				clearPassword: { type: "string" },
-				userLang: { type: "string" },
+				userLang: { type: "string" }
 			},
 			async handler(ctx) {
 				const { userEmail, clearPassword, userFullname, userLang } = ctx.params;
@@ -283,7 +283,7 @@ module.exports = {
 					userEmail,
 					clearPassword,
 					webSiteLocation: process.env.BLOKARIA_WEBSITE,
-					domainEmail: process.env.ADMIN_EMAIL,
+					domainEmail: process.env.ADMIN_EMAIL
 				};
 
 				const htmlToSend = template(replacements);
@@ -297,17 +297,17 @@ module.exports = {
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Password reset ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					return await transporter.sendMail(mailOptions);
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
 						message: error.message,
-						internalErrorCode: "email20",
+						internalErrorCode: "email20"
 					});
 				}
-			},
+			}
 		},
 
 		sendContractEmailToOwner: {
@@ -315,7 +315,15 @@ module.exports = {
 				console.log("sendContractEmailToOwner", ctx.params);
 
 				const { userEmail: userEmailRegUser, userFullName: userFullNameRegUser } = ctx.params.meta;
-				const { userEmail, userFullname, clientEmail, clientName, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
+				const {
+					userEmail,
+					userFullname,
+					clientEmail,
+					clientName,
+					productName,
+					accessCode,
+					walletQrId
+				} = ctx.params.walletIdData[0];
 				const { userLang } = ctx.params;
 
 				const source = fs.readFileSync(`./public/templates/${userLang}/initiateProgressEmail.html`, "utf-8").toString();
@@ -336,7 +344,7 @@ module.exports = {
 					accessCode,
 					webSiteLocation: process.env.BLOKARIA_WEBSITE,
 					transactionApprovalLink: `${process.env.BLOKARIA_WEBSITE}/creator-approval?walletQrId=${walletQrId}&clientEmail=${userEmailRegUser}&clientName=${userFullNameRegUser}`,
-					domainEmail: process.env.ADMIN_EMAIL,
+					domainEmail: process.env.ADMIN_EMAIL
 				};
 
 				const htmlToSend = template(replacements);
@@ -354,7 +362,7 @@ module.exports = {
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "User is interested in your product ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					console.log("sendContractEmail mailOptions");
@@ -363,10 +371,10 @@ module.exports = {
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
 						message: error.message,
-						internalErrorCode: "email50",
+						internalErrorCode: "email50"
 					});
 				}
-			},
+			}
 		},
 
 		sendPaymentConfirmationEmail: {
@@ -375,7 +383,7 @@ module.exports = {
 				userLang: { type: "string" },
 				userEmail: { type: "string" },
 				purchaseDetails: { type: "object" },
-				levelStatus: { type: "object", optional: true },
+				levelStatus: { type: "object", optional: true }
 			},
 			async handler(ctx) {
 				try {
@@ -395,7 +403,7 @@ module.exports = {
 						numberOfTrees: purchaseDetails.numberOfTrees,
 						amount: purchaseDetails.amount,
 						orderId: purchaseDetails.orderId,
-						levelUpMessage: levelUpMessage,
+						levelUpMessage: levelUpMessage
 					};
 
 					const htmlToSend = template(replacements);
@@ -408,16 +416,19 @@ module.exports = {
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Payment confirmation ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					let info = await transporter.sendMail(mailOptions);
 
 					return info;
 				} catch (error) {
-					return Promise.reject(error);
+					throw MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
+						message: error
+					});
+					// return Promise.reject(error);
 				}
-			},
+			}
 		},
 
 		sendPaymentDonationEmail: {
@@ -425,7 +436,7 @@ module.exports = {
 			params: {
 				userLang: { type: "string" },
 				userEmail: { type: "string" },
-				donationDetails: { type: "object" },
+				donationDetails: { type: "object" }
 			},
 			async handler(ctx) {
 				try {
@@ -436,7 +447,7 @@ module.exports = {
 
 					const replacements = {
 						amount: donationDetails.amount,
-						orderId: donationDetails.orderId,
+						orderId: donationDetails.orderId
 					};
 
 					const htmlToSend = template(replacements);
@@ -449,7 +460,7 @@ module.exports = {
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Payment confirmation ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					let info = await transporter.sendMail(mailOptions);
@@ -458,7 +469,7 @@ module.exports = {
 				} catch (error) {
 					return Promise.reject(error);
 				}
-			},
+			}
 		},
 
 		sendTreePlantingConfirmationEmail: {
@@ -472,9 +483,9 @@ module.exports = {
 						latitude: { type: "number" },
 						longitude: { type: "number" },
 						area: { type: "string" },
-						photo: { type: "string" }, // base64 encoded photo
-					},
-				},
+						photo: { type: "string" } // base64 encoded photo
+					}
+				}
 			},
 			async handler(ctx) {
 				try {
@@ -487,7 +498,7 @@ module.exports = {
 					const replacements = {
 						latitude: plantingDetails.latitude,
 						longitude: plantingDetails.longitude,
-						area: plantingDetails.area,
+						area: plantingDetails.area
 					};
 
 					const htmlToSend = template(replacements);
@@ -504,9 +515,9 @@ module.exports = {
 							{
 								filename: "tree_photo.png",
 								content: plantingDetails.photo,
-								encoding: "base64",
-							},
-						],
+								encoding: "base64"
+							}
+						]
 					};
 
 					let info = await transporter.sendMail(mailOptions);
@@ -515,7 +526,7 @@ module.exports = {
 				} catch (error) {
 					return Promise.reject(error);
 				}
-			},
+			}
 		},
 
 		sendApprovalToClient: {
@@ -536,7 +547,7 @@ module.exports = {
 					productName,
 					accessCode,
 					webSiteLocation: process.env.BLOKARIA_WEBSITE,
-					domainEmail: process.env.ADMIN_EMAIL,
+					domainEmail: process.env.ADMIN_EMAIL
 				};
 
 				const htmlToSend = template(replacements);
@@ -550,23 +561,23 @@ module.exports = {
 						to: `${clientEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Request approved ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					return await transporter.sendMail(mailOptions);
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
 						message: error.message,
-						internalErrorCode: "email50",
+						internalErrorCode: "email50"
 					});
 				}
-			},
+			}
 		},
 		sendGiftEmail: {
 			params: {
 				userEmail: { type: "email" },
 				walletQrId: { type: "uuid" },
-				userLang: { type: "string" },
+				userLang: { type: "string" }
 			},
 			async handler(ctx) {
 				const { userEmail, walletQrId, userLang } = ctx.params;
@@ -576,7 +587,7 @@ module.exports = {
 
 				let updateWallet = await Wallet.findOneAndUpdate(
 					{
-						walletQrId,
+						walletQrId
 					},
 					{ accessCode },
 					{ new: true }
@@ -590,7 +601,7 @@ module.exports = {
 					walletQrId,
 					from: user,
 					accessCode,
-					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+					webSiteLocation: process.env.BLOKARIA_WEBSITE
 				};
 
 				const htmlToSend = template(replacements);
@@ -604,25 +615,25 @@ module.exports = {
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "GIFT ✔",
-						html: htmlToSend,
+						html: htmlToSend
 					};
 
 					return await transporter.sendMail(mailOptions);
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
 						message: error.message,
-						internalErrorCode: "email50",
+						internalErrorCode: "email50"
 					});
 				}
-			},
-		},
+			}
+		}
 	},
 
 	methods: {
 		sendMailMethod: {
 			async handler() {
 				return "sendMailMethod";
-			},
+			}
 		},
 		getTransporter: {
 			async handler() {
@@ -638,10 +649,10 @@ module.exports = {
 					secure: true, // true for 465, false for other ports
 					auth: {
 						user: adminEmail,
-						pass: adminPassword,
-					},
+						pass: adminPassword
+					}
 				});
-			},
-		},
-	},
+			}
+		}
+	}
 };
