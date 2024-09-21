@@ -211,18 +211,20 @@ const paymentService = {
 							}
 						],
 						custom_fields: [{
-							"key": "eventType",
-							"label": "Payment Type",
-							"text": {
+							key: "eventType",
+							label: "Payment Type",
+							text: {
 								"value": "Donation"
-							}
+							},
+							type: "text"
 						},
 							{
-								"key": "quantity",
-								"label": "Quantity",
-								"text": {
-									"value": "1"
-								}
+								key: "quantity",
+								label: "Quantity",
+								text: {
+									value: 1
+								},
+								type: "numeric"
 							}
 						],
 						mode: "payment",
@@ -284,18 +286,21 @@ const paymentService = {
 							}
 						],
 						custom_fields: [{
-							"key": "eventType",
-							"label": "Payment Type",
-							"text": {
+							key: "eventType",
+							label: "Payment Type",
+							text: {
 								"value": "Purchase"
-							}
-						}, {
-							"key": "quantity",
-							"label": "Quantity",
-							"text": {
-								"value": quantity
-							}
-						}],
+							},
+							type: "text"
+						},
+							{
+								key: "quantity",
+								label: "Quantity",
+								text: {
+									value: quantity
+								},
+								type: "numeric"
+							}],
 						mode: "payment",
 						success_url: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancel_url: process.env.PAYMENT_FAIL_ROUTE,
