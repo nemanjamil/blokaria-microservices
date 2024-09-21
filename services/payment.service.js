@@ -677,6 +677,8 @@ const paymentService = {
 					orderId: invoiceId
 				};
 
+				this.logger.info("14.A createItem purchaseDetails", purchaseDetails);
+
 				const sendPaymentConfirmationEmail = await ctx.call("v1.email.sendPaymentConfirmationEmail", {
 					userLang: "en",
 					userEmail: email || user?.userEmail,
@@ -699,10 +701,12 @@ const paymentService = {
 						donationDetails: donationDetails
 					};
 
-					this.logger.info("19. createItem sendObject", sendObject);
+					this.logger.info("18. createItem sendObject", sendObject);
 
 					await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
 				} else {
+					this.logger.info("19. createItem REGULAR PURCHASE");
+
 					for (const treeItem of treeItems) {
 						const generateQrCodeEmailData = {
 							emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
