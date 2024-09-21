@@ -665,9 +665,11 @@ const paymentService = {
 					invoicedUser?.planted_trees_count
 				);
 			}
-			const treeItems = await Wallet.insertMany(entities);
+			let treeItems = "";
 
 			try {
+				treeItems = await Wallet.insertMany(entities);
+
 				this.logger.info("14. createItem treeItems", treeItems);
 
 				const purchaseDetails = {
@@ -727,6 +729,8 @@ const paymentService = {
 					message: "An error occured while trying creating an item in db: " + err.toString()
 				});
 			}
+
+			this.logger.info("24. createItem treeItems", treeItems);
 
 			if (invoicedUser) {
 				let threshold = isNaN(invoicedUser?.planted_trees_count) ? Number(quantity) : Number(invoicedUser?.planted_trees_count) + Number(quantity);
