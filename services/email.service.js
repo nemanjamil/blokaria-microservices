@@ -423,10 +423,7 @@ module.exports = {
 
 					return info;
 				} catch (error) {
-					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
-						message: error
-					});
-					// return Promise.reject(error);
+					return Promise.reject(error);
 				}
 			}
 		},

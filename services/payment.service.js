@@ -626,22 +626,22 @@ const paymentService = {
 				});
 			}
 
-			const purchaseDetails = {
-				name: invoicedUser?.userFullName || email,
-				numberOfTrees: quantity,
-				amount: quantity * 50,
-				orderId: invoiceId
+			const generateQrCodeEmailData = {
+				emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
+				walletQrId: item.walletQrId,
+				userFullname: user?.userFullName || email,
+				userEmail: email || user.userEmail,
+				productName: item.productName,
+				accessCode: item.accessCode,
+				userLang: "en"
 			};
+
 			try {
-				await ctx.call("v1.email.sendPaymentConfirmationEmail", {
-					userLang: "en",
-					userEmail: email || user?.userEmail,
-					purchaseDetails: purchaseDetails,
-				});
+				await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
 			} catch (err) {
 				throw new MoleculerError("Payment confirmation email failed", 400, "PAYMENT_EMAIL", {
 					message: err,
-					requestObject: JSON.stringify(purchaseDetails)
+					requestObject: JSON.stringify(generateQrCodeEmailData)
 				});
 			}
 
