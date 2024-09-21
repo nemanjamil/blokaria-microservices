@@ -6,17 +6,21 @@ const areaSchema = new mongoose.Schema({
 	address: String,
 	longitude: Number,
 	latitude: Number,
+	defaultArea: {
+		type: Boolean,
+		default: false
+	},
 	active: {
 		type: Boolean,
-		default: true,
+		default: true
 	},
 	areaPoints: [
 		{
 			lat: Number,
-			lng: Number,
-		},
+			lng: Number
+		}
 	],
-	name: String,
+	name: String
 });
 
 module.exports = mongoose.model("Area", areaSchema);
