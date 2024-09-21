@@ -714,6 +714,7 @@ const paymentService = {
 							userLang: "en"
 						};
 
+						this.logger.info("\n\n\n");
 						this.logger.info("20. createItem generateQrCodeEmailData", generateQrCodeEmailData);
 						await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
 					}
