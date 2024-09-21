@@ -623,16 +623,16 @@ const paymentService = {
 				await item.save();
 
 				const purchaseDetails = {
+					name: invoicedUser?.userFullName || email,
 					numberOfTrees: quantity,
 					amount: quantity * 50,
 					orderId: invoiceId
 				};
 
 				await ctx.call("v1.email.sendPaymentConfirmationEmail", {
-					name: invoicedUser?.userFullName || email,
 					userLang: "en",
 					userEmail: email || user?.userEmail,
-					purchaseDetails
+					purchaseDetails: purchaseDetails
 				});
 			} catch (err) {
 				throw new MoleculerError("Item Create Failed", 500, "TREE_ITEM_CREATION", {
