@@ -636,7 +636,7 @@ const paymentService = {
 				await ctx.call("v1.email.sendPaymentConfirmationEmail", {
 					userLang: "en",
 					userEmail: email || user?.userEmail,
-					purchaseDetails: purchaseDetails
+					purchaseDetails: purchaseDetails,
 				});
 			} catch (err) {
 				throw new MoleculerError("Payment confirmation email failed", 400, "PAYMENT_EMAIL", {

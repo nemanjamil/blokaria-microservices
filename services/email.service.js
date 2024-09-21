@@ -375,7 +375,7 @@ module.exports = {
 				userLang: { type: "string" },
 				userEmail: { type: "string" },
 				purchaseDetails: { type: "object" },
-				levelStatus: { type: "object" },
+				levelStatus: { type: "object", optional: true },
 			},
 			async handler(ctx) {
 				try {
