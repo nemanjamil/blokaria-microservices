@@ -609,12 +609,15 @@ const paymentService = {
 			const user = invoice.payer;
 			const area = invoice.area;
 
+			this.logger.info("4. createItem area, process.env.DONATION_AREA", area, process.env.DONATION_AREA);
+
 			const entities = [];
 
 			for (let i = 0; i < quantity; i++) {
 				const walletQrId = v4();
 				this.logger.info(`5.${i} createItem walletQrId`, walletQrId);
-				const randomString = await this.generateRandomString(5);
+				let randomString = await this.generateRandomString(5);
+				let generatePass = Utils.generatePass();
 				const entity = {
 					walletQrId: walletQrId,
 					geoLocation: "",
@@ -625,7 +628,7 @@ const paymentService = {
 					costOfProduct: 1,
 					longText: "",
 					hasstory: false, // false
-					accessCode: Utils.generatePass(),
+					accessCode: generatePass,
 					_creator: user?._id,
 					_area: area?._id || process.env.DONATION_AREA
 				};
@@ -663,10 +666,8 @@ const paymentService = {
 				);
 			}
 
-			// Creating an Item
-			const item = new Wallet(entities);
 			try {
-				const treeItem = await item.save();
+				const treeItem = await Wallet.insertMany(entities);
 
 				this.logger.info("14. createItem treeItem", treeItem);
 
