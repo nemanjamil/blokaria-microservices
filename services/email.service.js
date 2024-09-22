@@ -182,7 +182,7 @@ module.exports = {
 						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: `Generated Tree Item : ${ctx.params.walletQrId}`,
+						subject: `Generated Tree Item : ${ctx.params.walletQrId[0].walletQrId}`,
 						html: htmlToSend
 					};
 

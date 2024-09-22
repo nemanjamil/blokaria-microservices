@@ -214,10 +214,12 @@
 							<td>
 								<div class="info-box">
 									<p>Your next step is to send this link to your client:</p>
+									{{#each walletQrId}}
 									<p>
 										{{#if
 										publicQrCode}}{{webSiteLocation}}/status/{{walletQrId}}{{else}}{{webSiteLocation}}/status/{{walletQrId}}/{{accessCode}}{{/if}}
 									</p>
+									{{/each}}
 									<p>The client who receives this link will enter his data and complete the process.</p>
 								</div>
 							</td>
@@ -236,8 +238,10 @@
 										<ul>
 											<li>You can print the QR code and put it on your product</li>
 											<li>
-												The user who scans the QR code will be automatically forwarded to this address:
-												{{webSiteLocation}}/status/{{walletQrId}}
+												<p>The user who scans the QR code will be automatically forwarded to this address:</p>
+												{{#each walletQrId}}
+												<p>{{webSiteLocation}}/status/{{walletQrId}}</p>
+												{{/each}}
 											</li>
 										</ul>
 									</li>
