@@ -578,10 +578,17 @@ const paymentService = {
 				let status = "";
 				switch (event.type) {
 					case "checkout.session.completed":
-						this.logger.info("10. handleStripeWebhook Payment Intent Succeeded:", event.data.object);
-						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
+						this.logger.info("10.A handleStripeWebhook Payment Intent Succeeded:", event.data.object);
+
+						let donatorEmail = event.data.object.customer_details.email;
+
+						this.logger.info("10.B handleStripeWebhook donatorEmail:", donatorEmail);
+
+						this.logger.info("10.C handleStripeWebhook Payment Intent Succeeded:", event.data.object);
+						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
+
 						status = await this.createItem(event.data.object.id, quantity, ctx, event.data.object.customer_details.email, paymentType);
-						this.logger.info("10.A handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
+						this.logger.info("10.D handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
 						break;
 					case "checkout.session.async_payment_failed":
 						this.logger.info("12. handleStripeWebhook Payment Intent Canceled:", event.data.object);
