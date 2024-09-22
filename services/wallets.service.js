@@ -499,10 +499,11 @@ module.exports = {
 				walletId: { type: "string", required: true },
 				latitude: { type: "number", required: true },
 				longitude: { type: "number", required: true },
+				longText: {type: "string", required: true, max: 200},
 				photo: { type: "string", optional: true }
 			},
 			async handler(ctx) {
-				const { walletId, latitude, longitude, photo } = ctx.params;
+				const { walletId, latitude, longitude, longText, photo } = ctx.params;
 				const user = ctx.meta.user;
 
 				try {
@@ -518,6 +519,7 @@ module.exports = {
 						if (wallet) {
 							wallet = await Wallet.findById(wallet._id);
 							wallet.geoLocation = `${latitude},${longitude}`;
+							wallet.longText = longText;
 							console.log(`Updated wallet location for walletId: ${walletId}`);
 
 							if (photo) {
