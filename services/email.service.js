@@ -179,10 +179,10 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🌱" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: `Generated Tree Item : ${ctx.params.walletQrId[0].walletQrId}`,
+						subject: `Generated Tree Item 🌱: ${ctx.params.walletQrId[0].walletQrId}`,
 						html: htmlToSend
 					};
 
@@ -451,10 +451,10 @@ module.exports = {
 
 					const mailOptions = {
 						// eslint-disable-next-line quotes
-						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
+						from: `"${this.metadata.nameOfWebSite} 🙌" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Donation confirmation 🌱",
+						subject: "Donation confirmation 🙌",
 						html: htmlToSend
 					};
 
@@ -504,7 +504,7 @@ module.exports = {
 						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: userEmails.join(","),
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Tree Planting Confirmation ✔",
+						subject: "Tree Planting Confirmation 🌳",
 						html: htmlToSend,
 						attachments: [
 							{
