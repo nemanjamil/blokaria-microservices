@@ -178,7 +178,7 @@ const areaService = {
 			params: {
 				id: { type: "string" },
 				showConnectedItems: { type: "boolean", optional: true }
-			},
+			},	
 			async handler(ctx) {
 				const { id, showConnectedItems } = ctx.params;
 
@@ -339,7 +339,7 @@ const areaService = {
 							wallet.latitude = null;
 							wallet.longitude = null;
 							wallet.isPlanted = false;
-							if (wallet.geoLocation !== null) {
+							if (wallet.geoLocation !== null || wallet.geoLocation.length != 0) {
 								wallet.isPlanted = true;
 								const [latitude, longitude] = wallet.geoLocation.split(",").map(coord => parseFloat(coord.trim()));
 								wallet.latitude = latitude;
