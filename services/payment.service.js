@@ -708,13 +708,20 @@ const paymentService = {
 				} else {
 					this.logger.info("19. createItem REGULAR PURCHASE");
 
+					let copyEntities = entities.map((entity) => ({
+						...entity,
+						webSiteLocation: process.env.BLOKARIA_WEBSITE
+					}));
+
+					this.logger.info("19.A createItem copyEntities", copyEntities);
+
 					const generateQrCodeEmailData = {
 						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
-						walletQrId: entities,
+						walletQrId: copyEntities,
 						userFullname: user?.userFullName || email,
 						userEmail: email || user?.userEmail,
-						productName: entities,
-						accessCode: entities,
+						productName: copyEntities,
+						accessCode: copyEntities,
 						userLang: "en"
 					};
 

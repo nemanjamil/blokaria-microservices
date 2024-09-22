@@ -1068,6 +1068,7 @@ module.exports = {
 					.sort("-createdAt")
 					.populate("_creator", { userFullName: 1, userEmail: 1 })
 					.populate("_image", { productPicture: 1 })
+					.populate("_area")
 					.lean();
 
 				// TODO Xavi this can be resoled with populate
