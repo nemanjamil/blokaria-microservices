@@ -339,7 +339,6 @@ const areaService = {
 							wallet.latitude = null;
 							wallet.longitude = null;
 							wallet.isPlanted = false;
-							wallet.desc = wallet.longText;
 							if (wallet.geoLocation !== null && wallet.geoLocation !== "") {
 								wallet.isPlanted = true;
 								const [latitude, longitude] = wallet.geoLocation.split(",").map(coord => parseFloat(coord.trim()));
