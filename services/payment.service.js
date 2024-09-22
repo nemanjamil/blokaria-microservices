@@ -235,7 +235,8 @@ const paymentService = {
 						amount: session.amount_total,
 						invoiceId: session.id,
 						paymentSource: "stripe",
-						paymentType: "donation"
+						paymentType: "donation",
+						area: process.env.DONATION_AREA
 					});
 
 					let invoiceRes = await invoice.save();
