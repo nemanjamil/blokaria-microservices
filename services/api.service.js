@@ -150,7 +150,8 @@ module.exports = {
 					"POST payment/paypalWebhook": "v1.payment.paypalWebhook",
 					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
 					"GET area/getUniqueCountrieDashboard": "v1.area.getUniqueCountrieDashboard",
-					"POST payment/testEmail": "v1.payment.testEmail"
+					"POST payment/testEmail": "v1.payment.testEmail",
+					"GET invoice/getDonatorsList": "invoice.getDonatorsList"
 				},
 				callingOptions: {},
 
@@ -241,7 +242,6 @@ module.exports = {
 					"POST achievement/linkedin/post": "v1.achievement.publishAchievementLinkedInPost",
 					"POST email/sendGiftEmail": "v1.email.sendGiftEmail",
 					"POST wallet/generateGift": "wallet.generateGift",
-					"GET invoice/getDonatorsList": "invoice.getDonatorsList"
 				},
 				callingOptions: {},
 
