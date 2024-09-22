@@ -39,29 +39,33 @@ const walletSchema = new mongoose.Schema({
 	_area: {
 		type: ObjectId,
 		required: true,
-		ref: "Area",
+		ref: "Area"
 	},
 	_creator: {
 		type: ObjectId,
 		required: false,
-		ref: "User",
+		ref: "User"
 	},
 	_image: [
 		{
 			type: ObjectId,
-			ref: "Image",
-		},
+			ref: "Image"
+		}
 	],
 	_nfts: [
 		{
 			type: ObjectId,
-			ref: "Nftcardano",
-		},
+			ref: "Nftcardano"
+		}
 	],
 	_project: {
 		type: ObjectId,
-		ref: "Project",
+		ref: "Project"
 	},
+	_invoice: {
+		type: ObjectId,
+		ref: "Invoice"
+	}
 });
 
 // const normalizeUnderscoreMiddleware = function (next) {

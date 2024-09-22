@@ -631,7 +631,8 @@ const paymentService = {
 					hasstory: false, // false
 					accessCode: generatePass,
 					_creator: user?._id,
-					_area: area?._id || process.env.DONATION_AREA
+					_area: area?._id || process.env.DONATION_AREA,
+					_invoice: invoice._id
 				};
 
 				this.logger.info(`6.${i} createItem entity`, entity);
