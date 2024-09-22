@@ -916,14 +916,14 @@ const paymentService = {
 					if (levelStatus.isLevelChanged) {
 						this.logger.info("20. handleTreePurchaseWebhook isLevelChanged", true);
 					}
-					let sendPaymentConfirmationEmail = await ctx.call("v1.email.sendPaymentConfirmationEmail", {
-						userLang: "en",
-						userEmail: user.userEmail,
-						purchaseDetails: purchaseDetails,
-						levelStatus: levelStatus
-					});
+					// let sendPaymentConfirmationEmail = await ctx.call("v1.email.sendPaymentConfirmationEmail", {
+					// 	userLang: "en",
+					// 	userEmail: user.userEmail,
+					// 	purchaseDetails: purchaseDetails,
+					// 	levelStatus: levelStatus
+					// });
 
-					this.logger.info("22. handleTreePurchaseWebhook sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
+					// this.logger.info("22. handleTreePurchaseWebhook sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
 
 					// let generateQrCodeEmailData = {
 					// 	emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),

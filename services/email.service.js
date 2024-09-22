@@ -380,7 +380,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { userLang, userEmail, purchaseDetails, levelStatus } = ctx.params;
-					this.logger.info("1. sendPaymentConfirmationEmail", ctx.params);
+					this.logger.info("1. sendPaymentConfirmationEmail START", ctx.params);
 					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
 
 					const template = handlebars.compile(source);
