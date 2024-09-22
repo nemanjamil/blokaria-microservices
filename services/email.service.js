@@ -139,11 +139,11 @@ module.exports = {
 			rest: "POST /generateQrCodeEmail",
 			params: {
 				emailVerificationId: { type: "number" },
-				walletQrId: { type: "object" },
+				walletQrId: { type: "array" },
 				userFullname: { type: "string" },
 				userEmail: { type: "email" },
-				productName: { type: "object" },
-				accessCode: { type: "object" },
+				productName: { type: "array" },
+				accessCode: { type: "array" },
 				qrCodeImageForStatus: { type: "string", optional: true },
 				userLang: { type: "string" }
 			},
