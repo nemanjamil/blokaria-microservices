@@ -42,7 +42,7 @@ module.exports = {
 			allowedHeaders: ["Access-Control-Allow-Headers", "Content-Type", "Authorization"],
 			exposedHeaders: [],
 			credentials: false,
-			maxAge: 3600,
+			maxAge: 3600
 		},
 
 		// Exposed IP
@@ -65,7 +65,7 @@ module.exports = {
 						busboyConfig: {
 							limits: {
 								files: 1,
-								fileSize: 2 * 1024 * 1024, // 2MB - ADD RESIZE IN CODE
+								fileSize: 2 * 1024 * 1024 // 2MB - ADD RESIZE IN CODE
 							},
 							onPartsLimit(busboy, alias, svc) {
 								this.logger.info("Busboy parts limit!", busboy);
@@ -75,30 +75,30 @@ module.exports = {
 							},
 							onFieldsLimit(busboy, alias, svc) {
 								this.logger.info("Busboy fields limit!", busboy);
-							},
+							}
 						},
-						action: "image.saveImageAndData",
+						action: "image.saveImageAndData"
 					},
 					"POST /generateNftFromExistingQrCode": {
 						type: "multipart",
 						busboyConfig: {
 							limits: {
 								files: 1,
-								fileSize: 2 * 1024 * 1024, // 2MB - ADD RESIZE IN CODE
-							},
+								fileSize: 2 * 1024 * 1024 // 2MB - ADD RESIZE IN CODE
+							}
 						},
-						action: "image.generateNftFromExistingQrCode",
+						action: "image.generateNftFromExistingQrCode"
 					},
 					"POST /profile": {
 						type: "multipart",
 						busboyConfig: {
 							limits: {
 								files: 1,
-								fileSize: 2 * 1024 * 1024, // 2MB - ADD RESIZE IN CODE
-							},
+								fileSize: 2 * 1024 * 1024 // 2MB - ADD RESIZE IN CODE
+							}
 						},
-						action: "image.storeProfilePicture",
-					},
+						action: "image.storeProfilePicture"
+					}
 				},
 
 				// onAfterCall(ctx, route, req, res, data) {
@@ -107,7 +107,7 @@ module.exports = {
 				// },
 
 				busboyConfig: {
-					limits: { files: 1 },
+					limits: { files: 1 }
 				},
 				//callingOptions: {},
 
@@ -117,7 +117,7 @@ module.exports = {
 					// 	a: 5,
 					// 	vidiMiki: "12312",
 					// },
-				},
+				}
 			},
 
 			{
@@ -150,20 +150,20 @@ module.exports = {
 					"POST payment/paypalWebhook": "v1.payment.paypalWebhook",
 					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
 					"GET area/getUniqueCountrieDashboard": "v1.area.getUniqueCountrieDashboard",
-					"POST payment/testEmail": "v1.payment.testEmail",
+					"POST payment/testEmail": "v1.payment.testEmail"
 				},
 				callingOptions: {},
 
 				bodyParsers: {
 					json: {
 						strict: false,
-						limit: "1MB",
+						limit: "1MB"
 					},
 					urlencoded: {
 						extended: true,
-						limit: "1MB",
-					},
-				},
+						limit: "1MB"
+					}
+				}
 			},
 			{
 				path: "/nrapi-reg",
@@ -179,13 +179,13 @@ module.exports = {
 				bodyParsers: {
 					json: {
 						strict: false,
-						limit: "1MB",
+						limit: "1MB"
 					},
 					urlencoded: {
 						extended: true,
-						limit: "1MB",
-					},
-				},
+						limit: "1MB"
+					}
+				}
 			},
 
 			{
@@ -234,27 +234,28 @@ module.exports = {
 					"PUT achievement": "v1.achievement.updateAchievement",
 					"DELETE achievement": "v1.achievement.deleteAchievement",
 					"GET levels": "v1.level.getLevels",
-					"POST levels" : "v1.level.createLevel",
-					"PUT levels" : "v1.level.updateLevel",
-					"DELETE levels" : "v1.level.deleteLevel",
+					"POST levels": "v1.level.createLevel",
+					"PUT levels": "v1.level.updateLevel",
+					"DELETE levels": "v1.level.deleteLevel",
 					"POST achievement/getPostPreview": "v1.achievement.getAchievementPostPreview",
 					"POST achievement/linkedin/post": "v1.achievement.publishAchievementLinkedInPost",
 					"POST email/sendGiftEmail": "v1.email.sendGiftEmail",
 					"POST wallet/generateGift": "wallet.generateGift",
+					"GET invoice/getDonatorsList": "invoice.getDonatorsList"
 				},
 				callingOptions: {},
 
 				bodyParsers: {
 					json: {
 						strict: false,
-						limit: "1MB",
+						limit: "1MB"
 					},
 					urlencoded: {
 						extended: true,
-						limit: "1MB",
-					},
+						limit: "1MB"
+					}
 				},
-				logging: true,
+				logging: true
 				/**
 				onBeforeCall(ctx, route, req, res) {
 					// https://github.com/teezzan/commitSpy-Core/blob/ed14a9aa28f166bc7e1482086728b64e696fcf28/services/api.service.js
@@ -279,21 +280,21 @@ module.exports = {
 				aliases: {
 					"POST nftcardano/updateQrCodeUrlForward": ["nftcardano.updateQrCodeUrlForward"],
 					"POST nftcardano/updateQrCodeUrl": "nftcardano.updateQrCodeUrl",
-					"POST wallet/updateQrCodeText": "wallet.updateQrCodeText",
+					"POST wallet/updateQrCodeText": "wallet.updateQrCodeText"
 				},
 				callingOptions: {},
 
 				bodyParsers: {
 					json: {
 						strict: false,
-						limit: "1MB",
+						limit: "1MB"
 					},
 					urlencoded: {
 						extended: true,
-						limit: "1MB",
-					},
+						limit: "1MB"
+					}
 				},
-				logging: true,
+				logging: true
 			},
 			{
 				path: "/api-auth",
@@ -313,21 +314,21 @@ module.exports = {
 					"PUT /area/addAccessibleAreas": "v1.area.addAccessibleAreas",
 					"DELETE /area/removeAccessibleAreas": "v1.area.removeAccessibleAreas",
 					"GET /area/getAllUsersWithAccessibleAreas": "v1.area.getAllUsersWithAccessibleAreas",
-					"GET /area/getAllPlanters": "v1.area.getAllPlanters",
+					"GET /area/getAllPlanters": "v1.area.getAllPlanters"
 				},
 				callingOptions: {},
 
 				bodyParsers: {
 					json: {
 						strict: false,
-						limit: "1MB",
+						limit: "1MB"
 					},
 					urlencoded: {
 						extended: true,
-						limit: "1MB",
-					},
+						limit: "1MB"
+					}
 				},
-				logging: true,
+				logging: true
 			},
 			{
 				path: "/papi",
@@ -339,34 +340,34 @@ module.exports = {
 				autoAliases: false,
 				aliases: {
 					"GET /area/getMyAccessibleAreas": "v1.area.getMyAccessibleAreas",
-					"POST /wallet/modifyAccessibleLocation": "wallet.modifyAccessibleLocation",
+					"POST /wallet/modifyAccessibleLocation": "wallet.modifyAccessibleLocation"
 				},
 				callingOptions: {},
 
 				bodyParsers: {
 					json: {
 						strict: false,
-						limit: "1MB",
+						limit: "1MB"
 					},
 					urlencoded: {
 						extended: true,
-						limit: "1MB",
-					},
+						limit: "1MB"
+					}
 				},
-				logging: true,
+				logging: true
 			},
 			{
 				path: "/stripe",
 				aliases: {
-					"POST /webhook": "v1.payment.handleStripeWebhook",
+					"POST /webhook": "v1.payment.handleStripeWebhook"
 				},
 				bodyParsers: {
 					json: false,
 					raw: {
-						type: "application/json",
-					},
-				},
-			},
+						type: "application/json"
+					}
+				}
+			}
 		],
 
 		// Do not log client side errors (does not log an error response when the error.code is 400<=X<500)
@@ -381,8 +382,8 @@ module.exports = {
 			folder: "public",
 
 			// Options to `server-static` module
-			options: {},
-		},
+			options: {}
+		}
 	},
 
 	methods: {
@@ -406,7 +407,7 @@ module.exports = {
 				if (isEmpty(qrcodeRes)) {
 					throw new MoleculerError("QR Code doesn't exist", 401, "ERROR_EMPTY", {
 						message: "QR Code doesn't exist",
-						internalErrorCode: "no_qr_code_1",
+						internalErrorCode: "no_qr_code_1"
 					});
 				}
 				const { qrCodeRedeemStatus, userEmail: userQrCodeEmail, clientEmail } = qrcodeRes[0];
@@ -429,13 +430,13 @@ module.exports = {
 				if (!canPass) {
 					throw new MoleculerError("You do not have sufficient permissions to do this request", 401, "ERROR_ON_PERMISSIONS", {
 						message: "You do not have sufficient permissions to do this request",
-						internalErrorCode: "permission_error_1",
+						internalErrorCode: "permission_error_1"
 					});
 				}
 			} catch (error) {
 				throw new MoleculerError(error.message, 401, "ERROR_VALIDATE_IF_USER_HAS_PRIVILAGES_TO_UPDATE", {
 					message: error.message,
-					internalErrorCode: "update10",
+					internalErrorCode: "update10"
 				});
 			}
 		},
@@ -451,7 +452,7 @@ module.exports = {
 				if (!user) {
 					throw new MoleculerError("User not found.", 422, "USER_FIND_ERROR", {
 						message: "User with the provided email does not exist.",
-						internalErrorCode: "auth30",
+						internalErrorCode: "auth30"
 					});
 				}
 
@@ -468,13 +469,13 @@ module.exports = {
 				if (!canPass) {
 					throw new MoleculerError("You do not have sufficient permissions to do this request", 401, "ERROR_ON_PERMISSIONS", {
 						message: "You do not have sufficient permissions to do this request",
-						internalErrorCode: "permission_error_1",
+						internalErrorCode: "permission_error_1"
 					});
 				}
 			} catch (error) {
 				throw new MoleculerError(error.message, 401, "ERROR_VALIDATE_IF_USER_HAS_PRIVILAGES_TO_UPDATE", {
 					message: error.message,
-					internalErrorCode: "update10",
+					internalErrorCode: "update10"
 				});
 			}
 		},
@@ -491,7 +492,7 @@ module.exports = {
 				if (!user) {
 					throw new MoleculerError("User not found.", 422, "USER_FIND_ERROR", {
 						message: "User with the provided email does not exist.",
-						internalErrorCode: "auth30",
+						internalErrorCode: "auth30"
 					});
 				}
 
@@ -508,13 +509,13 @@ module.exports = {
 				if (!canPass) {
 					throw new MoleculerError("You do not have sufficient permissions to do this request", 401, "ERROR_ON_PERMISSIONS", {
 						message: "You do not have sufficient permissions to do this request",
-						internalErrorCode: "permission_error_1",
+						internalErrorCode: "permission_error_1"
 					});
 				}
 			} catch (error) {
 				throw new MoleculerError(error.message, 401, "ERROR_VALIDATE_IF_USER_HAS_PRIVILAGES_TO_UPDATE", {
 					message: error.message,
-					internalErrorCode: "update10",
+					internalErrorCode: "update10"
 				});
 			}
 		},
@@ -547,7 +548,7 @@ module.exports = {
 						// userRole: (("userRole" in getUser[0])) ? getUser[0].userRole : 1,
 						userRole: "userRole" in getUser[0] ? getUser[0].userRole : 1,
 						numberOfTransaction: getUser[0].numberOfTransaction,
-						numberOfCoupons: getUser[0].numberOfCoupons,
+						numberOfCoupons: getUser[0].numberOfCoupons
 					};
 				} catch (error) {
 					return Promise.reject(error);
@@ -555,7 +556,7 @@ module.exports = {
 			} else {
 				throw new MoleculerError(ApiGateway.Errors.ERR_INVALID_TOKEN, 401, ApiGateway.Errors.ERR_INVALID_TOKEN, {
 					message: "Token is not present. Please Log in",
-					internalErrorCode: "token20",
+					internalErrorCode: "token20"
 				});
 				//new ApiGateway.Errors.UnAuthorizedError(ApiGateway.Errors.ERR_NO_TOKEN);
 			}
@@ -579,6 +580,6 @@ module.exports = {
 			if (req.$action.auth == "required" && !user) {
 				throw new ApiGateway.Errors.UnAuthorizedError("NO_RIGHTS");
 			}
-		},
-	},
+		}
+	}
 };
