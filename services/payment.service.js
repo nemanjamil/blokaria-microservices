@@ -12,19 +12,40 @@ const User = require("../models/User");
 const axios = require("axios");
 const mongoose = require("mongoose");
 
-const updateInvoiceStatus = async (invoiceId, status) => {
+const updateInvoiceStatus = async (invoiceId, status, donatorEmail = null) => {
 	try {
-		console.log("1. updateInvoiceStatus invoiceId status", invoiceId, status);
+		console.log("1. updateInvoiceStatus: invoiceId:", invoiceId, "status:", status);
 
-		const invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: { status } }, { new: true });
+		const email_address = donatorEmail || null;
 
-		console.log("2. updateInvoiceStatus invoice", invoice);
+		if (!email_address) {
+			console.warn("No email address found in donatorEmail. Skipping email update.");
+		} else {
+			console.log("2. updateInvoiceStatus: PayPal email:", email_address);
+		}
 
-		return invoice.toJSON();
+		const updateData = {
+			status,
+			...(email_address && { donatorEmail: email_address })
+		};
+
+		const invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: updateData }, { new: true, lean: true });
+
+		if (!invoice) {
+			throw new MoleculerClientError(`Invoice with id: '${invoiceId}' not found`, 400, "NO_INVOICE", {
+				message: `No invoice found for id: ${invoiceId}`
+			});
+		}
+
+		console.log("3. updateInvoiceStatus: updated invoice:", invoice);
+
+		return invoice;
 	} catch (err) {
 		const message = `Failed to update invoice with id: '${invoiceId}'`;
+		console.error(message, err);
 		throw new MoleculerClientError(message, 400, "PAYMENT_FAILED", {
-			message: err.message || message
+			message: err.message || message,
+			stack: err.stack
 		});
 	}
 };
@@ -557,10 +578,17 @@ const paymentService = {
 				let status = "";
 				switch (event.type) {
 					case "checkout.session.completed":
-						this.logger.info("10. handleStripeWebhook Payment Intent Succeeded:", event.data.object);
-						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED);
+						this.logger.info("10.A handleStripeWebhook Payment Intent Succeeded:", event.data.object);
+
+						let donatorEmail = event.data.object.customer_details.email;
+
+						this.logger.info("10.B handleStripeWebhook donatorEmail:", donatorEmail);
+
+						this.logger.info("10.C handleStripeWebhook Payment Intent Succeeded:", event.data.object);
+						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
+
 						status = await this.createItem(event.data.object.id, quantity, ctx, event.data.object.customer_details.email, paymentType);
-						this.logger.info("10.A handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
+						this.logger.info("10.D handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
 						break;
 					case "checkout.session.async_payment_failed":
 						this.logger.info("12. handleStripeWebhook Payment Intent Canceled:", event.data.object);
@@ -977,7 +1005,11 @@ const paymentService = {
 
 				if (captureResult.status === "COMPLETED") {
 					this.logger.info("5. handleDonationWebhook Capture COMPLETED");
-					let updateInvoiceStatusRes = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED);
+					let donatorEmail = captureResult?.payment_source?.paypal?.email_address || null;
+
+					this.logger.info("6. handleDonationWebhook donatorEmail", donatorEmail);
+
+					let updateInvoiceStatusRes = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
 
 					this.logger.info("7. handleDonationWebhook updateInvoiceStatusRes", updateInvoiceStatusRes);
 
