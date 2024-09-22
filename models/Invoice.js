@@ -5,7 +5,7 @@ const InvoiceStatus = {
 	CREATED: "created",
 	COMPLETED: "completed",
 	FAILED: "failed",
-	EXPIRED: "expired",
+	EXPIRED: "expired"
 };
 
 const invoiceSchema = new mongoose.Schema(
@@ -13,28 +13,29 @@ const invoiceSchema = new mongoose.Schema(
 		status: { type: String, default: InvoiceStatus.CREATED },
 		amount: { type: Number, required: true },
 		invoiceId: { type: String, required: true },
+		donatorEmail: { type: String, lowercase: true, trim: true },
 		paymentSource: {
 			type: String,
 			required: true,
-			enum: ["paypal", "stripe"],
+			enum: ["paypal", "stripe"]
 		},
 		paymentType: {
 			type: String,
 			required: true,
-			enum: ["purchase", "donation"],
+			enum: ["purchase", "donation"]
 		},
 		payer: {
 			type: ObjectId,
 			ref: "User",
 			required: false,
-			default: null,
+			default: null
 		},
 		area: {
 			type: ObjectId,
 			ref: "Area",
 			required: false,
-			default: null,
-		},
+			default: null
+		}
 	},
 	{ timestamps: true }
 );
