@@ -253,7 +253,7 @@ const paymentService = {
 					});
 
 					const invoice = new Invoice({
-						amount: session.amount_total,
+						amount: session.amount_total / 100,
 						invoiceId: session.id,
 						paymentSource: "stripe",
 						paymentType: "donation",
@@ -339,7 +339,7 @@ const paymentService = {
 					this.logger.info("5. buyTreePayment Creating Invoice from session:", session);
 
 					const invoice = new Invoice({
-						amount: session.amount_total,
+						amount: session.amount_total / 100,
 						invoiceId: session.id,
 						payer: userId,
 						area: area,
