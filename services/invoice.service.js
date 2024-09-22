@@ -32,11 +32,17 @@ const invoiceService = {
 						{
 							$addFields: {
 								pseudonymizedEmail: {
-									$concat: [
-										{ $substr: ["$_id", 0, 3] }, // Keep first 3 characters of the email
-										"****", // Mask the middle part
-										{ $substr: ["$_id", { $indexOfBytes: ["$_id", "@"] }, -1] } // Show domain part
-									]
+									$cond: {
+										if: { $gt: [{ $strLenBytes: "$_id" }, 3] }, // Check if email length is greater than 3
+										then: {
+											$concat: [
+												{ $substr: ["$_id", 0, 3] }, // Keep first 3 characters of the email
+												"****", // Mask the middle part
+												{ $substr: ["$_id", { $indexOfBytes: ["$_id", "@"] }, -1] } // Show domain part
+											]
+										},
+										else: "$_id" // If email is 3 characters or shorter, use it as is
+									}
 								}
 							}
 						},
