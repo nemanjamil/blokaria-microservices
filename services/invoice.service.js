@@ -17,7 +17,7 @@ const invoiceService = {
 					const groupedInvoices = await Invoice.aggregate([
 						// Filter to only include invoices with status "completed"
 						{
-							$match: { status: "completed" }
+							$match: { status: "completed", donatorEmail: { $exists: true, $ne: null } }
 						},
 						// Group by donatorEmail and count the number of invoices
 						{
@@ -32,17 +32,11 @@ const invoiceService = {
 						{
 							$addFields: {
 								pseudonymizedEmail: {
-									$cond: {
-										if: { $and: [{ $ne: ["$_id", null] }, { $isString: "$_id" }] }, // Check if email is a valid string
-										then: {
-											$concat: [
-												{ $substrBytes: ["$_id", 0, 3] }, // Keep first 3 characters
-												"****", // Mask the middle part
-												{ $substrBytes: ["$_id", { $indexOfBytes: ["$_id", "@"] }, -1] } // Keep domain part
-											]
-										},
-										else: "anonymous" // Handle null or invalid email cases
-									}
+									$concat: [
+										{ $substr: ["$_id", 0, 3] }, // Keep first 3 characters of the email
+										"****", // Mask the middle part
+										{ $substr: ["$_id", { $indexOfBytes: ["$_id", "@"] }, -1] } // Show domain part
+									]
 								}
 							}
 						},
