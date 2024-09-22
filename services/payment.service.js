@@ -708,21 +708,19 @@ const paymentService = {
 				} else {
 					this.logger.info("19. createItem REGULAR PURCHASE");
 
-					for (const treeItem of treeItems) {
-						const generateQrCodeEmailData = {
-							emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
-							walletQrId: treeItem.walletQrId,
-							userFullname: user?.userFullName || email,
-							userEmail: email || user?.userEmail,
-							productName: treeItem.productName,
-							accessCode: treeItem.accessCode,
-							userLang: "en"
-						};
+					const generateQrCodeEmailData = {
+						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
+						walletQrId: entities,
+						userFullname: user?.userFullName || email,
+						userEmail: email || user?.userEmail,
+						productName: entities,
+						accessCode: entities,
+						userLang: "en"
+					};
 
-						this.logger.info("\n\n\n");
-						this.logger.info("20. createItem generateQrCodeEmailData", generateQrCodeEmailData);
-						await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
-					}
+					this.logger.info("\n\n\n");
+					this.logger.info("20. createItem generateQrCodeEmailData", generateQrCodeEmailData);
+					await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
 				}
 			} catch (err) {
 				throw new MoleculerClientError(err.message, 500, "TREE_ITEM_CREATION", {

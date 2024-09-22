@@ -139,11 +139,11 @@ module.exports = {
 			rest: "POST /generateQrCodeEmail",
 			params: {
 				emailVerificationId: { type: "number" },
-				walletQrId: { type: "string" },
+				walletQrId: { type: "Object" },
 				userFullname: { type: "string" },
 				userEmail: { type: "email" },
-				productName: { type: "string" },
-				accessCode: { type: "string" },
+				productName: { type: "Object" },
+				accessCode: { type: "Object" },
 				qrCodeImageForStatus: { type: "string", optional: true },
 				userLang: { type: "string" }
 			},
@@ -182,7 +182,7 @@ module.exports = {
 						from: `"${this.metadata.nameOfWebSite} 🌳" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: `Generated Tree Item ✔ ${ctx.params.walletQrId}`,
+						subject: `Generated Tree Item : ${ctx.params.walletQrId}`,
 						html: htmlToSend
 					};
 
