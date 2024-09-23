@@ -206,7 +206,9 @@ const paymentService = {
 				amount: { type: "number" }
 			},
 			async handler(ctx) {
-				const { amount } = ctx.params;
+				const { amount, showInDonations } = ctx.params;
+
+				this.logger.info("1. donationPayment ctx.params", ctx.params);
 				const stripe = this.getStripe();
 				try {
 					const session = await stripe.checkout.sessions.create({
@@ -241,8 +243,11 @@ const paymentService = {
 						cancel_url: process.env.PAYMENT_FAIL_ROUTE
 					});
 
+					this.logger.info("2. donationPayment session", session);
+
 					const invoice = new Invoice({
 						amount: session.amount_total / 100,
+						showInDonations: showInDonations,
 						invoiceId: session.id,
 						paymentSource: "stripe",
 						paymentType: "donation",
