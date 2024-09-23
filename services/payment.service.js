@@ -216,7 +216,7 @@ const paymentService = {
 								price_data: {
 									currency: "usd",
 									product_data: {
-										name: "Donation"
+										name: "Purchase"
 									},
 									unit_amount: amount * 100 // amount in cents
 								},
@@ -234,17 +234,6 @@ const paymentService = {
 									default_value: "Donation"
 								},
 								type: "text"
-							},
-							{
-								key: "quantity",
-								label: {
-									type: "custom",
-									custom: "Quantity"
-								},
-								text: {
-									default_value: "1"
-								},
-								type: "numeric"
 							}
 						],
 						mode: "payment",
