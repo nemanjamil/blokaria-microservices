@@ -350,7 +350,8 @@ const areaService = {
 									longitude: wallet.longitude,
 									isPlanted: wallet.isPlanted,
 									longText: wallet.longText,
-									walletQrId: wallet.walletQrId
+									walletQrId: wallet.walletQrId,
+									userFullName: wallet.userFullname,
 								};
 							});
 
