@@ -64,15 +64,7 @@ const generatePaypalAccessToken = async () => {
 	return response.data.access_token;
 };
 
-const verifyPaypalWebhookSignature = async ({
-												auth_algo,
-												cert_url,
-												transmission_id,
-												transmission_sig,
-												transmission_time,
-												webhook_id,
-												webhook_event
-											}) => {
+const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
 	try {
 		const accessToken = await generatePaypalAccessToken();
 
@@ -130,15 +122,15 @@ const captureOrder = async (orderId) => {
 };
 
 const createOrder = async ({
-							   amount,
-							   itemName,
-							   itemDescription,
-							   quantity,
-							   currency = "USD",
-							   returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
-							   cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
-							   brandName = "NaturePlant"
-						   }) => {
+	amount,
+	itemName,
+	itemDescription,
+	quantity,
+	currency = "USD",
+	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
+	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
+	brandName = "NaturePlant"
+}) => {
 	console.log("amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
@@ -373,7 +365,7 @@ const paymentService = {
 			async handler(ctx) {
 				try {
 					this.logger.info("ctx params", ctx.params);
-					const { amount } = ctx.params;
+					const { amount, showInDonations } = ctx.params;
 
 					const { approveLink, orderId, totalAmount } = await createOrder({
 						amount: amount,
@@ -389,6 +381,7 @@ const paymentService = {
 					this.logger.info("Creating Invoice with orderId");
 					const invoice = new Invoice({
 						amount: totalAmount,
+						showInDonations: showInDonations,
 						invoiceId: orderId,
 						area: process.env.DONATION_AREA,
 						paymentSource: "paypal",
