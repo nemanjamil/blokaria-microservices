@@ -74,8 +74,8 @@ module.exports = {
 						numberOfTransaction: user.numberOfTransaction,
 						numberOfCoupons: user.numberOfCoupons,
 						level: user.level,
-						planted_trees_count: user.planted_trees_count,
 						achievements: user._achievements,
+						wallets: user._wallets,
 					};
 
 					// response.token = encryptedToken;

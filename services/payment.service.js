@@ -64,7 +64,15 @@ const generatePaypalAccessToken = async () => {
 	return response.data.access_token;
 };
 
-const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
+const verifyPaypalWebhookSignature = async ({
+												auth_algo,
+												cert_url,
+												transmission_id,
+												transmission_sig,
+												transmission_time,
+												webhook_id,
+												webhook_event
+											}) => {
 	try {
 		const accessToken = await generatePaypalAccessToken();
 
@@ -122,15 +130,15 @@ const captureOrder = async (orderId) => {
 };
 
 const createOrder = async ({
-	amount,
-	itemName,
-	itemDescription,
-	quantity,
-	currency = "USD",
-	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
-	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
-	brandName = "NaturePlant"
-}) => {
+							   amount,
+							   itemName,
+							   itemDescription,
+							   quantity,
+							   currency = "USD",
+							   returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
+							   cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
+							   brandName = "NaturePlant"
+						   }) => {
 	console.log("amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
@@ -663,25 +671,22 @@ const paymentService = {
 
 			this.logger.info("8. createItem invoicedUser", invoicedUser);
 			this.logger.info("9. createItem invoicedUser WALLETS.length", invoicedUser?._wallets.length);
-			this.logger.info("10. createItem invoicedUser PLANTED_TREES_COUNT", invoicedUser?.planted_trees_count);
 
 			const noOfWallets = await Wallet.find({ userEmail: email || user.userEmail }).exec();
 
 			this.logger.info("11. createItem NoOfWALLETS.length", noOfWallets.length);
 
-			if (noOfWallets.length === invoicedUser?._wallets.length && invoicedUser?._wallets.length === invoicedUser?.planted_trees_count) {
+			if (noOfWallets.length === invoicedUser?._wallets.length && invoicedUser?._wallets.length) {
 				this.logger.info(
 					"12. createItem noOfWallets.length === invoicedUser._wallets.length === invoicedUser.planted_trees_count ---- ALL OK ----",
 					noOfWallets?.length,
-					invoicedUser?._wallets.length,
-					invoicedUser?.planted_trees_count
+					invoicedUser?._wallets.length
 				);
 			} else {
 				this.logger.error(
 					"13. createItem noOfWallets.length !== invoicedUser._wallets.length or !== invoicedUser.planted_trees_count",
 					noOfWallets?.length,
-					invoicedUser?._wallets.length,
-					invoicedUser?.planted_trees_count
+					invoicedUser?._wallets.length
 				);
 			}
 			let treeItems = "";
@@ -757,7 +762,7 @@ const paymentService = {
 			this.logger.info("24. createItem treeItems", treeItems);
 
 			if (invoicedUser) {
-				let threshold = isNaN(invoicedUser?.planted_trees_count) ? Number(quantity) : Number(invoicedUser?.planted_trees_count) + Number(quantity);
+				let threshold = isNaN(invoicedUser?._wallets?.length) ? Number(quantity) : Number(invoicedUser?._wallets?.length) + Number(quantity);
 
 				if (isNaN(threshold)) {
 					threshold = 1;
@@ -853,7 +858,7 @@ const paymentService = {
 
 				// Update transactional data
 				const data = {
-					$inc: { numberOfTransaction: -1, planted_trees_count: quantity },
+					$inc: { numberOfTransaction: -1 },
 					$set: { _level: String(userLevel) }
 				};
 

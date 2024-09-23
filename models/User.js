@@ -12,7 +12,6 @@ const userSchema = new mongoose.Schema({
 	image: { type: String },
 	numberOfTransaction: { type: Number, required: true, default: parseInt(process.env.NUMBER_OF_TRANSACTIONS) },
 	numberOfCoupons: { type: Number, required: true, default: parseInt(process.env.NUMBER_OF_COUPONS) },
-	planted_trees_count: { type: Number, default: 0 },
 	_level: { type: ObjectId, ref: "Level" },
 	accessibleAreas: [
 		{
