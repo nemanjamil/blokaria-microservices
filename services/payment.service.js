@@ -216,7 +216,7 @@ const paymentService = {
 								price_data: {
 									currency: "usd",
 									product_data: {
-										name: "Purchase"
+										name: "Donation"
 									},
 									unit_amount: amount * 100 // amount in cents
 								},
