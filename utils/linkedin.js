@@ -1,6 +1,6 @@
 const postTemplate = require("../public/templates/en/achievementPost.json");
 const axios = require("axios");
-
+const { MoleculerClientError } = require("moleculer").Errors;
 /**
  *
  * @param {string} code
@@ -135,12 +135,13 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			throw new Error("Failed to initialize upload for image through LinkedIn");
 		}
 
-		console.log("3. uploadLinkedInImage initResponse");
+		console.log("3. uploadLinkedInImage initResponse", initResponse.data.value);
 
 		const imgUpload = await axios.default.put(initResponse.data.value.uploadUrl, fileStream, {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
-				"Content-Type": "application/json",
+				//"Content-Type": "application/json",
+				"Content-Type": "application/octet-stream",
 				"X-Restli-Protocol-Version": "2.0.0",
 				"LinkedIn-Version": "202405"
 			}
@@ -149,7 +150,11 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 		console.log("4. uploadLinkedInImage imgUpload");
 
 		if (imgUpload.status !== 201 && imgUpload.status !== 200) {
-			throw new Error("Failed to upload image file stream");
+			//throw new Error("Failed to upload image file stream");
+			throw new MoleculerClientError("Failed to upload image file stream", 404, "UPLOAD_LINKEDIN_IMAGE", {
+				message: "Failed to upload image file stream",
+				internalErrorCode: "UPLOAD_LINKEDIN_IMAGE_13"
+			});
 		}
 
 		const imgInfo = await getLinkedInImage(initResponse.data.value.image);
@@ -158,8 +163,11 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 
 		return imgInfo;
 	} catch (err) {
-		console.log("Error while uploading image to linkedin:", err.message || err);
-		throw err;
+		console.log("10. uploadLinkedInImage Error while uploading image to linkedin:", err.message || err);
+		throw new MoleculerClientError(err.message, 404, "UPLOAD_LINKEDIN_IMAGE", {
+			message: err.message,
+			internalErrorCode: "UPLOAD_LINKEDIN_IMAGE_11"
+		});
 	}
 };
 
