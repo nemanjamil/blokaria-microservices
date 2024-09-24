@@ -85,6 +85,7 @@ const getLinkedInImage = async (imageUrn, accessToken) => {
 	const linkedGetUrl = `https://api.linkedin.com/rest/images/${imageUrn}`;
 
 	console.log("1. getLinkedInImage linkedGetUrl", linkedGetUrl);
+	console.log("1. getLinkedInImage accessToken", accessToken);
 
 	try {
 		const imageRes = await axios.get(linkedGetUrl, {
