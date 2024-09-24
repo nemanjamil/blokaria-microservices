@@ -191,7 +191,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
  * @param {import("../models/Achievement")} achievement Achievement
  */
 const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) => {
-	const LINKEDIN_API_URL = "https://api.linkedin.com/v2/ugcPosts";
+	const LINKEDIN_API_URL = "https://api.linkedin.com/rest/posts";
 
 	console.log("1. createLinkedInPost START");
 
