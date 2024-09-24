@@ -91,7 +91,6 @@ const getLinkedInImage = async (imageUrn, accessToken) => {
 		const imageRes = await axios.get(linkedGetUrl, {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
-				"X-Restli-Protocol-Version": "2.0.0",
 				"LinkedIn-Version": "202405"
 			}
 		});
@@ -99,15 +98,20 @@ const getLinkedInImage = async (imageUrn, accessToken) => {
 		console.log("3. getLinkedInImage imageRes", imageRes);
 
 		if (!imageRes || !imageRes.data) {
-			throw new Error("Failed to get image information from LinkedIn");
+			throw new MoleculerClientError("Failed to get image information from LinkedIn", 404, "GET_LINKEDIN_IMAGE", {
+				message: "Failed to get image information from LinkedIn",
+				internalErrorCode: "GET_LINKEDIN_IMAGE"
+			});
 		}
 
 		console.log("3. getLinkedInImage ---- DONE ----", imageRes.data);
 
 		return imageRes.data;
 	} catch (err) {
-		console.log("Error while getting image information from LinkedIn:", err.message || err);
-		throw err;
+		throw new MoleculerClientError(err.message, 404, "GET_LINKEDIN_IMAGE", {
+			message: "Error while getting image information from LinkedIn:",
+			internalErrorCode: "GET_LINKEDIN_IMAGE"
+		});
 	}
 };
 
