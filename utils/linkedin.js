@@ -13,7 +13,7 @@ const linkedInExchangeCode = async (code) => {
 	console.log({
 		client_id: LINKEDIN_CLIENT_ID,
 		client_secret: LINKEDIN_CLIENT_SECRET,
-		redirect_uri: LINKEDIN_REDIRECT_URI,
+		redirect_uri: LINKEDIN_REDIRECT_URI
 	});
 
 	const url = "https://www.linkedin.com/oauth/v2/accessToken";
@@ -22,7 +22,7 @@ const linkedInExchangeCode = async (code) => {
 		client_id: LINKEDIN_CLIENT_ID,
 		client_secret: LINKEDIN_CLIENT_SECRET,
 		redirect_uri: LINKEDIN_REDIRECT_URI,
-		code,
+		code
 	};
 
 	const response = await axios.post(url, new URLSearchParams(body));
@@ -45,8 +45,8 @@ const linkedInGetUserProfile = async (accessToken) => {
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
 				"X-Restli-Protocol-Version": "2.0.0",
-				"LinkedIn-Version": "202405",
-			},
+				"LinkedIn-Version": "202405"
+			}
 		});
 
 		console.log("linkedin get user profile response:", response.data);
@@ -67,7 +67,7 @@ const downloadFileAsStream = async (fileUrl) => {
 		const response = await axios({
 			method: "get",
 			url: fileUrl,
-			responseType: "stream", // Important: This tells axios to return the response as a stream
+			responseType: "stream" // Important: This tells axios to return the response as a stream
 		});
 
 		console.log("2. downloadFileAsStream --- DONE ---");
@@ -118,16 +118,16 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			linkedInInitUrl,
 			{
 				initializeUploadRequest: {
-					owner: `urn:li:person:${userId}`,
-				},
+					owner: `urn:li:person:${userId}`
+				}
 			},
 			{
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
 					"X-Restli-Protocol-Version": "2.0.0",
-					"LinkedIn-Version": "202405",
-				},
+					"LinkedIn-Version": "202405"
+				}
 			}
 		);
 
@@ -142,8 +142,8 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
 				"X-Restli-Protocol-Version": "2.0.0",
-				"LinkedIn-Version": "202405",
-			},
+				"LinkedIn-Version": "202405"
+			}
 		});
 
 		console.log("4. uploadLinkedInImage imgUpload");
@@ -187,7 +187,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			specificContent: {
 				"com.linkedin.ugc.ShareContent": {
 					shareCommentary: {
-						text: `${subject}\n\n${body.replace("{{achievement}}", achievement.name)}`,
+						text: `${subject}\n\n${body.replace("{{achievement}}", achievement.name)}`
 					},
 					// shareMediaCategory: imageAsset !== null ? 'IMAGE' : 'NONE',
 					shareMediaCategory: "ARTICLE",
@@ -205,14 +205,14 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 						// },
 						{
 							altText: achievement.description,
-							id: img.id,
-						},
-					],
-				},
+							id: img.id
+						}
+					]
+				}
 			},
 			visibility: {
-				"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-			},
+				"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+			}
 		};
 
 		console.log("3. createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
@@ -222,8 +222,8 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
 				"X-Restli-Protocol-Version": "2.0.0",
-				"LinkedIn-Version": "202405",
-			},
+				"LinkedIn-Version": "202405"
+			}
 		});
 
 		console.log("4. createLinkedInPost Post created successfully ---- DONE ----:");
@@ -231,9 +231,10 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 		return response.data;
 	} catch (error) {
 		if (error.response) {
-			console.error("Error response data:", error.response.data);
-			console.error("Error response status:", error.response.status);
-			console.error("Error response headers:", error.response.headers);
+			console.error("Error response data:");
+			//console.error("Error response data:", error.response.data);
+			//console.error("Error response status:", error.response.status);
+			//console.error("Error response headers:", error.response.headers);
 		} else if (error) {
 			console.error("Error message:", error.message);
 		}
