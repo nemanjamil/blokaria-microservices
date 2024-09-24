@@ -17,7 +17,11 @@ const invoiceService = {
 					const groupedInvoices = await Invoice.aggregate([
 						// Filter to only include invoices with status "completed"
 						{
-							$match: { status: "completed", donatorEmail: { $exists: true, $ne: null } }
+							$match: {
+								status: "completed",
+								donatorEmail: { $exists: true, $ne: null },
+								showInDonations: true
+							}
 						},
 						// Group by donatorEmail and count the number of invoices
 						{
