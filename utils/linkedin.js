@@ -79,7 +79,7 @@ const downloadFileAsStream = async (fileUrl) => {
 	}
 };
 
-const getLinkedInImage = async (imageUrn, accessToken) => {
+const getLinkedInImage = async (imageUrn) => {
 	console.log("1. getLinkedInImage START");
 
 	const linkedGetUrl = `https://api.linkedin.com/rest/images/${imageUrn}`;
@@ -89,8 +89,6 @@ const getLinkedInImage = async (imageUrn, accessToken) => {
 	try {
 		const imageRes = await axios.get(linkedGetUrl, {
 			headers: {
-				Authorization: `Bearer ${accessToken}`,
-				"Content-Type": "application/json",
 				"X-Restli-Protocol-Version": "2.0.0",
 				"LinkedIn-Version": "202405"
 			}
@@ -166,7 +164,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 
 		console.log("5. getLinkedInImage initResponse.data.value.image", initResponse.data.value.image);
 
-		const imgInfo = await getLinkedInImage(initResponse.data.value.image, accessToken);
+		const imgInfo = await getLinkedInImage(initResponse.data.value.image);
 
 		console.log("6. uploadLinkedInImage ----- DONE -----");
 
