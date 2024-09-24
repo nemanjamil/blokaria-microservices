@@ -95,7 +95,7 @@ const getLinkedInImage = async (imageUrn, accessToken) => {
 			}
 		});
 
-		console.log("3. getLinkedInImage imageRes", imageRes);
+		console.log("3. getLinkedInImage imageRes.data", imageRes.data);
 
 		if (!imageRes || !imageRes.data) {
 			throw new MoleculerClientError("Failed to get image information from LinkedIn", 404, "GET_LINKEDIN_IMAGE", {
@@ -104,7 +104,7 @@ const getLinkedInImage = async (imageUrn, accessToken) => {
 			});
 		}
 
-		console.log("3. getLinkedInImage ---- DONE ----", imageRes.data);
+		console.log("3. getLinkedInImage ---- DONE ----");
 
 		return imageRes.data;
 	} catch (err) {
@@ -204,36 +204,22 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 
 		const postData = {
 			author: `urn:li:person:${userId}`,
-			lifecycleState: "PUBLISHED",
-			specificContent: {
-				"com.linkedin.ugc.ShareContent": {
-					shareCommentary: {
-						text: `${subject}\n\n${body.replace("{{achievement}}", achievement.name)}`
-					},
-					// shareMediaCategory: imageAsset !== null ? 'IMAGE' : 'NONE',
-					shareMediaCategory: "ARTICLE",
-					media: [
-						// {
-						// 	status: "READY",
-						// 	description: {
-						// 		text: achievement.description,
-						// 	},
-						// 	// media: imageAsset,
-						// 	originalUrl: imageUrl,
-						// 	title: {
-						// 		text: achievement.name,
-						// 	},
-						// },
-						{
-							altText: achievement.description,
-							id: img.id
-						}
-					]
+			commentary: `${subject}\n\n${body.replace("{{achievement}}", achievement.name)}`,
+			visibility: "PUBLIC",
+
+			distribution: {
+				feedDistribution: "MAIN_FEED",
+				targetEntities: [],
+				thirdPartyDistributionChannels: []
+			},
+			content: {
+				media: {
+					title: achievement.name,
+					id: img.id
 				}
 			},
-			visibility: {
-				"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
-			}
+			lifecycleState: "PUBLISHED",
+			isReshareDisabledByAuthor: false
 		};
 
 		console.log("3. createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
