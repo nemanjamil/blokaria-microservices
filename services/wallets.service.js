@@ -499,7 +499,7 @@ module.exports = {
 				walletId: { type: "string", required: true },
 				latitude: { type: "number", required: true },
 				longitude: { type: "number", required: true },
-				longText: {type: "string", required: true, max: 200},
+				longText: { type: "string", required: true, max: 200 },
 				photo: { type: "string", optional: true }
 			},
 			async handler(ctx) {
@@ -1160,12 +1160,37 @@ module.exports = {
 		// wallet140
 		async getListQrCodesOwnersModel() {
 			try {
-				return await Wallet.aggregate()
+				let results = await Wallet.aggregate()
 					.group({ _id: "$userEmail", count: { $sum: 1 } })
 					.lookup({ from: "users", localField: "_id", foreignField: "userEmail", as: "userInfo" })
 					.match({ userInfo: { $exists: true, $not: { $size: 0 } } })
-					.project({ _id: 0, count: "$count", userFullName: "$userInfo.userFullName", userEmail: "$userInfo.userEmail" })
+					.project({
+						_id: 0,
+						count: "$count",
+						userFullName: {
+							$concat: [
+								{ $substr: [{ $arrayElemAt: ["$userInfo.userFullName", 0] }, 0, 3] }, // First 3 letters of full name
+								"***** ",
+								{ $substr: [{ $arrayElemAt: [{ $split: [{ $arrayElemAt: ["$userInfo.userFullName", 0] }, " "] }, 1] }, 0, 3] }, // First 3 letters of last name
+								"*****"
+							]
+						},
+						userEmailOrg: { $arrayElemAt: ["$userInfo.userEmail", 0] },
+						userEmail: {
+							$concat: [
+								{ $substr: [{ $arrayElemAt: ["$userInfo.userEmail", 0] }, 0, 1] }, // First letter of email
+								"*****@",
+								{ $arrayElemAt: [{ $split: [{ $arrayElemAt: ["$userInfo.userEmail", 0] }, "@"] }, 1] } // Domain part
+							]
+						}
+					})
 					.exec();
+
+				results.forEach((result) => {
+					result.userEmailOrg = Buffer.from(result.userEmailOrg).toString("base64");
+				});
+
+				return results;
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet140" });
 			}

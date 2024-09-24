@@ -151,7 +151,8 @@ module.exports = {
 					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
 					"GET area/getUniqueCountrieDashboard": "v1.area.getUniqueCountrieDashboard",
 					"POST payment/testEmail": "v1.payment.testEmail",
-					"GET invoice/getDonatorsList": "invoice.getDonatorsList"
+					"GET invoice/getDonatorsList": "invoice.getDonatorsList",
+					"GET wallet/getListQrCodesOwners": "wallet.getListQrCodesOwners"
 				},
 				callingOptions: {},
 
