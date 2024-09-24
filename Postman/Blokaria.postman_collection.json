@@ -574,7 +574,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"areas\": [\n        \"66dfa40cd36c608a509b3a79\",\n        \"66dfa58e13f883624dfcdfe1\"\n    ],\n    \"userId\": \"66df9cdca25e199426a2f7bf\"\n}",
+							"raw": "{\n    \"areas\": [\n        \"66ebef1bad440ed7abcad62b\"\n    ],\n    \"userId\": \"66edb3ee96dbff4036fd4370\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -772,13 +772,14 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"walletId\": \"66e25ba4e8612cb381a85424\",\n    \"latitude\": 12.21,\n    \"longitude\": 12.512\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1ef7387b-f970-4760-b617-3904ab05fe97"
 								}
-							}
+							]
 						},
 						"url": {
 							"raw": "{{domain}}/papi/area/modifyAccessibleLocation",
@@ -789,6 +790,88 @@
 								"papi",
 								"area",
 								"modifyAccessibleLocation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Wallet Image",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1ef7387b-f970-4760-b617-3904ab05fe97"
+								},
+								{
+									"key": "relativePath",
+									"value": "hi",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/upload/updateTreePicture",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"upload",
+								"updateTreePicture"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Wallets CRUD",
+			"item": [
+				{
+					"name": "Get Public Wallets By AreaId",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"areaId\": \"66ebef1bad440ed7abcad62b\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/nrapi/wallet/getPublicWalletsByAreaId",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"nrapi",
+								"wallet",
+								"getPublicWalletsByAreaId"
 							]
 						}
 					},
@@ -822,12 +905,12 @@
 	"variable": [
 		{
 			"key": "domain",
-			"value": "localhost:3022",
+			"value": "http://localhost:3022",
 			"type": "string"
 		},
 		{
 			"key": "token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJlZ3lwdGlhbmVnbzE3QGdtYWlsLmNvbSIsImlhdCI6MTcyNjEwODc1MywiZXhwIjoxNzI2NzEzNTUzfQ.4pXKi-F1ymtMJ_3pmfnJSA3TiGbm5Ub2wuwWAUkCfNc",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJlZ3lwdGlhbmVnbzE3QGdtYWlsLmNvbSIsImlhdCI6MTcyNzAzMDg2MiwiZXhwIjoxNzI3NjM1NjYyfQ.9O6Jxy4SkneaBsXIjGxYtDz0s4aR7V01eh8eZJqnN78",
 			"type": "string"
 		}
 	]

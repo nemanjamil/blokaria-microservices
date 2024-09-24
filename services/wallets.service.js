@@ -784,7 +784,32 @@ module.exports = {
 					});
 				}
 			}
-		}
+		},
+		getPublicWalletsByAreaId: {
+			params: {
+				areaId: { type: "string" }
+			},
+			async handler(ctx) {
+				const { areaId } = ctx.params;
+		
+				try {
+					const wallets = await Wallet.find(
+						{ _area: areaId, publicQrCode: true },
+						{ geoLocation: 1, productName: 1 } 
+					);
+		
+					const filteredWallets = wallets
+						.filter(wallet => wallet.geoLocation && wallet.geoLocation !== "");
+		
+					return filteredWallets;
+				} catch (err) {
+					console.error("Error retrieving wallets by area:", err);
+					throw new MoleculerError("Wallet Retrieval Failed", 500, "WALLET_RETRIEVAL_FAILED", {
+						message: "An error occurred while retrieving wallets from the db."
+					});
+				}
+			}
+		}			
 	},
 
 	methods: {
