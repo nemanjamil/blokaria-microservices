@@ -202,13 +202,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 
 		const { subject, body, body1, tags } = postTemplate;
 
-		const postContent = `
-			<div>
-			<p>${body}</p>
-			<p>${body1.replace("{{achievement}}", achievement.name)}</p>
-			<p>${tags}</p>
-			</div>
-		`;
+		const postContent = `${body}\n\n${body1.replace("{{achievement}}", achievement.name)}\n\n${tags}`;
 
 		const postData = {
 			author: `urn:li:person:${userId}`,
