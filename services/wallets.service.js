@@ -797,11 +797,14 @@ module.exports = {
 						{ _area: areaId, publicQrCode: true },
 						{ geoLocation: 1, productName: 1 } 
 					);
+					const area = await ctx.call("v1.area.getAreaById", { id: areaId });
+					const filteredWallets = wallets.filter(wallet => wallet.geoLocation && wallet.geoLocation !== "");
 		
-					const filteredWallets = wallets
-						.filter(wallet => wallet.geoLocation && wallet.geoLocation !== "");
-		
-					return filteredWallets;
+					return {
+						areaName: area.name,	
+						areaPoints: area.areaPoints,
+						wallets: filteredWallets
+					};
 				} catch (err) {
 					console.error("Error retrieving wallets by area:", err);
 					throw new MoleculerError("Wallet Retrieval Failed", 500, "WALLET_RETRIEVAL_FAILED", {
