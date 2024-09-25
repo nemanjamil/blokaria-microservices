@@ -153,7 +153,7 @@ module.exports = {
 					"POST payment/testEmail": "v1.payment.testEmail",
 					"GET invoice/getDonatorsList": "invoice.getDonatorsList",
 					"GET wallet/getListQrCodesOwners": "wallet.getListQrCodesOwners",
-					"GET wallet/getPublicWalletsByAreaId": "wallet.getPublicWalletsByAreaId"
+					"POST wallet/getPublicWalletsByAreaId": "wallet.getPublicWalletsByAreaId"
 				},
 				callingOptions: {},
 
