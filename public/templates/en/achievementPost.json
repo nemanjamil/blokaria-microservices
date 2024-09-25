@@ -1,4 +1,6 @@
 {
-	"subject": "Subject for LinkedIn post",
-	"body": "Hello everyone! This is a test post for achievement {{achievement}}"
+	"subject": "Celebrate My Achievement with Nature Plant! 🌳✨",
+	"body": "Hello everyone! I'm excited to share my latest achievement with Nature Plant!",
+	"body1": "🌿 I've just reached {{achievement}} by planting trees and making a real impact on our environment. 🌍 Every tree helps reduce our carbon footprint and contributes to a healthier planet for future generations. Join me in taking action! Start your tree-planting journey and together we can make a difference—one tree at a time. Let's grow a greener future! 💚",
+	"tags": "#NaturePlant #TreePlanting #Sustainability #EcoFriendly #CarbonFootprint #GoGreen #LevelUp #ClimateAction"
 }

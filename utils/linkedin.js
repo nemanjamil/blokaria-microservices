@@ -200,11 +200,19 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 
 		console.log("2. createLinkedInPost img");
 
-		const { subject, body } = postTemplate;
+		const { subject, body, body1, tags } = postTemplate;
+
+		const postContent = (
+			<div>
+				<p>{template.body}</p>
+				<p>{template.body1.replace("{{achievement}}", achievement.name)}</p>
+				<p>{template.tags}</p>
+			</div>
+		);
 
 		const postData = {
 			author: `urn:li:person:${userId}`,
-			commentary: `${subject}\n\n${body.replace("{{achievement}}", achievement.name)}`,
+			commentary: `${subject}\n\n${postContent}`,
 			visibility: "PUBLIC",
 
 			distribution: {
