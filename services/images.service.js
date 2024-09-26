@@ -193,6 +193,48 @@ module.exports = {
 			}
 		},
 
+		updateAreaImage: {
+			params: {
+				photo: { type: "string" }, // base64-encoded image
+				area: { type: "object" }
+			},
+			async handler(ctx) {
+				try {
+					console.log("updateTree imageSave START");
+
+					const { area, photo } = ctx.params;
+
+					const uploadDir = path.join(__dirname, `../public/__uploads/areas`);
+					const newFileBuffer = Buffer.from(photo, "base64");
+					const newFileName = `${area._id}_photo.jpg`;
+
+					const newImagePath = await this.replaceFile({
+						oldFilePath: `__uploads/areas/${area._id}_photo.jpg` ? path.join(__dirname, "../public", `__uploads/areas/${area._id}_photo.jpg`) : null,
+						newFileBuffer,
+						newFileName,
+						uploadDir
+					});
+
+					// let image = await Image.findOne({ walletQrId: wallet.walletQrId });
+					// if (image)
+					// {
+					// 	image.productPicture = newImagePath;
+					// 	await image.save();
+					// }
+
+					console.log(`Image updated successfully ${newImagePath}`);
+
+					return "Image updated successfully";
+				} catch (error) {
+					console.error("updateTree error", error);
+					throw new MoleculerError("SAVE_IMAGE_AND_DATA", 501, "ERROR_SAVE_IMAGE", {
+						message: error.message,
+						internalErrorCode: "internal5055"
+					});
+				}
+			}
+		},
+
 		generateNftFromExistingQrCode: {
 			async handler(ctx) {
 				try {

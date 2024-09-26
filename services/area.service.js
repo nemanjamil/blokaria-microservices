@@ -25,9 +25,10 @@ const areaService = {
 				name: { type: "string" },
 				areaPoints: { type: "array", optional: true },
 				active: { type: "boolean", optional: true }
+
 			},
 			async handler(ctx) {
-				const { _id, country, countryCode, address, longitude, latitude, name, areaPoints, active } = ctx.params;
+				const { _id, country, countryCode, address, longitude, latitude, name, areaPoints, active, photo } = ctx.params;
 
 				let area = new Area({
 					country,
@@ -42,6 +43,10 @@ const areaService = {
 				if (_id) {
 					area._id = _id;
 					area.active = active;
+				}
+
+				if (photo) {
+					updatStatus = await ctx.call("image.updateAreaImage", { photo, area });
 				}
 
 				try {
@@ -66,10 +71,11 @@ const areaService = {
 				longitude: { type: "number", optional: true },
 				latitude: { type: "number", optional: true },
 				name: { type: "string", optional: true },
-				areaPoints: { type: "array", optional: true }
+				areaPoints: { type: "array", optional: true },
+				photo: { type: "string", optional: true }
 			},
 			async handler(ctx) {
-				const { id, country, countryCode, address, longitude, latitude, name, areaPoints } = ctx.params;
+				const { id, country, countryCode, address, longitude, latitude, name, areaPoints, photo } = ctx.params;
 
 				try {
 					const updatedArea = await Area.findByIdAndUpdate(
@@ -77,6 +83,11 @@ const areaService = {
 						{ country, countryCode, address, longitude, latitude, name, areaPoints },
 						{ new: true, runValidators: true }
 					);
+
+					if (photo != '')
+					{
+						await ctx.call("image.updateAreaImage", { photo: photo, area: updatedArea});
+					}
 
 					if (!updatedArea) {
 						throw new MoleculerClientError("Area Not Found", 404, "AREA_NOT_FOUND", {
@@ -526,7 +537,7 @@ const areaService = {
 					});
 				}
 			}
-		}
+		},
 	},
 	async started() {
 		const area = {
