@@ -442,7 +442,8 @@ module.exports = {
 
 					const replacements = {
 						amount: donationDetails.amount,
-						orderId: donationDetails.orderId
+						orderId: donationDetails.orderId,
+						webSiteLocation: process.env.BLOKARIA_WEBSITE
 					};
 
 					const htmlToSend = template(replacements);
