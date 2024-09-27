@@ -680,7 +680,7 @@ const paymentService = {
 
 		},
 		async createStripeDonation(invoiceId, ctx, email) {
-			const walletEntity = this.createWalletForPayment(invoiceId, email);
+			const walletEntity = await this.createWalletForPayment(invoiceId, email);
 			this.logger.info("CreateStripeDonation walletEntity", walletEntity);
 			const { invoice } = walletEntity;
 			this.logger.info("CreateStripeDonation invoice", invoice);
