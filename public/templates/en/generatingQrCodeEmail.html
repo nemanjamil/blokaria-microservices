@@ -189,12 +189,12 @@
 						</tr>
 						<tr>
 							<td>
-								<p>You have successfully generated a QR code</p>
+								<p>Your QR code has been successfully generated!</p>
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<p>You can view your QR code at this link:</p>
+								<p>You can access your QR code using the following link:</p>
 							</td>
 						</tr>
 						{{#each walletQrId}}
@@ -205,7 +205,7 @@
 									class="button"
 									target="_blank"
 								>
-									Link to item : {{productName}}
+									View item: {{productName}}
 								</a>
 							</td>
 						</tr>
@@ -213,14 +213,14 @@
 						<tr>
 							<td>
 								<div class="info-box">
-									<p>Your next step is to send this link to your client:</p>
+									<p>To proceed, please share this link with your client:</p>
 									{{#each walletQrId}}
 									<p>
 										{{#if
 										publicQrCode}}{{webSiteLocation}}/status/{{walletQrId}}{{else}}{{webSiteLocation}}/status/{{walletQrId}}/{{accessCode}}{{/if}}
 									</p>
 									{{/each}}
-									<p>The client who receives this link will enter his data and complete the process.</p>
+									<p>Once they receive the link, your client will be able to enter their details and complete the process.</p>
 								</div>
 							</td>
 						</tr>
@@ -232,13 +232,13 @@
 						<tr>
 							<td>
 								<ul>
-									<li>Create a QR code in: There is a QR code attached to this email</li>
+									<li>A QR code is attached to this email.</li>
 									<li>
-										Steps:
+										Steps to follow:
 										<ul>
-											<li>You can print the QR code and put it on your product</li>
+											<li>Print the QR code and place it on your product.</li>
 											<li>
-												<p>The user who scans the QR code will be automatically forwarded to this address:</p>
+												<p>When scanned, users will be directed to this link:</p>
 												{{#each walletQrId}}
 												<p>{{webSiteLocation}}/status/{{walletQrId}}</p>
 												{{/each}}
@@ -250,23 +250,23 @@
 						</tr>
 						<tr>
 							<td>
-								<h2>On this <a href="#" target="_blank">link</a> you can watch a video guide of the whole process</h2>
+								<h2>Watch the full process on this <a href="#" target="_blank">video tutorial</a></h2>
 							</td>
 						</tr>
 						<tr>
 							<td>
 								<ul>
-									<li>Generate QR code</li>
+									<li>Generating the QR code</li>
 									<li>Creating a digital agreement</li>
 									<li>Transaction verification on BlockChain</li>
-									<li>Verification of NFT transaction to BlockChain</li>
+									<li>Verifying the NFT transaction on BlockChain</li>
 								</ul>
 							</td>
 						</tr>
 						<tr>
 							<td>
 								<div class="info-box">
-									<p>Have a question? Contact us at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
+									<p>Have questions? Feel free to reach out at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
 								</div>
 							</td>
 						</tr>
@@ -279,5 +279,5 @@
 				</td>
 			</tr>
 		</table>
-	</body>
+	</body>	
 </html>

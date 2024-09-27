@@ -1,95 +1,101 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0;" />
-<meta name="format-detection" content="telephone=no" />
-<style>
-	body {
-	margin: 0;
-	padding: 0;
-	min-width: 100%;
-	width: 100% !important;
-	height: 100% !important;
-	}
-	body, table, td, div, p, a {
-	-webkit-font-smoothing: antialiased;
-	text-size-adjust: 100%;
-	-ms-text-size-adjust: 100%;
-	-webkit-text-size-adjust: 100%;
-	line-height: 100%;
-	}
-	table, td {
-	border-collapse: collapse !important;
-	border-spacing: 0;
-	}
-	img {
-	border: 0;
-	line-height: 100%;
-	outline: none;
-	text-decoration: none;
-	-ms-interpolation-mode: bicubic;
-	}
-	a, a:hover {
-	color: #127db3;
-	}
-	.footer a, .footer a:hover {
-	color: #999999;
-	}
-</style>
-<title>Planting Confirmation</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0;" />
+  <meta name="format-detection" content="telephone=no" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-width: 100%;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    body, table, td, div, p, a {
+      -webkit-font-smoothing: antialiased;
+      text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+      line-height: 100%;
+    }
+    table, td {
+      border-collapse: collapse !important;
+      border-spacing: 0;
+    }
+    img {
+      border: 0;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+      -ms-interpolation-mode: bicubic;
+    }
+    a, a:hover {
+      color: #127db3;
+    }
+    .footer a, .footer a:hover {
+      color: #999999;
+    }
+  </style>
+  <title>Planting Confirmation</title>
 </head>
 
 <body style="margin: 0; padding: 0; width: 100%; height: 100%; background-color: #f0f0f0; color: #000000;">
-<table width="100%" align="center" cellpadding="0" cellspacing="0" style="margin: 0; padding: 0; width: 100%;">
-	<tr>
-	<td align="center" valign="top" bgcolor="#f0f0f0">
-		<table border="0" cellpadding="0" cellspacing="0" align="center" width="560" style="padding: 0; width: inherit; max-width: 560px;" class="wrapper">
-		<tr>
-			<td align="center" style="padding: 20px;">
-			<h1 style="color: #127db3;">Planting Confirmation</h1>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" style="padding: 10px;">
-			<p>We are excited to confirm the successful planting of a tree at the following location:</p>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" style="padding: 10px;">
-			<table>
-				<tr>
-				<td><b>Latitude:</b></td>
-				<td>{{latitude}}</td>
-				</tr>
-				<tr>
-				<td><b>Longitude:</b></td>
-				<td>{{longitude}}</td>
-				</tr>
-				<tr>
-				<td><b>Area:</b></td>
-				<td>{{area}}</td>
-				</tr>
-			</table>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" style="padding: 10px;">
-			<p>Here is a photo of your newly planted tree:</p>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" style="padding: 20px;">
-			<p>Thank you for contributing to a greener planet!</p>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" class="footer" style="padding: 10px; color: #999999; font-size: 12px;">
-			<p>&copy; 2024 Nature Plant. All Rights Reserved.</p>
-			</td>
-		</tr>
-		</table>
-	</td>
-	</tr>
-</table>
+  <table width="100%" align="center" cellpadding="0" cellspacing="0" style="margin: 0; padding: 0; width: 100%;">
+    <tr>
+      <td align="center" valign="top" bgcolor="#f0f0f0">
+        <table border="0" cellpadding="0" cellspacing="0" align="center" width="560" style="padding: 0; width: inherit; max-width: 560px;" class="wrapper">
+          <tr>
+            <td align="center" style="padding: 20px;">
+              <h1 style="color: #127db3;">Planting Confirmation</h1>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 10px;">
+              <p>We are excited to confirm the successful planting of a tree at the following location:</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 10px;">
+              <table>
+                <tr>
+                  <td><b>Latitude:</b></td>
+                  <td>{{latitude}}</td>
+                </tr>
+                <tr>
+                  <td><b>Longitude:</b></td>
+                  <td>{{longitude}}</td>
+                </tr>
+                <tr>
+                  <td><b>Area:</b></td>
+                  <td>{{area}}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 10px;">
+              <p>Here is a photo of your newly planted tree:</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 10px;">
+              <!-- Embedded base64 image -->
+              <img src="data:image/jpeg;base64,{{photo}}" alt="Planted Tree" style="max-width: 100%; height: auto;"/>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding: 20px;">
+              <p>Thank you for contributing to a greener planet!</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" class="footer" style="padding: 10px; color: #999999; font-size: 12px;">
+              <p>&copy; 2024 Nature Plant. All Rights Reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
