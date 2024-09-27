@@ -12,21 +12,21 @@ const User = require("../models/User");
 const axios = require("axios");
 const mongoose = require("mongoose");
 
-const updateInvoiceStatus = async (invoiceId, status, donatorEmail = null) => {
+const updateInvoiceStatus = async (invoiceId, status, userEmailPayment = null) => {
 	try {
 		console.log("1. updateInvoiceStatus: invoiceId:", invoiceId, "status:", status);
 
-		const email_address = donatorEmail || null;
+		const email_address = userEmailPayment || null;
 
 		if (!email_address) {
-			console.warn("No email address found in donatorEmail. Skipping email update.");
+			console.warn("No email address found in userEmailPayment. Skipping email update.");
 		} else {
 			console.log("2. updateInvoiceStatus: PayPal email:", email_address);
 		}
 
 		const updateData = {
 			status,
-			...(email_address && { donatorEmail: email_address })
+			...(email_address && { userEmailPayment: email_address })
 		};
 
 		const invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: updateData }, { new: true, lean: true });
@@ -270,6 +270,7 @@ const paymentService = {
 			}
 		},
 
+		// STRIPE PURCHASE : This one is called on FronEnd Click Button
 		buyTreePayment: {
 			params: {
 				quantity: { type: "number" },
@@ -508,7 +509,7 @@ const paymentService = {
 					} else if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Donation") {
 						this.logger.info("7. paypalWebhook eventType orderType", eventType, orderType);
 
-						response = await this.handleDonationWebhook(webhookEvent, verificationParams, ctx);
+						response = await this.handleDonationWebhookPayPal(webhookEvent, verificationParams, ctx);
 					} else {
 						this.logger.error("9. paypalWebhook Unhandled webhook event type or order type ERROR ", {
 							eventType,
@@ -575,13 +576,14 @@ const paymentService = {
 					case "checkout.session.completed":
 						this.logger.info("10.A handleStripeWebhook Payment Intent Succeeded:", event.data.object);
 
-						let donatorEmail = event.data.object.customer_details.email;
+						let userEmailPayment = event.data.object.customer_details.email;
 
-						this.logger.info("10.B handleStripeWebhook donatorEmail:", donatorEmail);
+						this.logger.info("10.B handleStripeWebhook userEmailPayment customer_details: ", userEmailPayment);
 
 						this.logger.info("10.C handleStripeWebhook Payment Intent Succeeded:", event.data.object);
-						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
+						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED, userEmailPayment);
 
+						// IF IS DONATION WE DONT CREATE ITEM
 						status = await this.createItem(event.data.object.id, quantity, ctx, event.data.object.customer_details.email, paymentType);
 						this.logger.info("10.D handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
 						break;
@@ -982,28 +984,28 @@ const paymentService = {
 			}
 		},
 
-		async handleDonationWebhook(webhookEvent, verificationParams, ctx) {
-			this.logger.info("1. handleDonationWebhook Handling Donation Webhook");
+		async handleDonationWebhookPayPal(webhookEvent, verificationParams, ctx) {
+			this.logger.info("1. handleDonationWebhookPayPal Handling Donation Webhook");
 
 			verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
 			const isValid = await verifyPaypalWebhookSignature(verificationParams);
 
 			if (isValid) {
-				this.logger.info("3. handleDonationWebhook Donation Webhook successfully verified", webhookEvent);
+				this.logger.info("3. handleDonationWebhookPayPal Donation Webhook successfully verified", webhookEvent);
 
 				const captureResult = await captureOrder(webhookEvent.resource.id);
 				const orderId = webhookEvent.resource.id;
 				const totalPrice = webhookEvent.resource.purchase_units[0].amount.value;
 
 				if (captureResult.status === "COMPLETED") {
-					this.logger.info("5. handleDonationWebhook Capture COMPLETED");
+					this.logger.info("5. handleDonationWebhookPayPal Capture COMPLETED");
 					let donatorEmail = captureResult?.payment_source?.paypal?.email_address || null;
 
-					this.logger.info("6. handleDonationWebhook donatorEmail", donatorEmail);
+					this.logger.info("6. handleDonationWebhookPayPal donatorEmail", donatorEmail);
 
 					let updateInvoiceStatusRes = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
 
-					this.logger.info("7. handleDonationWebhook updateInvoiceStatusRes", updateInvoiceStatusRes);
+					this.logger.info("7. handleDonationWebhookPayPal updateInvoiceStatusRes", updateInvoiceStatusRes);
 
 					const payerEmail = webhookEvent.resource.payer.email_address;
 
@@ -1012,7 +1014,7 @@ const paymentService = {
 						orderId: orderId
 					};
 
-					this.logger.info("9. handleDonationWebhook donationDetails", donationDetails);
+					this.logger.info("9. handleDonationWebhookPayPal donationDetails", donationDetails);
 
 					let sendObject = {
 						userLang: "en",
@@ -1020,19 +1022,19 @@ const paymentService = {
 						donationDetails: donationDetails
 					};
 
-					this.logger.info("10. handleDonationWebhook sendObject", sendObject);
+					this.logger.info("10. handleDonationWebhookPayPal sendObject", sendObject);
 
 					let sendPaymentDonationEmailRes = await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
 
-					this.logger.info("11. handleDonationWebhook sendPaymentDonationEmailRes", sendPaymentDonationEmailRes);
+					this.logger.info("11. handleDonationWebhookPayPal sendPaymentDonationEmailRes", sendPaymentDonationEmailRes);
 				} else {
-					this.logger.error("13. handleDonationWebhook ERROR");
+					this.logger.error("13. handleDonationWebhookPayPal ERROR");
 					let updateInvoiceStatusErr = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
-					this.logger.error("15. handleDonationWebhook ERROR updateInvoiceStatusErr", updateInvoiceStatusErr);
+					this.logger.error("15. handleDonationWebhookPayPal ERROR updateInvoiceStatusErr", updateInvoiceStatusErr);
 				}
-				this.logger.info("17. handleDonationWebhook Donation Webhook captureResult DONE", captureResult);
+				this.logger.info("17. handleDonationWebhookPayPal Donation Webhook captureResult DONE", captureResult);
 			} else {
-				this.logger.error("19. handleDonationWebhook  Webhook ERROR verification failed");
+				this.logger.error("19. handleDonationWebhookPayPal  Webhook ERROR verification failed");
 				throw new MoleculerClientError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
 					message: "Webhook signature verification failed."
 				});
