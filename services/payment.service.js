@@ -65,15 +65,7 @@ const generatePaypalAccessToken = async () => {
 	return response.data.access_token;
 };
 
-const verifyPaypalWebhookSignature = async ({
-												auth_algo,
-												cert_url,
-												transmission_id,
-												transmission_sig,
-												transmission_time,
-												webhook_id,
-												webhook_event
-											}) => {
+const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
 	try {
 		const accessToken = await generatePaypalAccessToken();
 
@@ -131,15 +123,15 @@ const captureOrder = async (orderId) => {
 };
 
 const createOrder = async ({
-							   amount,
-							   itemName,
-							   itemDescription,
-							   quantity,
-							   currency = "USD",
-							   returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
-							   cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
-							   brandName = "NaturePlant"
-						   }) => {
+	amount,
+	itemName,
+	itemDescription,
+	quantity,
+	currency = "USD",
+	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
+	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
+	brandName = "NaturePlant"
+}) => {
 	console.log("amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
@@ -210,6 +202,7 @@ const paymentService = {
 	model: Invoice,
 	$noVersionPrefix: true,
 	actions: {
+		// STRIPE DONATION
 		donationPayment: {
 			params: {
 				amount: { type: "number" }
@@ -510,6 +503,8 @@ const paymentService = {
 				try {
 					const orderType = webhookEvent.resource.purchase_units[0].items[0].name;
 					const eventType = webhookEvent.event_type;
+
+					this.logger.info("4. paypalWebhook eventType orderType", eventType, orderType);
 
 					if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Tree Purchase") {
 						this.logger.info("5. paypalWebhook eventType orderType", eventType, orderType);
