@@ -11,22 +11,23 @@ const Utils = require("../utils/utils");
 const User = require("../models/User");
 const axios = require("axios");
 const mongoose = require("mongoose");
+const { strings, paymentStrings } = require("../utils/strings");
 
-const updateInvoiceStatus = async (invoiceId, status, donatorEmail = null) => {
+const updateInvoiceStatus = async (invoiceId, status, userEmailPayment = null) => {
 	try {
 		console.log("1. updateInvoiceStatus: invoiceId:", invoiceId, "status:", status);
 
-		const email_address = donatorEmail || null;
+		const email_address = userEmailPayment || null;
 
 		if (!email_address) {
-			console.warn("No email address found in donatorEmail. Skipping email update.");
+			console.warn("No email address found in userEmailPayment. Skipping email update.");
 		} else {
 			console.log("2. updateInvoiceStatus: PayPal email:", email_address);
 		}
 
 		const updateData = {
 			status,
-			...(email_address && { donatorEmail: email_address })
+			...(email_address && { userEmailPayment: email_address })
 		};
 
 		const invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: updateData }, { new: true, lean: true });
@@ -201,6 +202,7 @@ const paymentService = {
 	model: Invoice,
 	$noVersionPrefix: true,
 	actions: {
+		// STRIPE DONATION
 		donationPayment: {
 			params: {
 				amount: { type: "number" }
@@ -216,9 +218,9 @@ const paymentService = {
 						line_items: [
 							{
 								price_data: {
-									currency: "usd",
+									currency: "eur",
 									product_data: {
-										name: "Donation"
+										name: paymentStrings.donation
 									},
 									unit_amount: amount * 100 // amount in cents
 								},
@@ -233,7 +235,7 @@ const paymentService = {
 									custom: "Payment Type"
 								},
 								text: {
-									default_value: "Donation"
+									default_value: paymentStrings.donation
 								},
 								type: "text"
 							}
@@ -250,7 +252,7 @@ const paymentService = {
 						showInDonations: showInDonations,
 						invoiceId: session.id,
 						paymentSource: "stripe",
-						paymentType: "donation",
+						paymentType: strings.donation,
 						area: process.env.DONATION_AREA
 					});
 
@@ -270,6 +272,7 @@ const paymentService = {
 			}
 		},
 
+		// STRIPE PURCHASE : This one is called on FronEnd Click Button
 		buyTreePayment: {
 			params: {
 				quantity: { type: "number" },
@@ -277,10 +280,10 @@ const paymentService = {
 				area: { type: "string" }
 			},
 			async handler(ctx) {
-				this.logger.info("1. buyTreePayment Buy Tree Payment triggered:", ctx.params);
+				this.logger.info("1. buyTreePayment STRIPE Buy Tree Payment triggered:", ctx.params);
 				const { quantity, userEmail, area } = ctx.params;
 
-				this.logger.info("3. buyTreePayment quantity, userEmail, area", quantity, userEmail, area);
+				this.logger.info("3. buyTreePayment  STRIPE quantity, userEmail, area", quantity, userEmail, area);
 
 				const userId = ctx.meta.user.userId;
 				const treePrice = 50; // TODO fix this price
@@ -292,9 +295,9 @@ const paymentService = {
 						line_items: [
 							{
 								price_data: {
-									currency: "usd",
+									currency: "eur",
 									product_data: {
-										name: "Donation"
+										name: paymentStrings.purchase
 									},
 									unit_amount: treePrice * 100 // amount in cents
 								},
@@ -309,7 +312,7 @@ const paymentService = {
 									custom: "Payment Type"
 								},
 								text: {
-									default_value: "Purchase"
+									default_value: paymentStrings.purchase
 								},
 								type: "text"
 							},
@@ -338,7 +341,7 @@ const paymentService = {
 						payer: userId,
 						area: area,
 						paymentSource: "stripe",
-						paymentType: "purchase"
+						paymentType: strings.purchase
 					});
 
 					this.logger.info("7. buyTreePayment invoice:", invoice);
@@ -374,13 +377,13 @@ const paymentService = {
 
 					const { approveLink, orderId, totalAmount } = await createOrder({
 						amount: amount,
-						itemName: "Donation",
+						itemName: strings.donation,
 						itemDescription: "Charitable Donation",
 						quantity: 1,
-						currency: "USD",
+						currency: "EUR",
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
-						brandName: "Nature Planet"
+						brandName: "NaturePlant"
 					});
 
 					this.logger.info("Creating Invoice with orderId");
@@ -390,7 +393,7 @@ const paymentService = {
 						invoiceId: orderId,
 						area: process.env.DONATION_AREA,
 						paymentSource: "paypal",
-						paymentType: "donation"
+						paymentType: strings.donation
 					});
 					await invoice.save();
 
@@ -448,7 +451,7 @@ const paymentService = {
 						itemName: "Tree Purchase",
 						itemDescription: "Purchase of Trees",
 						quantity: quantityOfTrees,
-						currency: "USD",
+						currency: "EUR",
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
 						brandName: "NaturePlant"
@@ -463,7 +466,7 @@ const paymentService = {
 						payer: userId,
 						area: areaObjectId,
 						paymentSource: "paypal",
-						paymentType: "purchase"
+						paymentType: strings.purchase
 					});
 					await invoice.save();
 
@@ -501,14 +504,16 @@ const paymentService = {
 					const orderType = webhookEvent.resource.purchase_units[0].items[0].name;
 					const eventType = webhookEvent.event_type;
 
+					this.logger.info("4. paypalWebhook eventType orderType", eventType, orderType);
+
 					if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Tree Purchase") {
 						this.logger.info("5. paypalWebhook eventType orderType", eventType, orderType);
 
 						response = await this.handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx);
-					} else if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Donation") {
+					} else if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === strings.donation) {
 						this.logger.info("7. paypalWebhook eventType orderType", eventType, orderType);
 
-						response = await this.handleDonationWebhook(webhookEvent, verificationParams, ctx);
+						response = await this.handleDonationWebhookPayPal(webhookEvent, verificationParams, ctx);
 					} else {
 						this.logger.error("9. paypalWebhook Unhandled webhook event type or order type ERROR ", {
 							eventType,
@@ -564,9 +569,11 @@ const paymentService = {
 				}
 
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
-				this.logger.info(" handleStripeWebhook Stripe Event Data Custom Fields:", event.data.object.custom_fields);
+				this.logger.info("9.A handleStripeWebhook Stripe Event Data Custom Fields:", event.data.object.custom_fields);
 				const quantity = event.data.object.custom_fields.filter((x) => x.key === "quantity")["quantity"] || 1;
-				const paymentType = event.data.object.custom_fields.filter((x) => x.key === "eventType")["eventType"] || "Purchase";
+				const paymentType = event.data.object.custom_fields.filter((x) => x.key === "eventType")["eventType"] || paymentStrings.purchase;
+
+				this.logger.info("9.B handleStripeWebhook paymentType:", paymentType);
 
 				// Handle the event
 
@@ -575,14 +582,16 @@ const paymentService = {
 					case "checkout.session.completed":
 						this.logger.info("10.A handleStripeWebhook Payment Intent Succeeded:", event.data.object);
 
-						let donatorEmail = event.data.object.customer_details.email;
+						let userEmailPayment = event.data.object.customer_details.email;
 
-						this.logger.info("10.B handleStripeWebhook donatorEmail:", donatorEmail);
+						this.logger.info("10.B handleStripeWebhook userEmailPayment customer_details: ", userEmailPayment);
 
 						this.logger.info("10.C handleStripeWebhook Payment Intent Succeeded:", event.data.object);
-						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
+						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED, userEmailPayment);
 
-						status = await this.createItem(event.data.object.id, quantity, ctx, event.data.object.customer_details.email, paymentType);
+						// IF IS DONATION WE DONT CREATE ITEM
+						// WE JUST SEND PURCHASE CONFIRMATION EMAIL
+						status = await this.createItem(event.data.object.id, quantity, ctx, userEmailPayment, paymentType);
 						this.logger.info("10.D handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
 						break;
 					case "checkout.session.async_payment_failed":
@@ -710,7 +719,7 @@ const paymentService = {
 
 				this.logger.info("15. createItem sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
 
-				if (paymentType === "Donation") {
+				if (paymentType === paymentStrings.donation) {
 					const donationDetails = {
 						amount: invoice?.amount,
 						orderId: invoiceId
@@ -759,7 +768,7 @@ const paymentService = {
 
 			this.logger.info("24. createItem treeItems", treeItems);
 
-			if (invoicedUser) {
+			if (invoicedUser && paymentType === paymentStrings.purchase) {
 				let threshold = isNaN(invoicedUser?._wallets?.length) ? Number(quantity) : Number(invoicedUser?._wallets?.length) + Number(quantity);
 
 				if (isNaN(threshold)) {
@@ -864,7 +873,7 @@ const paymentService = {
 
 				let userUpdate = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
 
-				this.logger.info("62. createItem userUpdate");
+				this.logger.info("62. createItem userUpdate", userUpdate);
 			} else {
 				this.logger.info("68. createItem Not invoicedUser");
 			}
@@ -982,28 +991,28 @@ const paymentService = {
 			}
 		},
 
-		async handleDonationWebhook(webhookEvent, verificationParams, ctx) {
-			this.logger.info("1. handleDonationWebhook Handling Donation Webhook");
+		async handleDonationWebhookPayPal(webhookEvent, verificationParams, ctx) {
+			this.logger.info("1. handleDonationWebhookPayPal Handling Donation Webhook");
 
 			verificationParams.webhook_id = process.env.PAYPAL_CHECKOUT_APPROVED_ID;
 			const isValid = await verifyPaypalWebhookSignature(verificationParams);
 
 			if (isValid) {
-				this.logger.info("3. handleDonationWebhook Donation Webhook successfully verified", webhookEvent);
+				this.logger.info("3. handleDonationWebhookPayPal Donation Webhook successfully verified", webhookEvent);
 
 				const captureResult = await captureOrder(webhookEvent.resource.id);
 				const orderId = webhookEvent.resource.id;
 				const totalPrice = webhookEvent.resource.purchase_units[0].amount.value;
 
 				if (captureResult.status === "COMPLETED") {
-					this.logger.info("5. handleDonationWebhook Capture COMPLETED");
+					this.logger.info("5. handleDonationWebhookPayPal Capture COMPLETED");
 					let donatorEmail = captureResult?.payment_source?.paypal?.email_address || null;
 
-					this.logger.info("6. handleDonationWebhook donatorEmail", donatorEmail);
+					this.logger.info("6. handleDonationWebhookPayPal donatorEmail", donatorEmail);
 
 					let updateInvoiceStatusRes = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
 
-					this.logger.info("7. handleDonationWebhook updateInvoiceStatusRes", updateInvoiceStatusRes);
+					this.logger.info("7. handleDonationWebhookPayPal updateInvoiceStatusRes", updateInvoiceStatusRes);
 
 					const payerEmail = webhookEvent.resource.payer.email_address;
 
@@ -1012,7 +1021,7 @@ const paymentService = {
 						orderId: orderId
 					};
 
-					this.logger.info("9. handleDonationWebhook donationDetails", donationDetails);
+					this.logger.info("9. handleDonationWebhookPayPal donationDetails", donationDetails);
 
 					let sendObject = {
 						userLang: "en",
@@ -1020,19 +1029,19 @@ const paymentService = {
 						donationDetails: donationDetails
 					};
 
-					this.logger.info("10. handleDonationWebhook sendObject", sendObject);
+					this.logger.info("10. handleDonationWebhookPayPal sendObject", sendObject);
 
 					let sendPaymentDonationEmailRes = await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
 
-					this.logger.info("11. handleDonationWebhook sendPaymentDonationEmailRes", sendPaymentDonationEmailRes);
+					this.logger.info("11. handleDonationWebhookPayPal sendPaymentDonationEmailRes", sendPaymentDonationEmailRes);
 				} else {
-					this.logger.error("13. handleDonationWebhook ERROR");
+					this.logger.error("13. handleDonationWebhookPayPal ERROR");
 					let updateInvoiceStatusErr = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.FAILED);
-					this.logger.error("15. handleDonationWebhook ERROR updateInvoiceStatusErr", updateInvoiceStatusErr);
+					this.logger.error("15. handleDonationWebhookPayPal ERROR updateInvoiceStatusErr", updateInvoiceStatusErr);
 				}
-				this.logger.info("17. handleDonationWebhook Donation Webhook captureResult DONE", captureResult);
+				this.logger.info("17. handleDonationWebhookPayPal Donation Webhook captureResult DONE", captureResult);
 			} else {
-				this.logger.error("19. handleDonationWebhook  Webhook ERROR verification failed");
+				this.logger.error("19. handleDonationWebhookPayPal  Webhook ERROR verification failed");
 				throw new MoleculerClientError("Invalid webhook signature", 400, "INVALID_SIGNATURE", {
 					message: "Webhook signature verification failed."
 				});
