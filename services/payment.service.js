@@ -277,10 +277,10 @@ const paymentService = {
 				area: { type: "string" }
 			},
 			async handler(ctx) {
-				this.logger.info("1. buyTreePayment Buy Tree Payment triggered:", ctx.params);
+				this.logger.info("1. buyTreePayment STRIPE Buy Tree Payment triggered:", ctx.params);
 				const { quantity, userEmail, area } = ctx.params;
 
-				this.logger.info("3. buyTreePayment quantity, userEmail, area", quantity, userEmail, area);
+				this.logger.info("3. buyTreePayment  STRIPE quantity, userEmail, area", quantity, userEmail, area);
 
 				const userId = ctx.meta.user.userId;
 				const treePrice = 50; // TODO fix this price
@@ -294,7 +294,7 @@ const paymentService = {
 								price_data: {
 									currency: "usd",
 									product_data: {
-										name: "Donation"
+										name: "Purchase"
 									},
 									unit_amount: treePrice * 100 // amount in cents
 								},

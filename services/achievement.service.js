@@ -116,7 +116,7 @@ const achievementService = {
 
 				this.logger.info("6. getAchievementPostPreview achievement:", achievement);
 
-				if (!userDb._achievements) {
+				if (userDb._achievements.length === 0) {
 					this.logger.error("8. getAchievementPostPreview ERROR: No achievement found for publishing");
 					throw new MoleculerError("No achievement found for publishing", 400, "ACHIEVEMENT_NOT_FOUND", { msg: "no achievements on user" });
 				}
