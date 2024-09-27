@@ -11,6 +11,7 @@ const Utils = require("../utils/utils");
 const User = require("../models/User");
 const axios = require("axios");
 const mongoose = require("mongoose");
+const { strings } = require("../utils/strings");
 
 const updateInvoiceStatus = async (invoiceId, status, userEmailPayment = null) => {
 	try {
@@ -216,9 +217,9 @@ const paymentService = {
 						line_items: [
 							{
 								price_data: {
-									currency: "usd",
+									currency: "eur",
 									product_data: {
-										name: "Donation"
+										name: strings.donation
 									},
 									unit_amount: amount * 100 // amount in cents
 								},
@@ -233,7 +234,7 @@ const paymentService = {
 									custom: "Payment Type"
 								},
 								text: {
-									default_value: "Donation"
+									default_value: strings.donation
 								},
 								type: "text"
 							}
@@ -250,7 +251,7 @@ const paymentService = {
 						showInDonations: showInDonations,
 						invoiceId: session.id,
 						paymentSource: "stripe",
-						paymentType: "donation",
+						paymentType: strings.donation,
 						area: process.env.DONATION_AREA
 					});
 
@@ -293,9 +294,9 @@ const paymentService = {
 						line_items: [
 							{
 								price_data: {
-									currency: "usd",
+									currency: "eur",
 									product_data: {
-										name: "Purchase"
+										name: strings.purchase
 									},
 									unit_amount: treePrice * 100 // amount in cents
 								},
@@ -310,7 +311,7 @@ const paymentService = {
 									custom: "Payment Type"
 								},
 								text: {
-									default_value: "Purchase"
+									default_value: strings.purchase
 								},
 								type: "text"
 							},
@@ -339,7 +340,7 @@ const paymentService = {
 						payer: userId,
 						area: area,
 						paymentSource: "stripe",
-						paymentType: "purchase"
+						paymentType: strings.purchase
 					});
 
 					this.logger.info("7. buyTreePayment invoice:", invoice);
@@ -375,13 +376,13 @@ const paymentService = {
 
 					const { approveLink, orderId, totalAmount } = await createOrder({
 						amount: amount,
-						itemName: "Donation",
+						itemName: strings.donation,
 						itemDescription: "Charitable Donation",
 						quantity: 1,
-						currency: "USD",
+						currency: "EUR",
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
-						brandName: "Nature Planet"
+						brandName: "NaturePlant"
 					});
 
 					this.logger.info("Creating Invoice with orderId");
@@ -391,7 +392,7 @@ const paymentService = {
 						invoiceId: orderId,
 						area: process.env.DONATION_AREA,
 						paymentSource: "paypal",
-						paymentType: "donation"
+						paymentType: strings.donation
 					});
 					await invoice.save();
 
@@ -449,7 +450,7 @@ const paymentService = {
 						itemName: "Tree Purchase",
 						itemDescription: "Purchase of Trees",
 						quantity: quantityOfTrees,
-						currency: "USD",
+						currency: "EUR",
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
 						brandName: "NaturePlant"
@@ -464,7 +465,7 @@ const paymentService = {
 						payer: userId,
 						area: areaObjectId,
 						paymentSource: "paypal",
-						paymentType: "purchase"
+						paymentType: strings.purchase
 					});
 					await invoice.save();
 
@@ -506,7 +507,7 @@ const paymentService = {
 						this.logger.info("5. paypalWebhook eventType orderType", eventType, orderType);
 
 						response = await this.handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx);
-					} else if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === "Donation") {
+					} else if (eventType === "CHECKOUT.ORDER.APPROVED" && orderType === strings.donation) {
 						this.logger.info("7. paypalWebhook eventType orderType", eventType, orderType);
 
 						response = await this.handleDonationWebhookPayPal(webhookEvent, verificationParams, ctx);
@@ -567,7 +568,7 @@ const paymentService = {
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
 				this.logger.info(" handleStripeWebhook Stripe Event Data Custom Fields:", event.data.object.custom_fields);
 				const quantity = event.data.object.custom_fields.filter((x) => x.key === "quantity")["quantity"] || 1;
-				const paymentType = event.data.object.custom_fields.filter((x) => x.key === "eventType")["eventType"] || "Purchase";
+				const paymentType = event.data.object.custom_fields.filter((x) => x.key === "eventType")["eventType"] || strings.purchase;
 
 				// Handle the event
 
@@ -584,7 +585,7 @@ const paymentService = {
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED, userEmailPayment);
 
 						// IF IS DONATION WE DONT CREATE ITEM
-						status = await this.createItem(event.data.object.id, quantity, ctx, event.data.object.customer_details.email, paymentType);
+						status = await this.createItem(event.data.object.id, quantity, ctx, userEmailPayment, paymentType);
 						this.logger.info("10.D handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
 						break;
 					case "checkout.session.async_payment_failed":
@@ -712,7 +713,7 @@ const paymentService = {
 
 				this.logger.info("15. createItem sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
 
-				if (paymentType === "Donation") {
+				if (paymentType === strings.donation) {
 					const donationDetails = {
 						amount: invoice?.amount,
 						orderId: invoiceId
