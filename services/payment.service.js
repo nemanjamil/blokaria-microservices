@@ -780,7 +780,6 @@ const paymentService = {
 				});
 			}
 
-			this.logger.info("24. createItem treeItems", treeItems);
 
 			let threshold = isNaN(invoicedUser?._wallets?.length) ? Number(quantity) : Number(invoicedUser?._wallets?.length) + Number(quantity);
 
@@ -856,7 +855,6 @@ const paymentService = {
 				this.logger.info("\n\n\n");
 			}
 
-			this.logger.info("52. createItem walletUpdate START", treeItems);
 
 			const walletIds = entities.map((wallet) => String(wallet._id));
 
