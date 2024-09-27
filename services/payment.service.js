@@ -641,6 +641,8 @@ const paymentService = {
 		async createWalletForPayment(invoiceId, email) {
 			const invoice = await Invoice.findOne({ invoiceId }).populate("payer").populate("area").exec();
 
+			this.logger.info("createWalletForPayment invoice", invoice);
+
 			if (!invoice) {
 				throw new MoleculerClientError("No Invoice Found");
 			}
@@ -667,20 +669,27 @@ const paymentService = {
 				_invoice: invoice._id
 			};
 
+			this.logger.info("createWalletForPayment walletEntity", entity);
+
 			const wallet = new Wallet(entity);
 			await wallet.save();
+
+			this.logger.info("createWalletForPayment return object", { invoice: invoice, wallet: wallet, user: user });
+
 			return { invoice: invoice, wallet: wallet, user: user };
 
 		},
 		async createStripeDonation(invoiceId, ctx, email) {
 			const walletEntity = this.createWalletForPayment(invoiceId, email);
+			this.logger.info("CreateStripeDonation walletEntity", walletEntity);
 			const { invoice } = walletEntity;
+			this.logger.info("CreateStripeDonation invoice", invoice);
 			const donationDetails = {
-				amount: invoice.amount,
+				amount: invoice?.amount,
 				orderId: invoiceId
 			};
 
-			this.logger.info("3. Stripe Donation donationDetails", donationDetails);
+			this.logger.info("CreateStripeDonation donation details", donationDetails);
 
 			const sendObject = {
 				userLang: "en",
@@ -688,7 +697,7 @@ const paymentService = {
 				donationDetails: donationDetails
 			};
 
-			this.logger.info("4. Stripe donation sendObject", sendObject);
+			this.logger.info("CreateStripeDonation Stripe donation sendObject", sendObject);
 
 			await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
 			return true;
