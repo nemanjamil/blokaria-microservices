@@ -65,7 +65,15 @@ const generatePaypalAccessToken = async () => {
 	return response.data.access_token;
 };
 
-const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
+const verifyPaypalWebhookSignature = async ({
+												auth_algo,
+												cert_url,
+												transmission_id,
+												transmission_sig,
+												transmission_time,
+												webhook_id,
+												webhook_event
+											}) => {
 	try {
 		const accessToken = await generatePaypalAccessToken();
 
@@ -123,15 +131,15 @@ const captureOrder = async (orderId) => {
 };
 
 const createOrder = async ({
-	amount,
-	itemName,
-	itemDescription,
-	quantity,
-	currency = "USD",
-	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
-	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
-	brandName = "NaturePlant"
-}) => {
+							   amount,
+							   itemName,
+							   itemDescription,
+							   quantity,
+							   currency = "USD",
+							   returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
+							   cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
+							   brandName = "NaturePlant"
+						   }) => {
 	console.log("amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
@@ -570,8 +578,9 @@ const paymentService = {
 
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
 				this.logger.info("9.A handleStripeWebhook Stripe Event Data Custom Fields:", event.data.object.custom_fields);
-				const quantity = event.data.object.custom_fields.filter((x) => x.key === "quantity")["quantity"] || 1;
-				const paymentType = event.data.object.custom_fields.filter((x) => x.key === "eventType")["eventType"] || paymentStrings.purchase;
+				const quantity = event.data.object.custom_fields.find((x) => x.key === "quantity")?.numeric.value || 1;
+				const paymentType = event.data.object.custom_fields.find((x) => x.key === "eventType")?.text.value || paymentStrings.purchase;
+				const userEmailPayment = event.data.object.customer_details.email;
 
 				this.logger.info("9.B handleStripeWebhook paymentType:", paymentType);
 
@@ -581,17 +590,16 @@ const paymentService = {
 				switch (event.type) {
 					case "checkout.session.completed":
 						this.logger.info("10.A handleStripeWebhook Payment Intent Succeeded:", event.data.object);
-
-						let userEmailPayment = event.data.object.customer_details.email;
-
 						this.logger.info("10.B handleStripeWebhook userEmailPayment customer_details: ", userEmailPayment);
 
 						this.logger.info("10.C handleStripeWebhook Payment Intent Succeeded:", event.data.object);
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED, userEmailPayment);
 
-						// IF IS DONATION WE DONT CREATE ITEM
-						// WE JUST SEND PURCHASE CONFIRMATION EMAIL
-						status = await this.createItem(event.data.object.id, quantity, ctx, userEmailPayment, paymentType);
+						if (paymentType === paymentStrings.donation) {
+							status = await this.createStripeDonation(event.data.object.id, ctx, userEmailPayment);
+						} else {
+							status = await this.createItem(event.data.object.id, quantity, ctx);
+						}
 						this.logger.info("10.D handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
 						break;
 					case "checkout.session.async_payment_failed":
@@ -628,12 +636,10 @@ const paymentService = {
 			}
 			return result;
 		},
-		async createItem(invoiceId, quantity, ctx, email, paymentType) {
-			this.logger.info("1. createItem start invoiceId, quantity", invoiceId, quantity);
-
+		async createWalletForPayment(invoiceId, email) {
 			const invoice = await Invoice.findOne({ invoiceId }).populate("payer").populate("area").exec();
 
-			this.logger.info("3. createItem invoice", invoice);
+			this.logger.info("createWalletForPayment invoice", invoice);
 
 			if (!invoice) {
 				throw new MoleculerClientError("No Invoice Found");
@@ -642,48 +648,80 @@ const paymentService = {
 			const user = invoice.payer;
 			const area = invoice.area;
 
-			this.logger.info("4. createItem area, process.env.DONATION_AREA", area, process.env.DONATION_AREA);
+			const walletQrId = v4();
+			let randomString = await this.generateRandomString(5);
+			let generatePass = Utils.generatePass();
+			const entity = {
+				walletQrId: walletQrId,
+				geoLocation: "",
+				userFullname: user?.userFullName,
+				userEmail: email,
+				productName: `Tree-${randomString} in ${area?.name || process.env.DONATION_AREA}`,
+				publicQrCode: true,
+				costOfProduct: 1,
+				longText: "",
+				hasstory: false, // false
+				accessCode: generatePass,
+				_creator: user?._id,
+				_area: area?._id || process.env.DONATION_AREA,
+				_invoice: invoice._id
+			};
 
+			this.logger.info("createWalletForPayment walletEntity", entity);
+
+			const wallet = new Wallet(entity);
+			await wallet.save();
+
+			this.logger.info("createWalletForPayment return object", { invoice: invoice, wallet: wallet, user: user });
+
+			return { invoice: invoice, wallet: wallet, user: user };
+
+		},
+		async createStripeDonation(invoiceId, ctx, email) {
+			const walletEntity = await this.createWalletForPayment(invoiceId, email);
+			this.logger.info("CreateStripeDonation walletEntity", walletEntity);
+			const { invoice } = walletEntity;
+			this.logger.info("CreateStripeDonation invoice", invoice);
+			const donationDetails = {
+				amount: invoice?.amount,
+				orderId: invoiceId
+			};
+
+			this.logger.info("CreateStripeDonation donation details", donationDetails);
+
+			const sendObject = {
+				userLang: "en",
+				userEmail: email,
+				donationDetails: donationDetails
+			};
+
+			this.logger.info("CreateStripeDonation Stripe donation sendObject", sendObject);
+
+			await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
+			return true;
+
+		},
+		async createItem(invoiceId, quantity, ctx) {
+			this.logger.info("1. createItem start invoiceId, quantity", invoiceId, quantity);
+
+			let user = {};
 			const entities = [];
-
 			for (let i = 0; i < quantity; i++) {
-				const walletQrId = v4();
-				this.logger.info(`5.${i} createItem walletQrId`, walletQrId);
-				let randomString = await this.generateRandomString(5);
-				let generatePass = Utils.generatePass();
-				const entity = {
-					walletQrId: walletQrId,
-					geoLocation: "",
-					userFullname: user?.userFullName,
-					userEmail: email || user?.userEmail,
-					productName: `Tree-${randomString} in ${area?.name}`,
-					publicQrCode: true,
-					costOfProduct: 1,
-					longText: "",
-					hasstory: false, // false
-					accessCode: generatePass,
-					_creator: user?._id,
-					_area: area?._id || process.env.DONATION_AREA,
-					_invoice: invoice._id
-				};
-
-				this.logger.info(`6.${i} createItem entity`, entity);
-
-				entities.push(entity);
+				const walletEntity = await this.createWalletForPayment(invoiceId, user.userEmail);
+				user = walletEntity.user;
+				entities.push(walletEntity.wallet);
 			}
 
-			this.logger.info("7. createItem entities", entities);
-
-			const invoicedUser = await User.findOne({ userEmail: email || user.userEmail });
+			const invoicedUser = await User.findOne({ userEmail: user.userEmail });
 
 			this.logger.info("8. createItem invoicedUser", invoicedUser);
 			this.logger.info("9. createItem invoicedUser WALLETS.length", invoicedUser?._wallets.length);
 
-			const noOfWallets = await Wallet.find({ userEmail: email || user.userEmail }).exec();
+			const noOfWallets = await Wallet.find({ userEmail: user.userEmail }).exec();
 
 			this.logger.info("11. createItem NoOfWALLETS.length", noOfWallets.length);
 
-			if (noOfWallets.length === invoicedUser?._wallets.length && invoicedUser?._wallets.length) {
+			if (noOfWallets.length === invoicedUser?._wallets.length) {
 				this.logger.info(
 					"12. createItem noOfWallets.length === invoicedUser._wallets.length === invoicedUser.planted_trees_count ---- ALL OK ----",
 					noOfWallets?.length,
@@ -696,187 +734,156 @@ const paymentService = {
 					invoicedUser?._wallets.length
 				);
 			}
-			let treeItems = "";
-
 			try {
-				treeItems = await Wallet.insertMany(entities);
-
-				this.logger.info("14. createItem treeItems", treeItems);
-
 				const purchaseDetails = {
 					numberOfTrees: quantity,
 					amount: quantity * 50,
 					orderId: invoiceId
 				};
-
 				this.logger.info("14.A createItem purchaseDetails", purchaseDetails);
 
 				const sendPaymentConfirmationEmail = await ctx.call("v1.email.sendPaymentConfirmationEmail", {
 					userLang: "en",
-					userEmail: email || user?.userEmail,
+					userEmail: user?.userEmail,
 					purchaseDetails: purchaseDetails
 				});
 
 				this.logger.info("15. createItem sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
 
-				if (paymentType === paymentStrings.donation) {
-					const donationDetails = {
-						amount: invoice?.amount,
-						orderId: invoiceId
-					};
+				this.logger.info("19. createItem REGULAR PURCHASE");
 
-					this.logger.info("17. createItem donationDetails", donationDetails);
+				const copyEntities = entities?.map((entity) => ({
+					...entity,
+					webSiteLocation: process.env.BLOKARIA_WEBSITE
+				}));
 
-					let sendObject = {
-						userLang: "en",
-						userEmail: email || user?.userEmail,
-						donationDetails: donationDetails
-					};
+				this.logger.info("19.A createItem copyEntities", copyEntities);
 
-					this.logger.info("18. createItem sendObject", sendObject);
+				const generateQrCodeEmailData = {
+					emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
+					walletQrId: copyEntities,
+					userFullname: user?.userFullName,
+					userEmail: user?.userEmail,
+					productName: copyEntities,
+					accessCode: copyEntities,
+					userLang: "en"
+				};
+				this.logger.info("\n\n\n");
+				this.logger.info("20. createItem generateQrCodeEmailData", generateQrCodeEmailData);
+				await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
 
-					await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
-				} else {
-					this.logger.info("19. createItem REGULAR PURCHASE");
-
-					let copyEntities = entities.map((entity) => ({
-						...entity,
-						webSiteLocation: process.env.BLOKARIA_WEBSITE
-					}));
-
-					this.logger.info("19.A createItem copyEntities", copyEntities);
-
-					const generateQrCodeEmailData = {
-						emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
-						walletQrId: copyEntities,
-						userFullname: user?.userFullName || email,
-						userEmail: email || user?.userEmail,
-						productName: copyEntities,
-						accessCode: copyEntities,
-						userLang: "en"
-					};
-
-					this.logger.info("\n\n\n");
-					this.logger.info("20. createItem generateQrCodeEmailData", generateQrCodeEmailData);
-					await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
-				}
 			} catch (err) {
 				throw new MoleculerClientError(err.message, 500, "TREE_ITEM_CREATION", {
 					message: "An error occured while trying creating an item in db: " + err.toString()
 				});
 			}
 
-			this.logger.info("24. createItem treeItems", treeItems);
 
-			if (invoicedUser && paymentType === paymentStrings.purchase) {
-				let threshold = isNaN(invoicedUser?._wallets?.length) ? Number(quantity) : Number(invoicedUser?._wallets?.length) + Number(quantity);
+			let threshold = isNaN(invoicedUser?._wallets?.length) ? Number(quantity) : Number(invoicedUser?._wallets?.length) + Number(quantity);
 
-				if (isNaN(threshold)) {
-					threshold = 1;
-				}
-
-				this.logger.info("25. createItem threshold", threshold);
-
-				let achievements = await Achievement.find({}).populate({
-					path: "_level",
-					match: { required_trees: { $lte: threshold } }
-				});
-
-				this.logger.info("27. createItem achievements ALL", achievements);
-
-				achievements = achievements.filter((achievement) => achievement._level && achievement._level.required_trees <= threshold);
-
-				this.logger.info("29. createItem achievements filtered", achievements);
-
-				// Find and update user level
-				const levels = await Level.findOne({
-					required_trees: {
-						$lte: threshold
-					}
-				}).sort({ required_trees: -1 });
-				const userLevel = levels._id;
-
-				this.logger.info("30. createItem levels", levels);
-				this.logger.info("32. createItem userLevel", userLevel);
-
-				let iterationNumber = 0;
-
-				this.logger.info("\n\n\n ---- ACHIEVEMENTS START ---- \n\n\n");
-
-				// Add achievements to user, it will check if its there it won't add with addToSet
-				for (const element of achievements.filter((x) => x._level !== null)) {
-					this.logger.info(`35.${iterationNumber} createItem: element`, element);
-
-					if (element._level) {
-						this.logger.info(`37.${iterationNumber} createItem element._level`, element._id);
-						this.logger.info(`39.${iterationNumber} createItem invoicedUser._achievements`, invoicedUser._achievements);
-
-						if (invoicedUser._achievements && !invoicedUser._achievements.includes(element._id)) {
-							this.logger.info(`42.${iterationNumber} reduceNumberOfTransaction - New Achievement created.`);
-
-							const achievementUpdate = {
-								$addToSet: { _achievements: String(element._id) }
-							};
-
-							const updatedUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, achievementUpdate, { new: true })
-								.populate("_achievements")
-								.exec();
-
-							let achPayload = {
-								userLang: "en",
-								userEmail: updatedUser.userEmail,
-								achievement: element
-							};
-							this.logger.info(`44.${iterationNumber} createItem achPayload`, achPayload);
-
-							let sendEmailAch = await ctx.call("v1.achievement.sendAchievementEmail", achPayload);
-
-							this.logger.info(`46.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
-						} else {
-							this.logger.info(`48.${iterationNumber} createItem - Achievement already exists for user.`);
-						}
-					} else {
-						this.logger.info(`50.${iterationNumber} createItem - element._level does not exist.`);
-					}
-					iterationNumber++;
-
-					this.logger.info("\n\n\n");
-				}
-
-				this.logger.info("52. createItem walletUpdate START", treeItems);
-
-				const walletIds = treeItems.map((wallet) => String(wallet._id));
-
-				this.logger.info("54. createItem walletIds", walletIds);
-
-				const walletUpdate = {
-					$addToSet: {
-						_wallets: { $each: walletIds }
-					}
-				};
-
-				this.logger.info("56. createItem walletUpdate", walletUpdate);
-
-				let updatedWalletUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, walletUpdate, { new: true })
-					.populate("_wallets")
-					.exec();
-
-				this.logger.info("58. createItem Add updatedWalletUser", updatedWalletUser);
-
-				// Update transactional data
-				const data = {
-					$inc: { numberOfTransaction: -1 },
-					$set: { _level: String(userLevel) }
-				};
-
-				this.logger.info("60. createItem Update transactional data", data);
-
-				let userUpdate = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
-
-				this.logger.info("62. createItem userUpdate", userUpdate);
-			} else {
-				this.logger.info("68. createItem Not invoicedUser");
+			if (isNaN(threshold)) {
+				threshold = 1;
 			}
+
+			this.logger.info("25. createItem threshold", threshold);
+
+			let achievements = await Achievement.find({}).populate({
+				path: "_level",
+				match: { required_trees: { $lte: threshold } }
+			});
+
+			this.logger.info("27. createItem achievements ALL", achievements);
+
+			achievements = achievements.filter((achievement) => achievement._level && achievement._level.required_trees <= threshold);
+
+			this.logger.info("29. createItem achievements filtered", achievements);
+
+			// Find and update user level
+			const levels = await Level.findOne({
+				required_trees: {
+					$lte: threshold
+				}
+			}).sort({ required_trees: -1 });
+			const userLevel = levels._id;
+
+			this.logger.info("30. createItem levels", levels);
+			this.logger.info("32. createItem userLevel", userLevel);
+
+			let iterationNumber = 0;
+
+			this.logger.info("\n\n\n ---- ACHIEVEMENTS START ---- \n\n\n");
+
+			// Add achievements to user, it will check if its there it won't add with addToSet
+			for (const element of achievements.filter((x) => x._level !== null)) {
+				this.logger.info(`35.${iterationNumber} createItem: element`, element);
+
+				if (element._level) {
+					this.logger.info(`37.${iterationNumber} createItem element._level`, element._id);
+					this.logger.info(`39.${iterationNumber} createItem invoicedUser._achievements`, invoicedUser._achievements);
+
+					if (invoicedUser._achievements && !invoicedUser._achievements.includes(element._id)) {
+						this.logger.info(`42.${iterationNumber} reduceNumberOfTransaction - New Achievement created.`);
+
+						const achievementUpdate = {
+							$addToSet: { _achievements: String(element._id) }
+						};
+
+						const updatedUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, achievementUpdate, { new: true })
+							.populate("_achievements")
+							.exec();
+
+						let achPayload = {
+							userLang: "en",
+							userEmail: updatedUser.userEmail,
+							achievement: element
+						};
+						this.logger.info(`44.${iterationNumber} createItem achPayload`, achPayload);
+
+						let sendEmailAch = await ctx.call("v1.achievement.sendAchievementEmail", achPayload);
+
+						this.logger.info(`46.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
+					} else {
+						this.logger.info(`48.${iterationNumber} createItem - Achievement already exists for user.`);
+					}
+				} else {
+					this.logger.info(`50.${iterationNumber} createItem - element._level does not exist.`);
+				}
+				iterationNumber++;
+
+				this.logger.info("\n\n\n");
+			}
+
+
+			const walletIds = entities.map((wallet) => String(wallet._id));
+
+			this.logger.info("54. createItem walletIds", walletIds);
+
+			const walletUpdate = {
+				$addToSet: {
+					_wallets: { $each: walletIds }
+				}
+			};
+
+			this.logger.info("56. createItem walletUpdate", walletUpdate);
+
+			let updatedWalletUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, walletUpdate, { new: true })
+				.populate("_wallets")
+				.exec();
+
+			this.logger.info("58. createItem Add updatedWalletUser", updatedWalletUser);
+
+			// Update transactional data
+			const data = {
+				$inc: { numberOfTransaction: -1 },
+				$set: { _level: String(userLevel) }
+			};
+
+			this.logger.info("60. createItem Update transactional data", data);
+
+			let userUpdate = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
+
+			this.logger.info("62. createItem userUpdate", userUpdate);
+
 
 			this.logger.info("70. createItem ----- DONE -----");
 
