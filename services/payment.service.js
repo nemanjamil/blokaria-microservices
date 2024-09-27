@@ -709,7 +709,7 @@ const paymentService = {
 			for (let i = 0; i < quantity; i++) {
 				const walletEntity = await this.createWalletForPayment(invoiceId, user.userEmail);
 				user = walletEntity.user;
-				entities.push(walletEntity.wallet);
+				entities.push(walletEntity.wallet.toObject());
 			}
 
 			const invoicedUser = await User.findOne({ userEmail: user.userEmail });
