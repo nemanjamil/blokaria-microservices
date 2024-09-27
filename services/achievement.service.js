@@ -10,6 +10,7 @@ const { linkedInExchangeCode, linkedInGetUserProfile, createLinkedInPost } = req
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const handlebars = require("handlebars");
+const { find } = require("../models/Image");
 
 const achievementService = {
 	name: "achievement",
@@ -250,14 +251,15 @@ const achievementService = {
 				this.logger.info("1. sendAchievementEmail START", ctx.params);
 				const { userLang, userEmail, achievement } = ctx.params;
 				const source = fs.readFileSync(`./public/templates/${userLang}/newAchievement.html`, "utf-8").toString();
-
+				const user = await User.findOne({ email: userEmail }).exec();
 				const template = handlebars.compile(source);
-
 				const replacements = {
-					name: achievement.name,
-					achievement
+					userFirstName: user.userFullName.split(" ")[0],
+					achievementName: achievement.name,
+					description: achievement.description,
+					achievment_url: `${process.env.BLOKARIA_WEBSITE}/levels/${achievement.image.completed}`
 				};
-
+				
 				this.logger.info("2. sendAchievementEmail replacements", replacements);
 
 				const htmlToSend = template(replacements);
