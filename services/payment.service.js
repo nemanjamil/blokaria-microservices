@@ -578,7 +578,7 @@ const paymentService = {
 
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
 				this.logger.info("9.A handleStripeWebhook Stripe Event Data Custom Fields:", event.data.object.custom_fields);
-				const quantity = event.data.object.custom_fields.find((x) => x.key === "quantity")?.text.value || 1;
+				const quantity = event.data.object.custom_fields.find((x) => x.key === "quantity")?.numeric.value || 1;
 				const paymentType = event.data.object.custom_fields.find((x) => x.key === "eventType")?.text.value || paymentStrings.purchase;
 				const userEmailPayment = event.data.object.customer_details.email;
 
