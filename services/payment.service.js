@@ -573,6 +573,8 @@ const paymentService = {
 				const quantity = event.data.object.custom_fields.filter((x) => x.key === "quantity")["quantity"] || 1;
 				const paymentType = event.data.object.custom_fields.filter((x) => x.key === "eventType")["eventType"] || strings.purchase;
 
+				this.logger.info("9.B handleStripeWebhook paymentType:", paymentType);
+
 				// Handle the event
 
 				let status = "";
