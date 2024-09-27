@@ -752,7 +752,7 @@ const paymentService = {
 
 				this.logger.info("19. createItem REGULAR PURCHASE");
 
-				const copyEntities = entities._doc?.map((entity) => ({
+				const copyEntities = entities?.map((entity) => ({
 					...entity,
 					webSiteLocation: process.env.BLOKARIA_WEBSITE
 				}));
