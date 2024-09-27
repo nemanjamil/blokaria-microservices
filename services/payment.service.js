@@ -585,6 +585,7 @@ const paymentService = {
 						await updateInvoiceStatus(event.data.object.id, Invoice.InvoiceStatus.COMPLETED, userEmailPayment);
 
 						// IF IS DONATION WE DONT CREATE ITEM
+						// WE JUST SEND PURCHASE CONFIRMATION EMAIL
 						status = await this.createItem(event.data.object.id, quantity, ctx, userEmailPayment, paymentType);
 						this.logger.info("10.D handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
 						break;
