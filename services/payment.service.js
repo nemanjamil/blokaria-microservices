@@ -578,8 +578,9 @@ const paymentService = {
 
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
 				this.logger.info("9.A handleStripeWebhook Stripe Event Data Custom Fields:", event.data.object.custom_fields);
-				const quantity = event.data.object.custom_fields.find((x) => x.key === "quantity")?.quantity || 1;
+				const quantity = event.data.object.custom_fields.find((x) => x.key === "quantity")?.text.value || 1;
 				const paymentType = event.data.object.custom_fields.find((x) => x.key === "eventType")?.text.value || paymentStrings.purchase;
+				const userEmailPayment = event.data.object.customer_details.email;
 
 				this.logger.info("9.B handleStripeWebhook paymentType:", paymentType);
 
@@ -589,9 +590,6 @@ const paymentService = {
 				switch (event.type) {
 					case "checkout.session.completed":
 						this.logger.info("10.A handleStripeWebhook Payment Intent Succeeded:", event.data.object);
-
-						let userEmailPayment = event.data.object.customer_details.email;
-
 						this.logger.info("10.B handleStripeWebhook userEmailPayment customer_details: ", userEmailPayment);
 
 						this.logger.info("10.C handleStripeWebhook Payment Intent Succeeded:", event.data.object);
@@ -754,7 +752,7 @@ const paymentService = {
 
 				this.logger.info("19. createItem REGULAR PURCHASE");
 
-				let copyEntities = entities.map((entity) => ({
+				const copyEntities = entities._doc?.map((entity) => ({
 					...entity,
 					webSiteLocation: process.env.BLOKARIA_WEBSITE
 				}));
