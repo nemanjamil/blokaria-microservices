@@ -791,17 +791,14 @@ module.exports = {
 			},
 			async handler(ctx) {
 				const { areaId } = ctx.params;
-		
+
 				try {
-					const wallets = await Wallet.find(
-						{ _area: areaId, publicQrCode: true },
-						{ geoLocation: 1, productName: 1 } 
-					);
+					const wallets = await Wallet.find({ _area: areaId, publicQrCode: true }, { geoLocation: 1, productName: 1 });
 					const area = await ctx.call("v1.area.getAreaById", { id: areaId });
-					const filteredWallets = wallets.filter(wallet => wallet.geoLocation && wallet.geoLocation !== "");
-		
+					const filteredWallets = wallets.filter((wallet) => wallet.geoLocation && wallet.geoLocation !== "");
+
 					return {
-						areaName: area.name,	
+						areaName: area.name,
 						areaPoints: area.areaPoints,
 						wallets: filteredWallets
 					};
@@ -812,7 +809,7 @@ module.exports = {
 					});
 				}
 			}
-		}			
+		}
 	},
 
 	methods: {
@@ -1101,8 +1098,8 @@ module.exports = {
 					.populate("_area")
 					.lean();
 
-				// TODO Xavi this can be resoled with populate
 				for (let wallet of listWallet) {
+					this.logger.info("3. getListQrCodesByUserMethod Wallet wallet", wallet);
 					this.logger.info("3. getListQrCodesByUserMethod Wallet area", wallet._area);
 
 					if (wallet.area) {
