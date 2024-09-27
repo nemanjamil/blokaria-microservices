@@ -5,6 +5,12 @@ const strings = {
 	purchase: "purchase"
 };
 
+const paymentStrings = {
+	donation: "Donation",
+	purchase: "Purchase",
+};
+
 module.exports = {
-	strings
+	strings,
+	paymentStrings
 };

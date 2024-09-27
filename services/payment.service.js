@@ -11,7 +11,7 @@ const Utils = require("../utils/utils");
 const User = require("../models/User");
 const axios = require("axios");
 const mongoose = require("mongoose");
-const { strings } = require("../utils/strings");
+const { strings, paymentStrings } = require("../utils/strings");
 
 const updateInvoiceStatus = async (invoiceId, status, userEmailPayment = null) => {
 	try {
@@ -65,7 +65,15 @@ const generatePaypalAccessToken = async () => {
 	return response.data.access_token;
 };
 
-const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
+const verifyPaypalWebhookSignature = async ({
+												auth_algo,
+												cert_url,
+												transmission_id,
+												transmission_sig,
+												transmission_time,
+												webhook_id,
+												webhook_event
+											}) => {
 	try {
 		const accessToken = await generatePaypalAccessToken();
 
@@ -123,15 +131,15 @@ const captureOrder = async (orderId) => {
 };
 
 const createOrder = async ({
-	amount,
-	itemName,
-	itemDescription,
-	quantity,
-	currency = "USD",
-	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
-	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
-	brandName = "NaturePlant"
-}) => {
+							   amount,
+							   itemName,
+							   itemDescription,
+							   quantity,
+							   currency = "USD",
+							   returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
+							   cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
+							   brandName = "NaturePlant"
+						   }) => {
 	console.log("amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
@@ -219,7 +227,7 @@ const paymentService = {
 								price_data: {
 									currency: "eur",
 									product_data: {
-										name: strings.donation
+										name: paymentStrings.donation
 									},
 									unit_amount: amount * 100 // amount in cents
 								},
@@ -234,7 +242,7 @@ const paymentService = {
 									custom: "Payment Type"
 								},
 								text: {
-									default_value: strings.donation
+									default_value: paymentStrings.donation
 								},
 								type: "text"
 							}
@@ -296,7 +304,7 @@ const paymentService = {
 								price_data: {
 									currency: "eur",
 									product_data: {
-										name: strings.purchase
+										name: paymentStrings.purchase
 									},
 									unit_amount: treePrice * 100 // amount in cents
 								},
@@ -311,7 +319,7 @@ const paymentService = {
 									custom: "Payment Type"
 								},
 								text: {
-									default_value: strings.purchase
+									default_value: paymentStrings.purchase
 								},
 								type: "text"
 							},
@@ -714,7 +722,7 @@ const paymentService = {
 
 				this.logger.info("15. createItem sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
 
-				if (paymentType === strings.donation) {
+				if (paymentType === paymentStrings.donation) {
 					const donationDetails = {
 						amount: invoice?.amount,
 						orderId: invoiceId
@@ -763,7 +771,7 @@ const paymentService = {
 
 			this.logger.info("24. createItem treeItems", treeItems);
 
-			if (invoicedUser) {
+			if (invoicedUser && paymentType === paymentStrings.purchase) {
 				let threshold = isNaN(invoicedUser?._wallets?.length) ? Number(quantity) : Number(invoicedUser?._wallets?.length) + Number(quantity);
 
 				if (isNaN(threshold)) {
@@ -868,7 +876,7 @@ const paymentService = {
 
 				let userUpdate = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
 
-				this.logger.info("62. createItem userUpdate");
+				this.logger.info("62. createItem userUpdate", userUpdate);
 			} else {
 				this.logger.info("68. createItem Not invoicedUser");
 			}
