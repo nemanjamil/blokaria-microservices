@@ -251,7 +251,7 @@ const achievementService = {
 				this.logger.info("1. sendAchievementEmail START", ctx.params);
 				const { userLang, userEmail, achievement } = ctx.params;
 				const source = fs.readFileSync(`./public/templates/${userLang}/newAchievement.html`, "utf-8").toString();
-				const user = await User.findOne({ email: userEmail }).exec();
+				const user = await User.findOne({ userEmail: userEmail });
 				const template = handlebars.compile(source);
 				const replacements = {
 					userFirstName: user.userFullName.split(" ")[0],
@@ -259,7 +259,6 @@ const achievementService = {
 					description: achievement.description,
 					achievment: achievement.image.completed,
 					backendLocation: process.env.MOLECULER_SERVICE_LOCATION,
-					frontendLocation: process.env.BLOKARIA_WEBSITE
 				};
 				
 				this.logger.info("2. sendAchievementEmail replacements", replacements);
