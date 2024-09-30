@@ -713,10 +713,10 @@ const paymentService = {
 
 				this.logger.info(`3.${i} createItemwalletEntity`, walletEntity);
 
-				user = walletEntity.user;
 				entities.push(walletEntity.wallet.toObject());
 			}
 
+			this.logger.info("7. createItem entities", entities);
 			this.logger.info("8. createItem user", user);
 			this.logger.info("9. createItem user WALLETS.length", user?._wallets.length);
 
