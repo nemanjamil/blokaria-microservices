@@ -466,6 +466,7 @@ const paymentService = {
 						amount: totalAmount,
 						invoiceId: orderId,
 						payer: userId,
+						quantity: quantityOfTrees,
 						area: areaObjectId,
 						paymentSource: "paypal",
 						paymentType: strings.purchase
