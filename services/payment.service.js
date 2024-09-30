@@ -584,8 +584,10 @@ const paymentService = {
 
 				this.logger.info("9.C handleStripeWebhook paymentType:", paymentType);
 				this.logger.info("9.D handleStripeWebhook quantity:", quantity);
+				this.logger.info("9.E handleStripeWebhook userEmailPayment:", userEmailPayment);
 
-				// Handle the event
+				const invoicedUser = await User.findOne({ userEmail: userEmailPayment });
+				// TODO if invoicedUser do not exist
 
 				let status = "";
 				switch (event.type) {
@@ -599,7 +601,7 @@ const paymentService = {
 						if (paymentType === paymentStrings.donation) {
 							status = await this.createStripeDonation(event.data.object.id, ctx, userEmailPayment);
 						} else {
-							status = await this.createItem(event.data.object.id, quantity, ctx);
+							status = await this.createItem(event.data.object.id, quantity, invoicedUser, ctx);
 						}
 						this.logger.info("10.D handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
 						break;
@@ -700,39 +702,32 @@ const paymentService = {
 			await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
 			return true;
 		},
-		async createItem(invoiceId, quantity, ctx) {
+		async createItem(invoiceId, quantity, user, ctx) {
 			this.logger.info("1. createItem start invoiceId, quantity", invoiceId, quantity);
 
-			let user = {};
 			const entities = [];
 			for (let i = 0; i < quantity; i++) {
-				this.logger.info(`1.${i} createItem start invoiceId, quantity`, invoiceId, quantity);
+				this.logger.info(`2.${i} createItem start invoiceId, quantity`, invoiceId, quantity);
 
 				const walletEntity = await this.createWalletForPayment(invoiceId, user.userEmail);
 
-				this.logger.info(`2.${i} createItemwalletEntity`, walletEntity);
+				this.logger.info(`3.${i} createItemwalletEntity`, walletEntity);
 
 				user = walletEntity.user;
 				entities.push(walletEntity.wallet.toObject());
 			}
 
-			const invoicedUser = await User.findOne({ userEmail: user.userEmail });
-
-			this.logger.info("8. createItem invoicedUser", invoicedUser);
-			this.logger.info("9. createItem invoicedUser WALLETS.length", invoicedUser?._wallets.length);
+			this.logger.info("8. createItem user", user);
+			this.logger.info("9. createItem user WALLETS.length", user?._wallets.length);
 
 			const noOfWallets = await Wallet.find({ userEmail: user.userEmail }).exec();
 
 			this.logger.info("11. createItem NoOfWALLETS.length", noOfWallets.length);
 
-			if (noOfWallets.length === invoicedUser?._wallets.length) {
-				this.logger.info(
-					"12. createItem noOfWallets.length === invoicedUser._wallets.length  ---- ALL OK ----",
-					noOfWallets?.length,
-					invoicedUser?._wallets.length
-				);
+			if (noOfWallets.length === user?._wallets.length) {
+				this.logger.info("12. createItem noOfWallets.length === user._wallets.length  ---- ALL OK ----", noOfWallets?.length, user?._wallets.length);
 			} else {
-				this.logger.error("13. createItem noOfWallets.length !== invoicedUser._wallets.length", noOfWallets?.length, invoicedUser?._wallets.length);
+				this.logger.error("13. createItem noOfWallets.length !== user._wallets.length", noOfWallets?.length, user?._wallets.length);
 			}
 			try {
 				const purchaseDetails = {
@@ -777,7 +772,7 @@ const paymentService = {
 				});
 			}
 
-			let threshold = isNaN(invoicedUser?._wallets?.length) ? Number(quantity) : Number(invoicedUser?._wallets?.length) + Number(quantity);
+			let threshold = isNaN(user?._wallets?.length) ? Number(quantity) : Number(user?._wallets?.length) + Number(quantity);
 
 			if (isNaN(threshold)) {
 				threshold = 1;
@@ -817,16 +812,16 @@ const paymentService = {
 
 				if (element._level) {
 					this.logger.info(`37.${iterationNumber} createItem element._level`, element._id);
-					this.logger.info(`39.${iterationNumber} createItem invoicedUser._achievements`, invoicedUser._achievements);
+					this.logger.info(`39.${iterationNumber} createItem user._achievements`, user._achievements);
 
-					if (invoicedUser._achievements && !invoicedUser._achievements.includes(element._id)) {
+					if (user._achievements && !user._achievements.includes(element._id)) {
 						this.logger.info(`42.${iterationNumber} reduceNumberOfTransaction - New Achievement created.`);
 
 						const achievementUpdate = {
 							$addToSet: { _achievements: String(element._id) }
 						};
 
-						const updatedUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, achievementUpdate, { new: true })
+						const updatedUser = await User.findOneAndUpdate({ userEmail: user.userEmail }, achievementUpdate, { new: true })
 							.populate("_achievements")
 							.exec();
 
@@ -863,7 +858,7 @@ const paymentService = {
 
 			this.logger.info("56. createItem walletUpdate", walletUpdate);
 
-			let updatedWalletUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, walletUpdate, { new: true }).populate("_wallets").exec();
+			let updatedWalletUser = await User.findOneAndUpdate({ userEmail: user.userEmail }, walletUpdate, { new: true }).populate("_wallets").exec();
 
 			this.logger.info("58. createItem Add updatedWalletUser", updatedWalletUser);
 
@@ -875,13 +870,13 @@ const paymentService = {
 
 			this.logger.info("60. createItem Update transactional data", data);
 
-			let userUpdate = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
+			let userUpdate = await User.findOneAndUpdate({ userEmail: user.userEmail }, data, { new: true }).populate("_achievements");
 
 			this.logger.info("62. createItem userUpdate", userUpdate);
 
 			this.logger.info("70. createItem ----- DONE -----");
 
-			return { user: invoicedUser, itemTree: entities };
+			return { user: user, itemTree: entities };
 		},
 
 		async handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx) {
