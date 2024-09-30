@@ -568,17 +568,18 @@ module.exports = {
 					this.logger.info("3. userMetrics noOfWallets.length", noOfWallets.length);
 					this.logger.info("4. userMetrics user._wallets?.length", user._wallets?.length);
 
-					// if (noOfWallets.length !== user._wallets.length && user.planted_trees_count !== user._wallets.length) {
-					// 	throw new MoleculerClientError(
-					// 		`Wallet numbers are not equal noOfWallets=${noOfWallets.length} : user._wallets=${user._wallets?.length} : planted_trees_count=${user.planted_trees_count}`,
-					// 		400,
-					// 		"NUMBERS ARE NOT EQUAL",
-					// 		{
-					// 			message: "Items are not equeal",
-					// 			internalErrorCode: "notequal123"
-					// 		}
-					// 	);
-					// }
+					if (noOfWallets.length !== user._wallets.length) {
+						this.logger.error("5. userMetrics are not equal", noOfWallets.length, user._wallets?.length);
+						// throw new MoleculerClientError(
+						// 	`Wallet numbers are not equal noOfWallets=${noOfWallets.length} : user._wallets=${user._wallets?.length} : planted_trees_count=${user.planted_trees_count}`,
+						// 	400,
+						// 	"NUMBERS ARE NOT EQUAL",
+						// 	{
+						// 		message: "Items are not equeal",
+						// 		internalErrorCode: "notequal123"
+						// 	}
+						// );
+					}
 
 					// Check the number of items in user._wallets
 					const itemsAmount = user._wallets?.length || 0;
@@ -599,7 +600,9 @@ module.exports = {
 						ok: true,
 						tonsPerYear: CARBON_YEARLY_FOOTPRINT,
 						tonsUserConsume: value,
-						percentage: percentage
+						percentage: percentage,
+						noOfWallets: noOfWallets.length,
+						userWallets: user._wallets?.length
 					};
 				} catch (err) {
 					this.logger.error("10. userMetrics ERROR", err);
