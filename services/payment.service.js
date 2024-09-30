@@ -342,7 +342,8 @@ const paymentService = {
 						payer: userId,
 						area: area,
 						paymentSource: "stripe",
-						paymentType: strings.purchase
+						paymentType: strings.purchase,
+						quantity: quantity
 					});
 
 					this.logger.info("7. buyTreePayment invoice:", invoice);
@@ -571,11 +572,18 @@ const paymentService = {
 
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
 				this.logger.info("9.A handleStripeWebhook Stripe Event Data Custom Fields:", event.data.object.custom_fields);
-				const quantity = event.data.object.custom_fields.find((x) => x.key === "quantity")?.numeric.value || 1;
+
+				let getInvoiceData = await Invoice.findOne({ invoiceId: event.data.object.id });
+
+				this.logger.info("9.B handleStripeWebhook getInvoiceData:", getInvoiceData);
+
+				const quantity = getInvoiceData.quantity; //event.data.object.custom_fields.find((x) => x.key === "quantity")?.numeric.value || 1;
+
 				const paymentType = event.data.object.custom_fields.find((x) => x.key === "eventType")?.text.value || paymentStrings.purchase;
 				const userEmailPayment = event.data.object.customer_details.email;
 
-				this.logger.info("9.B handleStripeWebhook paymentType:", paymentType);
+				this.logger.info("9.C handleStripeWebhook paymentType:", paymentType);
+				this.logger.info("9.D handleStripeWebhook quantity:", quantity);
 
 				// Handle the event
 
@@ -632,7 +640,7 @@ const paymentService = {
 		async createWalletForPayment(invoiceId, email) {
 			const invoice = await Invoice.findOne({ invoiceId }).populate("payer").populate("area").exec();
 
-			this.logger.info("createWalletForPayment invoice", invoice);
+			this.logger.info("1. createWalletForPayment invoice", invoice);
 
 			if (!invoice) {
 				throw new MoleculerClientError("No Invoice Found");
@@ -660,12 +668,12 @@ const paymentService = {
 				_invoice: invoice._id
 			};
 
-			this.logger.info("createWalletForPayment walletEntity", entity);
+			this.logger.info("3. createWalletForPayment walletEntity", entity);
 
 			const wallet = new Wallet(entity);
 			await wallet.save();
 
-			this.logger.info("createWalletForPayment return object", { invoice: invoice, wallet: wallet, user: user });
+			this.logger.info("5. createWalletForPayment return object", { invoice: invoice, wallet: wallet, user: user });
 
 			return { invoice: invoice, wallet: wallet, user: user };
 		},
@@ -698,7 +706,12 @@ const paymentService = {
 			let user = {};
 			const entities = [];
 			for (let i = 0; i < quantity; i++) {
+				this.logger.info(`1.${i} createItem start invoiceId, quantity`, invoiceId, quantity);
+
 				const walletEntity = await this.createWalletForPayment(invoiceId, user.userEmail);
+
+				this.logger.info(`2.${i} createItemwalletEntity`, walletEntity);
+
 				user = walletEntity.user;
 				entities.push(walletEntity.wallet.toObject());
 			}
@@ -856,7 +869,7 @@ const paymentService = {
 
 			// Update transactional data
 			const data = {
-				$inc: { numberOfTransaction: -1 },
+				//$inc: { numberOfTransaction: -1 },
 				$set: { _level: String(userLevel) }
 			};
 
