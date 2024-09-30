@@ -900,6 +900,13 @@ const paymentService = {
 
 				const invoicedUserPayPal = await User.findOne({ userEmail: captureResult.payment_source.paypal.email_address });
 
+				if (!invoicedUserPayPal) {
+					this.logger.info("4.X handleTreePurchaseWebhook ERROR", invoicedUserPayPal);
+
+					throw new MoleculerClientError("USER DO NOT EXIST", 400, "USER_NO_NOT_EXIST", {
+						message: "User do not exist."
+					});
+				}
 				this.logger.info("5. handleTreePurchaseWebhook invoicedUserPayPal", invoicedUserPayPal);
 
 				this.logger.info("6. handleTreePurchaseWebhook orderId", orderId);
