@@ -494,7 +494,8 @@ module.exports = {
 					const replacements = {
 						latitude: plantingDetails.latitude,
 						longitude: plantingDetails.longitude,
-						area: plantingDetails.area
+						area: plantingDetails.area,
+						photo: plantingDetails.photo
 					};
 
 					const htmlToSend = template(replacements);
