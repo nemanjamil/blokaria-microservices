@@ -257,7 +257,9 @@ const achievementService = {
 					userFirstName: user.userFullName.split(" ")[0],
 					achievementName: achievement.name,
 					description: achievement.description,
-					achievment_url: `${process.env.BLOKARIA_WEBSITE}/levels/${achievement.image.completed}`
+					achievment: achievement.image.completed,
+					backendLocation: process.env.MOLECULER_SERVICE_LOCATION,
+					frontendLocation: process.env.BLOKARIA_WEBSITE
 				};
 				
 				this.logger.info("2. sendAchievementEmail replacements", replacements);
