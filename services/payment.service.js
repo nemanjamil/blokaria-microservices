@@ -879,6 +879,7 @@ const paymentService = {
 			return { user: user, itemTree: entities };
 		},
 
+		// THIS IS PAYPAL
 		async handleTreePurchaseWebhook(webhookEvent, verificationParams, ctx) {
 			this.logger.info("1. handleTreePurchaseWebhook Handling Tree Purchase Webhook");
 
@@ -896,6 +897,10 @@ const paymentService = {
 
 				this.logger.info("4. handleTreePurchaseWebhook captureResult", captureResult);
 
+				const invoicedUserPayPal = await User.findOne({ userEmail: captureResult.payment_source.paypal.email_address });
+
+				this.logger.info("5. handleTreePurchaseWebhook invoicedUserPayPal", invoicedUserPayPal);
+
 				this.logger.info("6. handleTreePurchaseWebhook orderId", orderId);
 
 				const quantity = webhookEvent.resource.purchase_units[0].items[0].quantity;
@@ -908,7 +913,7 @@ const paymentService = {
 
 					this.logger.info("12. handleTreePurchaseWebhook updateInvoiceStatusRes", updateInvoiceStatusRes);
 
-					const { user, itemTree } = await this.createItem(orderId, quantity, ctx);
+					const { user, itemTree } = await this.createItem(orderId, quantity, invoicedUserPayPal, ctx);
 
 					this.logger.info("14. handleTreePurchaseWebhook user", user);
 					this.logger.info("15. handleTreePurchaseWebhook itemTree", itemTree);
