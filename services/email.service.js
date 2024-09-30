@@ -512,7 +512,8 @@ module.exports = {
 							{
 								filename: "tree_photo.png",
 								content: plantingDetails.photo,
-								encoding: "base64"
+								encoding: "base64",
+								cid: 'treePhoto'
 							}
 						]
 					};
