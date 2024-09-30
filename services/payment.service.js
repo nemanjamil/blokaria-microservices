@@ -562,7 +562,7 @@ const paymentService = {
 					this.logger.info("4. handleStripeWebhook comparing signatures:", sig, ":", process.env.STRIPE_WEBHOOK_KEY);
 					event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_KEY);
 
-					this.logger.info("6. handleStripeWebhook event", event);
+					this.logger.info("6. handleStripeWebhook event", JSON.stringify(event, null, 2));
 				} catch (err) {
 					this.logger.error(`8. handleStripeWebhook Webhook Error: ${err.message}`);
 					ctx.meta.$statusCode = 400;
