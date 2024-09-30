@@ -65,15 +65,7 @@ const generatePaypalAccessToken = async () => {
 	return response.data.access_token;
 };
 
-const verifyPaypalWebhookSignature = async ({
-												auth_algo,
-												cert_url,
-												transmission_id,
-												transmission_sig,
-												transmission_time,
-												webhook_id,
-												webhook_event
-											}) => {
+const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
 	try {
 		const accessToken = await generatePaypalAccessToken();
 
@@ -131,15 +123,15 @@ const captureOrder = async (orderId) => {
 };
 
 const createOrder = async ({
-							   amount,
-							   itemName,
-							   itemDescription,
-							   quantity,
-							   currency = "USD",
-							   returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
-							   cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
-							   brandName = "NaturePlant"
-						   }) => {
+	amount,
+	itemName,
+	itemDescription,
+	quantity,
+	currency = "USD",
+	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
+	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
+	brandName = "NaturePlant"
+}) => {
 	console.log("amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
@@ -324,18 +316,18 @@ const paymentService = {
 									default_value: paymentStrings.purchase
 								},
 								type: "text"
-							},
-							{
-								key: "quantity",
-								label: {
-									type: "custom",
-									custom: "Quantity"
-								},
-								text: {
-									default_value: quantity
-								},
-								type: "numeric"
 							}
+							// {
+							// 	key: "quantity",
+							// 	label: {
+							// 		type: "custom",
+							// 		custom: "Quantity"
+							// 	},
+							// 	text: {
+							// 		default_value: quantity
+							// 	},
+							// 	type: "numeric"
+							// }
 						],
 						mode: "payment",
 						success_url: process.env.PAYMENT_SUCCESS_ROUTE,
@@ -676,7 +668,6 @@ const paymentService = {
 			this.logger.info("createWalletForPayment return object", { invoice: invoice, wallet: wallet, user: user });
 
 			return { invoice: invoice, wallet: wallet, user: user };
-
 		},
 		async createStripeDonation(invoiceId, ctx, email) {
 			const walletEntity = await this.createWalletForPayment(invoiceId, email);
@@ -700,7 +691,6 @@ const paymentService = {
 
 			await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
 			return true;
-
 		},
 		async createItem(invoiceId, quantity, ctx) {
 			this.logger.info("1. createItem start invoiceId, quantity", invoiceId, quantity);
@@ -724,16 +714,12 @@ const paymentService = {
 
 			if (noOfWallets.length === invoicedUser?._wallets.length) {
 				this.logger.info(
-					"12. createItem noOfWallets.length === invoicedUser._wallets.length === invoicedUser.planted_trees_count ---- ALL OK ----",
+					"12. createItem noOfWallets.length === invoicedUser._wallets.length  ---- ALL OK ----",
 					noOfWallets?.length,
 					invoicedUser?._wallets.length
 				);
 			} else {
-				this.logger.error(
-					"13. createItem noOfWallets.length !== invoicedUser._wallets.length or !== invoicedUser.planted_trees_count",
-					noOfWallets?.length,
-					invoicedUser?._wallets.length
-				);
+				this.logger.error("13. createItem noOfWallets.length !== invoicedUser._wallets.length", noOfWallets?.length, invoicedUser?._wallets.length);
 			}
 			try {
 				const purchaseDetails = {
@@ -772,13 +758,11 @@ const paymentService = {
 				this.logger.info("\n\n\n");
 				this.logger.info("20. createItem generateQrCodeEmailData", generateQrCodeEmailData);
 				await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
-
 			} catch (err) {
 				throw new MoleculerClientError(err.message, 500, "TREE_ITEM_CREATION", {
 					message: "An error occured while trying creating an item in db: " + err.toString()
 				});
 			}
-
 
 			let threshold = isNaN(invoicedUser?._wallets?.length) ? Number(quantity) : Number(invoicedUser?._wallets?.length) + Number(quantity);
 
@@ -854,7 +838,6 @@ const paymentService = {
 				this.logger.info("\n\n\n");
 			}
 
-
 			const walletIds = entities.map((wallet) => String(wallet._id));
 
 			this.logger.info("54. createItem walletIds", walletIds);
@@ -867,9 +850,7 @@ const paymentService = {
 
 			this.logger.info("56. createItem walletUpdate", walletUpdate);
 
-			let updatedWalletUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, walletUpdate, { new: true })
-				.populate("_wallets")
-				.exec();
+			let updatedWalletUser = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, walletUpdate, { new: true }).populate("_wallets").exec();
 
 			this.logger.info("58. createItem Add updatedWalletUser", updatedWalletUser);
 
@@ -884,7 +865,6 @@ const paymentService = {
 			let userUpdate = await User.findOneAndUpdate({ userEmail: invoicedUser.userEmail }, data, { new: true }).populate("_achievements");
 
 			this.logger.info("62. createItem userUpdate", userUpdate);
-
 
 			this.logger.info("70. createItem ----- DONE -----");
 
