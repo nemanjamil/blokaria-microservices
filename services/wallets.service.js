@@ -793,10 +793,24 @@ module.exports = {
 				const { areaId } = ctx.params;
 
 				try {
-					const wallets = await Wallet.find({ _area: areaId, publicQrCode: true }, { geoLocation: 1, productName: 1 });
+					const wallets = await Wallet.find({ _area: areaId, publicQrCode: true }, { geoLocation: 1, productName: 1, userFullname: 1, userEmail: 1, walletQrId: 1 });
 					const area = await ctx.call("v1.area.getAreaById", { id: areaId });
 					const filteredWallets = wallets.filter((wallet) => wallet.geoLocation && wallet.geoLocation !== "");
 
+					filteredWallets.forEach(wallet => {
+						wallet.userFullname = wallet.userFullname.split(' ') 
+						.map(namePart => {
+							return namePart.length > 3 
+								? namePart.slice(0, 3) + "****"
+								: namePart;
+						})
+						.join(' '); 
+				
+						wallet.userEmail = wallet.userEmail 
+							? wallet.userEmail[0] + "****@" + wallet.userEmail.split('@')[1] 
+							: "****@****";
+					});
+				
 					return {
 						areaName: area.name,
 						areaPoints: area.areaPoints,
