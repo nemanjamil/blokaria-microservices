@@ -67,15 +67,7 @@ const generatePaypalAccessToken = async () => {
 	return response.data.access_token;
 };
 
-const verifyPaypalWebhookSignature = async ({
-												auth_algo,
-												cert_url,
-												transmission_id,
-												transmission_sig,
-												transmission_time,
-												webhook_id,
-												webhook_event
-											}) => {
+const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
 	try {
 		const accessToken = await generatePaypalAccessToken();
 
@@ -133,15 +125,15 @@ const captureOrder = async (orderId) => {
 };
 
 const createOrder = async ({
-							   amount,
-							   itemName,
-							   itemDescription,
-							   quantity,
-							   currency = "USD",
-							   returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
-							   cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
-							   brandName = "NaturePlant"
-						   }) => {
+	amount,
+	itemName,
+	itemDescription,
+	quantity,
+	currency = "USD",
+	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
+	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
+	brandName = "NaturePlant"
+}) => {
 	console.log("amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
@@ -583,7 +575,6 @@ const paymentService = {
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
 				this.logger.info("9.A handleStripeWebhook Stripe Event Data Custom Fields:", event.data.object.custom_fields);
 
-
 				const paymentType = event.data.object.custom_fields.find((x) => x.key === "eventType")?.text.value || paymentStrings.purchase;
 				const userEmailPayment = event.data.object.customer_details.email;
 
@@ -939,7 +930,7 @@ const paymentService = {
 
 					this.logger.info("12. handleTreePurchaseWebhook updateInvoiceStatusRes", updateInvoiceStatusRes);
 
-					const { user, itemTree } = await this.createItem(orderId, quantity, invoicedUserPayPal, ctx);
+					const { user, itemTree } = await this.createItem(orderId, invoicedUserPayPal, ctx);
 
 					this.logger.info("14. handleTreePurchaseWebhook user", user);
 					this.logger.info("15. handleTreePurchaseWebhook itemTree", itemTree);
