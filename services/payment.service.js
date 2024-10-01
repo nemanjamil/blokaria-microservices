@@ -30,20 +30,15 @@ const updateInvoiceStatus = async (invoiceId, status, userEmailPayment = null) =
 			...(email_address && { userEmailPayment: email_address })
 		};
 
-		let invoice = "";
-		if (userEmailPayment) {
-			invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: updateData }, { new: true, lean: true });
+		let invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: updateData }, { new: true, lean: true });
 
-			if (!invoice) {
-				throw new MoleculerClientError(`Invoice with id: '${invoiceId}' not found`, 400, "NO_INVOICE", {
-					message: `No invoice found for id: ${invoiceId}`
-				});
-			}
-
-			console.log("3. updateInvoiceStatus: updated invoice:", invoice);
-		} else {
-			invoice = "No Invoice Update";
+		if (!invoice) {
+			throw new MoleculerClientError(`Invoice with id: '${invoiceId}' not found`, 400, "NO_INVOICE", {
+				message: `No invoice found for id: ${invoiceId}`
+			});
 		}
+
+		console.log("3. updateInvoiceStatus: updated invoice:", invoice);
 
 		return invoice;
 	} catch (err) {
@@ -924,7 +919,7 @@ const paymentService = {
 				this.logger.info("8. handleTreePurchaseWebhook quantity", quantity);
 
 				if (!quantity) {
-					throw new MoleculerClientError(`Qantity do not exist with invoiceId: '${orderId}' not found`, 400, "NO_QUANTITY", {
+					throw new MoleculerClientError(`Quantity do not exist with invoiceId: '${orderId}'`, 400, "NO_QUANTITY", {
 						message: `No quantity found for invoiceId: ${orderId}`
 					});
 				}
