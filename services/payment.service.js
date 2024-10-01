@@ -898,7 +898,10 @@ const paymentService = {
 
 				this.logger.info("4. handleTreePurchaseWebhook captureResult", captureResult);
 
-				const invoicedUserPayPal = await User.findOne({ userEmail: captureResult.payment_source.paypal.email_address });
+				const invoicedUser = await Invoice.findOne({ invoiceId: orderId }).populate("payer");
+
+				//const invoicedUserPayPal = await User.findBy({ userEmail: captureResult.payment_source.paypal.email_address });
+				const invoicedUserPayPal = await User.findById(invoicedUser.payer._id);
 
 				if (!invoicedUserPayPal) {
 					this.logger.info("4.X handleTreePurchaseWebhook ERROR", invoicedUserPayPal);
@@ -907,11 +910,13 @@ const paymentService = {
 						message: "User do not exist."
 					});
 				}
-				this.logger.info("5. handleTreePurchaseWebhook invoicedUserPayPal", invoicedUserPayPal);
+				this.logger.info("5. handleTreePurchaseWebhook invoicedUser", invoicedUser);
+
+				this.logger.info("5.A handleTreePurchaseWebhook invoicedUserPayPal", invoicedUserPayPal);
 
 				this.logger.info("6. handleTreePurchaseWebhook orderId", orderId);
 
-				const quantity = webhookEvent.resource.purchase_units[0].items[0].quantity;
+				const quantity = invoicedUser.quantity; //webhookEvent.resource.purchase_units[0].items[0].quantity;
 
 				this.logger.info("8. handleTreePurchaseWebhook quantity", quantity);
 
