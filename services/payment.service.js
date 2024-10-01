@@ -915,13 +915,19 @@ const paymentService = {
 					});
 				}
 
-				this.logger.info("5 handleTreePurchaseWebhook invoicedUserPayPal", invoicedUserPayPal);
+				this.logger.info("5. handleTreePurchaseWebhook invoicedUserPayPal", invoicedUserPayPal);
 
 				this.logger.info("6. handleTreePurchaseWebhook orderId", orderId);
 
-				const quantity = invoicedUserPayPal.quantity; //webhookEvent.resource.purchase_units[0].items[0].quantity;
+				const quantity = getInvoicedUser.quantity;
 
 				this.logger.info("8. handleTreePurchaseWebhook quantity", quantity);
+
+				if (!quantity) {
+					throw new MoleculerClientError(`Qantity do not exist with invoiceId: '${orderId}' not found`, 400, "NO_QUANTITY", {
+						message: `No quantity found for invoiceId: ${orderId}`
+					});
+				}
 
 				if (captureResult.status === "COMPLETED") {
 					this.logger.info("10. handleTreePurchaseWebhook Capture completed");
