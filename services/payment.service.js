@@ -30,15 +30,20 @@ const updateInvoiceStatus = async (invoiceId, status, userEmailPayment = null) =
 			...(email_address && { userEmailPayment: email_address })
 		};
 
-		const invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: updateData }, { new: true, lean: true });
+		let invoice = "";
+		if (userEmailPayment) {
+			invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: updateData }, { new: true, lean: true });
 
-		if (!invoice) {
-			throw new MoleculerClientError(`Invoice with id: '${invoiceId}' not found`, 400, "NO_INVOICE", {
-				message: `No invoice found for id: ${invoiceId}`
-			});
+			if (!invoice) {
+				throw new MoleculerClientError(`Invoice with id: '${invoiceId}' not found`, 400, "NO_INVOICE", {
+					message: `No invoice found for id: ${invoiceId}`
+				});
+			}
+
+			console.log("3. updateInvoiceStatus: updated invoice:", invoice);
+		} else {
+			invoice = "No Invoice Update";
 		}
-
-		console.log("3. updateInvoiceStatus: updated invoice:", invoice);
 
 		return invoice;
 	} catch (err) {
@@ -861,7 +866,7 @@ const paymentService = {
 
 			let updatedWalletUser = await User.findOneAndUpdate({ userEmail: user.userEmail }, walletUpdate, { new: true }).populate("_wallets").exec();
 
-			this.logger.info("58. createItem Add updatedWalletUser", updatedWalletUser);
+			this.logger.info("58. createItem Add updatedWalletUser");
 
 			// Update transactional data
 			const data = {
@@ -894,14 +899,13 @@ const paymentService = {
 
 				this.logger.info("2. handleTreePurchaseWebhook orderId", orderId);
 
-				const captureResult = await captureOrder(orderId);
+				const captureResult = await captureOrder(orderId); // captureResult.payment_source.paypal.email_address
 
 				this.logger.info("4. handleTreePurchaseWebhook captureResult", captureResult);
 
-				const invoicedUser = await Invoice.findOne({ invoiceId: orderId }).populate("payer");
+				const getInvoicedUser = await Invoice.findOne({ invoiceId: orderId }).populate("payer");
 
-				//const invoicedUserPayPal = await User.findBy({ userEmail: captureResult.payment_source.paypal.email_address });
-				const invoicedUserPayPal = await User.findById(invoicedUser.payer._id);
+				const invoicedUserPayPal = await User.findById(getInvoicedUser.payer._id);
 
 				if (!invoicedUserPayPal) {
 					this.logger.info("4.X handleTreePurchaseWebhook ERROR", invoicedUserPayPal);
@@ -910,13 +914,12 @@ const paymentService = {
 						message: "User do not exist."
 					});
 				}
-				this.logger.info("5. handleTreePurchaseWebhook invoicedUser", invoicedUser);
 
-				this.logger.info("5.A handleTreePurchaseWebhook invoicedUserPayPal", invoicedUserPayPal);
+				this.logger.info("5 handleTreePurchaseWebhook invoicedUserPayPal", invoicedUserPayPal);
 
 				this.logger.info("6. handleTreePurchaseWebhook orderId", orderId);
 
-				const quantity = invoicedUser.quantity; //webhookEvent.resource.purchase_units[0].items[0].quantity;
+				const quantity = invoicedUserPayPal.quantity; //webhookEvent.resource.purchase_units[0].items[0].quantity;
 
 				this.logger.info("8. handleTreePurchaseWebhook quantity", quantity);
 
@@ -964,32 +967,9 @@ const paymentService = {
 
 					this.logger.info("18. handleTreePurchaseWebhook levelStatus", levelStatus);
 
-					// Log new level if it has changed
 					if (levelStatus.isLevelChanged) {
 						this.logger.info("20. handleTreePurchaseWebhook isLevelChanged", true);
 					}
-					// let sendPaymentConfirmationEmail = await ctx.call("v1.email.sendPaymentConfirmationEmail", {
-					// 	userLang: "en",
-					// 	userEmail: user.userEmail,
-					// 	purchaseDetails: purchaseDetails,
-					// 	levelStatus: levelStatus
-					// });
-
-					// this.logger.info("22. handleTreePurchaseWebhook sendPaymentConfirmationEmail", sendPaymentConfirmationEmail);
-
-					// let generateQrCodeEmailData = {
-					// 	emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
-					// 	walletQrId: itemTree.walletQrId,
-					// 	userFullname: user.userFullName,
-					// 	userEmail: user.userEmail,
-					// 	productName: itemTree.productName,
-					// 	accessCode: itemTree.accessCode,
-					// 	userLang: "en"
-					// };
-
-					// this.logger.info("24. handleTreePurchaseWebhook generateQrCodeEmailData", generateQrCodeEmailData);
-
-					// await ctx.call("v1.email.generateQrCodeEmail", generateQrCodeEmailData);
 
 					return "COMPLETED";
 				} else {
