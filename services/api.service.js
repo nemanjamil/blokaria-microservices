@@ -153,7 +153,8 @@ module.exports = {
 					"POST payment/testEmail": "v1.payment.testEmail",
 					"GET invoice/getDonatorsList": "invoice.getDonatorsList",
 					"GET wallet/getListQrCodesOwners": "wallet.getListQrCodesOwners",
-					"POST wallet/getPublicWalletsByAreaId": "wallet.getPublicWalletsByAreaId"
+					"POST wallet/getPublicWalletsByAreaId": "wallet.getPublicWalletsByAreaId",
+					"GET area/getAllAreas": "v1.area.getAllAreas"
 				},
 				callingOptions: {},
 
@@ -310,7 +311,6 @@ module.exports = {
 					"POST /area/create": "v1.area.createArea",
 					"POST /area/edit": "v1.area.editArea",
 					"POST /area/delete": "v1.area.deleteArea",
-					"GET /area/getAllAreas": "v1.area.getAllAreas",
 					"POST /area/getAreaById": "v1.area.getAreaById",
 					"POST /area/getAreasByCountry": "v1.area.getAreasByCountry",
 					"PUT /area/addAccessibleAreas": "v1.area.addAccessibleAreas",
