@@ -204,7 +204,7 @@ const paymentService = {
 	model: Invoice,
 	$noVersionPrefix: true,
 	actions: {
-		// STRIPE DONATION
+		// STRIPE DONATION INITIAL
 		donationPayment: {
 			params: {
 				amount: { type: "number" }
@@ -250,7 +250,7 @@ const paymentService = {
 					this.logger.info("2. donationPayment session", session);
 
 					const invoice = new Invoice({
-						donatorEmail: session.customer_details.email,
+						//donatorEmail: session.customer_details.email,
 						amount: session.amount_total / 100,
 						showInDonations: showInDonations,
 						invoiceId: session.id,
