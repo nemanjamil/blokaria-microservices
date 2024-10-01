@@ -67,7 +67,15 @@ const generatePaypalAccessToken = async () => {
 	return response.data.access_token;
 };
 
-const verifyPaypalWebhookSignature = async ({ auth_algo, cert_url, transmission_id, transmission_sig, transmission_time, webhook_id, webhook_event }) => {
+const verifyPaypalWebhookSignature = async ({
+												auth_algo,
+												cert_url,
+												transmission_id,
+												transmission_sig,
+												transmission_time,
+												webhook_id,
+												webhook_event
+											}) => {
 	try {
 		const accessToken = await generatePaypalAccessToken();
 
@@ -125,15 +133,15 @@ const captureOrder = async (orderId) => {
 };
 
 const createOrder = async ({
-	amount,
-	itemName,
-	itemDescription,
-	quantity,
-	currency = "USD",
-	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
-	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
-	brandName = "NaturePlant"
-}) => {
+							   amount,
+							   itemName,
+							   itemDescription,
+							   quantity,
+							   currency = "USD",
+							   returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
+							   cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
+							   brandName = "NaturePlant"
+						   }) => {
 	console.log("amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
@@ -575,17 +583,11 @@ const paymentService = {
 				this.logger.info("9. handleStripeWebhook Stripe Event Data:", event.data);
 				this.logger.info("9.A handleStripeWebhook Stripe Event Data Custom Fields:", event.data.object.custom_fields);
 
-				let getInvoiceData = await Invoice.findOne({ invoiceId: event.data.object.id });
-
-				this.logger.info("9.B handleStripeWebhook getInvoiceData:", getInvoiceData);
-
-				const quantity = getInvoiceData.quantity; //event.data.object.custom_fields.find((x) => x.key === "quantity")?.numeric.value || 1;
 
 				const paymentType = event.data.object.custom_fields.find((x) => x.key === "eventType")?.text.value || paymentStrings.purchase;
 				const userEmailPayment = event.data.object.customer_details.email;
 
 				this.logger.info("9.C handleStripeWebhook paymentType:", paymentType);
-				this.logger.info("9.D handleStripeWebhook quantity:", quantity);
 				this.logger.info("9.E handleStripeWebhook userEmailPayment:", userEmailPayment);
 
 				const invoicedUser = await User.findOne({ userEmail: userEmailPayment });
@@ -603,7 +605,7 @@ const paymentService = {
 						if (paymentType === paymentStrings.donation) {
 							status = await this.createStripeDonation(event.data.object.id, ctx, userEmailPayment);
 						} else {
-							status = await this.createItem(event.data.object.id, quantity, invoicedUser, ctx);
+							status = await this.createItem(event.data.object.id, invoicedUser, ctx);
 						}
 						this.logger.info("10.D handleStripeWebhook Invoice.InvoiceStatus.COMPLETED FINISHED");
 						break;
@@ -677,7 +679,11 @@ const paymentService = {
 			const wallet = new Wallet(entity);
 			await wallet.save();
 
-			this.logger.info("5. createWalletForPayment return object", { invoice: invoice, wallet: wallet, user: user });
+			this.logger.info("5. createWalletForPayment return object", {
+				invoice: invoice,
+				wallet: wallet,
+				user: user
+			});
 
 			return { invoice: invoice, wallet: wallet, user: user };
 		},
@@ -704,12 +710,14 @@ const paymentService = {
 			await ctx.call("v1.email.sendPaymentDonationEmail", sendObject);
 			return true;
 		},
-		async createItem(invoiceId, quantity, user, ctx) {
-			this.logger.info("1. createItem start invoiceId, quantity", invoiceId, quantity);
+		async createItem(invoiceId, user, ctx) {
+			this.logger.info("1. createItem start invoiceId", invoiceId);
+			const invoice = await Invoice.findOne({ invoiceId });
+			const quantity = invoice.quantity;
 
 			const entities = [];
 			for (let i = 0; i < quantity; i++) {
-				this.logger.info(`2.${i} createItem start invoiceId, quantity`, invoiceId, quantity);
+				this.logger.info(`2.${i} createItem start invoiceId, quantity`, invoiceId);
 
 				const walletEntity = await this.createWalletForPayment(invoiceId, user.userEmail);
 
