@@ -27,8 +27,10 @@ const updateInvoiceStatus = async (invoiceId, status, userEmailPayment = null) =
 
 		const updateData = {
 			status,
-			...(email_address && { userEmailPayment: email_address })
+			...(email_address && { donatorEmail: email_address })
 		};
+
+		console.log("3. updateInvoiceStatus updateData", updateData);
 
 		let invoice = await Invoice.findOneAndUpdate({ invoiceId }, { $set: updateData }, { new: true, lean: true });
 
@@ -38,7 +40,7 @@ const updateInvoiceStatus = async (invoiceId, status, userEmailPayment = null) =
 			});
 		}
 
-		console.log("3. updateInvoiceStatus: updated invoice:", invoice);
+		console.log("4. updateInvoiceStatus updated invoice:", invoice);
 
 		return invoice;
 	} catch (err) {
