@@ -527,7 +527,7 @@ module.exports = {
 								wallet = await ctx.call("image.updateTreeImage", { wallet, photo, user });
 							}
 							await wallet.save();
-
+							
 							ctx.call("v1.email.sendTreePlantingConfirmationEmail", {
 								userLang: "en",
 								userEmails: [user.userEmail, wallet.userEmail],
@@ -535,6 +535,7 @@ module.exports = {
 									latitude: latitude,
 									longitude: longitude,
 									area: area.name,
+									walletQrId: wallet.walletQrId,
 									photo: photo
 								}
 							});

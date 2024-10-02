@@ -479,6 +479,7 @@ module.exports = {
 						latitude: { type: "number" },
 						longitude: { type: "number" },
 						area: { type: "string" },
+						walletQrId: { type: "string" },
 						photo: { type: "string" } // base64 encoded photo
 					}
 				}
@@ -495,6 +496,8 @@ module.exports = {
 						latitude: plantingDetails.latitude,
 						longitude: plantingDetails.longitude,
 						area: plantingDetails.area,
+						walletQrId: plantingDetails.walletQrId,
+						frontendLocation: process.env.BLOKARIA_WEBSITE,
 						photo: plantingDetails.photo
 					};
 

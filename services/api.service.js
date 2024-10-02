@@ -324,11 +324,11 @@ module.exports = {
 				bodyParsers: {
 					json: {
 						strict: false,
-						limit: "1MB"
+						limit: "2MB"
 					},
 					urlencoded: {
 						extended: true,
-						limit: "1MB"
+						limit: "2MB"
 					}
 				},
 				logging: true
@@ -350,11 +350,11 @@ module.exports = {
 				bodyParsers: {
 					json: {
 						strict: false,
-						limit: "1MB"
+						limit: "2MB"
 					},
 					urlencoded: {
 						extended: true,
-						limit: "1MB"
+						limit: "2MB"
 					}
 				},
 				logging: true
