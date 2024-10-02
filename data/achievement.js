@@ -1,57 +1,56 @@
 module.exports = {
 	achievementList: [
 		{
-			name: "Beginner",
-			description: "Reached Beginner level with beginner-1 planted trees",
+			name: "Seed Planter",
+			description: "Achieve this level by planting your first tree.",
 			image: {
 				passive: "levels/lvl-1-b&w.png",
 				completed: "levels/lvl-1.png"
 			}
 		},
 		{
-			name: "Elementary",
-			description: "Reached Elementary level with elementary-5 planted trees",
+			name: "Sapling Starter",
+			description: "Reach this level by planting 5 trees.",
 			image: {
 				passive: "levels/lvl-2-b&w.png",
 				completed: "levels/lvl-2.png"
 			}
 		},
 		{
-			name: "MidLevel",
-			description: "Reached Mid-Level with mid-level-10 planted trees",
+			name: "Growth Supporter",
+			description: "Unlock this level by planting 10 trees.",
 			image: {
 				passive: "levels/lvl-3-b&w.png",
 				completed: "levels/lvl-3.png"
 			}
 		},
 		{
-			name: "Advanced",
-			description: "Reached Advanced level with advanced-15 planted trees",
+			name: "Tree Guardian",
+			description: "Become a Tree Guardian by planting 15 trees.",
 			image: {
 				passive: "levels/LVL-4-BW.png",
 				completed: "levels/LVL-4.png"
 			}
 		},
 		{
-			name: "Intermediate",
-			description: "Reached Intermediate level with intermediate-20 planted trees",
+			name: "Forest Protector",
+			description: "Reach this level by planting 20 trees.",
 			image: {
 				passive: "levels/LVL-5-BW.png",
 				completed: "levels/LVL-5.png"
 			}
 		},
 		{
-			name: "Proficient",
-			description: "Reached Proficient level with proficient-30 planted trees",
-			level: "66e02292f465873db5fa754a",
+			name: "Ecosystem Champion",
+			description: "Become an Ecosystem Champion by planting 30 trees.",
 			image: {
 				passive: "levels/LVL-6-BW.png",
 				completed: "levels/LVL-6.png"
 			}
 		},
 		{
-			name: "CarbonNeutral",
-			description: "Reached Carbon Neutral level with carbon-neutral-40 planted trees",
+			name: "Carbon Neutral - Climate Defender",
+			description: "Achieve Carbon Neutral status by planting 40 trees.",
 			image: {
 				passive: "levels/LVL-6-BW.png",
 				completed: "levels/LVL-6.png"
