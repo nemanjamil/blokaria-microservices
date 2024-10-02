@@ -136,9 +136,9 @@ const areaService = {
 		getAllAreas: {
 			async handler(ctx) {
 				try {
-					const areas = await Area.find({});
+					const areas = await Area.find({ active: true });
 					if (!areas.length) {
-						return "No areas";
+						return "No active areas";
 					}
 					return areas.map((area) => area.toJSON());
 				} catch (err) {
@@ -150,11 +150,12 @@ const areaService = {
 				}
 			}
 		},
+		
 
 		getAllAreasDashboard: {
 			async handler(ctx) {
 				try {
-					const areas = await Area.find({});
+					const areas = await Area.find({ active: true });
 
 					// Group areas by country and format each area
 					const formattedAreas = areas.reduce((result, area) => {
@@ -194,7 +195,7 @@ const areaService = {
 				const { id, showConnectedItems } = ctx.params;
 
 				try {
-					const area = await Area.findById(id);
+					const area = await Area.findOne({ _id: id, active: true });
 
 					if (!area) {
 						throw new MoleculerClientError("Area Not Found", 404, "AREA_NOT_FOUND", {
@@ -229,7 +230,7 @@ const areaService = {
 				const { country } = ctx.params;
 
 				try {
-					const areas = await Area.find({ country });
+					const areas = await Area.find({ country, active: true });
 					return areas.map((area) => area.toJSON());
 				} catch (err) {
 					console.error("Error retrieving areas by country:", err);
@@ -331,8 +332,13 @@ const areaService = {
 				try {
 					const { userId } = ctx.meta.user;
 
-					const user = await User.findById(userId).select("accessibleAreas").populate("accessibleAreas");
-
+					const user = await User.findById(userId)
+					.select("accessibleAreas")
+					.populate({
+						path: "accessibleAreas",
+						match: { active: true } 
+					});
+					
 					if (!user) {
 						throw new MoleculerClientError("User Not Found", 404, "USER_NOT_FOUND", {
 							message: `The user with the ID '${userId}' was not found.`

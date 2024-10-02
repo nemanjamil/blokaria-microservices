@@ -11,6 +11,7 @@ const walletSchema = new mongoose.Schema({
 	transactionId: { type: String },
 	usedAddress: { type: String },
 	createdAt: { type: Date, default: Date.now, index: true },
+	dateOfPlanting: { type: Date, default: null }, 
 	clientMessage: { type: String },
 	clientName: { type: String },
 	clientEmail: { type: String, default: "" },

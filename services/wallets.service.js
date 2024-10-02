@@ -520,6 +520,7 @@ module.exports = {
 							wallet = await Wallet.findById(wallet._id);
 							wallet.geoLocation = `${latitude},${longitude}`;
 							wallet.longText = longText;
+							wallet.dateOfPlanting = new Date();
 							console.log(`Updated wallet location for walletId: ${walletId}`);
 
 							if (photo) {
@@ -795,7 +796,7 @@ module.exports = {
 				try {
 					const wallets = await Wallet.find(
 						{ _area: areaId, publicQrCode: true },
-						{ geoLocation: 1, productName: 1, userFullname: 1, userEmail: 1, walletQrId: 1 }
+						{ geoLocation: 1, productName: 1, userFullname: 1, userEmail: 1, walletQrId: 1, dateOfPlanting: 1 }
 					);
 					const area = await ctx.call("v1.area.getAreaById", { id: areaId });
 					const filteredWallets = wallets.filter((wallet) => wallet.geoLocation && wallet.geoLocation !== "");
