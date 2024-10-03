@@ -76,6 +76,12 @@ const achievementService = {
 
 					this.logger.info("12. publishAchievementLinkedInPost user profile", userProfile);
 
+					if (!userProfile) {
+						throw new MoleculerClientError("userProfile doesn't exist", 404, "ERROR_ON_GETTING_LIN_USERINFO", {
+							message: "Error on getting userInfo from LinkedIn"
+						});
+					}
+
 					const imgHost = process.env.MOLECULER_SERVICE_LOCATION;
 
 					this.logger.info("13. publishAchievementLinkedInPost imgHost", imgHost);
