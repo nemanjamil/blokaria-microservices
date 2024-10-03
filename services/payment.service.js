@@ -114,7 +114,7 @@ const captureOrder = async (orderId) => {
 				Authorization: `Bearer ${accessToken}`
 			}
 		});
-		console.log("3. captureOrder response DONE", response.data);
+		console.log("5. captureOrder response DONE", response.data);
 
 		return response.data;
 	} catch (error) {
@@ -129,15 +129,15 @@ const createOrder = async ({
 	itemName,
 	itemDescription,
 	quantity,
-	currency = "USD",
+	currency = "EUR",
 	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
 	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
 	brandName = "NaturePlant"
 }) => {
-	console.log("amount", amount);
+	console.log("createOrder amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
-	console.log("accessToken", accessToken);
+	console.log("createOrder accessToken", accessToken);
 
 	const response = await axios({
 		url: process.env.PAYPAL_BASE_URL + "/v2/checkout/orders",
