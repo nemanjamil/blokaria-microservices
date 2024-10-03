@@ -69,6 +69,7 @@ const linkedInGetUserProfile = async (accessToken, logger) => {
 
 const downloadFileAsStream = async (fileUrl, logger) => {
 	logger.info("1. downloadFileAsStream START");
+	logger.info("2. downloadFileAsStream fileUrl", fileUrl);
 	try {
 		const response = await axios({
 			method: "get",
@@ -76,11 +77,11 @@ const downloadFileAsStream = async (fileUrl, logger) => {
 			responseType: "stream" // Important: This tells axios to return the response as a stream
 		});
 
-		logger.info("2. downloadFileAsStream --- DONE ---");
+		logger.info("3. downloadFileAsStream --- DONE ---");
 
 		return response.data; // This is the stream
 	} catch (error) {
-		logger.error("Error downloading the file:", error);
+		logger.error("5. downloadFileAsStream Error downloading the file:", error);
 
 		throw new MoleculerClientError("Failed to downloadFileAsStream", 404, "GET_FILE_AS_A_STREAM", {
 			message: "Failed to get image downloadFileAsStream",
