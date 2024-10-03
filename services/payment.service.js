@@ -441,15 +441,15 @@ const paymentService = {
 			},
 			async handler(ctx) {
 				try {
-					this.logger.info("ctx params", ctx.params);
+					this.logger.info("1. paypalPurchaseCreateOrder ctx params", ctx.params);
 					const userId = ctx.meta.user.userId;
-					console.log("userId", ctx.meta.user);
+					this.logger.info("2. paypalPurchaseCreateOrder userId", ctx.meta.user);
 					const { quantityOfTrees, area } = ctx.params;
 
 					// const pricePerTree = process.env.TREE_PRICE;
 					const pricePerTree = 50;
 
-					const { approveLink, orderId, totalAmount } = await createOrder({
+					let createPayPalPayload = {
 						amount: pricePerTree,
 						itemName: "Tree Purchase",
 						itemDescription: "Purchase of Trees",
@@ -458,12 +458,17 @@ const paymentService = {
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
 						brandName: "NaturePlant"
-					});
+					};
+
+					this.logger.info("3. paypalPurchaseCreateOrder createPayPalPayload", createPayPalPayload);
+
+					const { approveLink, orderId, totalAmount } = await createOrder(createPayPalPayload);
 
 					const areaObjectId = new mongoose.Types.ObjectId(area);
 
-					this.logger.info("Creating Invoice with orderId");
-					const invoice = new Invoice({
+					this.logger.info("5. paypalPurchaseCreateOrder Creating Invoice with orderId");
+
+					let invoiceData = {
 						amount: totalAmount,
 						invoiceId: orderId,
 						payer: userId,
@@ -471,7 +476,12 @@ const paymentService = {
 						area: areaObjectId,
 						paymentSource: "paypal",
 						paymentType: strings.purchase
-					});
+					};
+
+					this.logger.info("6. paypalPurchaseCreateOrder invoiceData", invoiceData);
+
+					const invoice = new Invoice(invoiceData);
+
 					await invoice.save();
 
 					return { approveLink };
