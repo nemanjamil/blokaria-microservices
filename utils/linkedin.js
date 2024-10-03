@@ -256,16 +256,11 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl, lo
 
 		return response.data;
 	} catch (error) {
-		if (error.response) {
-			logger.error("Error response data:");
-			//console.error("Error response data:", error.response.data);
-			//console.error("Error response status:", error.response.status);
-			//console.error("Error response headers:", error.response.headers);
-		} else if (error) {
-			logger.error("Error message:", error.message);
-		}
-		const errorMessage = error ? error.message : null || "Unexpected error";
-		return { status: false, error: errorMessage };
+		logger.error("1. createLinkedInPost ERROR", error.message);
+
+		throw new MoleculerClientError(error.message, 404, "ERROR_ON_CREATE_LINKEDIN_POST", {
+			message: error.message
+		});
 	}
 };
 
