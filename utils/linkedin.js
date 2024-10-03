@@ -62,8 +62,8 @@ const linkedInGetUserProfile = async (accessToken, logger) => {
 	}
 };
 
-const downloadFileAsStream = async (fileUrl) => {
-	console.log("1. downloadFileAsStream START");
+const downloadFileAsStream = async (fileUrl, logger) => {
+	logger.info("1. downloadFileAsStream START");
 	try {
 		const response = await axios({
 			method: "get",
@@ -71,12 +71,16 @@ const downloadFileAsStream = async (fileUrl) => {
 			responseType: "stream" // Important: This tells axios to return the response as a stream
 		});
 
-		console.log("2. downloadFileAsStream --- DONE ---");
+		logger.info("2. downloadFileAsStream --- DONE ---");
 
 		return response.data; // This is the stream
 	} catch (error) {
-		console.error("Error downloading the file:", error);
-		throw error;
+		logger.error("Error downloading the file:", error);
+
+		throw new MoleculerClientError("Failed to downloadFileAsStream", 404, "GET_FILE_AS_A_STREAM", {
+			message: "Failed to get image downloadFileAsStream",
+			internalErrorCode: "GET_FILE_AS_A_STREAM"
+		});
 	}
 };
 
@@ -125,7 +129,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 	const linkedInInitUrl = "https://api.linkedin.com/rest/images?action=initializeUpload";
 
 	try {
-		const fileStream = await downloadFileAsStream(imageUrl);
+		const fileStream = await downloadFileAsStream(imageUrl, logger);
 
 		logger.info("6. uploadLinkedInImage fileStream");
 
