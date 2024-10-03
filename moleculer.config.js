@@ -52,32 +52,6 @@ module.exports = {
 	// Enable/disable logging or use custom logger. More info: https://moleculer.services/docs/0.14/logging.html
 	// Available logger types: "Console", "File", "Pino", "Winston", "Bunyan", "debug", "Log4js", "Datadog"
 	logger: [
-		// {
-		// 	type: "Datadog",
-		// 	options: {
-		// 		// Logging level
-		// 		level: "info",
-
-		// 		// Datadog server endpoint. https://docs.datadoghq.com/api/?lang=bash#send-logs-over-http
-		// 		url: "https://http-intake.logs.datadoghq.eu/v1/input/",
-		// 		apiKey: process.env.DATADOG_API_KEY,
-
-		// 		// Datadog source variable
-		// 		ddSource: "moleculer-source-logger",
-
-		// 		// Datadog env variable
-		// 		env: process.env.DATADOG_ENV,
-		// 		version: "1.0.0",
-		// 		service: process.env.DD_SERVICE,
-
-		// 		// Datadog hostname variable
-		// 		hostname: process.env.DD_HOSTNAME,
-		// 		// Custom object printer function for `Object` & `Ąrray`
-		// 		objectPrinter: null,
-		// 		// Data uploading interval
-		// 		interval: 10 * 1000
-		// 	}
-		// },
 		{
 			type: "Console",
 			options: {
@@ -91,9 +65,9 @@ module.exports = {
 				// Custom object printer. If not defined, it uses the `util.inspect` method.
 				objectPrinter: null,
 				// Auto-padding the module name in order to messages begin at the same column.
-				autoPadding: false,
-			},
-		},
+				autoPadding: false
+			}
+		}
 	],
 
 	// Default log level for built-in console logger. It can be overwritten in logger options above.
@@ -131,7 +105,7 @@ module.exports = {
 		// Backoff factor for delay. 2 means exponential backoff.
 		factor: 2,
 		// A function to check failed requests.
-		check: (err) => err && !!err.retryable,
+		check: (err) => err && !!err.retryable
 	},
 
 	// Limit of calling level. If it reaches the limit, broker will throw an MaxCallLevelError error. (Infinite loop protection)
@@ -150,7 +124,7 @@ module.exports = {
 		// Enable feature
 		enabled: false,
 		// Number of milliseconds to wait before shuting down the process.
-		shutdownTimeout: 5000,
+		shutdownTimeout: 5000
 	},
 
 	// Disable built-in request & emit balancer. (Transporter must support it, as well.). More info: https://moleculer.services/docs/0.14/networking.html#Disabled-balancer
@@ -162,7 +136,7 @@ module.exports = {
 		// Available values: "RoundRobin", "Random", "CpuUsage", "Latency", "Shard"
 		strategy: "RoundRobin",
 		// Enable local action call preferring. Always call the local action instance if available.
-		preferLocal: true,
+		preferLocal: true
 	},
 
 	// Settings of Circuit Breaker. More info: https://moleculer.services/docs/0.14/fault-tolerance.html#Circuit-Breaker
@@ -178,7 +152,7 @@ module.exports = {
 		// Number of milliseconds to switch from open to half-open state
 		halfOpenTime: 10 * 1000,
 		// A function to check failed requests.
-		check: (err) => err && err.code >= 500,
+		check: (err) => err && err.code >= 500
 	},
 
 	// Settings of bulkhead feature. More info: https://moleculer.services/docs/0.14/fault-tolerance.html#Bulkhead
@@ -188,7 +162,7 @@ module.exports = {
 		// Maximum concurrent executions.
 		concurrency: 10,
 		// Maximum size of queue
-		maxQueueSize: 100,
+		maxQueueSize: 100
 	},
 
 	// Enable action & event parameter validation. More info: https://moleculer.services/docs/0.14/validating.html
@@ -198,91 +172,41 @@ module.exports = {
 
 	// Enable/disable built-in metrics function. More info: https://moleculer.services/docs/0.14/metrics.html
 	metrics: {
-		//enabled: process.env.LOCALENV === "true" ? false : true,
 		enabled: false,
 		// Available built-in reporters: "Console", "CSV", "Event", "Prometheus", "Datadog", "StatsD"
-		reporter: [
-			{
-				type: "Datadog",
-				options: {
-					// Hostname
-					host: process.env.DD_HOSTNAME,
-					// Base URL
-					baseUrl: "https://api.datadoghq.eu/api/",
-					// API version
-					apiVersion: "v1",
-					// Server URL path
-					path: "/series",
-					// Datadog API Key
-					apiKey: process.env.DATADOG_API_KEY,
-					// Default labels which are appended to all metrics labels
-					defaultLabels: (registry) => ({
-						namespace: registry.broker.namespace,
-						nodeID: registry.broker.nodeID,
-					}),
-					// Sending interval in seconds
-					interval: 10,
-				},
-			},
-		],
-		// reporter: {
-		// 	type: "Prometheus",
-		// 	options: {
-		// 		// HTTP port
-		// 		port: 3032,
-		// 		// HTTP URL path
-		// 		path: "/metrics",
-		// 		// Default labels which are appended to all metrics labels
-		// 		defaultLabels: (registry) => ({
-		// 			namespace: registry.broker.namespace,
-		// 			nodeID: registry.broker.nodeID,
-		// 		}),
-		// 	},
-		// },
+		reporter: {
+			type: "Prometheus",
+			options: {
+				// HTTP port
+				port: 3030,
+				// HTTP URL path
+				path: "/metrics",
+				// Default labels which are appended to all metrics labels
+				defaultLabels: (registry) => ({
+					namespace: registry.broker.namespace,
+					nodeID: registry.broker.nodeID
+				})
+			}
+		}
 	},
 
 	// Enable built-in tracing function. More info: https://moleculer.services/docs/0.14/tracing.html
 	tracing: {
-		//enabled: process.env.LOCALENV === "true" ? false : true,
-		enabled: false,
+		enabled: true,
 		// Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
-		exporter: [
-			{
-				type: "Datadog",
-				options: {
-					//tracer
-					agentUrl: "http://datadog-agent-on-docker:8126",
-					// Environment variable
-					env: process.env.DATADOG_ENV,
-					// Sampling priority. More info: https://docs.datadoghq.com/tracing/guide/trace_sampling_and_storage/?tab=java#sampling-rules
-					samplingPriority: "AUTO_KEEP",
-					// Default tags. They will be added into all span tags.
-					defaultTags: { tracingTag1: "tag1", tracingTag2: "tag2" },
-
-					// Custom Datadog Tracer options. More info: https://datadog.github.io/dd-trace-js/#tracer-settings
-					tracerOptions: null,
-					/* tracerOptions: {
-						"hostname": "datadog-agent-on-docker",
-						"service": "moleculer-service",
-						"version": "1.0.0", // The version number of the application. Defaults to value of the version field in package.json.
-						"logInjection": "true",
-					}, */
-				},
-			},
-			// {
-			// 	type: "Console", // Console exporter is only for development!
-			// 	options: {
-			// 		// Custom logger
-			// 		logger: null,
-			// 		// Using colors
-			// 		colors: true,
-			// 		// Width of row
-			// 		width: 100,
-			// 		// Gauge width in the row
-			// 		gaugeWidth: 40,
-			// 	},
-			// }
-		],
+		exporter: {
+			type: "Console", // Console exporter is only for development!
+			options: {
+				// Custom logger
+				logger: null,
+				// Using colors
+				colors: true,
+				// Width of row
+				width: 100,
+				// Gauge width in the row
+				gaugeWidth: 40
+			}
+		}
 	},
 
 	// Register custom middlewares
@@ -298,5 +222,5 @@ module.exports = {
 	async started(broker) {},
 
 	// Called after broker stopped.
-	async stopped(broker) {},
+	async stopped(broker) {}
 };
