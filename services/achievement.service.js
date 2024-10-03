@@ -90,7 +90,8 @@ const achievementService = {
 						userProfile.sub,
 						response.access_token,
 						achievement,
-						`${imgHost}${achievement.image.completed}`
+						`${imgHost}${achievement.image.completed}`,
+						this.logger
 					);
 
 					this.logger.info("15. publishAchievementLinkedInPost share response --- DONE -----", shareResponse);

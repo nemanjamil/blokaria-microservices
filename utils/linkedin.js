@@ -116,15 +116,18 @@ const getLinkedInImage = async (imageUrn, accessToken) => {
 	}
 };
 
-const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
-	console.log("1. uploadLinkedInImage START");
+const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
+	logger.info("1. uploadLinkedInImage START");
+	logger.info("2. uploadLinkedInImage userId", userId);
+	logger.info("3. uploadLinkedInImage imageUrl", imageUrl);
+	logger.info("4. uploadLinkedInImage accessToken", accessToken);
 
 	const linkedInInitUrl = "https://api.linkedin.com/rest/images?action=initializeUpload";
 
 	try {
 		const fileStream = await downloadFileAsStream(imageUrl);
 
-		console.log("2. uploadLinkedInImage fileStream");
+		logger.info("6. uploadLinkedInImage fileStream");
 
 		const initResponse = await axios.post(
 			linkedInInitUrl,
@@ -147,7 +150,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			throw new Error("Failed to initialize upload for image through LinkedIn");
 		}
 
-		console.log("3. uploadLinkedInImage initResponse", initResponse.data.value);
+		logger.info("7. uploadLinkedInImage initResponse", initResponse.data.value);
 
 		const imgUpload = await axios.default.put(initResponse.data.value.uploadUrl, fileStream, {
 			headers: {
@@ -159,7 +162,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			}
 		});
 
-		console.log("4. uploadLinkedInImage imgUpload");
+		logger.info("9. uploadLinkedInImage imgUpload");
 
 		if (imgUpload.status !== 201 && imgUpload.status !== 200) {
 			//throw new Error("Failed to upload image file stream");
@@ -169,15 +172,15 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			});
 		}
 
-		console.log("5. getLinkedInImage initResponse.data.value.image", initResponse.data.value.image);
+		logger.info("10. uploadLinkedInImage initResponse.data.value.image", initResponse.data.value.image);
 
 		const imgInfo = await getLinkedInImage(initResponse.data.value.image, accessToken);
 
-		console.log("6. uploadLinkedInImage ----- DONE -----");
+		logger.info("11. uploadLinkedInImage ----- DONE -----");
 
 		return imgInfo;
 	} catch (err) {
-		console.log("10. uploadLinkedInImage Error while uploading image to linkedin:", err.message || err);
+		logger.error("15. uploadLinkedInImage Error while uploading image to linkedin:", err.message || err);
 		throw new MoleculerClientError(err.message, 404, "UPLOAD_LINKEDIN_IMAGE", {
 			message: err.message,
 			internalErrorCode: "UPLOAD_LINKEDIN_IMAGE_11"
@@ -191,15 +194,17 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
  * @param {string} accessToken Access token LinkedIn APIs
  * @param {import("../models/Achievement")} achievement Achievement
  */
-const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) => {
+const createLinkedInPost = async (userId, accessToken, achievement, imageUrl, logger) => {
 	const LINKEDIN_API_URL = "https://api.linkedin.com/rest/posts";
 
-	console.log("1. createLinkedInPost START");
+	logger.info("1. createLinkedInPost START");
+
+	logger.info("2. createLinkedInPost imageUrl", imageUrl);
 
 	try {
-		const img = await uploadLinkedInImage(userId, imageUrl, accessToken);
+		const img = await uploadLinkedInImage(userId, imageUrl, accessToken, logger);
 
-		console.log("2. createLinkedInPost img");
+		logger.info("4. createLinkedInPost img");
 
 		const { subject, body, body1, tags } = postTemplate;
 
@@ -225,7 +230,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			isReshareDisabledByAuthor: false
 		};
 
-		console.log("3. createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
+		logger.info("6. createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
 
 		const response = await axios.post(LINKEDIN_API_URL, postData, {
 			headers: {
@@ -236,17 +241,17 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			}
 		});
 
-		console.log("4. createLinkedInPost Post created successfully ---- DONE ----:");
+		logger.info("8. createLinkedInPost Post created successfully ---- DONE ----:");
 
 		return response.data;
 	} catch (error) {
 		if (error.response) {
-			console.error("Error response data:");
+			logger.error("Error response data:");
 			//console.error("Error response data:", error.response.data);
 			//console.error("Error response status:", error.response.status);
 			//console.error("Error response headers:", error.response.headers);
 		} else if (error) {
-			console.error("Error message:", error.message);
+			logger.error("Error message:", error.message);
 		}
 		const errorMessage = error ? error.message : null || "Unexpected error";
 		return { status: false, error: errorMessage };
