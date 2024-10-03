@@ -190,7 +190,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 
 		return imgInfo;
 	} catch (err) {
-		logger.error("15. uploadLinkedInImage Error while uploading image to linkedin:", err.message || err);
+		logger.error("16. uploadLinkedInImage Error while uploading image to linkedin:", err.message || err);
 		throw new MoleculerClientError(err.message, 404, "UPLOAD_LINKEDIN_IMAGE", {
 			message: err.message,
 			internalErrorCode: "UPLOAD_LINKEDIN_IMAGE_11"
