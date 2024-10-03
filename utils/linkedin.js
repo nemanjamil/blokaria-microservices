@@ -58,7 +58,12 @@ const linkedInGetUserProfile = async (accessToken, logger) => {
 
 		return response.data;
 	} catch (error) {
-		logger.error("Error retrieving user ID:", error.response ? error.response.data : error.message);
+		logger.error("Error retrieving user ID:", error.response);
+
+		throw new MoleculerClientError(error.message, 404, "LIN_GET_USER_PROFILE", {
+			message: error.message,
+			internalErrorCode: "LIN_GET_USER_PROFILE"
+		});
 	}
 };
 
