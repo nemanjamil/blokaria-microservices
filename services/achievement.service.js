@@ -102,7 +102,7 @@ const achievementService = {
 						achievement: achievement.toJSON()
 					};
 				} catch (err) {
-					console.log("error while uploading post to linkedin:", err);
+					this.logger.error("18. publishAchievementLinkedInPost ERROR FINAL:", err);
 					const message = err ? (err.message ? err.message : "failed to upload linkedin post") : "failed to upload linkedin post";
 					throw new MoleculerError(message, 500, "LINKEDIN_API", {
 						message
