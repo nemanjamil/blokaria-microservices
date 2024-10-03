@@ -38,7 +38,8 @@ const linkedInGetUserProfile = async (accessToken) => {
 	const apiUrl = "https://api.linkedin.com/v2/userinfo";
 
 	try {
-		console.log("linkedin get user profile. sending access token:", accessToken);
+		console.log("1. linkedInGetUserProfile apiUrl:", apiUrl);
+		console.log("2. linkedInGetUserProfile sending access token:", accessToken);
 
 		const response = await axios.get(apiUrl, {
 			headers: {
@@ -49,11 +50,11 @@ const linkedInGetUserProfile = async (accessToken) => {
 			}
 		});
 
-		console.log("linkedin get user profile response:", response.data);
+		console.log("3. linkedInGetUserProfile response:", response.data);
 
 		// LinkedIn returns a `sub` field which is the user's ID
 		const userId = response.data.sub;
-		console.log("User ID:", userId);
+		console.log("5. linkedInGetUserProfile User ID:", userId);
 
 		return response.data;
 	} catch (error) {
