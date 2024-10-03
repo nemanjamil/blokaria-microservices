@@ -36,7 +36,7 @@ module.exports = {
 			name: "Forest Protector",
 			description: "Reach this level by planting 20 trees.",
 			image: {
-				passive: "levels.LVL-5_gray_v2.png",
+				passive: "levels/LVL-5_gray_v2.png",
 				completed: "levels/LVL-5_colo_v2.png"
 			}
 		},
