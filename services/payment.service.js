@@ -203,6 +203,9 @@ const paymentService = {
 	adapter: dbConnection.getMongooseAdapter(),
 	model: Invoice,
 	$noVersionPrefix: true,
+	metadata: {
+		itemPrice: 1
+	},
 	actions: {
 		// STRIPE DONATION INITIAL
 		donationPayment: {
@@ -288,7 +291,7 @@ const paymentService = {
 				this.logger.info("3. buyTreePayment  STRIPE quantity, userEmail, area", quantity, userEmail, area);
 
 				const userId = ctx.meta.user.userId;
-				const treePrice = 50; // TODO fix this price
+				const treePrice = this.metadata.itemPrice;
 				const stripe = this.getStripe();
 
 				try {
@@ -417,7 +420,7 @@ const paymentService = {
 					const quantity = 1;
 					donationDetails.name = "XAVI";
 					donationDetails.numberOfTrees = 1;
-					donationDetails.amount = quantity * 50;
+					donationDetails.amount = quantity * this.metadata.itemPrice;
 					donationDetails.orderId = "XXXXX";
 					console.log("donationDetails", donationDetails);
 					ctx.call("v1.email.sendPaymentConfirmationEmail", {
@@ -447,7 +450,7 @@ const paymentService = {
 					const { quantityOfTrees, area } = ctx.params;
 
 					// const pricePerTree = process.env.TREE_PRICE;
-					const pricePerTree = 50;
+					const pricePerTree = this.metadata.itemPrice;
 
 					let createPayPalPayload = {
 						amount: pricePerTree,
@@ -743,7 +746,7 @@ const paymentService = {
 			try {
 				const purchaseDetails = {
 					numberOfTrees: quantity,
-					amount: quantity * 50,
+					amount: quantity * this.metadata.itemPrice,
 					orderId: invoiceId
 				};
 				this.logger.info("14.A createItem purchaseDetails", purchaseDetails);
@@ -960,9 +963,11 @@ const paymentService = {
 
 					let purchaseDetails = {
 						numberOfTrees: quantity,
-						amount: quantity * 50,
+						amount: quantity * this.metadata.itemPrice,
 						orderId: orderId
 					};
+
+					this.logger.info("17. handleTreePurchaseWebhook purchaseDetails", purchaseDetails);
 
 					let updatedUser = await User.findById(user._id).exec();
 					if (!updatedUser) {
