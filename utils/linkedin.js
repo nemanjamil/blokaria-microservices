@@ -189,7 +189,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 
 		logger.info("11. uploadLinkedInImage ----- DONE -----");
 
-		return { urn: initResponse.data.value.imageimgInfo };
+		return { urn: initResponse.data.value.image };
 	} catch (err) {
 		logger.error("16. uploadLinkedInImage Error while uploading image to linkedin:", err.message || err);
 		throw new MoleculerClientError(err.message, 404, "UPLOAD_LINKEDIN_IMAGE", {
@@ -256,9 +256,9 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl, lo
 
 		return response.data;
 	} catch (error) {
-		logger.error("1. createLinkedInPost ERROR", error.message);
+		logger.error("12. createLinkedInPost ERROR", error.message);
 
-		throw new MoleculerClientError(error.message, 404, "ERROR_ON_CREATE_LINKEDIN_POST", {
+		throw new MoleculerClientError(error.message, 404, error.internalErrorCode, {
 			message: error.message
 		});
 	}
