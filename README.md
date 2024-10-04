@@ -37,7 +37,7 @@ This **project** is dependent of
 "debug" : true,
 "log-driver": "loki",
 "log-opts": {
-"loki-url": "http://loki:3100/loki/api/v1/push",
+"loki-url": "http://127.0.0.1:3100/loki/api/v1/push",
 "loki-batch-size": "400"
 }
 }
