@@ -650,6 +650,8 @@ module.exports = {
 
 					let addToEmailListRes = await addToEmailList.save();
 
+					// TODO if is succesffull adding send notification email to the clinet
+
 					this.logger.info("3. subscribeEmail addToEmailListRes", addToEmailListRes);
 
 					return addToEmailListRes;
