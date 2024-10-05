@@ -19,13 +19,14 @@ const levelService = {
 		createLevel: {
 			params: {
 				name: { type: "string" },
-				required_trees: { type: "number" }
+				required_trees: { type: "number" },
+				levelId: { type: "number" },
+				nameUnique: { type: "string" }
 			},
 			async handler(ctx) {
-				const { name, required_trees } = ctx.params;
-
+				const { name, required_trees, levelId, nameUnique } = ctx.params;
 				try {
-					const level = new Level({ name, required_trees });
+					const level = new Level({ name, required_trees, levelId, nameUnique });
 					await level.save();
 					return level.toJSON();
 				} catch (err) {
@@ -94,7 +95,6 @@ const levelService = {
 				levelsArray.push(String(createdLevel._id));
 			}
 		}
-
 		await this.broker.waitForServices("v1.achievement");
 		const achievements = await Achievement.find({});
 		if (achievements.length === 0) {
@@ -105,7 +105,6 @@ const levelService = {
 				this.broker.call("v1.achievement.createAchievement", achievement);
 			}
 		}
-
 	}
 };
 

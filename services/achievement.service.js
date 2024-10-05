@@ -155,8 +155,8 @@ const achievementService = {
 			params: {
 				name: { type: "string" },
 				description: { type: "string" },
-				level: { type: "string" },
-				image: { type: "object" }
+				image: { type: "object" },
+				level: { type: "string" }
 			},
 			async handler(ctx) {
 				const { name, description, level, image } = ctx.params;

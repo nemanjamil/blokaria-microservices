@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.ObjectId;
 
-
 // TODO: Description needs to support markup or html
 const achievementSchema = new mongoose.Schema(
 	{
