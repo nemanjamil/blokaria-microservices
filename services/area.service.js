@@ -25,7 +25,6 @@ const areaService = {
 				name: { type: "string" },
 				areaPoints: { type: "array", optional: true },
 				active: { type: "boolean", optional: true }
-
 			},
 			async handler(ctx) {
 				const { _id, country, countryCode, address, longitude, latitude, name, areaPoints, active, photo } = ctx.params;
@@ -46,7 +45,7 @@ const areaService = {
 				}
 
 				if (photo) {
-					updatStatus = await ctx.call("image.updateAreaImage", { photo, area });
+					await ctx.call("image.updateAreaImage", { photo, area });
 				}
 
 				try {
@@ -84,9 +83,8 @@ const areaService = {
 						{ new: true, runValidators: true }
 					);
 
-					if (photo != '')
-					{
-						await ctx.call("image.updateAreaImage", { photo: photo, area: updatedArea});
+					if (photo != "") {
+						await ctx.call("image.updateAreaImage", { photo: photo, area: updatedArea });
 					}
 
 					if (!updatedArea) {
@@ -150,7 +148,6 @@ const areaService = {
 				}
 			}
 		},
-		
 
 		getAllAreasDashboard: {
 			async handler(ctx) {
@@ -333,12 +330,12 @@ const areaService = {
 					const { userId } = ctx.meta.user;
 
 					const user = await User.findById(userId)
-					.select("accessibleAreas")
-					.populate({
-						path: "accessibleAreas",
-						match: { active: true } 
-					});
-					
+						.select("accessibleAreas")
+						.populate({
+							path: "accessibleAreas",
+							match: { active: true }
+						});
+
 					if (!user) {
 						throw new MoleculerClientError("User Not Found", 404, "USER_NOT_FOUND", {
 							message: `The user with the ID '${userId}' was not found.`
@@ -368,7 +365,7 @@ const areaService = {
 									isPlanted: wallet.isPlanted,
 									longText: wallet.longText,
 									walletQrId: wallet.walletQrId,
-									userFullName: wallet.userFullname,
+									userFullName: wallet.userFullname
 								};
 							});
 
@@ -543,7 +540,7 @@ const areaService = {
 					});
 				}
 			}
-		},
+		}
 	},
 	async started() {
 		const area = {
