@@ -173,7 +173,7 @@
 					<table width="100%" cellpadding="0" cellspacing="0" border="0">
 						<tr>
 							<td align="center">
-								<img src="{{webSiteLocation}}/NaturePlantLogo.png" alt="Nature Plant Logo" style="max-height: 70px" />
+								<img src="{{frontendUrl}}/static/logo/naturePlantLight.png" alt="Nature Plant Logo" style="max-height: 70px" />
 							</td>
 						</tr>
 					</table>
@@ -207,19 +207,6 @@
 								>
 									View Details: {{productName}}
 								</a>
-							</td>
-						</tr>
-						{{/each}}
-						<tr>
-							<td>
-								<div class="info-box">
-									<p>To share the details of your tree with others, use the following link:</p>
-									{{#each walletQrId}}
-									<p>
-										{{#if publicQrCode}}{{webSiteLocation}}/status/{{walletQrId}}{{else}}{{webSiteLocation}}/status/{{walletQrId}}/{{accessCode}}{{/if}}
-									</p>
-									{{/each}}
-								</div>
 							</td>
 						</tr>
 						<tr>

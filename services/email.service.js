@@ -169,7 +169,7 @@ module.exports = {
 						productName: ctx.params.productName,
 						accessCode: ctx.params.accessCode,
 						publicQrCode: ctx.params.publicQrCode,
-						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						frontendUrl: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL
 					};
 
