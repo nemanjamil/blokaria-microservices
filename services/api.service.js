@@ -154,7 +154,8 @@ module.exports = {
 					"GET invoice/getDonatorsList": "invoice.getDonatorsList",
 					"GET wallet/getListQrCodesOwners": "wallet.getListQrCodesOwners",
 					"POST wallet/getPublicWalletsByAreaId": "wallet.getPublicWalletsByAreaId",
-					"GET area/getAllAreas": "v1.area.getAllAreas"
+					"GET area/getAllAreas": "v1.area.getAllAreas",
+					"POST email/subscribeEmail": "v1.email.subscribeEmail"
 				},
 				callingOptions: {},
 

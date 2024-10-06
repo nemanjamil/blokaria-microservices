@@ -9,7 +9,7 @@ module.exports = {
 			}
 		},
 		{
-			name: "Sapling Starter",
+			name: "Forest First",
 			description: "Reach this level by planting 5 trees.",
 			image: {
 				passive: "levels/lvl-2-b&w.png",
@@ -28,32 +28,32 @@ module.exports = {
 			name: "Tree Guardian",
 			description: "Become a Tree Guardian by planting 15 trees.",
 			image: {
-				passive: "levels/LVL-4-BW.png",
-				completed: "levels/LVL-4.png"
+				passive: "levels/LVL-4_gray_v3.png",
+				completed: "levels/LVL-4_colo_v3.png"
 			}
 		},
 		{
 			name: "Forest Protector",
 			description: "Reach this level by planting 20 trees.",
 			image: {
-				passive: "levels/LVL-5-BW.png",
-				completed: "levels/LVL-5.png"
+				passive: "levels/LVL-5_gray_v3.png",
+				completed: "levels/LVL-5_colo_v3.png"
 			}
 		},
 		{
 			name: "Ecosystem Champion",
 			description: "Become an Ecosystem Champion by planting 30 trees.",
 			image: {
-				passive: "levels/LVL-6-BW.png",
-				completed: "levels/LVL-6.png"
+				passive: "levels/LVL-6_gray_v3.png",
+				completed: "levels/LVL-6_colo_v3.png"
 			}
 		},
 		{
 			name: "Carbon Neutral - Climate Defender",
 			description: "Achieve Carbon Neutral status by planting 40 trees.",
 			image: {
-				passive: "levels/LVL-6-BW.png",
-				completed: "levels/LVL-6.png"
+				passive: "levels/carbon-neutral_gray.png",
+				completed: "levels/carbon-neutral_color.jpg"
 			}
 		}
 	]

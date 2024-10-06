@@ -5,6 +5,8 @@ const fs = require("fs");
 const handlebars = require("handlebars");
 const Utils = require("../utils/utils");
 const Wallet = require("../models/Wallet");
+const Subscription = require("../models/Subscription");
+
 require("dotenv").config();
 
 module.exports = {
@@ -518,7 +520,7 @@ module.exports = {
 								filename: "tree_photo.png",
 								content: plantingDetails.photo,
 								encoding: "base64",
-								cid: 'treePhoto'
+								cid: "treePhoto"
 							}
 						]
 					};
@@ -576,6 +578,7 @@ module.exports = {
 				}
 			}
 		},
+
 		sendGiftEmail: {
 			params: {
 				userEmail: { type: "email" },
@@ -626,6 +629,38 @@ module.exports = {
 					throw new MoleculerError(error.message, 401, "ERROR_SENDING_EMAIL", {
 						message: error.message,
 						internalErrorCode: "email50"
+					});
+				}
+			}
+		},
+
+		subscribeEmail: {
+			params: {
+				email: { type: "email" }
+			},
+			async handler(ctx) {
+				this.logger.info("1. subscribeEmail START", ctx.params);
+				const { email } = ctx.params;
+
+				try {
+					let dataEmail = {
+						userEmail: email
+					};
+
+					this.logger.info("2. subscribeEmail dataEmail", dataEmail);
+					const addToEmailList = new Subscription(dataEmail);
+
+					let addToEmailListRes = await addToEmailList.save();
+
+					// TODO if is succesffull adding send notification email to the clinet
+
+					this.logger.info("3. subscribeEmail addToEmailListRes", addToEmailListRes);
+
+					return addToEmailListRes;
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "ERROR_STORING_EMAIL", {
+						message: error.message,
+						internalErrorCode: "email55"
 					});
 				}
 			}

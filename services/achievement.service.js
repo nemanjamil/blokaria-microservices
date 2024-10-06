@@ -1,7 +1,7 @@
 "use strict";
 
 const DbService = require("moleculer-db");
-const { MoleculerError } = require("moleculer").Errors;
+const { MoleculerError, MoleculerClientError } = require("moleculer").Errors;
 const dbConnection = require("../utils/dbConnection");
 const Achievement = require("../models/Achievement");
 const User = require("../models/User");
@@ -72,9 +72,15 @@ const achievementService = {
 
 					this.logger.info("10. publishAchievementLinkedInPost exchange response", response);
 
-					const userProfile = await linkedInGetUserProfile(response.access_token);
+					const userProfile = await linkedInGetUserProfile(response.access_token, this.logger);
 
 					this.logger.info("12. publishAchievementLinkedInPost user profile", userProfile);
+
+					if (!userProfile) {
+						throw new MoleculerClientError("userProfile doesn't exist", 404, "ERROR_ON_GETTING_LIN_USERINFO", {
+							message: "Error on getting userInfo from LinkedIn"
+						});
+					}
 
 					const imgHost = process.env.MOLECULER_SERVICE_LOCATION;
 
@@ -84,7 +90,8 @@ const achievementService = {
 						userProfile.sub,
 						response.access_token,
 						achievement,
-						`${imgHost}${achievement.image.completed}`
+						`${imgHost}${achievement.image.completed}`,
+						this.logger
 					);
 
 					this.logger.info("15. publishAchievementLinkedInPost share response --- DONE -----", shareResponse);
@@ -95,7 +102,7 @@ const achievementService = {
 						achievement: achievement.toJSON()
 					};
 				} catch (err) {
-					console.log("error while uploading post to linkedin:", err);
+					this.logger.error("18. publishAchievementLinkedInPost ERROR FINAL:", err);
 					const message = err ? (err.message ? err.message : "failed to upload linkedin post") : "failed to upload linkedin post";
 					throw new MoleculerError(message, 500, "LINKEDIN_API", {
 						message
@@ -112,6 +119,14 @@ const achievementService = {
 
 				this.logger.info("2. getAchievementPostPreview database fetched user: ", userDb);
 				this.logger.info("4. getAchievementPostPreview user level:", userDb._level);
+
+				if (!userDb._achievements.length) {
+					this.logger.error("5. getAchievementPostPreview _achievements:", userDb._achievements.length);
+					const message = "There are no achievement for this user.";
+					throw new MoleculerClientError("Area Creation Failed", 404, "MISSING_ACHIEVEMENT", {
+						message
+					});
+				}
 
 				const achievement = userDb._achievements.find((achievement) => String(achievement._level) === String(userDb._level._id));
 
@@ -140,8 +155,8 @@ const achievementService = {
 			params: {
 				name: { type: "string" },
 				description: { type: "string" },
-				level: { type: "string" },
-				image: { type: "object" }
+				image: { type: "object" },
+				level: { type: "string" }
 			},
 			async handler(ctx) {
 				const { name, description, level, image } = ctx.params;
@@ -258,9 +273,9 @@ const achievementService = {
 					achievementName: achievement.name,
 					description: achievement.description,
 					achievment: achievement.image.completed,
-					backendLocation: process.env.MOLECULER_SERVICE_LOCATION,
+					backendLocation: process.env.MOLECULER_SERVICE_LOCATION
 				};
-				
+
 				this.logger.info("2. sendAchievementEmail replacements", replacements);
 
 				const htmlToSend = template(replacements);

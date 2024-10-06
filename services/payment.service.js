@@ -114,7 +114,7 @@ const captureOrder = async (orderId) => {
 				Authorization: `Bearer ${accessToken}`
 			}
 		});
-		console.log("3. captureOrder response DONE", response.data);
+		console.log("5. captureOrder response DONE", response.data);
 
 		return response.data;
 	} catch (error) {
@@ -129,15 +129,15 @@ const createOrder = async ({
 	itemName,
 	itemDescription,
 	quantity,
-	currency = "USD",
+	currency = "EUR",
 	returnUrl = process.env.PAYMENT_SUCCESS_ROUTE,
 	cancelUrl = process.env.PAYMENT_FAIL_ROUTE,
 	brandName = "NaturePlant"
 }) => {
-	console.log("amount", amount);
+	console.log("createOrder amount", amount);
 
 	const accessToken = await generatePaypalAccessToken();
-	console.log("accessToken", accessToken);
+	console.log("createOrder accessToken", accessToken);
 
 	const response = await axios({
 		url: process.env.PAYPAL_BASE_URL + "/v2/checkout/orders",
@@ -203,6 +203,9 @@ const paymentService = {
 	adapter: dbConnection.getMongooseAdapter(),
 	model: Invoice,
 	$noVersionPrefix: true,
+	metadata: {
+		itemPrice: 20
+	},
 	actions: {
 		// STRIPE DONATION INITIAL
 		donationPayment: {
@@ -288,7 +291,7 @@ const paymentService = {
 				this.logger.info("3. buyTreePayment  STRIPE quantity, userEmail, area", quantity, userEmail, area);
 
 				const userId = ctx.meta.user.userId;
-				const treePrice = 50; // TODO fix this price
+				const treePrice = this.metadata.itemPrice;
 				const stripe = this.getStripe();
 
 				try {
@@ -417,7 +420,7 @@ const paymentService = {
 					const quantity = 1;
 					donationDetails.name = "XAVI";
 					donationDetails.numberOfTrees = 1;
-					donationDetails.amount = quantity * 50;
+					donationDetails.amount = quantity * this.metadata.itemPrice;
 					donationDetails.orderId = "XXXXX";
 					console.log("donationDetails", donationDetails);
 					ctx.call("v1.email.sendPaymentConfirmationEmail", {
@@ -441,15 +444,15 @@ const paymentService = {
 			},
 			async handler(ctx) {
 				try {
-					this.logger.info("ctx params", ctx.params);
+					this.logger.info("1. paypalPurchaseCreateOrder ctx params", ctx.params);
 					const userId = ctx.meta.user.userId;
-					console.log("userId", ctx.meta.user);
+					this.logger.info("2. paypalPurchaseCreateOrder userId", ctx.meta.user);
 					const { quantityOfTrees, area } = ctx.params;
 
 					// const pricePerTree = process.env.TREE_PRICE;
-					const pricePerTree = 50;
+					const pricePerTree = this.metadata.itemPrice;
 
-					const { approveLink, orderId, totalAmount } = await createOrder({
+					let createPayPalPayload = {
 						amount: pricePerTree,
 						itemName: "Tree Purchase",
 						itemDescription: "Purchase of Trees",
@@ -458,12 +461,17 @@ const paymentService = {
 						returnUrl: process.env.PAYMENT_SUCCESS_ROUTE,
 						cancelUrl: process.env.PAYMENT_FAIL_ROUTE,
 						brandName: "NaturePlant"
-					});
+					};
+
+					this.logger.info("3. paypalPurchaseCreateOrder createPayPalPayload", createPayPalPayload);
+
+					const { approveLink, orderId, totalAmount } = await createOrder(createPayPalPayload);
 
 					const areaObjectId = new mongoose.Types.ObjectId(area);
 
-					this.logger.info("Creating Invoice with orderId");
-					const invoice = new Invoice({
+					this.logger.info("5. paypalPurchaseCreateOrder Creating Invoice with orderId");
+
+					let invoiceData = {
 						amount: totalAmount,
 						invoiceId: orderId,
 						payer: userId,
@@ -471,7 +479,12 @@ const paymentService = {
 						area: areaObjectId,
 						paymentSource: "paypal",
 						paymentType: strings.purchase
-					});
+					};
+
+					this.logger.info("6. paypalPurchaseCreateOrder invoiceData", invoiceData);
+
+					const invoice = new Invoice(invoiceData);
+
 					await invoice.save();
 
 					return { approveLink };
@@ -733,7 +746,7 @@ const paymentService = {
 			try {
 				const purchaseDetails = {
 					numberOfTrees: quantity,
-					amount: quantity * 50,
+					amount: quantity * this.metadata.itemPrice,
 					orderId: invoiceId
 				};
 				this.logger.info("14.A createItem purchaseDetails", purchaseDetails);
@@ -950,9 +963,11 @@ const paymentService = {
 
 					let purchaseDetails = {
 						numberOfTrees: quantity,
-						amount: quantity * 50,
+						amount: quantity * this.metadata.itemPrice,
 						orderId: orderId
 					};
+
+					this.logger.info("17. handleTreePurchaseWebhook purchaseDetails", purchaseDetails);
 
 					let updatedUser = await User.findById(user._id).exec();
 					if (!updatedUser) {

@@ -34,11 +34,12 @@ const linkedInExchangeCode = async (code) => {
  *
  * @param {string} accessToken
  */
-const linkedInGetUserProfile = async (accessToken) => {
+const linkedInGetUserProfile = async (accessToken, logger) => {
 	const apiUrl = "https://api.linkedin.com/v2/userinfo";
 
 	try {
-		console.log("linkedin get user profile. sending access token:", accessToken);
+		logger.info("1. linkedInGetUserProfile apiUrl:", apiUrl);
+		logger.info("2. linkedInGetUserProfile sending access token:", accessToken);
 
 		const response = await axios.get(apiUrl, {
 			headers: {
@@ -49,20 +50,26 @@ const linkedInGetUserProfile = async (accessToken) => {
 			}
 		});
 
-		console.log("linkedin get user profile response:", response.data);
+		logger.info("3. linkedInGetUserProfile response:", response.data);
 
 		// LinkedIn returns a `sub` field which is the user's ID
 		const userId = response.data.sub;
-		console.log("User ID:", userId);
+		logger.info("5. linkedInGetUserProfile User ID:", userId);
 
 		return response.data;
 	} catch (error) {
-		console.error("Error retrieving user ID:", error.response ? error.response.data : error.message);
+		logger.error("Error retrieving user ID:", error.response);
+
+		throw new MoleculerClientError(error.message, 404, "LIN_GET_USER_PROFILE", {
+			message: error.message,
+			internalErrorCode: "LIN_GET_USER_PROFILE"
+		});
 	}
 };
 
-const downloadFileAsStream = async (fileUrl) => {
-	console.log("1. downloadFileAsStream START");
+const downloadFileAsStream = async (fileUrl, logger) => {
+	logger.info("1. downloadFileAsStream START");
+	logger.info("2. downloadFileAsStream fileUrl", fileUrl);
 	try {
 		const response = await axios({
 			method: "get",
@@ -70,22 +77,26 @@ const downloadFileAsStream = async (fileUrl) => {
 			responseType: "stream" // Important: This tells axios to return the response as a stream
 		});
 
-		console.log("2. downloadFileAsStream --- DONE ---");
+		logger.info("3. downloadFileAsStream --- DONE ---");
 
 		return response.data; // This is the stream
 	} catch (error) {
-		console.error("Error downloading the file:", error);
-		throw error;
+		logger.error("5. downloadFileAsStream Error downloading the file:", error);
+
+		throw new MoleculerClientError("Failed to downloadFileAsStream", 404, "GET_FILE_AS_A_STREAM", {
+			message: "Failed to get image downloadFileAsStream",
+			internalErrorCode: "GET_FILE_AS_A_STREAM"
+		});
 	}
 };
 
-const getLinkedInImage = async (imageUrn, accessToken) => {
-	console.log("1. getLinkedInImage START");
+const getLinkedInImage = async (imageUrn, accessToken, logger) => {
+	logger.info("1. getLinkedInImage START");
 
 	const linkedGetUrl = `https://api.linkedin.com/rest/images/${imageUrn}`;
 
-	console.log("1. getLinkedInImage linkedGetUrl", linkedGetUrl);
-	console.log("1. getLinkedInImage accessToken", accessToken);
+	logger.info("3. getLinkedInImage linkedGetUrl", linkedGetUrl);
+	logger.info("5. getLinkedInImage accessToken", accessToken);
 
 	try {
 		const imageRes = await axios.get(linkedGetUrl, {
@@ -95,7 +106,7 @@ const getLinkedInImage = async (imageUrn, accessToken) => {
 			}
 		});
 
-		console.log("3. getLinkedInImage imageRes.data", imageRes.data);
+		logger.info("7. getLinkedInImage imageRes.data", imageRes.data);
 
 		if (!imageRes || !imageRes.data) {
 			throw new MoleculerClientError("Failed to get image information from LinkedIn", 404, "GET_LINKEDIN_IMAGE", {
@@ -104,10 +115,11 @@ const getLinkedInImage = async (imageUrn, accessToken) => {
 			});
 		}
 
-		console.log("3. getLinkedInImage ---- DONE ----");
+		logger.info("9. getLinkedInImage ---- DONE ----");
 
 		return imageRes.data;
 	} catch (err) {
+		logger.error("0. getLinkedInImage err.message", err.message);
 		throw new MoleculerClientError(err.message, 404, "GET_LINKEDIN_IMAGE", {
 			message: "Error while getting image information from LinkedIn:",
 			internalErrorCode: "GET_LINKEDIN_IMAGE"
@@ -115,15 +127,18 @@ const getLinkedInImage = async (imageUrn, accessToken) => {
 	}
 };
 
-const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
-	console.log("1. uploadLinkedInImage START");
+const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
+	logger.info("1. uploadLinkedInImage START");
+	logger.info("2. uploadLinkedInImage userId", userId);
+	logger.info("3. uploadLinkedInImage imageUrl", imageUrl);
+	logger.info("4. uploadLinkedInImage accessToken", accessToken);
 
 	const linkedInInitUrl = "https://api.linkedin.com/rest/images?action=initializeUpload";
 
 	try {
-		const fileStream = await downloadFileAsStream(imageUrl);
+		const fileStream = await downloadFileAsStream(imageUrl, logger);
 
-		console.log("2. uploadLinkedInImage fileStream");
+		logger.info("6. uploadLinkedInImage fileStream");
 
 		const initResponse = await axios.post(
 			linkedInInitUrl,
@@ -146,7 +161,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			throw new Error("Failed to initialize upload for image through LinkedIn");
 		}
 
-		console.log("3. uploadLinkedInImage initResponse", initResponse.data.value);
+		logger.info("7. uploadLinkedInImage initResponse", initResponse.data.value);
 
 		const imgUpload = await axios.default.put(initResponse.data.value.uploadUrl, fileStream, {
 			headers: {
@@ -158,7 +173,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			}
 		});
 
-		console.log("4. uploadLinkedInImage imgUpload");
+		logger.info("9. uploadLinkedInImage imgUpload");
 
 		if (imgUpload.status !== 201 && imgUpload.status !== 200) {
 			//throw new Error("Failed to upload image file stream");
@@ -168,15 +183,15 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
 			});
 		}
 
-		console.log("5. getLinkedInImage initResponse.data.value.image", initResponse.data.value.image);
+		logger.info("10. uploadLinkedInImage initResponse.data.value.image", initResponse.data.value.image);
 
-		const imgInfo = await getLinkedInImage(initResponse.data.value.image, accessToken);
+		//const imgInfo = await getLinkedInImage(initResponse.data.value.image, accessToken, logger);
 
-		console.log("6. uploadLinkedInImage ----- DONE -----");
+		logger.info("11. uploadLinkedInImage ----- DONE -----");
 
-		return imgInfo;
+		return { urn: initResponse.data.value.image };
 	} catch (err) {
-		console.log("10. uploadLinkedInImage Error while uploading image to linkedin:", err.message || err);
+		logger.error("16. uploadLinkedInImage Error while uploading image to linkedin:", err.message || err);
 		throw new MoleculerClientError(err.message, 404, "UPLOAD_LINKEDIN_IMAGE", {
 			message: err.message,
 			internalErrorCode: "UPLOAD_LINKEDIN_IMAGE_11"
@@ -190,15 +205,17 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken) => {
  * @param {string} accessToken Access token LinkedIn APIs
  * @param {import("../models/Achievement")} achievement Achievement
  */
-const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) => {
+const createLinkedInPost = async (userId, accessToken, achievement, imageUrl, logger) => {
 	const LINKEDIN_API_URL = "https://api.linkedin.com/rest/posts";
 
-	console.log("1. createLinkedInPost START");
+	logger.info("1. createLinkedInPost START");
+
+	logger.info("2. createLinkedInPost imageUrl", imageUrl);
 
 	try {
-		const img = await uploadLinkedInImage(userId, imageUrl, accessToken);
+		const { urn } = await uploadLinkedInImage(userId, imageUrl, accessToken, logger);
 
-		console.log("2. createLinkedInPost img");
+		logger.info("4. createLinkedInPost urn", urn);
 
 		const { subject, body, body1, tags } = postTemplate;
 
@@ -217,14 +234,14 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			content: {
 				media: {
 					title: achievement.name,
-					id: img.id
+					id: urn
 				}
 			},
 			lifecycleState: "PUBLISHED",
 			isReshareDisabledByAuthor: false
 		};
 
-		console.log("3. createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
+		logger.info("6. createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
 
 		const response = await axios.post(LINKEDIN_API_URL, postData, {
 			headers: {
@@ -235,20 +252,15 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl) =>
 			}
 		});
 
-		console.log("4. createLinkedInPost Post created successfully ---- DONE ----:");
+		logger.info("8. createLinkedInPost Post created successfully ---- DONE ----:");
 
 		return response.data;
 	} catch (error) {
-		if (error.response) {
-			console.error("Error response data:");
-			//console.error("Error response data:", error.response.data);
-			//console.error("Error response status:", error.response.status);
-			//console.error("Error response headers:", error.response.headers);
-		} else if (error) {
-			console.error("Error message:", error.message);
-		}
-		const errorMessage = error ? error.message : null || "Unexpected error";
-		return { status: false, error: errorMessage };
+		logger.error("12. createLinkedInPost ERROR", error.message);
+
+		throw new MoleculerClientError(error.message, 404, error.internalErrorCode, {
+			message: error.message
+		});
 	}
 };
 
