@@ -161,15 +161,14 @@ module.exports = {
 					let userEmail = ctx.params.userEmail;
 
 					this.logger.info("1. generateQrCodeEmail userEmail", userEmail);
-
 					const replacements = {
 						walletQrId: ctx.params.walletQrId,
-						userFullname: ctx.params.userFullname,
+						firstName: ctx.params.userFullname.split(" ")[0],
 						userEmail: userEmail,
 						productName: ctx.params.productName,
 						accessCode: ctx.params.accessCode,
 						publicQrCode: ctx.params.publicQrCode,
-						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						frontendUrl: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL
 					};
 
@@ -397,7 +396,9 @@ module.exports = {
 						numberOfTrees: purchaseDetails.numberOfTrees,
 						amount: purchaseDetails.amount,
 						orderId: purchaseDetails.orderId,
-						levelUpMessage: levelUpMessage
+						levelUpMessage: levelUpMessage,
+						frontendUrl: process.env.BLOKARIA_WEBSITE,
+						domainEmail: process.env.ADMIN_EMAIL
 					};
 
 					this.logger.info("2. sendPaymentConfirmationEmail replacements", replacements);
@@ -445,7 +446,8 @@ module.exports = {
 					const replacements = {
 						amount: donationDetails.amount,
 						orderId: donationDetails.orderId,
-						webSiteLocation: process.env.BLOKARIA_WEBSITE
+						frontendUrl: process.env.BLOKARIA_WEBSITE,
+						domainEmail: process.env.ADMIN_EMAIL
 					};
 
 					const htmlToSend = template(replacements);
@@ -499,7 +501,8 @@ module.exports = {
 						longitude: plantingDetails.longitude,
 						area: plantingDetails.area,
 						walletQrId: plantingDetails.walletQrId,
-						frontendLocation: process.env.BLOKARIA_WEBSITE,
+						frontendUrl: process.env.BLOKARIA_WEBSITE,
+						domainEmail: process.env.ADMIN_EMAIL,
 						photo: plantingDetails.photo
 					};
 

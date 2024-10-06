@@ -173,63 +173,57 @@
 					<table width="100%" cellpadding="0" cellspacing="0" border="0">
 						<tr>
 							<td align="center">
-								<img src="{{webSiteLocation}}/static/logo/naturePlantLight.png" alt="Nature Plant Logo" style="max-height: 70px" />
+								<img src="{{frontendUrl}}/static/logo/naturePlantLight.png" alt="Nature Plant Logo" style="max-height: 70px" />
 							</td>
 						</tr>
 					</table>
 				</td>
 			</tr>
 			<tr>
-				<td class="content" style="padding: 20px; background-image: url('https://example.com/subtle-leaf-pattern.png'); background-repeat: repeat">
+				<td class="content" style="padding: 20px; background-image: url('{{webSiteLocation}}/subtle-leaf-pattern.png'); background-repeat: repeat">
 					<table width="100%" cellpadding="0" cellspacing="0" border="0">
 						<tr>
 							<td>
-								<h1>Hi {{userFullname}},</h1>
+								<h1>Hi {{firstName}},</h1>
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<p>
-									Your tree purchase is confirmed! We're currently coordinating with our planting partners to make sure your tree is planted
-									in the best location.
-								</p>
-								<p>
-									Once your tree is in the ground, this section will be updated with the exact GPS coordinates and a photo of the newly
-									planted tree.
-								</p>
-								<p>Thank you for helping us grow a greener future!</p>
+								<p>Your trees have been successfully purchased. You will be informed once they are planted.</p>
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<p>You can access your item using the following link:</p>
+								<p>You can track your tree's impact using the following link:</p>
 							</td>
 						</tr>
 						{{#each walletQrId}}
 						<tr>
 							<td>
 								<a
-									href="{{#if publicQrCode}}{{webSiteLocation}}/status/{{walletQrId}}{{else}}{{webSiteLocation}}/status/{{walletQrId}}{{/if}}"
+									href="{{#if publicQrCode}}{{webSiteLocation}}/status/{{walletQrId}}{{else}}{{webSiteLocation}}/status/{{walletQrId}}/{{accessCode}}{{/if}}"
 									class="button"
 									target="_blank"
 								>
-									View item: {{productName}}
+									View Details: {{productName}}
 								</a>
 							</td>
 						</tr>
 						{{/each}}
 						<tr>
 							<td>
-								<div class="info-box">
-									<p>Add some meaningfull sentance - for Xavi</p>
-								</div>
+								<h2>Your Contribution</h2>
 							</td>
 						</tr>
-
+						<tr>
+							<td>
+								<p>By planting trees, you’re contributing to reforestation efforts and helping combat climate change. Every tree planted improves the environment and supports local communities.</p>
+							</td>
+						</tr>
 						<tr>
 							<td>
 								<div class="info-box">
-									<p>Have questions? Feel free to reach out at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
+								<p>Need help or have questions? Contact us at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
 								</div>
 							</td>
 						</tr>
@@ -243,4 +237,6 @@
 			</tr>
 		</table>
 	</body>
+	
+
 </html>
