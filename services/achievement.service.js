@@ -273,7 +273,7 @@ const achievementService = {
 					achievementName: achievement.name,
 					description: achievement.description,
 					achievment: achievement.image.completed,
-					backendLocation: process.env.MOLECULER_SERVICE_LOCATION,
+					backendUrl: process.env.MOLECULER_SERVICE_LOCATION,
 					frontendUrl: process.env.BLOKARIA_WEBSITE
 				};
 
