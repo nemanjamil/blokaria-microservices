@@ -1,50 +1,130 @@
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0;" />
-		<meta name="format-detection" content="telephone=no" />
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0;" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>Thank You for Your Donation</title>
+    <style>
+        /* General Email Styles */
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        table {
+            border-collapse: separate;
+            width: 100%;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #2c7744;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .footer {
+            background-color: #2c7744;
+            color: #ffffff;
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+        }
+        a, a:link, a:visited {
+            text-decoration: none;
+            color: #00788a;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        h2, h3, h4, h5, h6 {
+            color: #000 !important;
+        }
+        .info-box {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td {
+            line-height: 100%;
+        }
+        .ExternalClass {
+            width: 100%;
+        }
+    </style>
+</head>
 
-		<title>Thank You for Your Donation</title>
-	</head>
-
-	<body
-		topmargin="0"
-		rightmargin="0"
-		bottommargin="0"
-		leftmargin="0"
-		marginwidth="0"
-		marginheight="0"
-		width="100%"
-		style="
-			border-collapse: collapse;
-			border-spacing: 0;
-			margin: 0;
-			padding: 0;
-			width: 100%;
-			height: 100%;
-			-webkit-font-smoothing: antialiased;
-			text-size-adjust: 100%;
-			-ms-text-size-adjust: 100%;
-			-webkit-text-size-adjust: 100%;
-			line-height: 100%;
-			background-color: #f0f0f0;
-			color: #000000;
-		"
-		bgcolor="#F0F0F0"
-		text="#000000"
+<body style="display: flex; font-family: Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4; margin: 0; padding: 0">
+    <table
+	class="container"
+	cellpadding="0"
+	cellspacing="0"
+	border="0"
+	width="100%"
+	style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)"
 	>
-		<p>Dear Supporter,</p>
-		<p>Thank you so much for your generous donation of ${{amount}}. Your support means a lot to us and will help us continue our mission.</p>
-		<p>
-			If you opted to display your donation in the Donations section, you can view the list of public donors here: :
-			<a href="{{webSiteLocation}}/donators" class="button" target="_blank">public donators</a>
-		</p>
-		<p>any questions or need further information, please do not hesitate to contact us.</p>
-		<p>Once again, thank you for your kindness and support!</p>
-		<p>Order ID: {{orderId}}</p>
+		<tr>
+			<td class="header" style="background-color: #2c7744; color: #ffffff; text-align: center; padding: 20px">
+				<table width="100%" cellpadding="0" cellspacing="0" border="0">
+					<tr>
+						<td align="center">
+							<img src="{{frontendUrl}}/static/logo/naturePlantLight.png" alt="Nature Plant Logo" style="max-height: 70px" />
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<td class="h1" style="text-align: center; font-size: 28px; padding-top: 20px; color: #2c7744;">
+			<strong>Thank You for Your Donation</strong>
+		</td>
+        <tr>
+			
+            <td class="content">
+                <p>Dear Supporter,</p>
+                <p>We sincerely appreciate your generous donation.</p>
 
-		<p>"Your donation will help plant trees, contributing to reducing carbon emissions and restoring forests where they are needed most."</p>
+                <p><strong>Donation Amount:</strong> ${{amount}}</p>
 
-		<p>Best regards,<br />Nature Planet</p>
-	</body>
+                <div class="info-box">
+                    <p><em>"Your donation helps us plant trees, reduce carbon emissions, and restore vital ecosystems."</em></p>
+                </div>
+
+                <p>
+                    If you chose to display your donation publicly, you can view the list of donors in our
+                    <a href="{{frontendUrl}}/donators" class="button" target="_blank">Donations Section</a>.
+                </p>
+
+                <p>Once again, thank you for your kindness and support!</p>
+                <p><strong>Order ID:</strong> {{orderId}}</p>
+
+				<div class="info-box">
+					<p>Have a question? Contact us at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
+				</div>
+            </td>
+        </tr>
+        <tr>
+			<td class="footer" style="background-color: #2c7744; color: #ffffff; text-align: center; padding: 10px; font-size: 12px">
+				This email is sent by Nature Plant. A Nature Plant project - 2077            </td>
+        </tr>
+    </table>
+</body>
 </html>
