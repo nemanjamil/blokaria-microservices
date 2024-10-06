@@ -391,7 +391,6 @@ module.exports = {
 					if (levelStatus?.isLevelChanged) {
 						levelUpMessage = `Congratulations! You have advanced from level ${levelStatus.oldLevel} to level ${levelStatus.newLevel}!`;
 					}
-					purchaseDetails.name = purchaseDetails.name.split(" ")[0];
 
 					const replacements = {
 						name: purchaseDetails.name,
@@ -448,7 +447,8 @@ module.exports = {
 					const replacements = {
 						amount: donationDetails.amount,
 						orderId: donationDetails.orderId,
-						webSiteLocation: process.env.BLOKARIA_WEBSITE
+						frontendUrl: process.env.BLOKARIA_WEBSITE,
+						domainEmail: process.env.ADMIN_EMAIL
 					};
 
 					const htmlToSend = template(replacements);
@@ -503,6 +503,7 @@ module.exports = {
 						area: plantingDetails.area,
 						walletQrId: plantingDetails.walletQrId,
 						frontendUrl: process.env.BLOKARIA_WEBSITE,
+						domainEmail: process.env.ADMIN_EMAIL,
 						photo: plantingDetails.photo
 					};
 
