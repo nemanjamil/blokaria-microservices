@@ -161,10 +161,9 @@ module.exports = {
 					let userEmail = ctx.params.userEmail;
 
 					this.logger.info("1. generateQrCodeEmail userEmail", userEmail);
-
 					const replacements = {
 						walletQrId: ctx.params.walletQrId,
-						userFullname: ctx.params.userFullname,
+						firstName: ctx.params.userFullname.split(" ")[0],
 						userEmail: userEmail,
 						productName: ctx.params.productName,
 						accessCode: ctx.params.accessCode,
