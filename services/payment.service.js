@@ -204,7 +204,7 @@ const paymentService = {
 	model: Invoice,
 	$noVersionPrefix: true,
 	metadata: {
-		itemPrice: 1
+		itemPrice: 20
 	},
 	actions: {
 		// STRIPE DONATION INITIAL
