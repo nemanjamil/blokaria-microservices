@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0;" />
-    <meta name="format-detection" content="telephone=no" />
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Thank You for Your Tree Purchase</title>
     <style>
         body {
@@ -18,17 +18,27 @@
             -ms-text-size-adjust: 100%;
             -webkit-text-size-adjust: 100%;
         }
-        table { border-collapse: separate; width: 100%; }
-        a, a:link, a:visited { text-decoration: none; color: #00788a; }
-        a:hover { text-decoration: underline; }
-        h1, h2, h3, h4, h5, h6 { color: #2c7744; }
+        table {
+            border-collapse: separate;
+            width: 100%;
+        }
+        a, a:link, a:visited {
+            text-decoration: none;
+            color: #00788a;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c7744;
+        }
         .container {
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         .header {
             background-color: #2c7744;
@@ -52,27 +62,46 @@
         .highlight {
             color: #2c7744;
         }
+        .info-box {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+            padding: 10px;
+            margin: 15px 0;
+        }
     </style>
 </head>
 <body>
     <table class="container" cellpadding="0" cellspacing="0" border="0">
         <tr>
             <td class="header">
-                <img src="{{webSiteLocation}}/NaturePlantLogo.png" alt="Nature Plant Logo">
+                <img src="{{frontendUrl}}/static/logo/naturePlantLight.png" alt="Nature Plant Logo" />
             </td>
         </tr>
         <tr>
             <td class="content">
-                <h1>Thank You for Your Tree Purchase</h1>
+                <h1>Thank You for Supporting Our Mission</h1>
+
                 <p>Dear {{name}},</p>
-                <p>Thank you for your recent purchase of <strong>{{numberOfTrees}}</strong> trees for a total of <strong>${{amount}}</strong>. Your support is greatly appreciated and will help us continue our mission to plant and nurture trees.</p>
-                <p>If you have any questions or need further information, please do not hesitate to contact us.</p>
-                <p>Thank you once again for your contribution to a greener planet!</p>
+                
+                <p>We are thrilled by your recent contribution!</p>
+                
+                <p><strong>Number of Trees Purchased:</strong> {{numberOfTrees}}</p>
+                <p><strong>Total Amount:</strong> ${{amount}}</p>
+                
+                <p>Your generous support is helping us plant and nurture trees for a healthier planet. Every tree brings us closer to a greener and more sustainable future.</p>
+                
+                <p>If you have any questions or need further assistance, feel free to reach out to us. We’re always happy to help!</p>
+                
+                <p>Once again, thank you for your invaluable support.</p>
+                
                 <p><strong>Order ID:</strong> {{orderId}}</p>
-                <p>Best regards,<br>Nature Planet</p>
-				<div class="info-box">
-					<p>Have a question? Contact us at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
-				</div>
+                
+                <p>Best regards,</p>
+                <p>The Nature Planet Team</p>
+                
+                <div class="info-box">
+                    <p>Have a question? Contact us at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
+                </div>
             </td>
         </tr>
         <tr>

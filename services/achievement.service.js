@@ -273,7 +273,8 @@ const achievementService = {
 					achievementName: achievement.name,
 					description: achievement.description,
 					achievment: achievement.image.completed,
-					backendLocation: process.env.MOLECULER_SERVICE_LOCATION
+					backendLocation: process.env.MOLECULER_SERVICE_LOCATION,
+					frontendUrl: process.env.BLOKARIA_WEBSITE
 				};
 
 				this.logger.info("2. sendAchievementEmail replacements", replacements);
