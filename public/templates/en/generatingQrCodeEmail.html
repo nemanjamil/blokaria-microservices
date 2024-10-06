@@ -180,7 +180,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td class="content" style="padding: 20px; background-image: url('https://example.com/subtle-leaf-pattern.png'); background-repeat: repeat">
+				<td class="content" style="padding: 20px; background-image: url('{{webSiteLocation}}/subtle-leaf-pattern.png'); background-repeat: repeat">
 					<table width="100%" cellpadding="0" cellspacing="0" border="0">
 						<tr>
 							<td>
@@ -189,12 +189,12 @@
 						</tr>
 						<tr>
 							<td>
-								<p>Your QR code has been successfully generated!</p>
+								<p>Your trees have been successfully purchased. You will be informed once they are planted.</p>
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<p>You can access your QR code using the following link:</p>
+								<p>You can track your tree's impact using the following link:</p>
 							</td>
 						</tr>
 						{{#each walletQrId}}
@@ -205,7 +205,7 @@
 									class="button"
 									target="_blank"
 								>
-									View item: {{productName}}
+									View Details: {{productName}}
 								</a>
 							</td>
 						</tr>
@@ -213,60 +213,29 @@
 						<tr>
 							<td>
 								<div class="info-box">
-									<p>To proceed, please share this link with your client:</p>
+									<p>To share the details of your tree with others, use the following link:</p>
 									{{#each walletQrId}}
 									<p>
-										{{#if
-										publicQrCode}}{{webSiteLocation}}/status/{{walletQrId}}{{else}}{{webSiteLocation}}/status/{{walletQrId}}/{{accessCode}}{{/if}}
+										{{#if publicQrCode}}{{webSiteLocation}}/status/{{walletQrId}}{{else}}{{webSiteLocation}}/status/{{walletQrId}}/{{accessCode}}{{/if}}
 									</p>
 									{{/each}}
-									<p>Once they receive the link, your client will be able to enter their details and complete the process.</p>
 								</div>
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<h2>Prepare the QR code for printing</h2>
+								<h2>Your Contribution</h2>
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<ul>
-									<li>A QR code is attached to this email.</li>
-									<li>
-										Steps to follow:
-										<ul>
-											<li>Print the QR code and place it on your product.</li>
-											<li>
-												<p>When scanned, users will be directed to this link:</p>
-												{{#each walletQrId}}
-												<p>{{webSiteLocation}}/status/{{walletQrId}}</p>
-												{{/each}}
-											</li>
-										</ul>
-									</li>
-								</ul>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<h2>Watch the full process on this <a href="#" target="_blank">video tutorial</a></h2>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<ul>
-									<li>Generating the QR code</li>
-									<li>Creating a digital agreement</li>
-									<li>Transaction verification on BlockChain</li>
-									<li>Verifying the NFT transaction on BlockChain</li>
-								</ul>
+								<p>By planting trees, you’re contributing to reforestation efforts and helping combat climate change. Every tree planted improves the environment and supports local communities.</p>
 							</td>
 						</tr>
 						<tr>
 							<td>
 								<div class="info-box">
-									<p>Have questions? Feel free to reach out at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
+								<p>Need help or have questions? Contact us at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
 								</div>
 							</td>
 						</tr>
@@ -276,8 +245,11 @@
 			<tr>
 				<td class="footer" style="background-color: #2c7744; color: #ffffff; text-align: center; padding: 10px; font-size: 12px">
 					<p>This email is sent by Nature Plant. A Nature Plant project - 2077</p>
+					<p>Follow us on <a href="{{socialLink}}" target="_blank" style="color: #ffffff;">Instagram</a>, <a href="{{socialLink}}" target="_blank" style="color: #ffffff;">Facebook</a>, and <a href="{{socialLink}}" target="_blank" style="color: #ffffff;">Twitter</a></p>
 				</td>
 			</tr>
 		</table>
-	</body>	
+	</body>
+	
+
 </html>

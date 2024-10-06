@@ -395,7 +395,9 @@ module.exports = {
 						numberOfTrees: purchaseDetails.numberOfTrees,
 						amount: purchaseDetails.amount,
 						orderId: purchaseDetails.orderId,
-						levelUpMessage: levelUpMessage
+						levelUpMessage: levelUpMessage,
+						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						domainEmail: process.env.ADMIN_EMAIL
 					};
 
 					this.logger.info("2. sendPaymentConfirmationEmail replacements", replacements);
