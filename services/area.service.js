@@ -74,9 +74,18 @@ const areaService = {
 				photo: { type: "string", optional: true }
 			},
 			async handler(ctx) {
-				const { id, country, countryCode, address, longitude, latitude, name, areaPoints, photo } = ctx.params;
-
 				try {
+					const { id, country, countryCode, address, longitude, latitude, name, areaPoints, photo } = ctx.params;
+					const { user } = ctx.meta;
+					console.log(user);
+					if (user.userRole == 3)
+					{
+						const planter = await User.findOne({ _id: user.userId, accessibleAreas: id }).populate("accessibleAreas");
+						if (!planter) {
+							throw new MoleculerError("User doesn't have the access to this area.", 403, "USER_ACCESS_DENIED");
+						}
+					}
+
 					const updatedArea = await Area.findByIdAndUpdate(
 						id,
 						{ country, countryCode, address, longitude, latitude, name, areaPoints },

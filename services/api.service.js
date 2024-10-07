@@ -310,7 +310,6 @@ module.exports = {
 				autoAliases: false,
 				aliases: {
 					"POST /area/create": "v1.area.createArea",
-					"POST /area/edit": "v1.area.editArea",
 					"POST /area/delete": "v1.area.deleteArea",
 					"POST /area/getAreaById": "v1.area.getAreaById",
 					"POST /area/getAreasByCountry": "v1.area.getAreasByCountry",
@@ -344,7 +343,8 @@ module.exports = {
 				autoAliases: false,
 				aliases: {
 					"GET /area/getMyAccessibleAreas": "v1.area.getMyAccessibleAreas",
-					"POST /wallet/modifyAccessibleLocation": "wallet.modifyAccessibleLocation"
+					"POST /wallet/modifyAccessibleLocation": "wallet.modifyAccessibleLocation",
+					"POST /area/edit": "v1.area.editArea"
 				},
 				callingOptions: {},
 
