@@ -340,12 +340,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{domain}}/api-auth/area/edit",
+							"raw": "{{domain}}/papi/area/edit",
 							"host": [
 								"{{domain}}"
 							],
 							"path": [
-								"api-auth",
+								"papi",
 								"area",
 								"edit"
 							]
@@ -386,6 +386,54 @@
 								"api-auth",
 								"area",
 								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Areas From User Wallets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/api-auth/area/getAreasFromUserWallets",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api-auth",
+								"area",
+								"getAreasFromUserWallets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Wallets Areas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/api-auth/area/getMyWalletsAreas",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api-auth",
+								"area",
+								"getMyWalletsAreas"
 							]
 						}
 					},
@@ -794,49 +842,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "Update Wallet Image",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": "postman-cloud:///1ef7387b-f970-4760-b617-3904ab05fe97"
-								},
-								{
-									"key": "relativePath",
-									"value": "hi",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{domain}}/upload/updateTreePicture",
-							"host": [
-								"{{domain}}"
-							],
-							"path": [
-								"upload",
-								"updateTreePicture"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		},
@@ -910,7 +915,7 @@
 		},
 		{
 			"key": "token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJlZ3lwdGlhbmVnbzE3QGdtYWlsLmNvbSIsImlhdCI6MTcyNzAzMDg2MiwiZXhwIjoxNzI3NjM1NjYyfQ.9O6Jxy4SkneaBsXIjGxYtDz0s4aR7V01eh8eZJqnN78",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJlZ3lwdGlhbmVnbzE3QGdtYWlsLmNvbSIsImlhdCI6MTcyODMzNjQyMiwiZXhwIjoxNzI4OTQxMjIyfQ.c8Of5f3_6hlyFsBuWpMw9E4W7Lda8PxaPceXEV3Ygyc",
 			"type": "string"
 		}
 	]

@@ -236,7 +236,8 @@ module.exports = {
 					"POST achievement/linkedin/post": "v1.achievement.publishAchievementLinkedInPost",
 					"POST email/sendGiftEmail": "v1.email.sendGiftEmail",
 					"POST wallet/generateGift": "wallet.generateGift",
-					"POST /editProfile": "user.editProfile"
+					"POST /editProfile": "user.editProfile",
+					"GET /area/getMyAreas": "v1.area.getMyAreas"
 				},
 				callingOptions: {},
 
@@ -308,7 +309,8 @@ module.exports = {
 					"DELETE /area/removeAccessibleAreas": "v1.area.removeAccessibleAreas",
 					"GET /area/getAllUsersWithAccessibleAreas": "v1.area.getAllUsersWithAccessibleAreas",
 					"GET /area/getAllPlanters": "v1.area.getAllPlanters",
-					"POST /area/getAresFromUserWallets": "v1.area.getAresFromUserWallets"
+					"GET /area/getAreasFromUserWallets": "v1.area.getAreasFromUserWallets",
+					"GET /area/getMyWalletsAreas": "v1.area.getMyWalletsAreas",
 				},
 				callingOptions: {},
 

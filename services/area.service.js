@@ -492,7 +492,7 @@ const areaService = {
 				}
 			}
 		},
-		getAresFromUserWallets: {
+		getAreasFromUserWallets: {
 			async handler(ctx) {
 				try {
 					const { userEmail } = ctx.meta.user;
@@ -549,7 +549,31 @@ const areaService = {
 					});
 				}
 			}
-		}
+		},
+
+		getMyWalletsAreas: {
+			async handler(ctx) {
+				try {
+					const { userEmail } = ctx.meta.user;
+			
+					const userWallets = await Wallet.find({ userEmail: userEmail }).populate("_area");
+			
+					const uniqueInactiveAreas = [...new Set(userWallets.map(wallet => wallet._area._id.toString()))]
+						.map(id => userWallets.find(wallet => wallet._area._id.toString() === id)._area)
+						.filter(area => area.active === true);
+			
+					console.log("Unique inactive areas", uniqueInactiveAreas);
+					
+					return uniqueInactiveAreas;
+				}
+				catch (err) {
+					this.logger.error("Error retrieving inactive areas from user wallets:", err);
+					throw new MoleculerClientError(err.message, 500, "AREAS_RETRIEVAL_FAILED", {
+						err
+					});
+				}
+			}			
+		}					
 	},
 	async started() {
 		const area = {
