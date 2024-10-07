@@ -88,16 +88,6 @@ module.exports = {
 							}
 						},
 						action: "image.generateNftFromExistingQrCode"
-					},
-					"POST /profile": {
-						type: "multipart",
-						busboyConfig: {
-							limits: {
-								files: 1,
-								fileSize: 2 * 1024 * 1024 // 2MB - ADD RESIZE IN CODE
-							}
-						},
-						action: "image.storeProfilePicture"
 					}
 				},
 
@@ -245,7 +235,8 @@ module.exports = {
 					"POST achievement/getPostPreview": "v1.achievement.getAchievementPostPreview",
 					"POST achievement/linkedin/post": "v1.achievement.publishAchievementLinkedInPost",
 					"POST email/sendGiftEmail": "v1.email.sendGiftEmail",
-					"POST wallet/generateGift": "wallet.generateGift"
+					"POST wallet/generateGift": "wallet.generateGift",
+					"POST /editProfile": "user.editProfile"
 				},
 				callingOptions: {},
 

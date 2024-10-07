@@ -104,6 +104,48 @@ module.exports = {
 			}
 		},
 
+		editProfile: {
+			params: {
+				firstName: { type: "string" },
+				lastName: { type: "string" },
+				photo: { type: "string", optional: true }, // Mark photo as optional
+			},
+			async handler(ctx) {
+				const { userId } = ctx.meta.user;
+				const { firstName, lastName, photo } = ctx.params;
+		
+				try {
+					const updatedUser = await User.findOneAndUpdate(
+						{ _id: userId },
+						{
+							firstName,
+							lastName,
+							userFullName: `${firstName} ${lastName}`,
+						},
+						{ new: true }
+					);
+		
+					if (!updatedUser) {
+						throw new MoleculerError("User not found", 404, "USER_NOT_FOUND");
+					}
+		
+					if (photo) {
+						await ctx.call("image.storeProfilePicture", { photo });
+						console.log("Profile picture updated successfully");
+					}
+		
+					return "Profile updated successfully";
+		
+				} catch (error) {
+					console.error("Error updating profile", error);
+					throw new MoleculerError("Failed to update profile", 401, "ERROR_EDITING_PROFILE", {
+						message: error.message,
+						internalErrorCode: "userEditProfile"
+					});
+				}
+			}
+		},
+		
 		// user70
 		reduceNumberOfTransaction: {
 			params: {

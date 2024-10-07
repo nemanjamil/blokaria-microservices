@@ -389,43 +389,52 @@ module.exports = {
 		},
 
 		storeProfilePicture: {
+			params: {
+				photo: { type: "string" } // base64-encoded image
+			},
 			async handler(ctx) {
 				try {
-					const profilePath = new Promise((resolve, reject) => {
-						let relativePath = `__uploads/${slugify(ctx.meta.user.userEmail)}/profile`;
-						let uploadDirMkDir = path.join(__dirname, `../public/${relativePath}`);
-						mkdir(uploadDirMkDir);
-
-						const filePath = path.join(uploadDirMkDir, ctx.meta.filename || this.randomName());
-						const f = fs.createWriteStream(filePath);
-						f.on("close", () => {
-							resolve({ meta: ctx.meta, relativePath, filename: ctx.meta.filename, uploadDirMkDir });
-						});
-
-						ctx.params.on("error", (err) => {
-							reject(err);
-							f.destroy(err);
-						});
-
-						f.on("error", () => {
-							fs.unlinkSync(filePath);
-						});
-
-						ctx.params.pipe(f);
-					});
-
-					const { relativePath, filename } = await profilePath;
-
+					console.log("storeProfilePicture START");
+		
+					const { photo } = ctx.params;
+					const userEmail = ctx.meta.user.userEmail;
+		
+					const relativePath = `__uploads/${slugify(userEmail)}/profile`;
+					const uploadDirMkDir = path.join(__dirname, `../public/${relativePath}`);
+		
+					if (!fs.existsSync(uploadDirMkDir)) {
+						fs.mkdirSync(uploadDirMkDir, { recursive: true });
+					}
+		
+					const newFileBuffer = Buffer.from(photo, "base64");
+		
+					const filename = ctx.meta.filename || `${this.randomName()}.jpg`;
+					const filePath = path.join(uploadDirMkDir, filename);
+		
+					fs.writeFileSync(filePath, newFileBuffer);
+					console.log("Profile picture saved:", filePath);
+		
 					const data = {
 						$set: { image: `${relativePath}/${filename}` }
 					};
-
-					return User.findOneAndUpdate({ userEmail: ctx.meta.user.userEmail }, data, { new: true });
+		
+					const updatedUser = await User.findOneAndUpdate(
+						{ userEmail: userEmail },
+						data,
+						{ new: true }
+					);
+		
+					console.log("Profile picture updated successfully");
+					return updatedUser;
+		
 				} catch (e) {
-					console.log("Error", e);
+					console.error("Error storing profile picture", e);
+					throw new MoleculerError("STORE_PROFILE_PICTURE_ERROR", 500, "ERROR_STORE_PROFILE_PICTURE", {
+						message: e.message
+					});
 				}
 			}
-		},
+		},		
 
 		testiranje: {
 			async handler() {
