@@ -555,38 +555,33 @@ const areaService = {
 			async handler(ctx) {
 				try {
 					const { userEmail } = ctx.meta.user;
+			
 					const userWallets = await Wallet.find({ userEmail: userEmail }).populate("_area");
 			
-					const uniqueInactiveAreasWithWallets = [...new Set(userWallets.map(wallet => wallet._area._id.toString()))]
-						.map(id => {
-							const areaWallets = userWallets.filter(wallet => wallet._area._id.toString() === id && wallet._area.active === false);
-			
-							if (areaWallets.length > 0) {
-								return {
-									area: areaWallets[0]._area,
-									wallets: areaWallets.map(wallet => ({
-										geoLocation: wallet.geoLocation,
-										productName: wallet.productName,
-										createdAt: wallet.createdAt,
-										dateOfPlanting: wallet.dateOfPlanting,
-										walletQrId: wallet.walletQrId
-									}))
-								};
+					const inactiveAreasWithOwnedWallets = userWallets
+						.filter(wallet => wallet._area.active === true) 
+						.map(wallet => ({
+							area: wallet._area,  
+							wallet: {
+								geoLocation: wallet.geoLocation,
+								productName: wallet.productName,
+								createdAt: wallet.createdAt,
+								dateOfPlanting: wallet.dateOfPlanting,
+								walletQrId: wallet.walletQrId
 							}
-						})
-						.filter(area => area); 
+						}));
 			
-					console.log("Unique inactive areas with wallets", uniqueInactiveAreasWithWallets);
+					console.log("Inactive areas with owned wallets", inactiveAreasWithOwnedWallets);
 					
-					return uniqueInactiveAreasWithWallets;
+					return inactiveAreasWithOwnedWallets;
 				}
 				catch (err) {
-					this.logger.error("Error retrieving inactive areas with wallets:", err);
+					this.logger.error("Error retrieving inactive areas with owned wallets:", err);
 					throw new MoleculerClientError(err.message, 500, "AREAS_RETRIEVAL_FAILED", {
 						err
 					});
 				}
-			}			
+			}					
 		}					
 	},
 	async started() {
