@@ -52,8 +52,8 @@ module.exports = {
 			name: "Carbon Neutral - Climate Defender",
 			description: "Achieve Carbon Neutral status by planting 40 trees.",
 			image: {
-				passive: "levels/carbon-neutral_gray.png",
-				completed: "levels/carbon-neutral_color.jpg"
+				passive: "levels/LVL-6_gray_v3.png",
+				completed: "levels/LVL-6_colo_v3.png"
 			}
 		}
 	]
