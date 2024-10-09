@@ -428,7 +428,8 @@ module.exports = {
 		registerUser: {
 			params: {
 				userEmail: { type: "email" },
-				userFullName: { type: "string" },
+				firstName: { type: "string" },
+				lastName: { type: "string" },
 				userPassword: { type: "string", min: 1 },
 				recaptchaValue: { type: "string", min: 1 },
 				userLang: { type: "string", min: 1, max: 5, default: "en", values: ["sr", "en"] }
@@ -437,7 +438,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { recaptchaValue } = ctx.params;
-
+					ctx
 					console.log("checking recaptcha values:", recaptchaValue);
 
 					console.log("verify payload:", {
@@ -470,7 +471,7 @@ module.exports = {
 							internalErrorCode: "recaptchaValue_1"
 						});
 					}
-
+					ctx.params.userFullName = `${ctx.params.firstName} ${ctx.params.lastName}`;	
 					let clearPassword = Utils.generatePass();
 					ctx.meta.clearPassword = clearPassword;
 					let userAdded = await this.addUserToDB({ ctx, clearPassword });
@@ -491,7 +492,7 @@ module.exports = {
 					const sendEmail = await ctx.call("v1.email.registerUser", {
 						userEmail: ctx.params.userEmail,
 						userOrgPass: ctx.params.userPassword,
-						userFullName: ctx.params.userFullName,
+						firstName: ctx.params.firstName,
 						authenticateLink: clearPassword,
 						userLang: ctx.params.userLang
 					});

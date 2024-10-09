@@ -31,28 +31,27 @@ module.exports = {
 	},
 	actions: {
 		registerUser: {
-			rest: "POST /registerUser",
+			rest: "POST /	",
 			params: {
 				userEmail: { type: "email" },
 				userOrgPass: { type: "string" },
-				userFullName: { type: "string" },
+				firstName: { type: "string" },
 				authenticateLink: { type: "string" },
 				userLang: { type: "string" }
 			},
 			async handler(ctx) {
 				let userEmail = ctx.params.userEmail;
 				let userOrgPass = ctx.params.userOrgPass;
-				let userFirstName = ctx.params.userFirstName.split(" ")[0];
 				let authenticateLink = ctx.params.authenticateLink;
 				let userLang = ctx.params.userLang;
-
+				let firstName = ctx.params.firstName;
 				try {
 					const source = fs.readFileSync(`./public/templates/${userLang}/registrateUser.html`, "utf-8").toString();
 					const template = handlebars.compile(source);
 					const replacements = {
 						userEmail: userEmail,
 						userOrgPass: userOrgPass,
-						userFirstName: userFirstName,
+						userFirstName: firstName,
 						frontendUrl: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL,
 						authenticateLink: authenticateLink,
