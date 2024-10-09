@@ -386,7 +386,7 @@ module.exports = {
 					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
 
 					const template = handlebars.compile(source);
-					const user = await User.findOne({ email: userEmail });
+					const user = await User.findOne({ userEmail: userEmail });
 					let levelUpMessage = "";
 					if (levelStatus?.isLevelChanged) {
 						levelUpMessage = `Congratulations! You have advanced from level ${levelStatus.oldLevel} to level ${levelStatus.newLevel}!`;
