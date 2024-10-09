@@ -1,131 +1,114 @@
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0;" />
-		<meta name="format-detection" content="telephone=no" />
-
-		<!-- Responsive Mobile-First Email Template by Konstantin Savchenko, 2015.
-	https://github.com/konsav/email-templates/  -->
-
-		<style>
-			/* Reset styles */
-			body {
-				margin: 0;
-				padding: 0;
-				min-width: 100%;
-				width: 100% !important;
-				height: 100% !important;
-			}
-
-			body,
-			table,
-			td,
-			div,
-			p,
-			a {
-				-webkit-font-smoothing: antialiased;
-				text-size-adjust: 100%;
-				-ms-text-size-adjust: 100%;
-				-webkit-text-size-adjust: 100%;
-				line-height: 100%;
-			}
-
-			table,
-			td {
-				mso-table-lspace: 0pt;
-				mso-table-rspace: 0pt;
-				border-collapse: collapse !important;
-				border-spacing: 0;
-			}
-
-			img {
-				border: 0;
-				line-height: 100%;
-				outline: none;
-				text-decoration: none;
-				-ms-interpolation-mode: bicubic;
-			}
-
-			#outlook a {
-				padding: 0;
-			}
-
-			.ReadMsgBody {
-				width: 100%;
-			}
-
-			.ExternalClass {
-				width: 100%;
-			}
-
-			.ExternalClass,
-			.ExternalClass p,
-			.ExternalClass span,
-			.ExternalClass font,
-			.ExternalClass td,
-			.ExternalClass div {
-				line-height: 100%;
-			}
-
-			/* Rounded corners for advanced mail clients only */
-			@media all and (min-width: 560px) {
-				.container {
-					border-radius: 8px;
-					-webkit-border-radius: 8px;
-					-moz-border-radius: 8px;
-					-khtml-border-radius: 8px;
-				}
-			}
-
-			/* Set color for auto links (addresses, dates, etc.) */
-			a,
-			a:hover {
-				color: #127db3;
-			}
-
-			.footer a,
-			.footer a:hover {
-				color: #999999;
-			}
-		</style>
-
-		<!-- MESSAGE SUBJECT -->
-		<title>Blokaria - password reset</title>
-	</head>
-
-	<!-- BODY -->
-	<!-- Set message background color (twice) and text color (twice) -->
-
-	<body
-		topmargin="0"
-		rightmargin="0"
-		bottommargin="0"
-		leftmargin="0"
-		marginwidth="0"
-		marginheight="0"
-		width="100%"
-		style="
-			border-collapse: collapse;
-			border-spacing: 0;
-			margin: 0;
-			padding: 0;
-			width: 100%;
-			height: 100%;
-			-webkit-font-smoothing: antialiased;
-			text-size-adjust: 100%;
-			-ms-text-size-adjust: 100%;
-			-webkit-text-size-adjust: 100%;
-			line-height: 100%;
-			background-color: #f0f0f0;
-			color: #000000;
-		"
-		bgcolor="#F0F0F0"
-		text="#000000"
-	>
-		<!-- SECTION / BACKGROUND -->
-		<!-- Set message background color one again -->
-		<div>Somebody gifted you with a tree</div>
-		<div>Go on this link and accept gift</div>
-		<a href="{{webSiteLocation}}/its-a-gift/{{walletQrId}}/{{accessCode}}" class="button" target="_blank">Link</a>
-	</body>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0;" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>Thank You for Your Donation</title>
+    <style>
+        /* General Email Styles */
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        table {
+            border-collapse: separate;
+            width: 100%;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #2c7744;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .footer {
+            background-color: #2c7744;
+            color: #ffffff;
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+        }
+        a, a:link, a:visited {
+            text-decoration: none;
+            color: #00788a;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        h2, h3, h4, h5, h6 {
+            color: #000 !important;
+        }
+        .info-box {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td {
+            line-height: 100%;
+        }
+        .ExternalClass {
+            width: 100%;
+        }
+    </style>
+</head>
+<body style="background-color: #f4f4f4; color: #333333; width: 100%; height: 100%; line-height: 1.6;">
+	<!-- Email content -->
+	<table class="container" align="center" width="600" cellpadding="0" cellspacing="0">
+		<tr>
+			<td class="header" style="background-color: #2c7744; color: #ffffff; text-align: center; padding: 20px">
+				<table width="100%" cellpadding="0" cellspacing="0" border="0">
+					<tr>
+						<td align="center">
+							<img src="{{frontendUrl}}/static/logo/naturePlantLight.png" alt="Nature Plant Logo" style="max-height: 70px" />
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td class="content">
+				<p>Dear {{userFirstName}},</p>
+				<p>We’re excited to inform you that someone has gifted you a tree! 🌳 Your tree helps contribute to a greener planet.</p>
+				<p>To claim your gift, simply click the link below and follow the instructions:</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="text-align: center;">
+				<a href="{{frontendUrl}}/its-a-gift/{{walletQrId}}/{{accessCode}}" target="_blank" style="background-color: #4caf50; color: #ffffff; padding: 15px 20px; border-radius: 5px; text-decoration: none; font-size: 16px;">Claim Your Gift</a>
+			</td>
+		</tr>
+		<tr>
+			<td class="content">
+				<div class="info-box">
+					<p>Have a question? Contact us at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
+				</div>				<p>Thank you for supporting our mission towards a more sustainable future.</p>
+			</td>
+		</tr>
+        <tr>
+			<td class="footer" style="background-color: #2c7744; color: #ffffff; text-align: center; padding: 10px; font-size: 12px">
+				This email is sent by Nature Plant. A Nature Plant project - 2077            </td>
+        </tr>
+	</table>
+</body>
 </html>

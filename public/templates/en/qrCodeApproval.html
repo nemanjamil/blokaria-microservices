@@ -1,126 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nature Plant QR Code Approval</title>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333333;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-        }
-        .container {
-            max-width: 600px;
-            width: 100%;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-        }
-        .header {
-            background-color: #2c7744;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            text-align: center;
-        }
-        .content {
-            padding: 20px;
-            background-image: url('https://example.com/subtle-leaf-pattern.png');
-            background-repeat: repeat;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-        .footer {
-            background-color: #2c7744;
-            color: #ffffff;
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-        }
-        h1 {
-            color: #2c7744;
-            word-wrap: break-word;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: #ffffff !important;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 15px;
-            word-wrap: break-word;
-        }
-        .info-box {
-            background-color: rgba(76, 175, 80, 0.1);
-            border-left: 4px solid #4CAF50;
-            padding: 10px;
-            margin: 15px 0;
-        }
-        a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        @media screen and (max-width: 600px) {
-            .container {
-                width: 100%;
-                border-radius: 0;
-            }
-            .content {
-                padding: 15px;
-            }
-            h1 {
-                font-size: 24px;
-            }
-            .button {
-                font-size: 14px;
-                padding: 8px 16px;
-            }
-        }
-        @media screen and (max-width: 320px) {
-            .header img {
-                max-height: 50px;
-            }
-            .content {
-                padding: 10px;
-            }
-            h1 {
-                font-size: 20px;
-            }
-            .button {
-                font-size: 12px;
-                padding: 6px 12px;
-            }
-        }
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Nature Plant - New Achievement</title>
+		<style>
+			/* ... (add styles similar to other templates) ... */
 
-        /* Recommended embedded CSS for Outlook.com */
-        table {border-collapse:separate;}
-        a, a:link, a:visited {text-decoration: none; color: #00788a;}
-        a:hover {text-decoration: underline;}
-        h2,h2 a,h2 a:visited,h3,h3 a,h3 a:visited,h4,h5,h6,.t_cht {color:#000 !important;}
-        .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td {line-height: 100%;}
-        .ExternalClass {width: 100%;}
-    </style>
-</head>
+			/* Recommended embedded CSS for Outlook.com */
+			table {
+				border-collapse: separate;
+			}
+			a,
+			a:link,
+			a:visited {
+				text-decoration: none;
+				color: #00788a;
+			}
+			a:hover {
+				text-decoration: underline;
+			}
+			h2,
+			h2 a,
+			h2 a:visited,
+			h3,
+			h3 a,
+			h3 a:visited,
+			h4,
+			h5,
+			h6,
+			.t_cht {
+				color: #000 !important;
+			}
+			.ExternalClass p,
+			.ExternalClass span,
+			.ExternalClass font,
+			.ExternalClass td {
+				line-height: 100%;
+			}
+			.ExternalClass {
+				width: 100%;
+			}
+			.info-box {
+				background-color: rgba(76, 175, 80, 0.1);
+				border-left: 4px solid #4caf50;
+				padding: 10px;
+				margin: 15px 0;
+			}
+		</style>
+	</head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4; margin: 0; padding: 0;">
     <table class="container" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
         <tr>
@@ -128,7 +57,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                         <td align="center">
-                            <img src="{{webSiteLocation}}/NaturePlantLogo.png" alt="Nature Plant Logo" style="max-height: 70px;">
+                            <img src="{{frontendUrl}}/static/logo/naturePlantLight.png" alt="Nature Plant Logo" style="max-height: 70px;">
                         </td>
                     </tr>
                 </table>
@@ -144,25 +73,25 @@
                     </tr>
                     <tr>
                         <td>
-                            <p>User <strong>{{userFullname}}</strong> has authorized you to initiate a transaction for the product: <strong>{{productName}}</strong></p>
+                            <p>We’re excited to inform you that <strong>{{userFullname}}</strong> has granted you permission to initiate a transaction for the following product: <strong>{{productName}}</strong>.</p>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <p>Click on the link below:</p>
+                            <p>To proceed, please click the link below:</p>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <a href="{{webSiteLocation}}/generate-contract/{{walletQrId}}/{{accessCode}}" class="button" target="_blank">Link</a>
+                            <a href="{{frontendUrl}}/generate-contract/{{walletQrId}}/{{accessCode}}" class="button" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: #ffffff !important; text-decoration: none; border-radius: 5px; margin-top: 15px; font-weight: bold;">Complete Your Transaction</a>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <div class="info-box">
-                                <p>Or you can send him this link yourself:</p>
-                                <p>{{webSiteLocation}}/generate-contract/{{walletQrId}}/{{accessCode}}</p>
-                                <p>User email: <strong>{{userEmailRegUser}}</strong></p>
+                            <div class="info-box" style="background-color: rgba(76, 175, 80, 0.1); border-left: 4px solid #4CAF50; padding: 10px; margin: 15px 0;">
+                                <p>Alternatively, you can share the following link with them directly:</p>
+                                <p style="word-wrap: break-word;">{{frontendUrl}}/generate-contract/{{walletQrId}}/{{accessCode}}</p>
+                                <p>If you need further assistance, you can reach out to <strong>{{userEmailRegUser}}</strong>.</p>
                             </div>
                         </td>
                     </tr>
@@ -178,9 +107,8 @@
         </tr>
         <tr>
             <td class="footer" style="background-color: #2c7744; color: #ffffff; text-align: center; padding: 10px; font-size: 12px;">
-                <p>This email is sent by Nature Plant. A Nature Plant project - 2077</p>
+                <p style="margin: 0;">This email was sent by Nature Plant. Nature Plant Project - 2077</p>
             </td>
         </tr>
     </table>
 </body>
-</html>

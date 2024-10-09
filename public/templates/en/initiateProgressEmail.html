@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nature Plant Initiate Progress</title>
+    <title>Nature Plant - Product Interest Notification</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -74,28 +74,30 @@
     <table class="container" cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
             <td class="header">
-                <img src="{{webSiteLocation}}/NaturePlantLogo.png" alt="Nature Plant Logo" style="max-height: 70px;">
+                <img src="{{frontendUrl}}/static/logo/naturePlantLight.png" alt="Nature Plant Logo" style="max-height: 70px;">
             </td>
         </tr>
         <tr>
             <td class="content">
-                <h1>Hello {{userFullname}},</h1>
-                <p>User {{userFullNameRegUser}} is interested in your product ({{productName}}).</p>
-                <p>Click the link below to allow them to view the product:</p>
-                <a href="{{transactionApprovalLink}}" class="button">Allow access</a>
+                <h1>Hello {{userFirstName}},</h1>
+                <p>We are excited to inform you that {{userFullNameRegUser}} has expressed interest in your product, <strong>{{productName}}</strong>.</p>
+                <p>To grant them access to view the product, please click the button below:</p>
+                <a href="{{transactionApprovalLink}}" class="button">Allow Access</a>
+                
                 <div class="info-box">
-                    <p style="margin-top: 0;">Or you can send them this link yourself:</p>
+                    <p style="margin-top: 0;">Alternatively, you can share the following link directly with them:</p>
                     <p style="word-break: break-all; margin-bottom: 10px;">{{webSiteLocation}}/generate-contract/{{walletQrId}}/{{accessCode}}</p>
-                    <p style="margin-bottom: 0;">User email: {{userEmailRegUser}}</p>
+                    <p style="margin-bottom: 0;">User's email: {{userEmailRegUser}}</p>
                 </div>
+
                 <div class="info-box">
-                    <p style="margin: 0;">Have a question? Contact us at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
-                </div>
+					<p>Have a question? Contact us at <a href="mailto:{{domainEmail}}">{{domainEmail}}</a></p>
+				</div>
             </td>
         </tr>
         <tr>
             <td class="footer" style="background-color: #2c7744; color: #ffffff; text-align: center; padding: 10px; font-size: 12px;">
-                <p>This email is sent by Nature Plant. A Nature Plant project - 2077</p>
+                <p>This email was sent by Nature Plant. © Nature Plant Project - 2077</p>
             </td>
         </tr>
     </table>

@@ -732,9 +732,10 @@ module.exports = {
 					// here we should add updateUser availableForPassChange boolean
 
 					let sentResetEmail = await ctx.call("v1.email.resetEmail", {
+						userFullname: getUserData[0].userFullName,
 						userEmail: userEmail,
 						clearPassword: getUserData[0].clearPassword,
-						userLang: userLang
+						userLang: userLang,
 					});
 
 					return sentResetEmail;

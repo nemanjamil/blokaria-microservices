@@ -42,7 +42,7 @@ module.exports = {
 			async handler(ctx) {
 				let userEmail = ctx.params.userEmail;
 				let userOrgPass = ctx.params.userOrgPass;
-				let userFullName = ctx.params.userFullName;
+				let userFirstName = ctx.params.userFirstName.split(" ")[0];
 				let authenticateLink = ctx.params.authenticateLink;
 				let userLang = ctx.params.userLang;
 
@@ -52,11 +52,11 @@ module.exports = {
 					const replacements = {
 						userEmail: userEmail,
 						userOrgPass: userOrgPass,
-						userFullName: userFullName,
-						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						userFirstName: userFirstName,
+						frontendUrl: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL,
 						authenticateLink: authenticateLink,
-						backEnd: process.env.MOLECULER_SERVICE_LOCATION
+						backendUrl: process.env.MOLECULER_SERVICE_LOCATION
 					};
 					const htmlToSend = template(replacements);
 
@@ -108,11 +108,11 @@ module.exports = {
 					const replacements = {
 						clientEmail: clientEmail,
 						walletQrId: ctx.params.walletQrId,
-						userFullname: ctx.params.userFullname,
+						userFirstName: ctx.params.userFullname.split(" ")[0],
 						userEmail: userEmail,
 						productName: ctx.params.productName,
 						domainEmail: process.env.ADMIN_EMAIL,
-						webSiteLocation: process.env.BLOKARIA_WEBSITE
+						frontendUrl: process.env.BLOKARIA_WEBSITE,
 					};
 
 					const htmlToSend = template(replacements);
@@ -237,12 +237,12 @@ module.exports = {
 
 					const replacements = {
 						walletQrId: ctx.params.walletQrId,
-						userFullname: ctx.params.userFullname,
+						userFirstName: ctx.params.userFullname.split(" ")[0],
 						userEmail: userEmail,
 						productName: ctx.params.productName,
 						clientEmail: clientEmail,
 						clientName: ctx.params.clientName,
-						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						frontendUrl: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL
 					};
 
@@ -272,19 +272,20 @@ module.exports = {
 			params: {
 				userEmail: { type: "email" },
 				clearPassword: { type: "string" },
-				userLang: { type: "string" }
+				userLang: { type: "string" },
+				userFullname: { type: "string" }
 			},
 			async handler(ctx) {
 				const { userEmail, clearPassword, userFullname, userLang } = ctx.params;
-
+				let userFirstName = userFullname.split(" ")[0];
 				const source = fs.readFileSync(`./public/templates/${userLang}/resetEmail.html`, "utf-8").toString();
 				const template = handlebars.compile(source);
 
 				const replacements = {
-					userFullname,
+					userFirstName,
 					userEmail,
 					clearPassword,
-					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+					frontendUrl: process.env.BLOKARIA_WEBSITE,
 					domainEmail: process.env.ADMIN_EMAIL
 				};
 
@@ -336,7 +337,7 @@ module.exports = {
 					clientName,
 					productName,
 					accessCode,
-					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+					frontendUrl: process.env.BLOKARIA_WEBSITE,
 					transactionApprovalLink: `${process.env.BLOKARIA_WEBSITE}/creator-approval?walletQrId=${walletQrId}&clientEmail=${userEmailRegUser}&clientName=${userFullNameRegUser}`,
 					domainEmail: process.env.ADMIN_EMAIL
 				};
@@ -546,7 +547,7 @@ module.exports = {
 			async handler(ctx) {
 				const { userEmail, userFullname, productName, accessCode, walletQrId } = ctx.params.walletIdData[0];
 				const clientEmail = ctx.params.clientEmail;
-				const clientName = ctx.params.clientName;
+				const clientName = ctx.params.clientName.split(" ")[0];
 				const userLang = ctx.params.userLang;
 
 				const source = fs.readFileSync(`./public/templates/${userLang}/qrCodeApproval.html`, "utf-8").toString();
@@ -559,7 +560,7 @@ module.exports = {
 					clientName,
 					productName,
 					accessCode,
-					webSiteLocation: process.env.BLOKARIA_WEBSITE,
+					frontendUrl: process.env.BLOKARIA_WEBSITE,
 					domainEmail: process.env.ADMIN_EMAIL
 				};
 
@@ -612,10 +613,11 @@ module.exports = {
 				const source = fs.readFileSync(`./public/templates/${userLang}/sendGiftEmail.html`, "utf-8").toString();
 				const template = handlebars.compile(source);
 				const replacements = {
+					userFirstName: user.userFullName.split(" ")[0],
 					walletQrId,
 					from: user,
 					accessCode,
-					webSiteLocation: process.env.BLOKARIA_WEBSITE
+					frontendUrl: process.env.BLOKARIA_WEBSITE
 				};
 
 				const htmlToSend = template(replacements);
