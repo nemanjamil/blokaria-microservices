@@ -531,10 +531,12 @@ module.exports = {
 							ctx.call("v1.email.sendTreePlantingConfirmationEmail", {
 								userLang: "en",
 								userEmails: [user.userEmail, wallet.userEmail],
+								userFullName: user.userFullName,
 								plantingDetails: {
 									latitude: latitude,
 									longitude: longitude,
-									area: area.name,
+									areaName: area.name,
+									areaId: area._id.toString(),
 									walletQrId: wallet.walletQrId,
 									photo: photo
 								}

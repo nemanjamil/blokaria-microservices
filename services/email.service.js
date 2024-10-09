@@ -478,12 +478,14 @@ module.exports = {
 			params: {
 				userLang: { type: "string" },
 				userEmails: { type: "array", items: "string" },
+				userFullName: { type: "string" },
 				plantingDetails: {
 					type: "object",
 					props: {
 						latitude: { type: "number" },
 						longitude: { type: "number" },
-						area: { type: "string" },
+						areaName: { type: "string" },
+						areaId: { type: "string" },
 						walletQrId: { type: "string" },
 						photo: { type: "string" } // base64 encoded photo
 					}
@@ -491,20 +493,24 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-					const { userLang, userEmails, plantingDetails } = ctx.params;
+					const { userLang, userEmails, plantingDetails, userFullName } = ctx.params;
 					const source = fs.readFileSync(`./public/templates/${userLang}/treePlantingConfirmation.html`, "utf-8").toString();
 
 					const template = handlebars.compile(source);
 
 					// Pass the planting details to the template
 					const replacements = {
+						userFullName: userFullName,
 						latitude: plantingDetails.latitude,
 						longitude: plantingDetails.longitude,
-						area: plantingDetails.area,
+						areaName: plantingDetails.areaName,
+						areaId: plantingDetails.areaId,
 						walletQrId: plantingDetails.walletQrId,
 						frontendUrl: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL,
-						photo: plantingDetails.photo
+						photo: plantingDetails.photo,
+						frontendUrl: process.env.BLOKARIA_WEBSITE,
+						userId: btoa(userEmails[0])
 					};
 
 					const htmlToSend = template(replacements);

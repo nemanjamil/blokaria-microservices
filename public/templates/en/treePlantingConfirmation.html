@@ -86,6 +86,13 @@
 							<td>
 								<table style="margin: 15px 0">
 									<tr>
+										<td><b>Owner:</b></td>
+										<td>
+											<a href="{{frontendUrl}}/list-of-qrcodes-per-organization/{{userId}}" style="text-decoration: none; color: inherit;">
+												<strong style="text-decoration: underline;">{{userFullName}}</strong>
+											</a>
+										</td>																		</tr>
+									<tr>
 										<td><b>Latitude:</b></td>
 										<td>{{latitude}}</td>
 									</tr>
@@ -95,7 +102,11 @@
 									</tr>
 									<tr>
 										<td><b>Area:</b></td>
-										<td>{{area}}</td>
+										<td>
+											<a href="{{frontendUrl}}/area-trees/{{areaId}}" style="text-decoration: none; color: inherit;">
+												<strong style="text-decoration: underline;">{{areaName}}</strong>
+											</a>
+										</td>	
 									</tr>
 								</table>
 							</td>
