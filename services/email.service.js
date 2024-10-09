@@ -6,6 +6,7 @@ const handlebars = require("handlebars");
 const Utils = require("../utils/utils");
 const Wallet = require("../models/Wallet");
 const Subscription = require("../models/Subscription");
+const User = require("../models/User");
 
 require("dotenv").config();
 
@@ -385,14 +386,14 @@ module.exports = {
 					const source = fs.readFileSync(`./public/templates/${userLang}/purchaseConfirmation.html`, "utf-8").toString();
 
 					const template = handlebars.compile(source);
-
+					const user = await User.findOne({ email: userEmail });
 					let levelUpMessage = "";
 					if (levelStatus?.isLevelChanged) {
 						levelUpMessage = `Congratulations! You have advanced from level ${levelStatus.oldLevel} to level ${levelStatus.newLevel}!`;
 					}
 
 					const replacements = {
-						name: purchaseDetails.name,
+						name: user.userFullName.split(" ")[0],
 						numberOfTrees: purchaseDetails.numberOfTrees,
 						amount: purchaseDetails.amount,
 						orderId: purchaseDetails.orderId,
