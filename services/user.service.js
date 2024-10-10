@@ -790,7 +790,7 @@ module.exports = {
 		
 		getUsersEmail: {
 			async handler(ctx) {
-				const users = await User.find({ userRole: 1, userVerified: 1 }, { userEmail: 1, userFullName: 1 }).exec();
+				const users = await User.find({ userRole: 5, userVerified: 1 }, { userEmail: 1, userFullName: 1 }).exec();
 				return users;
 			}
 		}
