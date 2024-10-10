@@ -492,6 +492,8 @@ const areaService = {
 				}
 			}
 		},
+
+		// Similar to getMyWalletsAreas but it is return senstive area and wallets data
 		getAreasFromUserWallets: {
 			async handler(ctx) {
 				try {
