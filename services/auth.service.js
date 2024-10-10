@@ -42,7 +42,7 @@ module.exports = {
 							internalErrorCode: "auth20"
 						});
 
-					let expiresIn = "1m";
+					let expiresIn = "168h";
 					let response = {
 						token: jwt.sign({ userEmail: userEmail }, process.env.JWT_SECRET, { expiresIn: expiresIn }),
 						expiresIn: expiresIn
