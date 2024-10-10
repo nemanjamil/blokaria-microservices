@@ -311,6 +311,7 @@ module.exports = {
 					"GET /area/getAllPlanters": "v1.area.getAllPlanters",
 					"GET /area/getAreasFromUserWallets": "v1.area.getAreasFromUserWallets",
 					"GET /area/getMyWalletsAreas": "v1.area.getMyWalletsAreas",
+					"GET /user/getUsersEmail": "user.getUsersEmail",
 				},
 				callingOptions: {},
 

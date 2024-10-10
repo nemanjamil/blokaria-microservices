@@ -786,6 +786,13 @@ module.exports = {
 			async handler() {
 				return "Health is OK";
 			}
+		},
+		
+		getUsersEmail: {
+			async handler(ctx) {
+				const users = await User.find({ userRole: 1, userVerified: 1 }, { userEmail: 1, userFullName: 1 }).exec();
+				return users;
+			}
 		}
 	},
 
