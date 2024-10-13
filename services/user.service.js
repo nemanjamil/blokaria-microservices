@@ -8,6 +8,7 @@ const User = require("../models/User.js");
 const Wallet = require("../models/Wallet.js");
 const Achievement = require("../models/Achievement");
 const Level = require("../models/Level");
+const bcrypt = require("bcrypt");
 
 module.exports = {
 	name: "user",
@@ -799,21 +800,33 @@ module.exports = {
 	methods: {
 		// user10
 		async addUserToDB({ ctx, clearPassword }) {
-			const userEntity = {
-				userEmail: ctx.params.userEmail,
-				userFullName: ctx.params.userFullName,
-				userPassword: Utils.salt(ctx.params.userPassword),
-				clearPassword: clearPassword
-			};
 			try {
-				let user = new User(userEntity);
-				return await user.save();
+			const { userEmail, userPassword, userFullName } = ctx.params;
+		
+			const saltRounds = 10;
+			const salt = await bcrypt.genSalt(saltRounds); 
+			const hashedPassword = await bcrypt.hash(userPassword + salt, saltRounds);  
+			
+			const userEntity = {
+				userEmail: userEmail,
+				userFullName: userFullName,
+				passwordHash: salt,  
+				userPassword: hashedPassword,  
+				clearPassword: clearPassword   
+			};
+			console.log("clearPassword:", clearPassword);
+			console.log("salt:", salt);
+			console.log("hashedPassword:", hashedPassword);
+			console.log("userPassword:", userPassword);
+			let user = new User(userEntity);
+			return await user.save();
+		
 			} catch (error) {
-				throw new MoleculerError(error.message, 501, "ERROR_INSERT_INTO_DB", {
-					message: error.message,
-					internalErrorCode: "user10"
-				});
+			throw new MoleculerError(error.message, 501, "ERROR_INSERT_INTO_DB", {
+				message: error.message,
+				internalErrorCode: "user10"
+			});
 			}
-		}
+		},
 	}
 };
