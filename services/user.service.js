@@ -563,8 +563,19 @@ module.exports = {
 				userEmail: { type: "email" }
 			},
 			async handler(ctx) {
+
+				const { user } = ctx.meta;
+				let userEmail = '';
+				if (user.userRole == 1)
+				{
+					userEmail = ctx.params.userEmail;
+				}
+				else
+				{
+					userEmail = user.userEmail;
+				}
 				const entity = {
-					userEmail: ctx.params.userEmail,
+					userEmail: userEmail,
 					userVerified: 1
 				};
 
