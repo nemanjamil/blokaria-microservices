@@ -109,34 +109,33 @@ module.exports = {
 			params: {
 				firstName: { type: "string" },
 				lastName: { type: "string" },
-				photo: { type: "string", optional: true }, // Mark photo as optional
+				photo: { type: "string", optional: true } // Mark photo as optional
 			},
 			async handler(ctx) {
 				const { userId } = ctx.meta.user;
 				const { firstName, lastName, photo } = ctx.params;
-		
+
 				try {
 					const updatedUser = await User.findOneAndUpdate(
 						{ _id: userId },
 						{
 							firstName,
 							lastName,
-							userFullName: `${firstName} ${lastName}`,
+							userFullName: `${firstName} ${lastName}`
 						},
 						{ new: true }
 					);
-		
+
 					if (!updatedUser) {
 						throw new MoleculerError("User not found", 404, "USER_NOT_FOUND");
 					}
-		
+
 					if (photo) {
 						await ctx.call("image.storeProfilePicture", { photo });
 						console.log("Profile picture updated successfully");
 					}
-		
+
 					return "Profile updated successfully";
-		
 				} catch (error) {
 					console.error("Error updating profile", error);
 					throw new MoleculerError("Failed to update profile", 401, "ERROR_EDITING_PROFILE", {
@@ -146,7 +145,7 @@ module.exports = {
 				}
 			}
 		},
-		
+
 		// user70
 		reduceNumberOfTransaction: {
 			params: {
@@ -439,7 +438,7 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					const { recaptchaValue } = ctx.params;
-					ctx
+					ctx;
 					console.log("checking recaptcha values:", recaptchaValue);
 
 					console.log("verify payload:", {
@@ -472,7 +471,7 @@ module.exports = {
 							internalErrorCode: "recaptchaValue_1"
 						});
 					}
-					ctx.params.userFullName = `${ctx.params.firstName} ${ctx.params.lastName}`;	
+					ctx.params.userFullName = `${ctx.params.firstName} ${ctx.params.lastName}`;
 					let clearPassword = Utils.generatePass();
 					ctx.meta.clearPassword = clearPassword;
 					let userAdded = await this.addUserToDB({ ctx, clearPassword });
@@ -737,7 +736,7 @@ module.exports = {
 						userFullname: getUserData[0].userFullName,
 						userEmail: userEmail,
 						clearPassword: getUserData[0].clearPassword,
-						userLang: userLang,
+						userLang: userLang
 					});
 
 					return sentResetEmail;
@@ -788,10 +787,10 @@ module.exports = {
 				return "Health is OK";
 			}
 		},
-		
+
 		getUsersEmail: {
 			async handler(ctx) {
-				const users = await User.find({ userRole: 5, userVerified: 1 }, { userEmail: 1, userFullName: 1 }).exec();
+				const users = await User.find({ userRole: { $in: [5, 3, 1] }, userVerified: 1 }, { userEmail: 1, userFullName: 1 }).exec();
 				return users;
 			}
 		}
@@ -801,32 +800,31 @@ module.exports = {
 		// user10
 		async addUserToDB({ ctx, clearPassword }) {
 			try {
-			const { userEmail, userPassword, userFullName } = ctx.params;
-		
-			const saltRounds = 10;
-			const salt = await bcrypt.genSalt(saltRounds); 
-			const hashedPassword = await bcrypt.hash(userPassword + salt, saltRounds);  
-			
-			const userEntity = {
-				userEmail: userEmail,
-				userFullName: userFullName,
-				passwordHash: salt,  
-				userPassword: hashedPassword,  
-				clearPassword: clearPassword   
-			};
-			console.log("clearPassword:", clearPassword);
-			console.log("salt:", salt);
-			console.log("hashedPassword:", hashedPassword);
-			console.log("userPassword:", userPassword);
-			let user = new User(userEntity);
-			return await user.save();
-		
+				const { userEmail, userPassword, userFullName } = ctx.params;
+
+				const saltRounds = 10;
+				const salt = await bcrypt.genSalt(saltRounds);
+				const hashedPassword = await bcrypt.hash(userPassword + salt, saltRounds);
+
+				const userEntity = {
+					userEmail: userEmail,
+					userFullName: userFullName,
+					passwordHash: salt,
+					userPassword: hashedPassword,
+					clearPassword: clearPassword
+				};
+				console.log("clearPassword:", clearPassword);
+				console.log("salt:", salt);
+				console.log("hashedPassword:", hashedPassword);
+				console.log("userPassword:", userPassword);
+				let user = new User(userEntity);
+				return await user.save();
 			} catch (error) {
-			throw new MoleculerError(error.message, 501, "ERROR_INSERT_INTO_DB", {
-				message: error.message,
-				internalErrorCode: "user10"
-			});
+				throw new MoleculerError(error.message, 501, "ERROR_INSERT_INTO_DB", {
+					message: error.message,
+					internalErrorCode: "user10"
+				});
 			}
-		},
+		}
 	}
 };
