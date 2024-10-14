@@ -527,7 +527,7 @@ module.exports = {
 								wallet = await ctx.call("image.updateTreeImage", { wallet, photo, user });
 							}
 							await wallet.save();
-							
+
 							ctx.call("v1.email.sendTreePlantingConfirmationEmail", {
 								userLang: "en",
 								userEmails: [user.userEmail, wallet.userEmail],
@@ -1146,7 +1146,7 @@ module.exports = {
 		async getListQrCodesGeneral(ctx) {
 			const entity = {
 				publicQrCode: true,
-				...(ctx.params.planted && { geoLocation: { $exists: true, $ne: "" } })
+				...(ctx.params.planted && { geoLocation: { $exists: true, $nin: ["", null] } })
 			};
 			try {
 				this.logger.info("1. getListQrCodesGeneral ", ctx.params);
