@@ -175,7 +175,8 @@ const areaService = {
 							id: area._id,
 							name: area.name,
 							center: { lat: area.latitude, lng: area.longitude },
-							area: area.areaPoints.map((point) => [point.lat, point.lng]) // Formatting area points
+							area: area.areaPoints.map((point) => [point.lat, point.lng]), // Formatting area points
+							treePrice: area.treePrice
 						});
 
 						return result;

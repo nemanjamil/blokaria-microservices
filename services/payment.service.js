@@ -291,9 +291,12 @@ const paymentService = {
 				this.logger.info("3. buyTreePayment  STRIPE quantity, userEmail, area", quantity, userEmail, area);
 
 				const userId = ctx.meta.user.userId;
-				const treePrice = this.metadata.itemPrice;
+				// const treePrice = this.metadata.itemPrice;
 				const stripe = this.getStripe();
 
+				areaDetails = await ctx.call("v1.area.getAreaById", { id: area });
+				console.log("Area Details", areaDetails);
+				treePrice = areaDetails.treePrice;
 				try {
 					const session = await stripe.checkout.sessions.create({
 						payment_method_types: ["card"],
@@ -450,10 +453,11 @@ const paymentService = {
 					const { quantityOfTrees, area } = ctx.params;
 
 					// const pricePerTree = process.env.TREE_PRICE;
-					const pricePerTree = this.metadata.itemPrice;
-
+					// const pricePerTree = this.metadata.itemPrice;
+					areaDetails = await ctx.call("v1.area.getAreaById", { id: area });
+					console.log("Area Details", areaDetails);
 					let createPayPalPayload = {
-						amount: pricePerTree,
+						amount: areaDetails.treePrice,
 						itemName: "Tree Purchase",
 						itemDescription: "Purchase of Trees",
 						quantity: quantityOfTrees,

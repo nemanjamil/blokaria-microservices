@@ -6,6 +6,7 @@ const areaSchema = new mongoose.Schema({
 	address: String,
 	longitude: Number,
 	latitude: Number,
+	treePrice: { type: Number, default: null},
 	defaultArea: {
 		type: Boolean,
 		default: false
