@@ -71,11 +71,12 @@ const areaService = {
 				latitude: { type: "number", optional: true },
 				name: { type: "string", optional: true },
 				areaPoints: { type: "array", optional: true },
-				photo: { type: "string", optional: true }
+				photo: { type: "string", optional: true },
+				treePrice: { type: "number", optional: true }
 			},
 			async handler(ctx) {
 				try {
-					const { id, country, countryCode, address, longitude, latitude, name, areaPoints, photo } = ctx.params;
+					const { id, country, countryCode, address, longitude, latitude, name, areaPoints, photo, treePrice } = ctx.params;
 					const { user } = ctx.meta;
 					console.log(user);
 					if (user.userRole == 3)
@@ -88,7 +89,7 @@ const areaService = {
 
 					const updatedArea = await Area.findByIdAndUpdate(
 						id,
-						{ country, countryCode, address, longitude, latitude, name, areaPoints },
+						{ country, countryCode, address, longitude, latitude, name, areaPoints, treePrice },
 						{ new: true, runValidators: true }
 					);
 

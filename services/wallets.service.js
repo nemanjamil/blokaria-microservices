@@ -395,7 +395,7 @@ module.exports = {
 		getListQrCodesByUser: {
 			// rest: "POST /getListQrCodesByUser",
 			params: {
-				userEmail: { type: "email" }
+				userEmail: { type: "string" }
 			},
 			async handler(ctx) {
 				try {
@@ -527,7 +527,7 @@ module.exports = {
 								wallet = await ctx.call("image.updateTreeImage", { wallet, photo, user });
 							}
 							await wallet.save();
-
+							
 							ctx.call("v1.email.sendTreePlantingConfirmationEmail", {
 								userLang: "en",
 								userEmails: [user.userEmail, wallet.userEmail],
@@ -1099,37 +1099,51 @@ module.exports = {
 
 		// wallet110
 		async getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode, ctx }) {
+			const salt = process.env.WALLETS_ENCRYPT_KEY
+			const decrypt = Utils.decipher(salt);
+			userEmail = decrypt(userEmail);
 			const entity = {
 				userEmail
 				//qrCodeRedeemStatus,
 			};
-
 			if (publicQrCode) entity.publicQrCode = publicQrCode;
-
+			/*
+			userEmail
+			userFullname
+			walletQrId
+			productName
+			*/
 			try {
 				this.logger.info("1. getListQrCodesByUserMethod entity", entity);
 
 				const listWallet = await Wallet.find(entity)
 					.sort("-createdAt")
-					.populate("_creator", { userFullName: 1, userEmail: 1 })
-					.populate("_image", { productPicture: 1 })
 					.populate("_area")
+					.select({
+						_id: 1,
+						walletQrId: 1,
+						geoLocation: 1,
+						userFullname: 1,
+						userEmail: 1,
+						productName: 1,
+					})
 					.lean();
 
 				for (let wallet of listWallet) {
 					this.logger.info("3. getListQrCodesByUserMethod Wallet wallet", wallet);
 					this.logger.info("3. getListQrCodesByUserMethod Wallet area", wallet._area);
-
+					wallet.userEmail = Utils.maskEmail(wallet.userEmail);
+					wallet.userFullname = Utils.maskFullName(wallet.userFullname);
+					console.log(`Wallet userFullname: ${wallet.userFullname} Wallet userEmail: ${wallet.userEmail}`);
 					if (wallet.area) {
 						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet._area, showConnectedItems: false });
 						wallet.areaName = areaData.name;
 						wallet.lat = areaData.latitude;
 						wallet.lon = areaData.longitude;
-						wallet.areaPoints = areaData.areaPoints;
-					}
+						wallet.areaPoints = areaData.areaPoints;			}
 				}
 
-				return listWallet;
+					return listWallet;
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
 			}
@@ -1219,7 +1233,7 @@ module.exports = {
 								"*****"
 							]
 						},
-						userEmailOrg: { $arrayElemAt: ["$userInfo.userEmail", 0] },
+						id: { $arrayElemAt: ["$userInfo.userEmail", 0] },
 						userEmail: {
 							$concat: [
 								{ $substr: [{ $arrayElemAt: ["$userInfo.userEmail", 0] }, 0, 1] }, // First letter of email
@@ -1229,10 +1243,12 @@ module.exports = {
 						}
 					})
 					.exec();
-
+					const salt = process.env.WALLETS_ENCRYPT_KEY
+					const encrypt = Utils.cipher(salt);
 				results.forEach((result) => {
-					result.userEmailOrg = Buffer.from(result.userEmailOrg).toString("base64");
+					result.id = encrypt(result.id);
 				});
+				
 
 				return results;
 			} catch (error) {
