@@ -497,7 +497,8 @@ module.exports = {
 					const source = fs.readFileSync(`./public/templates/${userLang}/treePlantingConfirmation.html`, "utf-8").toString();
 
 					const template = handlebars.compile(source);
-
+					const salt = process.env.WALLETS_ENCRYPT_KEY
+					const encrypt = Utils.cipher(salt);
 					// Pass the planting details to the template
 					const replacements = {
 						userFullName: userFullName,
@@ -510,7 +511,7 @@ module.exports = {
 						domainEmail: process.env.ADMIN_EMAIL,
 						photo: plantingDetails.photo,
 						frontendUrl: process.env.BLOKARIA_WEBSITE,
-						userId: btoa(userEmails[0])
+						userId: encrypt(userEmails[0])
 					};
 
 					const htmlToSend = template(replacements);
