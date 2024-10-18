@@ -527,7 +527,7 @@ module.exports = {
 								wallet = await ctx.call("image.updateTreeImage", { wallet, photo, user });
 							}
 							await wallet.save();
-							
+
 							ctx.call("v1.email.sendTreePlantingConfirmationEmail", {
 								userLang: "en",
 								userEmails: [user.userEmail, wallet.userEmail],
@@ -1099,9 +1099,12 @@ module.exports = {
 
 		// wallet110
 		async getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode, ctx }) {
-			const salt = process.env.WALLETS_ENCRYPT_KEY
-			const decrypt = Utils.decipher(salt);
-			userEmail = decrypt(userEmail);
+			// TODO XAVI ???
+			//const salt = process.env.WALLETS_ENCRYPT_KEY;
+			//this.logger.info("0. getListQrCodesByUserMethod salt", salt, userEmail);
+			// const decrypt = Utils.decipher(salt);
+			// userEmail = decrypt(userEmail);
+			// this.logger.info("0. getListQrCodesByUserMethod userEmail", userEmail);
 			const entity = {
 				userEmail
 				//qrCodeRedeemStatus,
@@ -1125,7 +1128,7 @@ module.exports = {
 						geoLocation: 1,
 						userFullname: 1,
 						userEmail: 1,
-						productName: 1,
+						productName: 1
 					})
 					.lean();
 
@@ -1140,10 +1143,11 @@ module.exports = {
 						wallet.areaName = areaData.name;
 						wallet.lat = areaData.latitude;
 						wallet.lon = areaData.longitude;
-						wallet.areaPoints = areaData.areaPoints;			}
+						wallet.areaPoints = areaData.areaPoints;
+					}
 				}
 
-					return listWallet;
+				return listWallet;
 			} catch (error) {
 				throw new MoleculerError("Error Listing Qr codes", 401, "ERROR_LISTING_QR_CODES", { message: error.message, internalErrorCode: "wallet110" });
 			}
@@ -1243,12 +1247,11 @@ module.exports = {
 						}
 					})
 					.exec();
-					const salt = process.env.WALLETS_ENCRYPT_KEY
-					const encrypt = Utils.cipher(salt);
+				const salt = process.env.WALLETS_ENCRYPT_KEY;
+				const encrypt = Utils.cipher(salt);
 				results.forEach((result) => {
 					result.id = encrypt(result.id);
 				});
-				
 
 				return results;
 			} catch (error) {
