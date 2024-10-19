@@ -6,7 +6,7 @@ const dbConnection = require("../utils/dbConnection");
 const Achievement = require("../models/Achievement");
 const User = require("../models/User");
 const { linkedInExchangeCode, linkedInGetUserProfile, createLinkedInPost } = require("../utils/linkedin");
-
+const Utils = require("../utils/utils");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const handlebars = require("handlebars");
@@ -140,11 +140,14 @@ const achievementService = {
 				const imgHost = process.env.MOLECULER_SERVICE_LOCATION;
 
 				const achievementUrl = `${imgHost}${achievement.image.completed}`;
-
+				const salt = process.env.ACHIEVEMENTS_ENCRYPT_KEY;
+				const encrypt = Utils.cipher(salt);
+				const userEmail = encrypt(user.userEmail);
 				this.logger.info("10. getAchievementPostPreview get achievement post template triggered");
 				return {
 					template: achievementPostTemplate,
 					achievement: achievement ? achievement : null,
+					achievementUrl: `${process.env.BLOKARIA_WEBSITE}/achievements/${userEmail}`,
 					level: userDb._level,
 					image: achievementUrl
 				};

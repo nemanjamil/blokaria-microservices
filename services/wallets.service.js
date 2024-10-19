@@ -400,28 +400,59 @@ module.exports = {
 			async handler(ctx) {
 				try {
 					let { userEmail } = ctx.params;
-
 					this.logger.info("getListQrCodesByUser", ctx.params);
-					const salt = process.env.WALLETS_ENCRYPT_KEY;
-					this.logger.info("0. getListQrCodesByUserMethod salt", salt, userEmail);
-					const decrypt = Utils.decipher(salt);
-					userEmail = decrypt(userEmail);
-					this.logger.info("0. getListQrCodesByUserMethod userEmail", userEmail);
 
-					let listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: true, ctx });
-					
-					for (let wallet of listQrCodesByUser) {
-						wallet.userEmail = Utils.maskEmail(wallet.userEmail);
-						wallet.userFullname = Utils.maskFullName(wallet.userFullname);
+					const isInternalCall = ctx.meta.internal;	
+					if (!isInternalCall) {
+						const salt = process.env.ACH;
+						this.logger.info("0. getListQrCodesByUserMethod salt", salt, userEmail);
+						const decrypt = Utils.decipher(salt);
+						userEmail = decrypt(userEmail);
+						this.logger.info("0. getListQrCodesByUserMethod userEmail", userEmail);
 					}
 
-					const user = await User.findOne({ userEmail }).populate("_achievements");
+					let listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: true, ctx });
+					if (isInternalCall) {
+						for (let wallet of listQrCodesByUser) {
+							wallet.userEmail = Utils.maskEmail(wallet.userEmail);
+						}
+					}
+					else {
+						for (let wallet of listQrCodesByUser) {
+							wallet.userEmail = Utils.maskEmail(wallet.userEmail);
+							wallet.userFullname = Utils.maskFullName(wallet.userFullname);
+						}
+					}
+					return listQrCodesByUser;				
+				} catch (error) {
+					return Promise.reject(error);
+				}
+			}
+		},
 
+		getListQrCodesByUserAndAchievements: {
+			// rest: "POST /getListQrCodesByUser",
+			params: {
+				userEmail: { type: "string" }
+			},
+			async handler(ctx) {
+				try {
+					let { userEmail } = ctx.params;
+
+					const salt = process.env.ACHIEVEMENTS_ENCRYPT_KEY;
+					const decrypt = Utils.decipher(salt);
+					userEmail = decrypt(userEmail);
+
+					const listQrCodesByUser = await ctx.call("wallet.getListQrCodesByUser", { userEmail }, { meta: { internal: true } });
+
+					const user = await User.findOne({ userEmail }).populate("_achievements");
+					
+					let latestAchievement = '';
 					if (!user || !user._achievements.length) {
 						latestAchievement= "No achievements";
 					}
 					console.log("achievement", user._achievements[user._achievements.length - 1]);
-					const latestAchievement = user._achievements[user._achievements.length - 1];
+					latestAchievement = user._achievements[user._achievements.length - 1];
 					
 					console.log("user", listQrCodesByUser);
 
