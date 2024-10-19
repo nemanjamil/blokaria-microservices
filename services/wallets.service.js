@@ -399,12 +399,36 @@ module.exports = {
 			},
 			async handler(ctx) {
 				try {
-					this.logger.info("getListQrCodesByUser", ctx.params);
+					let { userEmail } = ctx.params;
 
-					const { userEmail } = ctx.params;
+					this.logger.info("getListQrCodesByUser", ctx.params);
+					const salt = process.env.WALLETS_ENCRYPT_KEY;
+					this.logger.info("0. getListQrCodesByUserMethod salt", salt, userEmail);
+					const decrypt = Utils.decipher(salt);
+					userEmail = decrypt(userEmail);
+					this.logger.info("0. getListQrCodesByUserMethod userEmail", userEmail);
 
 					let listQrCodesByUser = await this.getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus: 0, publicQrCode: true, ctx });
-					return listQrCodesByUser;
+					
+					for (let wallet of listQrCodesByUser) {
+						wallet.userEmail = Utils.maskEmail(wallet.userEmail);
+						wallet.userFullname = Utils.maskFullName(wallet.userFullname);
+					}
+
+					const user = await User.findOne({ userEmail }).populate("_achievements");
+
+					if (!user || !user._achievements.length) {
+						latestAchievement= "No achievements";
+					}
+					console.log("achievement", user._achievements[user._achievements.length - 1]);
+					const latestAchievement = user._achievements[user._achievements.length - 1];
+					
+					console.log("user", listQrCodesByUser);
+
+					return {
+						listQrCodes: listQrCodesByUser,
+						latestAchievement: latestAchievement
+					};					
 				} catch (error) {
 					return Promise.reject(error);
 				}
@@ -1099,12 +1123,6 @@ module.exports = {
 
 		// wallet110
 		async getListQrCodesByUserMethod({ userEmail, qrCodeRedeemStatus, publicQrCode, ctx }) {
-			// TODO XAVI ???
-			//const salt = process.env.WALLETS_ENCRYPT_KEY;
-			//this.logger.info("0. getListQrCodesByUserMethod salt", salt, userEmail);
-			// const decrypt = Utils.decipher(salt);
-			// userEmail = decrypt(userEmail);
-			// this.logger.info("0. getListQrCodesByUserMethod userEmail", userEmail);
 			const entity = {
 				userEmail
 				//qrCodeRedeemStatus,
@@ -1135,8 +1153,6 @@ module.exports = {
 				for (let wallet of listWallet) {
 					this.logger.info("3. getListQrCodesByUserMethod Wallet wallet", wallet);
 					this.logger.info("3. getListQrCodesByUserMethod Wallet area", wallet._area);
-					wallet.userEmail = Utils.maskEmail(wallet.userEmail);
-					wallet.userFullname = Utils.maskFullName(wallet.userFullname);
 					console.log(`Wallet userFullname: ${wallet.userFullname} Wallet userEmail: ${wallet.userEmail}`);
 					if (wallet.area) {
 						const areaData = await ctx.call("v1.area.getAreaById", { id: wallet._area, showConnectedItems: false });
