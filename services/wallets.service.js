@@ -458,6 +458,7 @@ module.exports = {
 
 					return {
 						listQrCodes: listQrCodesByUser,
+						userFullName: user.userFullName,
 						latestAchievement: latestAchievement
 					};					
 				} catch (error) {
