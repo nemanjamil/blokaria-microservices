@@ -849,7 +849,40 @@
 			"name": "Wallets CRUD",
 			"item": [
 				{
-					"name": "Get Public Wallets By AreaId",
+					"name": "Get Public Qr Code By User And Achievements",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userEmail\": \"3c3e20292d3038373c3e366869193e34383035773a3634\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/nrapi/getListQrCodesByUserAndAchievements",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"nrapi",
+								"getListQrCodesByUserAndAchievements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Public Wallets By AreaId Copy",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -877,6 +910,40 @@
 								"nrapi",
 								"wallet",
 								"getPublicWalletsByAreaId"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Users Email",
+			"item": [
+				{
+					"name": "getUsersEmail",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/api-auth/user/getUsersEmail",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api-auth",
+								"user",
+								"getUsersEmail"
 							]
 						}
 					},
@@ -915,7 +982,7 @@
 		},
 		{
 			"key": "token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJlZ3lwdGlhbmVnbzE3QGdtYWlsLmNvbSIsImlhdCI6MTcyODMzNjQyMiwiZXhwIjoxNzI4OTQxMjIyfQ.c8Of5f3_6hlyFsBuWpMw9E4W7Lda8PxaPceXEV3Ygyc",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJlZ3lwdGlhbmVnbzEwQGdtYWlsLmNvbSIsImlhdCI6MTcyOTMyODQ2NSwiZXhwIjoxNzI5OTMzMjY1fQ.Kcm1-1UU0Ls7PoEvwxPE4TCiq41N6sJHVk5JoC2BSLE",
 			"type": "string"
 		}
 	]
