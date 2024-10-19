@@ -404,7 +404,7 @@ module.exports = {
 
 					const isInternalCall = ctx.meta.internal;	
 					if (!isInternalCall) {
-						const salt = process.env.ACH;
+						const salt = process.env.WALLETS_ENCRYPT_KEY;
 						this.logger.info("0. getListQrCodesByUserMethod salt", salt, userEmail);
 						const decrypt = Utils.decipher(salt);
 						userEmail = decrypt(userEmail);
