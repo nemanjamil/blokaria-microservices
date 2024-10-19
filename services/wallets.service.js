@@ -429,43 +429,54 @@ module.exports = {
 				}
 			}
 		},
-
 		getListQrCodesByUserAndAchievements: {
-			// rest: "POST /getListQrCodesByUser",
 			params: {
-				userEmail: { type: "string" }
+			userEmail: { type: "string" }
 			},
 			async handler(ctx) {
-				try {
-					let { userEmail } = ctx.params;
-
-					const salt = process.env.ACHIEVEMENTS_ENCRYPT_KEY;
-					const decrypt = Utils.decipher(salt);
-					userEmail = decrypt(userEmail);
-
-					const listQrCodesByUser = await ctx.call("wallet.getListQrCodesByUser", { userEmail }, { meta: { internal: true } });
-
-					const user = await User.findOne({ userEmail }).populate("_achievements");
-					
-					let latestAchievement = '';
+			try {
+				let { userEmail } = ctx.params;
+		
+				const salt = process.env.ACHIEVEMENTS_ENCRYPT_KEY;
+				const decrypt = Utils.decipher(salt);
+				userEmail = decrypt(userEmail);
+		
+				const listQrCodesByUser = await ctx.call("wallet.getListQrCodesByUser", { userEmail }, { meta: { internal: true } });
+		
+				const user = await User.findOne({ userEmail }).populate("_achievements");
+				
+				let latestAchievement = '';
 					if (!user || !user._achievements.length) {
-						latestAchievement= "No achievements";
-					}
-					console.log("achievement", user._achievements[user._achievements.length - 1]);
+					latestAchievement = "No achievements";
+					} else {
 					latestAchievement = user._achievements[user._achievements.length - 1];
-					
-					console.log("user", listQrCodesByUser);
-
-					return {
-						listQrCodes: listQrCodesByUser,
-						userFullName: user.userFullName,
-						latestAchievement: latestAchievement
-					};					
-				} catch (error) {
-					return Promise.reject(error);
 				}
+		
+				const allAchievements = await ctx.call("v1.achievement.getAchievements");
+		
+				allAchievements.sort((a, b) => a._level.required_trees - b._level.required_trees);
+		
+				const userTreesPlanted = listQrCodesByUser.length; 
+				let nextAchievement = null;
+		
+				for (let i = 0; i < allAchievements.length; i++) {
+					if (allAchievements[i]._level.required_trees > userTreesPlanted) {
+						nextAchievement = allAchievements[i+1];
+						break;
+					}
+				}
+
+				return {
+					listQrCodes: listQrCodesByUser,
+					userFullName: user.userFullName,
+					latestAchievement: latestAchievement,
+					nextAchievement: nextAchievement || "No next achievement, max level reached."
+				};					
+			} catch (error) {
+				return Promise.reject(error);
 			}
-		},
+			}
+		},		  
 
 		getListQrCodesGeneral: {
 			async handler(ctx) {
