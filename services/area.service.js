@@ -144,11 +144,38 @@ const areaService = {
 		getAllAreas: {
 			async handler(ctx) {
 				try {
+					// Fetch all active areas
 					const areas = await Area.find({ active: true });
 					if (!areas.length) {
 						return "No active areas";
 					}
-					return areas.map((area) => area.toJSON());
+		
+					// Get the wallet count for each area
+					const walletsCountPerArea = await Wallet.aggregate([
+						{
+							$match: {
+								dateOfPlanting: { $exists: true, $ne: null }
+							}
+						},
+		
+						{
+							$group: {
+								_id: "$_area",
+								walletCount: { $sum: 1 } 
+							}
+						}
+					]);
+		
+					return areas.map(area => {
+						const areaData = area.toJSON();
+						const walletInfo = walletsCountPerArea.find(w => String(w._id) === String(area._id)) || { walletCount: 0 };
+						
+						return {
+							...areaData,
+							walletCount: walletInfo.walletCount
+						};
+					});
+		
 				} catch (err) {
 					console.error("Error retrieving areas:", err);
 					const message = "An error occurred while retrieving areas from db.";
@@ -158,7 +185,7 @@ const areaService = {
 				}
 			}
 		},
-
+		
 		getAllAreasDashboard: {
 			async handler(ctx) {
 				try {
