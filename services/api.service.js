@@ -146,7 +146,7 @@ module.exports = {
 					"POST wallet/getPublicWalletsByAreaId": "wallet.getPublicWalletsByAreaId",
 					"GET area/getAllAreas": "v1.area.getAllAreas",
 					"POST email/subscribeEmail": "v1.email.subscribeEmail",
-					"GET getListQrCodesByUserAndAchievements": "wallet.getListQrCodesByUserAndAchievements",
+					"POST getListQrCodesByUserAndAchievements": "wallet.getListQrCodesByUserAndAchievements",
 				},
 				callingOptions: {},
 
