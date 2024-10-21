@@ -559,24 +559,24 @@ module.exports = {
 		userGet: {
 			rest: "POST /userGet",
 			params: {
-				userEmail: { type: "email" }
+				userEmail: { type: "email", optional: true }
 			},
 			async handler(ctx) {
-
+				this.logger.info("0. userGet START");
+				let { userEmail } = ctx.params;
 				const { user } = ctx.meta;
-				let userEmail = '';
-				if (user.userRole == 1)
-				{
+
+				if (user.userRole == 1 && userEmail) {
 					userEmail = ctx.params.userEmail;
-				}
-				else
-				{
+				} else {
 					userEmail = user.userEmail;
 				}
 				const entity = {
 					userEmail: userEmail,
 					userVerified: 1
 				};
+
+				this.logger.info("1. userGet entity", entity);
 
 				try {
 					const user = await User.find(entity, {
@@ -760,83 +760,80 @@ module.exports = {
 		// user50
 		resetPasswordCode: {
 			params: {
-			clearPassword: { type: "string" },
-			userEmail: { type: "email" },
-			userPassword: { type: "string", min: 8 } 
+				clearPassword: { type: "string" },
+				userEmail: { type: "email" },
+				userPassword: { type: "string", min: 8 }
 			},
 			async handler(ctx) {
-			const { userEmail, clearPassword, userPassword } = ctx.params;
-		
-			if (!userPassword) {
-				throw new MoleculerClientError("Password is not provided", 400, "USER_PASSWORD_ERROR", {
-				message: "Password is required",
-				internalErrorCode: "auth20"
-				});
-			}
-		
-			if (userPassword.length < 8) {
-				throw new MoleculerClientError("Password is too short", 400, "USER_PASSWORD_ERROR", {
-				message: "Password must be at least 8 characters long",
-				internalErrorCode: "auth21"
-				});
-			}
-		
-			let users = await ctx.call("user.userFind", { userEmail });
-			const user = users ? users[0] : null;
-			console.log("user:", user);
-			if (!user) {
-				throw new MoleculerClientError("User not found.", 422, "USER_FIND_ERROR", {
-				message: "Email not found",
-				internalErrorCode: "auth10"
-				});
-			}
+				const { userEmail, clearPassword, userPassword } = ctx.params;
 
-			if (user.clearPassword !== clearPassword) {
-				throw new MoleculerError("Invalid reset token provided", 401, "RESET_TOKEN_MISMATCH", {
-				message: "The reset token you provided does not match our records. Please ensure you are using the correct password reset link or request a new one.",
-				internalErrorCode: "user51"
-				});
-			}
-
-			const { passwordHash: salt } = user; 
-			const saltRounds = 10;
-			let hashedPassword;
-			
-			try {
-				hashedPassword = await bcrypt.hash(userPassword + salt, saltRounds);
-			} catch (err) {
-				throw new MoleculerError("Hashing error", 500, "HASHING_ERROR", {
-				message: err.message,
-				internalErrorCode: "hashError01"
-				});
-			}
-		
-			let data = {
-				userPassword: hashedPassword,
-				clearPassword: Utils.generatePass() 
-			};
-		
-			try {
-				let userFind = await User.findOneAndUpdate(
-				{ userEmail },
-				data, 
-				{ new: true } 
-				);
-		
-				if (!userFind) {
-				throw new MoleculerError("User and Hash do not match", 401, "UPDATE_PASSWORD_FAIL_HASH", {
-					message: "User and Hash do not match",
-					internalErrorCode: "user51"
-				});
+				if (!userPassword) {
+					throw new MoleculerClientError("Password is not provided", 400, "USER_PASSWORD_ERROR", {
+						message: "Password is required",
+						internalErrorCode: "auth20"
+					});
 				}
-		
-				return "Password successfully reset";
-			} catch (error) {
-				throw new MoleculerError(error.message, 500, "UPDATE_PASSWORD_FAIL", {
-				message: error.message,
-				internalErrorCode: "user50"
-				});
-			}
+
+				if (userPassword.length < 8) {
+					throw new MoleculerClientError("Password is too short", 400, "USER_PASSWORD_ERROR", {
+						message: "Password must be at least 8 characters long",
+						internalErrorCode: "auth21"
+					});
+				}
+
+				let users = await ctx.call("user.userFind", { userEmail });
+				const user = users ? users[0] : null;
+				console.log("user:", user);
+				if (!user) {
+					throw new MoleculerClientError("User not found.", 422, "USER_FIND_ERROR", {
+						message: "Email not found",
+						internalErrorCode: "auth10"
+					});
+				}
+
+				if (user.clearPassword !== clearPassword) {
+					throw new MoleculerError("Invalid reset token provided", 401, "RESET_TOKEN_MISMATCH", {
+						message:
+							"The reset token you provided does not match our records. Please ensure you are using the correct password reset link or request a new one.",
+						internalErrorCode: "user51"
+					});
+				}
+
+				const { passwordHash: salt } = user;
+				const saltRounds = 10;
+				let hashedPassword;
+
+				try {
+					hashedPassword = await bcrypt.hash(userPassword + salt, saltRounds);
+				} catch (err) {
+					throw new MoleculerError("Hashing error", 500, "HASHING_ERROR", {
+						message: err.message,
+						internalErrorCode: "hashError01"
+					});
+				}
+
+				let data = {
+					userPassword: hashedPassword,
+					clearPassword: Utils.generatePass()
+				};
+
+				try {
+					let userFind = await User.findOneAndUpdate({ userEmail }, data, { new: true });
+
+					if (!userFind) {
+						throw new MoleculerError("User and Hash do not match", 401, "UPDATE_PASSWORD_FAIL_HASH", {
+							message: "User and Hash do not match",
+							internalErrorCode: "user51"
+						});
+					}
+
+					return "Password successfully reset";
+				} catch (error) {
+					throw new MoleculerError(error.message, 500, "UPDATE_PASSWORD_FAIL", {
+						message: error.message,
+						internalErrorCode: "user50"
+					});
+				}
 			}
 		},
 
