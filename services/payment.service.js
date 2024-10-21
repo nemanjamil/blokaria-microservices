@@ -451,7 +451,12 @@ const paymentService = {
 					const userId = ctx.meta.user.userId;
 					this.logger.info("2. paypalPurchaseCreateOrder userId", ctx.meta.user);
 					const { quantityOfTrees, area } = ctx.params;
-
+					const result = await ctx.call("v1.area.canUserPlantInArea", { userEmail: ctx.meta.user.userEmail, areaId: area, numberOfTrees: quantityOfTrees });
+					if (!result.canPlant) {
+						throw new MoleculerClientError("User can't plant in this area", 400, "USER_CANT_PLANT", {
+							message: "User can't plant in this area"
+						});
+					}
 					// const pricePerTree = process.env.TREE_PRICE;
 					// const pricePerTree = this.metadata.itemPrice;
 					areaDetails = await ctx.call("v1.area.getAreaById", { id: area });

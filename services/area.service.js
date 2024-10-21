@@ -197,27 +197,47 @@ const areaService = {
 		getAllAreasDashboard: {
 			async handler(ctx) {
 				try {
+					const { user } = ctx.meta;
+		
+					const userWallets = await ctx.call("wallet.getListQrCodesByUser", { userEmail: user.userEmail }, { meta: { internal: true } });
+					console.log(userWallets);
+		
 					const areas = await Area.find({ active: true });
-
-					// Group areas by country and format each area
+					console.log(areas);
+		
+					const userTreesByArea = userWallets.reduce((result, wallet) => {
+						const areaId = wallet._area._id.toString();
+						if (!result[areaId]) {
+							result[areaId] = 0;
+						}
+						result[areaId] += 1;
+						return result;
+					}, {});
+		
 					const formattedAreas = areas.reduce((result, area) => {
 						const country = area.country;
-
+						const areaId = area._id.toString();
+		
+						const userTreesInArea = userTreesByArea[areaId] || 0;
+						const remainingTrees = Math.max(0, 10 - userTreesInArea); 
+		
 						if (!result[country]) {
 							result[country] = [];
 						}
-
+		
 						result[country].push({
 							id: area._id,
 							name: area.name,
 							center: { lat: area.latitude, lng: area.longitude },
-							area: area.areaPoints.map((point) => [point.lat, point.lng]), // Formatting area points
-							treePrice: area.treePrice
+							area: area.areaPoints.map((point) => [point.lat, point.lng]),
+							treePrice: area.treePrice,
+							userTreesInArea,   
+							remainingTrees      
 						});
-
+		
 						return result;
 					}, {});
-
+		
 					return formattedAreas;
 				} catch (err) {
 					console.error("Error retrieving areas:", err);
@@ -229,6 +249,32 @@ const areaService = {
 			}
 		},
 
+		canUserPlantInArea: {
+			async handler(ctx) {
+				try {
+					const { userEmail, areaId, numberOfTrees } = ctx.params; 
+		
+					const userWallets = await ctx.call("wallet.getListQrCodesByUser", { userEmail }, { meta: { internal: true } });
+					console.log(userWallets);
+					const treesInArea = userWallets.filter(wallet => wallet._area._id.toString() === areaId).length;
+					console.log(treesInArea);
+					const canPlant = (treesInArea + numberOfTrees) <= 10;
+					console.log(canPlant);
+					return {
+						canPlant,
+						treesInArea,
+						remainingTrees: Math.max(0, 10 - treesInArea),
+						message: canPlant ? 'User can plant here.' : 'User has reached the maximum limit of 10 trees in this area.'
+					};
+				} catch (err) {
+					console.error("Error checking planting eligibility:", err);
+					throw new MoleculerClientError("Planting Check Failed", 500, "PLANTING_CHECK_FAILED", {
+						message: "An error occurred while checking if the user can plant in this area."
+					});
+				}
+			}
+		},		
+		
 		getAreaById: {
 			params: {
 				id: { type: "string" },

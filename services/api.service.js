@@ -138,7 +138,6 @@ module.exports = {
 					"GET area/getUniqueCountries": "v1.area.getUniqueCountries",
 					"POST payment/paypalDonationCreateOrder": "v1.payment.paypalDonationCreateOrder",
 					"POST payment/paypalWebhook": "v1.payment.paypalWebhook",
-					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
 					"GET area/getUniqueCountrieDashboard": "v1.area.getUniqueCountrieDashboard",
 					"POST payment/testEmail": "v1.payment.testEmail",
 					"GET invoice/getDonatorsList": "invoice.getDonatorsList",
@@ -238,7 +237,8 @@ module.exports = {
 					"POST email/sendGiftEmail": "v1.email.sendGiftEmail",
 					"POST wallet/generateGift": "wallet.generateGift",
 					"POST /editProfile": "user.editProfile",
-					"GET /area/getMyAreas": "v1.area.getMyAreas"
+					"GET /area/getMyAreas": "v1.area.getMyAreas",
+					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
 				},
 				callingOptions: {},
 
