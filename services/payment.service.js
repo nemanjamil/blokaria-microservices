@@ -457,6 +457,12 @@ const paymentService = {
 							message: "User can't plant in this area"
 						});
 					}
+					
+					if (quantityOfTrees < 1) {
+						throw new MoleculerClientError("Quantity of trees must be at least 1", 400, "INVALID_QUANTITY", {
+							message: "Quantity of trees must be at least 1"
+						});
+					}
 					// const pricePerTree = process.env.TREE_PRICE;
 					// const pricePerTree = this.metadata.itemPrice;
 					areaDetails = await ctx.call("v1.area.getAreaById", { id: area });
