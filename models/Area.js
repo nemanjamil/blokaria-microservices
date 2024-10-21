@@ -1,5 +1,11 @@
 const mongoose = require("mongoose");
 
+const treeSpeciesEnum = ['Oak', 'Maple', 'Pine', 'Birch', 'Willow']; 
+const monthsEnum = [
+	'January', 'February', 'March', 'April', 'May', 'June',
+	'July', 'August', 'September', 'October', 'November', 'December'
+];
+
 const areaSchema = new mongoose.Schema({
 	country: String,
 	countryCode: String,
@@ -21,7 +27,22 @@ const areaSchema = new mongoose.Schema({
 			lng: Number
 		}
 	],
-	name: String
+	plantingTimeline: {
+		type: [String],
+		enum: monthsEnum,
+	},
+	treeSpecies: {
+		type: [String],
+		enum: treeSpeciesEnum,
+	},
+	plantingOrganization: {
+		type: String,
+	},
+	availablePlantingSpots: {
+		type: Number,
+		min: 0,
+	},
+name: String
 });
 
 module.exports = mongoose.model("Area", areaSchema);

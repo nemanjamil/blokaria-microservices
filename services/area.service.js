@@ -24,10 +24,18 @@ const areaService = {
 				latitude: { type: "number" },
 				name: { type: "string" },
 				areaPoints: { type: "array", optional: true },
-				active: { type: "boolean", optional: true }
+				active: { type: "boolean", optional: true },
+				treePrice: { type: "number", optional: true },
+				plantingTimeline: { type: "array", optional: true },
+				treeSpecies: { type: "array", optional: true },
+				plantingOrganization: { type: "string", optional: true },
+				availablePlantingSpots: { type: "number", optional: true },
 			},
 			async handler(ctx) {
-				const { _id, country, countryCode, address, longitude, latitude, name, areaPoints, active, photo } = ctx.params;
+				const { _id, country, countryCode, address, 
+					longitude, latitude, name, areaPoints, 
+					active, photo, plantingTimeline, treeSpecies, 
+					plantingOrganization, availablePlantingSpots, treePrice} = ctx.params;
 
 				let area = new Area({
 					country,
@@ -36,7 +44,12 @@ const areaService = {
 					longitude,
 					latitude,
 					name,
-					areaPoints
+					areaPoints,
+					treePrice,
+					plantingTimeline,
+					treeSpecies,
+					plantingOrganization,
+					availablePlantingSpots
 				});
 
 				if (_id) {
@@ -72,11 +85,17 @@ const areaService = {
 				name: { type: "string", optional: true },
 				areaPoints: { type: "array", optional: true },
 				photo: { type: "string", optional: true },
-				treePrice: { type: "number", optional: true }
+				treePrice: { type: "number", optional: true },
+				plantingTimeline: { type: "array", optional: true },
+				treeSpecies: { type: "array", optional: true },
+				plantingOrganization: { type: "string", optional: true },
+				availablePlantingSpots: { type: "number", optional: true },
 			},
 			async handler(ctx) {
 				try {
-					const { id, country, countryCode, address, longitude, latitude, name, areaPoints, photo, treePrice } = ctx.params;
+					const { id, country, countryCode, address, longitude, 
+						latitude, name, areaPoints, photo, treePrice,
+						plantingTimeline, treeSpecies, plantingOrganization, availablePlantingSpots} = ctx.params;
 					const { user } = ctx.meta;
 					console.log(user);
 					if (user.userRole == 3)
@@ -89,7 +108,10 @@ const areaService = {
 
 					const updatedArea = await Area.findByIdAndUpdate(
 						id,
-						{ country, countryCode, address, longitude, latitude, name, areaPoints, treePrice },
+						{ country, countryCode, address, longitude, 
+							latitude, name, areaPoints, treePrice,
+							plantingTimeline, treeSpecies, plantingOrganization, 
+							availablePlantingSpots},
 						{ new: true, runValidators: true }
 					);
 
@@ -219,7 +241,7 @@ const areaService = {
 						const areaId = area._id.toString();
 		
 						const userTreesInArea = userTreesByArea[areaId] || 0;
-						const remainingTrees = Math.max(0, 10 - userTreesInArea); 
+						const remainingTrees = Math.max(0, 2 - userTreesInArea); 
 		
 						if (!result[country]) {
 							result[country] = [];
