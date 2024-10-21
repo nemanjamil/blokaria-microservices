@@ -243,6 +243,9 @@ const areaService = {
 								center: { lat: area.latitude, lng: area.longitude },
 								area: area.areaPoints.map((point) => [point.lat, point.lng]),
 								treePrice: area.treePrice,
+								treeSpecies: area.treeSpecies,
+								plantingTimeline: area.plantingTimeline,
+								plantingOrganization: area.plantingOrganization,
 								treeCountInArea,
 								remainingTrees
 							};
