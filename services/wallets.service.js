@@ -869,9 +869,8 @@ module.exports = {
 						{ geoLocation: 1, productName: 1, userFullname: 1, userEmail: 1, walletQrId: 1, dateOfPlanting: 1 }
 					);
 					const area = await ctx.call("v1.area.getAreaById", { id: areaId });
-					const filteredWallets = wallets.filter((wallet) => wallet.geoLocation && wallet.geoLocation !== "");
 
-					filteredWallets.forEach((wallet) => {
+					wallets.forEach((wallet) => {
 						wallet.userFullname = wallet.userFullname
 							.split(" ")
 							.map((namePart) => {
@@ -885,7 +884,7 @@ module.exports = {
 					return {
 						areaName: area.name,
 						areaPoints: area.areaPoints,
-						wallets: filteredWallets
+						wallets: wallets
 					};
 				} catch (err) {
 					console.error("Error retrieving wallets by area:", err);

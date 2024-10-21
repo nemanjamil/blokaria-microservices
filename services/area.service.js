@@ -144,47 +144,55 @@ const areaService = {
 		getAllAreas: {
 			async handler(ctx) {
 				try {
-					// Fetch all active areas
 					const areas = await Area.find({ active: true });
 					if (!areas.length) {
 						return "No active areas";
 					}
 		
-					// Get the wallet count for each area
 					const walletsCountPerArea = await Wallet.aggregate([
-						{
-							$match: {
-								dateOfPlanting: { $exists: true, $ne: null }
-							}
-						},
-		
 						{
 							$group: {
 								_id: "$_area",
-								walletCount: { $sum: 1 } 
+								totalTrees: { $sum: 1 }  
+							}
+						}
+					]);
+		
+					const treesWithGeolocationCount = await Wallet.aggregate([
+						{
+							$match: {
+								dateOfPlanting: { $exists: true, $ne: null }, 
+							}
+						},
+						{
+							$group: {
+								_id: "$_area",
+								treesWithGeolocation: { $sum: 1 } 
 							}
 						}
 					]);
 		
 					return areas.map(area => {
 						const areaData = area.toJSON();
-						const walletInfo = walletsCountPerArea.find(w => String(w._id) === String(area._id)) || { walletCount: 0 };
-						
+						const walletInfo = walletsCountPerArea.find(w => String(w._id) === String(area._id)) || { totalTrees: 0 };
+						const geoLocationInfo = treesWithGeolocationCount.find(w => String(w._id) === String(area._id)) || { treesWithGeolocation: 0 };
+		
 						return {
 							...areaData,
-							walletCount: walletInfo.walletCount
+							totalTrees: walletInfo.totalTrees,
+							plantedtTreesCount: geoLocationInfo.treesWithGeolocation,
+							treesInProgressCount: walletInfo.totalTrees - geoLocationInfo.treesWithGeolocation
 						};
 					});
 		
 				} catch (err) {
 					console.error("Error retrieving areas:", err);
-					const message = "An error occurred while retrieving areas from db.";
 					throw new MoleculerClientError("Area Retrieval Failed", 500, "AREA_RETRIEVAL_FAILED", {
-						message
+						message: "An error occurred while retrieving areas from the database."
 					});
 				}
 			}
-		},
+		},		
 		
 		getAllAreasDashboard: {
 			async handler(ctx) {
