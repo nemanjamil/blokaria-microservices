@@ -451,16 +451,17 @@ const paymentService = {
 					const userId = ctx.meta.user.userId;
 					this.logger.info("2. paypalPurchaseCreateOrder userId", ctx.meta.user);
 					const { quantityOfTrees, area } = ctx.params;
-					const result = await ctx.call("v1.area.canUserPlantInArea", { userEmail: ctx.meta.user.userEmail, areaId: area, numberOfTrees: quantityOfTrees });
+					
+					if (quantityOfTrees < 1 || quantityOfTrees > 10) {
+						throw new MoleculerClientError("Quantity of trees must be between 1 and 10", 400, "INVALID_QUANTITY", {
+							message: "Quantity of trees must be between 1 and 10"
+						});
+					}
+
+					const result = await ctx.call("v1.area.canUserPlantInArea", { areaId: area, numberOfTrees: quantityOfTrees });
 					if (!result.canPlant) {
 						throw new MoleculerClientError("User can't plant in this area", 400, "USER_CANT_PLANT", {
 							message: "User can't plant in this area"
-						});
-					}
-					
-					if (quantityOfTrees < 1) {
-						throw new MoleculerClientError("Quantity of trees must be at least 1", 400, "INVALID_QUANTITY", {
-							message: "Quantity of trees must be at least 1"
 						});
 					}
 					// const pricePerTree = process.env.TREE_PRICE;

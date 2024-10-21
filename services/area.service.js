@@ -271,15 +271,16 @@ const areaService = {
 			async handler(ctx) {
 				try {
 					const { areaId, numberOfTrees } = ctx.params; 
-		
-					const availablePlantingSpots = await Area.findById(areaId).select("availablePlantingSpots");
+					console.log(numberOfTrees);
+					const area = await Area.findById(areaId).select("availablePlantingSpots");
+					console.log(area.availablePlantingSpots);
 					const treeCountInArea = await Wallet.countDocuments({ _area: areaId });
-					const canPlant = (treeCountInArea + numberOfTrees) <= availablePlantingSpots;
+					console.log(treeCountInArea);
+					const canPlant = (treeCountInArea + numberOfTrees) <= area.availablePlantingSpots;
 					console.log(canPlant);
 					return {
 						canPlant,
-						treesInArea,
-						remainingTrees: Math.max(0, availablePlantingSpots - treeCountInArea),
+						remainingTrees: Math.max(0, area.availablePlantingSpots - treeCountInArea),
 						message: canPlant ? "User can plant in this area." : "User cannot plant in this area."
 					};
 				} catch (err) {
