@@ -221,46 +221,42 @@ const areaService = {
 				try {
 					const { user } = ctx.meta;
 		
-					const userWallets = await ctx.call("wallet.getListQrCodesByUser", { userEmail: user.userEmail }, { meta: { internal: true } });
-					console.log(userWallets);
-		
 					const areas = await Area.find({ active: true });
 					console.log(areas);
 		
-					const userTreesByArea = userWallets.reduce((result, wallet) => {
-						const areaId = wallet._area._id.toString();
-						if (!result[areaId]) {
-							result[areaId] = 0;
+					const { areaId, numberOfTrees } = ctx.params;
+		
+					const formattedAreas = await Promise.all(
+						areas.map(async (area) => {
+							const country = area.country;
+							const areaId = area._id.toString();
+		
+							const availablePlantingSpots = area.availablePlantingSpots;
+		
+							const treeCountInArea = await Wallet.countDocuments({ _area: areaId });
+							const remainingTrees = Math.max(0, availablePlantingSpots - treeCountInArea);
+									
+							return {
+								country,
+								id: area._id,
+								name: area.name,
+								center: { lat: area.latitude, lng: area.longitude },
+								area: area.areaPoints.map((point) => [point.lat, point.lng]),
+								treePrice: area.treePrice,
+								treeCountInArea,
+								remainingTrees
+							};
+						})
+					);
+		
+					return formattedAreas.reduce((result, area) => {
+						if (!result[area.country]) {
+							result[area.country] = [];
 						}
-						result[areaId] += 1;
+						result[area.country].push(area);
 						return result;
 					}, {});
 		
-					const formattedAreas = areas.reduce((result, area) => {
-						const country = area.country;
-						const areaId = area._id.toString();
-		
-						const userTreesInArea = userTreesByArea[areaId] || 0;
-						const remainingTrees = Math.max(0, 2 - userTreesInArea); 
-		
-						if (!result[country]) {
-							result[country] = [];
-						}
-		
-						result[country].push({
-							id: area._id,
-							name: area.name,
-							center: { lat: area.latitude, lng: area.longitude },
-							area: area.areaPoints.map((point) => [point.lat, point.lng]),
-							treePrice: area.treePrice,
-							userTreesInArea,   
-							remainingTrees      
-						});
-		
-						return result;
-					}, {});
-		
-					return formattedAreas;
 				} catch (err) {
 					console.error("Error retrieving areas:", err);
 					const message = "An error occurred while retrieving areas from db.";
@@ -269,24 +265,22 @@ const areaService = {
 					});
 				}
 			}
-		},
+		},		
 
 		canUserPlantInArea: {
 			async handler(ctx) {
 				try {
-					const { userEmail, areaId, numberOfTrees } = ctx.params; 
+					const { areaId, numberOfTrees } = ctx.params; 
 		
-					const userWallets = await ctx.call("wallet.getListQrCodesByUser", { userEmail }, { meta: { internal: true } });
-					console.log(userWallets);
-					const treesInArea = userWallets.filter(wallet => wallet._area._id.toString() === areaId).length;
-					console.log(treesInArea);
-					const canPlant = (treesInArea + numberOfTrees) <= 10;
+					const availablePlantingSpots = await Area.findById(areaId).select("availablePlantingSpots");
+					const treeCountInArea = await Wallet.countDocuments({ _area: areaId });
+					const canPlant = (treeCountInArea + numberOfTrees) <= availablePlantingSpots;
 					console.log(canPlant);
 					return {
 						canPlant,
 						treesInArea,
-						remainingTrees: Math.max(0, 10 - treesInArea),
-						message: canPlant ? 'User can plant here.' : 'User has reached the maximum limit of 10 trees in this area.'
+						remainingTrees: Math.max(0, availablePlantingSpots - treeCountInArea),
+						message: canPlant ? "User can plant in this area." : "User cannot plant in this area."
 					};
 				} catch (err) {
 					console.error("Error checking planting eligibility:", err);
