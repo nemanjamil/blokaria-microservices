@@ -574,7 +574,7 @@ const areaService = {
 			async handler(ctx) {
 				try {
 					// Retrieve distinct countries
-					const uniqueCountries = await Area.distinct("country");
+					const uniqueCountries = await Area.distinct("country", {active: true});
 
 					// Format the result with id and name, indexing the countries
 					const formattedCountries = uniqueCountries.map((country, index) => ({
