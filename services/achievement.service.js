@@ -363,7 +363,11 @@ const achievementService = {
 				const dirPath = path.join(__dirname, '../public/achievements');
 				const levelPath = path.join(__dirname, '../public/levels');
 				const data = fs.readFileSync(`${levelPath}/${fileName}`, 'utf8');
-	
+				
+				if (!fs.existsSync(dirPath)) {
+					fs.mkdirSync(dirPath, { recursive: true });
+					console.log('Achievements directory created');
+				}
 				const $ = cheerio.load(data, { xmlMode: true });
 				
 				if (fileName === 'Level7.svg') {
