@@ -360,9 +360,9 @@ const achievementService = {
 	
 	
 			try {
-				const dirPath = path.join(__dirname, './public/achievements');
-
-				const data = fs.readFileSync(`./public/levels/${fileName}`, 'utf8');
+				const dirPath = path.join(__dirname, '../public/achievements');
+				const levelPath = path.join(__dirname, '../public/levels');
+				const data = fs.readFileSync(`${levelPath}/${fileName}`, 'utf8');
 	
 				const $ = cheerio.load(data, { xmlMode: true });
 				
