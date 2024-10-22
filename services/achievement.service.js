@@ -10,6 +10,7 @@ const Utils = require("../utils/utils");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const handlebars = require("handlebars");
+const cheerio = require('cheerio');
 
 const achievementService = {
 	name: "achievement",
@@ -139,10 +140,15 @@ const achievementService = {
 
 				const imgHost = process.env.MOLECULER_SERVICE_LOCATION;
 
-				const achievementUrl = `${imgHost}${achievement.image.completed}`;
+				let achievementUrl = `${imgHost}${achievement.image.completed}`;
 				const salt = process.env.ACHIEVEMENTS_ENCRYPT_KEY;
 				const encrypt = Utils.cipher(salt);
 				const userEmail = encrypt(user.userEmail);
+				if (userDb._level.levelId == 4 || userDb._level.levelId == 5 || userDb._level.levelId == 6 || userDb._level.levelId == 7) {
+					this.generateCustomAchievement(`Level${userDb._level.levelId}.svg`, user);
+					achievementUrl = `${imgHost}/achievements/${user.userId}.svg`;
+				}
+
 				this.logger.info("10. getAchievementPostPreview get achievement post template triggered");
 				return {
 					template: achievementPostTemplate,
@@ -341,7 +347,67 @@ const achievementService = {
 					}
 				});
 			}
-		}
+		},
+
+		async generateCustomAchievement(fileName, user) {
+			const firstName = user.userFullName.split(' ')[0];
+			const name = user.userFullName.length > 14 ? firstName : user.userFullName;
+			if (name.length > 14) {
+				console.log('Name cannot be more than 14 characters');
+				return;
+			}
+	
+	
+			try {
+				const data = fs.readFileSync(`./public/levels/${fileName}`, 'utf8');
+	
+				const $ = cheerio.load(data, { xmlMode: true });
+				
+				if (fileName === 'Level7.svg') {
+					const nameLength = name.length;
+					const emptySpaces = 14 - nameLength;
+					const leftSpaces = Math.floor(emptySpaces / 2);
+					const rightSpaces = emptySpaces - leftSpaces;
+	
+					const centeredName = ' '.repeat(leftSpaces) + name + ' '.repeat(rightSpaces);
+	
+					const nameElement = $('#name tspan.cls-110');
+					if (nameElement.length > 0) {
+						nameElement.text(centeredName);
+					}
+	
+				} else if (fileName === 'Level1.svg' || fileName === 'Level2.svg' || fileName === 'Level3.svg' || fileName === 'Level4.svg' || fileName === 'Level5.svg' || fileName === 'Level6.svg') {
+					const nameLength = name.length;
+					const emptySpaces = 14 - nameLength;
+					const leftSpaces = Math.floor(emptySpaces / 2);
+					const rightSpaces = emptySpaces - leftSpaces;
+	
+					const chars = new Array(leftSpaces).fill(' ').concat(name.split(''), new Array(rightSpaces).fill(' '));
+	
+					for (let i = 0; i < 14; i++) {
+						const textElement = $(`#editableText${i + 1} tspan`);
+						if (textElement.length > 0) {
+							const char = chars[i];
+							textElement.text(char === ' ' ? '' : char);
+						}
+					}
+	
+					const firstLetterElement = $('#firstLetter tspan');
+					if (firstLetterElement.length > 0) {
+						firstLetterElement.text(name[0]);
+					}
+				} else {
+					console.log('Unsupported SVG file');
+					return;
+				}
+	
+				const updatedSVG = $.xml();
+				fs.writeFileSync(`./public/achievements/${String(user.userId)}.svg`, updatedSVG, 'utf8');
+				console.log(`SVG updated successfully with the name: ${name}`);
+			} catch (err) {
+				console.error('Error processing SVG file:', err);
+			}
+		},
 	}
 };
 
