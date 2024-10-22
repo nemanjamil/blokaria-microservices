@@ -353,17 +353,17 @@ const achievementService = {
 		async generateCustomAchievement(fileName, user) {
 			const firstName = user.userFullName.split(' ')[0];
 			const name = user.userFullName.length > 14 ? firstName : user.userFullName;
+			name = name.toUpperCase();
 			if (name.length > 14) {
 				console.log('Name cannot be more than 14 characters');
 				return;
 			}
 	
-	
 			try {
 				const dirPath = path.join(__dirname, '../public/achievements');
 				const levelPath = path.join(__dirname, '../public/levels');
 				const data = fs.readFileSync(`${levelPath}/${fileName}`, 'utf8');
-				
+
 				if (!fs.existsSync(dirPath)) {
 					fs.mkdirSync(dirPath, { recursive: true });
 					console.log('Achievements directory created');
