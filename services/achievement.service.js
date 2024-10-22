@@ -145,10 +145,10 @@ const achievementService = {
 				const salt = process.env.ACHIEVEMENTS_ENCRYPT_KEY;
 				const encrypt = Utils.cipher(salt);
 				const userEmail = encrypt(user.userEmail);
-				if (userDb._level.levelId == 4 || userDb._level.levelId == 5 || userDb._level.levelId == 6 || userDb._level.levelId == 7) {
-					this.generateCustomAchievement(`Level${userDb._level.levelId}.svg`, user);
-					achievementUrl = `${imgHost}achievements/${user.userId}.svg`;
-				}
+				// if (userDb._level.levelId == 4 || userDb._level.levelId == 5 || userDb._level.levelId == 6 || userDb._level.levelId == 7) {
+				// 	this.generateCustomAchievement(`Level${userDb._level.levelId}.svg`, user);
+				// 	achievementUrl = `${imgHost}achievements/${user.userId}.svg`;
+				// }
 
 				this.logger.info("10. getAchievementPostPreview get achievement post template triggered");
 				return {
