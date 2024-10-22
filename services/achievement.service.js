@@ -146,7 +146,7 @@ const achievementService = {
 				const userEmail = encrypt(user.userEmail);
 				if (userDb._level.levelId == 4 || userDb._level.levelId == 5 || userDb._level.levelId == 6 || userDb._level.levelId == 7) {
 					this.generateCustomAchievement(`Level${userDb._level.levelId}.svg`, user);
-					achievementUrl = `${imgHost}/achievements/${user.userId}.svg`;
+					achievementUrl = `${imgHost}achievements/${user.userId}.svg`;
 				}
 
 				this.logger.info("10. getAchievementPostPreview get achievement post template triggered");
