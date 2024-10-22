@@ -359,6 +359,8 @@ const achievementService = {
 	
 	
 			try {
+				const dirPath = path.join(__dirname, './public/achievements');
+
 				const data = fs.readFileSync(`./public/levels/${fileName}`, 'utf8');
 	
 				const $ = cheerio.load(data, { xmlMode: true });
@@ -402,7 +404,7 @@ const achievementService = {
 				}
 	
 				const updatedSVG = $.xml();
-				fs.writeFileSync(`./public/achievements/${String(user.userId)}.svg`, updatedSVG, 'utf8');
+				fs.writeFileSync(`${dirPath}/${String(user.userId)}.svg`, updatedSVG, 'utf8');
 				console.log(`SVG updated successfully with the name: ${name}`);
 			} catch (err) {
 				console.error('Error processing SVG file:', err);
