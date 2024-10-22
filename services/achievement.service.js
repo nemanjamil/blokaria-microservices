@@ -9,6 +9,7 @@ const { linkedInExchangeCode, linkedInGetUserProfile, createLinkedInPost } = req
 const Utils = require("../utils/utils");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
+const path = require("path");
 const handlebars = require("handlebars");
 const cheerio = require('cheerio');
 
