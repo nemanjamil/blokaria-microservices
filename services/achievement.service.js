@@ -352,7 +352,7 @@ const achievementService = {
 
 		async generateCustomAchievement(fileName, user) {
 			const firstName = user.userFullName.split(' ')[0];
-			const name = user.userFullName.length > 14 ? firstName : user.userFullName;
+			let name = user.userFullName.length > 14 ? firstName : user.userFullName;
 			name = name.toUpperCase();
 			if (name.length > 14) {
 				console.log('Name cannot be more than 14 characters');
