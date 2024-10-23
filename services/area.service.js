@@ -144,6 +144,14 @@ const areaService = {
 				const { id } = ctx.params;
 
 				try {
+					numberOfWalletsinArea = await Wallet.countDocuments({ _area: id });
+					
+					if (numberOfWalletsinArea > 0) {
+						throw new MoleculerClientError("Area Deletion Failed", 403, "AREA_DELETION_FAILED", {
+							message: "The area cannot be deleted because it has wallets associated with it."
+						});
+					}
+
 					const deletedArea = await Area.findByIdAndDelete(id);
 
 					if (!deletedArea) {
