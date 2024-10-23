@@ -145,7 +145,7 @@ const areaService = {
 
 				try {
 					numberOfWalletsinArea = await Wallet.countDocuments({ _area: id });
-					
+
 					if (numberOfWalletsinArea > 0) {
 						throw new MoleculerClientError("Area Deletion Failed", 403, "AREA_DELETION_FAILED", {
 							message: "The area cannot be deleted because it has wallets associated with it."
@@ -210,7 +210,7 @@ const areaService = {
 						return {
 							...areaData,
 							totalTrees: walletInfo.totalTrees,
-							plantedtTreesCount: geoLocationInfo.treesWithGeolocation,
+							plantedTreesCount: geoLocationInfo.treesWithGeolocation,
 							treesInProgressCount: walletInfo.totalTrees - geoLocationInfo.treesWithGeolocation
 						};
 					});
