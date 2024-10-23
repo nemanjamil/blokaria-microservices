@@ -87,10 +87,16 @@ const achievementService = {
 
 					this.logger.info("13. publishAchievementLinkedInPost imgHost", imgHost);
 
+					const salt = process.env.ACHIEVEMENTS_ENCRYPT_KEY;
+					const encrypt = Utils.cipher(salt);
+					const userEmail = encrypt(ctx.meta.user.userEmail);
+					const achievementUrl = `${process.env.BLOKARIA_WEBSITE}/achievements/${userEmail}`
+
 					const shareResponse = await createLinkedInPost(
 						userProfile.sub,
 						response.access_token,
 						achievement,
+						achievementUrl,
 						`${imgHost}${achievement.image.completed}`,
 						this.logger
 					);

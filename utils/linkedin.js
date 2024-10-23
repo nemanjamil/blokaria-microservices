@@ -205,7 +205,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
  * @param {string} accessToken Access token LinkedIn APIs
  * @param {import("../models/Achievement")} achievement Achievement
  */
-const createLinkedInPost = async (userId, accessToken, achievement, imageUrl, logger) => {
+const createLinkedInPost = async (userId, accessToken, achievement, achievementUrl, imageUrl, logger) => {
 	const LINKEDIN_API_URL = "https://api.linkedin.com/rest/posts";
 
 	logger.info("1. createLinkedInPost START");
@@ -217,9 +217,9 @@ const createLinkedInPost = async (userId, accessToken, achievement, imageUrl, lo
 
 		logger.info("4. createLinkedInPost urn", urn);
 
-		const { subject, body, body1, tags } = postTemplate;
+		const { subject, body, body1, body2, tags } = postTemplate;
 
-		const postContent = `${body}\n\n${body1.replace("{{achievement}}", achievement.name)}\n\n${tags}`;
+		const postContent = `${body}\n\n${body1.replace("{{achievement}}", achievement.name)}\n\n${body2.replace("{{achievementUrl}}", achievementUrl)}\n\n${tags}`;
 
 		const postData = {
 			author: `urn:li:person:${userId}`,
