@@ -458,7 +458,7 @@ module.exports = {
 					const walletUpdate = {
 						$addToSet: { _wallets: String(storedIntoDb._id) }
 					};
-					let updatedWalletUser = await User.findOneAndUpdate({ userEmail: userData.userEmail }, walletUpdate, { new: true })
+					let updatedWalletUser = await User.findOneAndUpdate({ userEmail: meta.$multipart.userEmail }, walletUpdate, { new: true })
 						.populate("_wallets")
 						.exec();
 
