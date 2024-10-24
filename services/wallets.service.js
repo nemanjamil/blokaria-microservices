@@ -456,9 +456,9 @@ module.exports = {
 		
 				allAchievements.sort((a, b) => a._level.required_trees - b._level.required_trees);
 		
-				let userTreesPlanted = listQrCodesByUser.length; 
+				const userTreesPlanted = listQrCodesByUser.length; 
 				let nextAchievement = null;
-				userTreesPlanted = 31
+		
 				for (let i = 0; i < allAchievements.length; i++) {
 					if (allAchievements[i]._level.required_trees > userTreesPlanted) {
 						nextAchievement = allAchievements[i];
