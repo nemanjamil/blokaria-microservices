@@ -13,6 +13,8 @@ const isObjectLike = require("lodash/isObjectLike");
 const axiosMixin = require("../mixins/axios.mixin");
 const User = require("../models/User");
 const { getFilesFromPath, Web3Storage } = require("web3.storage");
+const Achievement = require("../models/Achievement");
+const Level = require("../models/Level");
 
 const uploadDir = path.join(__dirname, "../public/__uploads");
 mkdir(uploadDir);
@@ -324,8 +326,9 @@ module.exports = {
 						ctx.params.latitude = latitude;
 						ctx.params.longitude = longitude;
 					}
-
+					console.log("generateQrCodeInSystemNoImage ctx.params", ctx.params);
 					meta.$multipart = ctx.params;
+					console.log("generateQrCodeInSystemNoImage meta.$multipart", meta.$multipart);
 					let storedIntoDb = await ctx.call("wallet.generateQrCodeInSystem", { data: meta, imageSave });
 
 					this.logger.info("2. generateQrCodeInSystemNoImage storedIntoDb", storedIntoDb);
@@ -365,6 +368,93 @@ module.exports = {
 						qrcode: meta.$multipart.walletQrId[0].walletQrId
 					});
 
+					/******************************* Update Achievement ******************************** */
+					const user = await User.findOne({ userEmail: meta.$multipart.userEmail })
+
+					let threshold = isNaN(user?._wallets?.length) ? 1 : Number(user?._wallets?.length) + 1
+
+					if (isNaN(threshold)) {
+						threshold = 1;
+					}
+
+					this.logger.info("25. createItem threshold", threshold);
+
+					let achievements = await Achievement.find({}).populate({
+						path: "_level",
+						match: { required_trees: { $lte: threshold } }
+					});
+
+					this.logger.info("27. createItem achievements ALL", achievements);
+
+					achievements = achievements.filter((achievement) => achievement._level && achievement._level.required_trees <= threshold);
+
+					this.logger.info("29. createItem achievements filtered", achievements);
+
+					// Find and update user level
+					const levels = await Level.findOne({
+						required_trees: {
+							$lte: threshold
+						}
+					}).sort({ required_trees: -1 });
+					const userLevel = levels._id;
+
+					this.logger.info("30. createItem levels", levels);
+					this.logger.info("32. createItem userLevel", userLevel);
+
+					let iterationNumber = 0;
+
+					this.logger.info("\n\n\n ---- ACHIEVEMENTS START ---- \n\n\n");
+					this.logger.info("UserData", user);
+					// Add achievements to user, it will check if its there it won't add with addToSet
+					for (const element of achievements.filter((x) => x._level !== null)) {
+						this.logger.info(`35.${iterationNumber} createItem: element`, element);
+
+						if (element._level) {
+							this.logger.info(`37.${iterationNumber} createItem element._level`, element._id);
+							this.logger.info(`39.${iterationNumber} createItem user._achievements`, user._achievements);
+
+							if (!user._achievements.includes(element._id)) {
+								this.logger.info(`42.${iterationNumber} reduceNumberOfTransaction - New Achievement created.`);
+
+								const achievementUpdate = {
+									$addToSet: { _achievements: String(element._id) }
+								};
+
+								const updatedUser = await User.findOneAndUpdate({ userEmail: user.userEmail }, achievementUpdate, { new: true })
+									.populate("_achievements")
+									.exec();
+
+								let achPayload = {
+									userLang: "en",
+									userEmail: updatedUser.userEmail,
+									achievement: element
+								};
+								this.logger.info(`44.${iterationNumber} createItem achPayload`, achPayload);
+
+								let sendEmailAch = await ctx.call("v1.achievement.sendAchievementEmail", achPayload);
+
+								this.logger.info(`46.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
+							} else {
+								this.logger.info(`48.${iterationNumber} createItem - Achievement already exists for user.`);
+							}
+						} else {
+							this.logger.info(`50.${iterationNumber} createItem - element._level does not exist.`);
+						}
+						iterationNumber++;
+
+						this.logger.info("\n\n\n");
+					}
+								// Update transactional data
+					const data = {
+						//$inc: { numberOfTransaction: -1 },
+						$set: { _level: String(userLevel) }
+					};
+
+					this.logger.info("60. createItem Update transactional data", data);
+
+					await User.findOneAndUpdate({ userEmail: user.userEmail }, data, { new: true }).populate("_achievements");
+
+					/*********************************************************************************** */
 					const walletUpdate = {
 						$addToSet: { _wallets: String(storedIntoDb._id) }
 					};

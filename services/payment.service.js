@@ -285,13 +285,25 @@ const paymentService = {
 				area: { type: "string" }
 			},
 			async handler(ctx) {
+				
 				this.logger.info("1. buyTreePayment STRIPE Buy Tree Payment triggered:", ctx.params);
 				const { quantity, userEmail, area } = ctx.params;
 
-				this.logger.info("3. buyTreePayment  STRIPE quantity, userEmail, area", quantity, userEmail, area);
+				if (quantityOfTrees < 1 || quantityOfTrees > 10) {
+					throw new MoleculerClientError("Quantity of trees must be between 1 and 10", 400, "INVALID_QUANTITY", {
+						message: "Quantity of trees must be between 1 and 10"
+					});
+				}
 
+				const result = await ctx.call("v1.area.canUserPlantInArea", { areaId: area, numberOfTrees: quantityOfTrees });
+				if (!result.canPlant) {
+					throw new MoleculerClientError("User can't plant in this area", 400, "USER_CANT_PLANT", {
+						message: "User can't plant in this area"
+					});
+				}
+				
 				const userId = ctx.meta.user.userId;
-				// const treePrice = this.metadata.itemPrice;
+
 				const stripe = this.getStripe();
 
 				areaDetails = await ctx.call("v1.area.getAreaById", { id: area });
