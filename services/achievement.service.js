@@ -158,8 +158,8 @@ const achievementService = {
 				// 	achievementUrl = `${imgHost}achievements/${user.userId}.svg`;
 				// }
 
-				this.generateCustomCertificate(achievement ,user);
-				achievementUrl = `${imgHost}achievements/certificate_${user.userId}.svg`;
+				// this.generateCustomCertificate(achievement ,user);
+				// achievementUrl = `${imgHost}achievements/certificate_${user.userId}.svg`;
 
 
 				this.logger.info("10. getAchievementPostPreview get achievement post template triggered");
@@ -172,6 +172,36 @@ const achievementService = {
 				};
 			}
 		},
+
+		getMyCertificate: {
+			async handler(ctx) {
+				const user = ctx.meta.user;
+
+				const userDb = await User.findById(user.userId, { _id: 1 }).populate({ path: "_level" }).populate("_achievements").exec();
+
+				if (!userDb._achievements.length) {
+					const message = "There are no achievement for this user.";
+					throw new MoleculerClientError("Area Creation Failed", 404, "MISSING_ACHIEVEMENT", {
+						message
+					});
+				}
+
+				const achievement = userDb._achievements.find((achievement) => String(achievement._level) === String(userDb._level._id));
+
+
+				if (userDb._achievements.length === 0) {
+					throw new MoleculerError("No achievement found for publishing", 400, "ACHIEVEMENT_NOT_FOUND", { msg: "no achievements on user" });
+				}
+
+
+				this.generateCustomCertificate(achievement ,user);
+				let certificateUrl = `${process.env.MOLECULER_SERVICE_LOCATION}achievements/certificate_${user.userId}.svg`;
+
+
+				return certificateUrl
+			}
+		},
+
 		createAchievement: {
 			params: {
 				name: { type: "string" },

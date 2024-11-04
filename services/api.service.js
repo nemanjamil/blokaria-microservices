@@ -239,6 +239,7 @@ module.exports = {
 					"POST /editProfile": "user.editProfile",
 					"GET /area/getMyAreas": "v1.area.getMyAreas",
 					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
+					"GET achievement/getMyCertificate": "v1.achievement.getMyCertificate",
 				},
 				callingOptions: {},
 
