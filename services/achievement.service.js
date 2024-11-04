@@ -156,6 +156,10 @@ const achievementService = {
 				// 	achievementUrl = `${imgHost}achievements/${user.userId}.svg`;
 				// }
 
+				this.generateCustomCertificate(user);
+				achievementUrl = `${imgHost}achievements/certificate_${user.userId}.svg`;
+
+
 				this.logger.info("10. getAchievementPostPreview get achievement post template triggered");
 				return {
 					template: achievementPostTemplate,
@@ -356,16 +360,51 @@ const achievementService = {
 			}
 		},
 
-		async generateCustomAchievement(fileName, user) {
-			const firstName = user.userFullName.split(" ")[0];
-			let name = user.userFullName.length > 14 ? firstName : user.userFullName;
-			name = name.toUpperCase();
-			if (name.length > 14) {
-				console.log("Name cannot be more than 14 characters");
-				return;
-			}
-
+		async generateCustomCertificate(user) {
 			try {
+				const firstName = user.userFullName.split(" ")[0];
+				let name = user.userFullName.length > 14 ? firstName : user.userFullName;
+				name = name.toUpperCase();
+				if (name.length > 14) {
+					console.log("Name cannot be more than 14 characters");
+					return;
+				}
+	
+				const dirPath = path.join(__dirname, "../public/achievements");
+				const certificatePath = path.join(__dirname, "../public/templates");
+				const data = fs.readFileSync(`${certificatePath}/Certificate.svg`, "utf8");
+
+				if (!fs.existsSync(dirPath)) {
+					fs.mkdirSync(dirPath, { recursive: true });
+					console.log("Achievements directory created");
+				}
+
+				const $ = cheerio.load(data, { xmlMode: true });
+
+				$('#achievementName tspan').text('Carbon Neutral');
+				$('#userName tspan').text('Nemanja Mil');    
+				$('#date tspan').first().text('2020-02-02');     
+
+				const updatedSVG = $.xml();
+				fs.writeFileSync(`${dirPath}/certificate_${String(user.userId)}.svg`, updatedSVG, "utf8");
+				console.log(`SVG updated successfully with the name: ${name}`);
+
+				
+			} catch (err) {
+				console.error("Error processing SVG file:", err);
+			}
+		},
+
+		async generateCustomAchievement(fileName, user) {
+			try {
+				const firstName = user.userFullName.split(" ")[0];
+				let name = user.userFullName.length > 14 ? firstName : user.userFullName;
+				name = name.toUpperCase();
+				if (name.length > 14) {
+					console.log("Name cannot be more than 14 characters");
+					return;
+				}
+	
 				const dirPath = path.join(__dirname, "../public/achievements");
 				const levelPath = path.join(__dirname, "../public/levels");
 				const data = fs.readFileSync(`${levelPath}/${fileName}`, "utf8");
@@ -427,6 +466,7 @@ const achievementService = {
 				console.error("Error processing SVG file:", err);
 			}
 		}
+
 	}
 };
 
