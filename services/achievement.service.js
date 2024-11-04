@@ -12,6 +12,7 @@ const fs = require("fs");
 const path = require("path");
 const handlebars = require("handlebars");
 const cheerio = require("cheerio");
+const Wallet = require("../models/Wallet");
 
 const achievementService = {
 	name: "achievement",
@@ -151,12 +152,13 @@ const achievementService = {
 				const salt = process.env.ACHIEVEMENTS_ENCRYPT_KEY;
 				const encrypt = Utils.cipher(salt);
 				const userEmail = encrypt(user.userEmail);
+				
 				// if (userDb._level.levelId == 4 || userDb._level.levelId == 5 || userDb._level.levelId == 6 || userDb._level.levelId == 7) {
 				// 	this.generateCustomAchievement(`Level${userDb._level.levelId}.svg`, user);
 				// 	achievementUrl = `${imgHost}achievements/${user.userId}.svg`;
 				// }
 
-				this.generateCustomCertificate(user);
+				this.generateCustomCertificate(achievement ,user);
 				achievementUrl = `${imgHost}achievements/certificate_${user.userId}.svg`;
 
 
@@ -360,11 +362,10 @@ const achievementService = {
 			}
 		},
 
-		async generateCustomCertificate(user) {
+		async generateCustomCertificate(achievement ,user) {
 			try {
 				const firstName = user.userFullName.split(" ")[0];
 				let name = user.userFullName.length > 14 ? firstName : user.userFullName;
-				name = name.toUpperCase();
 				if (name.length > 14) {
 					console.log("Name cannot be more than 14 characters");
 					return;
@@ -379,17 +380,32 @@ const achievementService = {
 					console.log("Achievements directory created");
 				}
 
-				const $ = cheerio.load(data, { xmlMode: true });
+				const walletCount = await Wallet.countDocuments({
+					userEmail: user.userEmail, 
+					qrCodeRedeemStatus: 0, 
+					publicQrCode: true     
+				});
 
-				$('#achievementName tspan').text('Carbon Neutral');
-				$('#userName tspan').text('Nemanja Mil');    
-				$('#date tspan').first().text('2020-02-02');     
+				const certificateTemplate = require("../public/templates/en/certificate.json");
+				const body = certificateTemplate.body.replace("{{numberOfTrees}}", walletCount);
+				const body1 = certificateTemplate.body1.replace("{{achievementLevel}}", achievement.name);
+
+				const $ = cheerio.load(data, { xmlMode: true });
+				$('#achievementName tspan').text(achievement.name.split("-")[0]);
+				$('#userName tspan').text(name);  
+				$('#certificateParagraph1').text(body);
+				$('#certificateParagraph2').text(body1);
+				const currentDate = new Date();
+
+				const formattedDate = currentDate.toISOString().split('T')[0];
+
+				$('#date').first().text(formattedDate);
 
 				const updatedSVG = $.xml();
 				fs.writeFileSync(`${dirPath}/certificate_${String(user.userId)}.svg`, updatedSVG, "utf8");
 				console.log(`SVG updated successfully with the name: ${name}`);
 
-				
+
 			} catch (err) {
 				console.error("Error processing SVG file:", err);
 			}
