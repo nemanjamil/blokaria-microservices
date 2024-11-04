@@ -361,56 +361,93 @@ const achievementService = {
 				});
 			}
 		},
-
-		async generateCustomCertificate(achievement ,user) {
+		async generateCustomCertificate(achievement, user) {
 			try {
-				const firstName = user.userFullName.split(" ")[0];
-				let name = user.userFullName.length > 14 ? firstName : user.userFullName;
-				if (name.length > 14) {
-					console.log("Name cannot be more than 14 characters");
-					return;
-				}
-	
+				const { userFullName: name, userEmail, userId } = user;
 				const dirPath = path.join(__dirname, "../public/achievements");
-				const certificatePath = path.join(__dirname, "../public/templates");
-				const data = fs.readFileSync(`${certificatePath}/Certificate.svg`, "utf8");
-
+				const certificatePath = path.join(__dirname, "../public/templates/Certificate.svg");
+				const templateData = fs.readFileSync(certificatePath, "utf8");
+		
 				if (!fs.existsSync(dirPath)) {
 					fs.mkdirSync(dirPath, { recursive: true });
 					console.log("Achievements directory created");
 				}
-
+		
 				const walletCount = await Wallet.countDocuments({
-					userEmail: user.userEmail, 
-					qrCodeRedeemStatus: 0, 
-					publicQrCode: true     
+					userEmail,
+					qrCodeRedeemStatus: 0,
+					publicQrCode: true,
 				});
+		
+				const { body: templateBody } = require("../public/templates/en/certificate.json");
+				const populatedBody = templateBody
+					.replace("{{achievementLevel}}", achievement.name)
+					.replace("{{numberOfTrees}}", walletCount);
+		
+				const splitTextIntoLines = (text, maxLength) => {
+					return text.split(' ').reduce((lines, word) => {
+						const currentLine = lines[lines.length - 1];
+						if (currentLine.length + word.length + 1 <= maxLength) {
+							lines[lines.length - 1] += ` ${word}`;
+						} else {
+							lines.push(word);
+						}
+						return lines;
+					}, ['']);
+				};
+		
+				const splitLines = splitTextIntoLines(populatedBody, 100);
+		
+				const $ = cheerio.load(templateData, { xmlMode: true });
+		
+				splitLines.forEach((line, index) => {
+					$(`#certificateParagraph${index + 1}`)
+						.text(line)
+						.attr('text-anchor', 'middle');
+				});
+		
+				$('#achievementName tspan')
+					.text(achievement.name.split("-")[0])
+					.attr('text-anchor', 'middle');
+				$('#userName tspan')
+					.text(name)
+					.attr('text-anchor', 'middle');
+		
+				const salt = process.env.ACHIEVEMENTS_ENCRYPT_KEY;
+				const encryptedEmail = Utils.cipher(salt)(userEmail);
+		
+				$('#achievementLink')
+					.attr('xlink:href', `${process.env.BLOKARIA_WEBSITE}/achievements/${encryptedEmail}`)
+					.attr('target', '_self')
+					.find('text#certRef')
+					.text(`Certificate Ref: ${encryptedEmail}`)
+					.attr('text-anchor', 'middle');
+		
+				$('#date').first().text(new Date().toISOString().split('T')[0]);
+				
+				const achievementImagePath = path.join(__dirname, "../public", achievement.image.completed);
+				const achievementImageBuffer = fs.readFileSync(achievementImagePath);
+				const base64Image = achievementImageBuffer.toString('base64');
 
-				const certificateTemplate = require("../public/templates/en/certificate.json");
-				const body = certificateTemplate.body.replace("{{numberOfTrees}}", walletCount);
-				const body1 = certificateTemplate.body1.replace("{{achievementLevel}}", achievement.name);
+				$('image[clip-path="url(#c8)"]')
+					.attr('href', `data:image/png;base64,${base64Image}`)
+					.attr('preserveAspectRatio', 'none')
+					.attr('x', '575')
+					.attr('y', '593')
 
-				const $ = cheerio.load(data, { xmlMode: true });
-				$('#achievementName tspan').text(achievement.name.split("-")[0]);
-				$('#userName tspan').text(name);  
-				$('#certificateParagraph1').text(body);
-				$('#certificateParagraph2').text(body1);
-				const currentDate = new Date();
-
-				const formattedDate = currentDate.toISOString().split('T')[0];
-
-				$('#date').first().text(formattedDate);
-
-				const updatedSVG = $.xml();
-				fs.writeFileSync(`${dirPath}/certificate_${String(user.userId)}.svg`, updatedSVG, "utf8");
+				fs.writeFileSync(
+					`${dirPath}/certificate_${String(userId)}.svg`,
+					$.xml(),
+					"utf8"
+				);
+		
 				console.log(`SVG updated successfully with the name: ${name}`);
-
-
 			} catch (err) {
 				console.error("Error processing SVG file:", err);
 			}
 		},
-
+		
+				
 		async generateCustomAchievement(fileName, user) {
 			try {
 				const firstName = user.userFullName.split(" ")[0];

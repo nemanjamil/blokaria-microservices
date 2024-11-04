@@ -1,4 +1,3 @@
 {
-	"body": "In recognition of their outstanding commitment to the environment by planting {{numberOfTrees}} trees,",
-	"body1": "They have reached {{achievementLevel}} level. Their dedication inspires others to take action!"
+	"body": "In recognition of their outstanding commitment to the environment by planting {{numberOfTrees}} trees, They have reached {{achievementLevel}} level. Their dedication inspires others to take action!"
 }
