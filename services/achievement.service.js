@@ -15,6 +15,7 @@ const cheerio = require("cheerio");
 const Wallet = require("../models/Wallet");
 const puppeteer = require('puppeteer');
 
+
 const achievementService = {
 	name: "achievement",
 	version: 1,
@@ -176,30 +177,34 @@ const achievementService = {
 
 		getMyCertificate: {
 			async handler(ctx) {
-				const user = ctx.meta.user;
+				try {
+					const user = ctx.meta.user;
 
-				const userDb = await User.findById(user.userId, { _id: 1 }).populate({ path: "_level" }).populate("_achievements").exec();
+					const userDb = await User.findById(user.userId, { _id: 1 }).populate({ path: "_level" }).populate("_achievements").exec();
 
-				if (!userDb._achievements.length) {
-					const message = "There are no achievement for this user.";
-					throw new MoleculerClientError("Area Creation Failed", 404, "MISSING_ACHIEVEMENT", {
-						message
+					if (!userDb._achievements.length) {
+						const message = "There are no achievement for this user.";
+						throw new MoleculerClientError("Area Creation Failed", 404, "MISSING_ACHIEVEMENT", {
+							message
+						});
+					}
+
+					const achievement = userDb._achievements.find((achievement) => String(achievement._level) === String(userDb._level._id));
+
+					if (userDb._achievements.length === 0) {
+						throw new MoleculerError("No achievement found for publishing", 400, "ACHIEVEMENT_NOT_FOUND", { msg: "no achievements on user" });
+					}
+
+					await this.generateCustomCertificate(achievement, user);
+					let certificateUrl = `${process.env.MOLECULER_SERVICE_LOCATION}achievements/certificate_${user.userId}.pdf`;
+
+					return certificateUrl;
+				} catch (err) {
+					this.logger.error("Error in getMyCertificate:", err);
+					throw new MoleculerError("Failed to generate certificate", 500, "CERTIFICATE_GENERATION_FAILED", {
+						message: err.message || "Failed to generate certificate"
 					});
 				}
-
-				const achievement = userDb._achievements.find((achievement) => String(achievement._level) === String(userDb._level._id));
-
-
-				if (userDb._achievements.length === 0) {
-					throw new MoleculerError("No achievement found for publishing", 400, "ACHIEVEMENT_NOT_FOUND", { msg: "no achievements on user" });
-				}
-
-
-				await this.generateCustomCertificate(achievement ,user);
-				let certificateUrl = `${process.env.MOLECULER_SERVICE_LOCATION}achievements/certificate_${user.userId}.pdf`;
-
-
-				return certificateUrl
 			}
 		},
 
@@ -471,8 +476,9 @@ const achievementService = {
 				fs.writeFileSync(svgPath, $.xml(), "utf8");
 		
 				console.log(`SVG updated successfully with the name: ${name}`);
-				
-				const browser = await puppeteer.launch();
+				const browser = await puppeteer.launch({
+					args: ["--no-sandbox", "--disabled-setupid-sandbox"],
+				  });
 				const page = await browser.newPage();
 		
 				await page.goto(`file://${svgPath}`, { waitUntil: "networkidle0" });
