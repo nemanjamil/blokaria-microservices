@@ -13,6 +13,7 @@ const path = require("path");
 const handlebars = require("handlebars");
 const cheerio = require("cheerio");
 const Wallet = require("../models/Wallet");
+const puppeteer = require('puppeteer');
 
 const achievementService = {
 	name: "achievement",
@@ -194,8 +195,8 @@ const achievementService = {
 				}
 
 
-				this.generateCustomCertificate(achievement ,user);
-				let certificateUrl = `${process.env.MOLECULER_SERVICE_LOCATION}achievements/certificate_${user.userId}.svg`;
+				await this.generateCustomCertificate(achievement ,user);
+				let certificateUrl = `${process.env.MOLECULER_SERVICE_LOCATION}achievements/certificate_${user.userId}.pdf`;
 
 
 				return certificateUrl
@@ -391,6 +392,7 @@ const achievementService = {
 				});
 			}
 		},
+
 		async generateCustomCertificate(achievement, user) {
 			try {
 				const { userFullName: name, userEmail, userId } = user;
@@ -439,7 +441,7 @@ const achievementService = {
 				$('#achievementName tspan')
 					.text(achievement.name.split("-")[0])
 					.attr('text-anchor', 'middle');
-				$('#userName tspan')
+				$('#userName')
 					.text(name)
 					.attr('text-anchor', 'middle');
 		
@@ -453,30 +455,44 @@ const achievementService = {
 					.text(`Certificate Ref: ${encryptedEmail}`)
 					.attr('text-anchor', 'middle');
 		
-				$('#date').first().text(new Date().toISOString().split('T')[0]);
-				
+				$('#date').first().text(new Date().toLocaleDateString("en-GB", { day: '2-digit', month: 'long', year: 'numeric' }));
+		
 				const achievementImagePath = path.join(__dirname, "../public", achievement.image.completed);
 				const achievementImageBuffer = fs.readFileSync(achievementImagePath);
 				const base64Image = achievementImageBuffer.toString('base64');
-
+		
 				$('image[clip-path="url(#c8)"]')
 					.attr('href', `data:image/png;base64,${base64Image}`)
 					.attr('preserveAspectRatio', 'none')
 					.attr('x', '575')
-					.attr('y', '593')
-
-				fs.writeFileSync(
-					`${dirPath}/certificate_${String(userId)}.svg`,
-					$.xml(),
-					"utf8"
-				);
+					.attr('y', '593');
+		
+				const svgPath = `${dirPath}/certificate_${String(userId)}.svg`;
+				fs.writeFileSync(svgPath, $.xml(), "utf8");
 		
 				console.log(`SVG updated successfully with the name: ${name}`);
-			} catch (err) {
-				console.error("Error processing SVG file:", err);
-			}
-		},
+				
+				const browser = await puppeteer.launch();
+				const page = await browser.newPage();
 		
+				await page.goto(`file://${svgPath}`, { waitUntil: "networkidle0" });
+		
+				await page.pdf({
+					path: `${dirPath}/certificate_${String(userId)}.pdf`,
+					format: "A4",
+					printBackground: true,
+					landscape: true,
+				});
+		
+				await browser.close();
+		
+				fs.unlinkSync(svgPath);
+		
+				console.log("PDF generated and SVG removed successfully.");
+			} catch (err) {
+				console.error("Error processing certificate generation:", err);
+			}
+		},	
 				
 		async generateCustomAchievement(fileName, user) {
 			try {
