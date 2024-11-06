@@ -477,8 +477,9 @@ const achievementService = {
 		
 				console.log(`SVG updated successfully with the name: ${name}`);
 				const browser = await puppeteer.launch({
-					args: ["--no-sandbox", "--disabled-setupid-sandbox"],
-				  });
+					executablePath: '/usr/bin/chromium-browser', 
+					args: [ '--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote' ] 
+				});
 				const page = await browser.newPage();
 		
 				await page.goto(`file://${svgPath}`, { waitUntil: "networkidle0" });
