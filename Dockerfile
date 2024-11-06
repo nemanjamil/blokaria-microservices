@@ -4,6 +4,16 @@ FROM node:20.15.1-alpine
 # Set environment variable
 ENV NODE_ENV=production
 
+RUN apk update && apk add --no-cache \
+    chromium \
+    chromium-chromedriver \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    && rm -rf /var/cache/apk/*
+
 # Create and set the working directory
 RUN mkdir /app
 WORKDIR /app
