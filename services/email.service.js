@@ -7,6 +7,7 @@ const Utils = require("../utils/utils");
 const Wallet = require("../models/Wallet");
 const Subscription = require("../models/Subscription");
 const User = require("../models/User");
+const path = require("path");
 
 require("dotenv").config();
 
@@ -443,7 +444,12 @@ module.exports = {
 					const source = fs.readFileSync(`./public/templates/${userLang}/donationConfirmation.html`, "utf-8").toString();
 
 					const template = handlebars.compile(source);
-
+					const certPath = await ctx.call("v1.achievement.generateDonationCertificate", { firstName: donationDetails.firstName, lastName: donationDetails.lastName});
+										
+					const achievementImagePath = path.join(__dirname, "../public", "levels/lvl-1.png");
+					const achievementImageBuffer = fs.readFileSync(achievementImagePath);
+					const base64Badge = achievementImageBuffer.toString('base64');
+			
 					const replacements = {
 						amount: donationDetails.amount,
 						orderId: donationDetails.orderId,
@@ -461,11 +467,24 @@ module.exports = {
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Donation confirmation 🙌",
-						html: htmlToSend
+						html: htmlToSend,
+						attachments: [
+							{
+								filename: "badge.png",
+								content: base64Badge,
+								encoding: "base64",
+								cid: "badge"
+							},
+							{
+								filename: 'certificate.pdf',
+								path: certPath,                                         
+								contentType: 'application/pdf'
+							}
+						]
 					};
 
 					let info = await transporter.sendMail(mailOptions);
-
+					fs.unlinkSync(certPath);
 					return info;
 				} catch (error) {
 					return Promise.reject(error);
@@ -683,6 +702,7 @@ module.exports = {
 				return "sendMailMethod";
 			}
 		},
+		
 		getTransporter: {
 			async handler() {
 				let adminEmail = process.env.ADMIN_EMAIL;

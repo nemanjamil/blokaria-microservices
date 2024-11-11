@@ -389,12 +389,31 @@ const paymentService = {
 
 		paypalDonationCreateOrder: {
 			params: {
-				amount: { type: "number" }
+				amount: { type: "number", required: true },
+				firstName: { type: "string", required: true },
+				lastName: { type: "string", required: true},
 			},
 			async handler(ctx) {
 				try {
 					this.logger.info("ctx params", ctx.params);
-					const { amount, showInDonations } = ctx.params;
+					const { amount, showInDonations, firstName, lastName } = ctx.params;
+					const nameRegex = /^[A-Za-z]+$/;
+					const minNameLength = 2;
+					const maxNameLength = 20;
+
+					if (
+						!firstName || !lastName || !nameRegex.test(firstName) || !nameRegex.test(lastName) || firstName.length < minNameLength || 
+						firstName.length > maxNameLength || lastName.length < minNameLength || lastName.length > maxNameLength
+					) {
+						throw new MoleculerClientError(
+							`First name and last name are required and must contain only alphabetic characters, with length between ${minNameLength} and ${maxNameLength} characters.`,
+							400,
+							"INVALID_NAME",
+							{
+								message: `First name and last name are required and must contain only alphabetic characters, with length between ${minNameLength} and ${maxNameLength} characters.`
+							}
+						);
+					}
 
 					const { approveLink, orderId, totalAmount } = await createOrder({
 						amount: amount,
@@ -413,6 +432,7 @@ const paymentService = {
 						showInDonations: showInDonations,
 						invoiceId: orderId,
 						area: process.env.DONATION_AREA,
+						payer: `${firstName} ${lastName}`,
 						paymentSource: "paypal",
 						paymentType: strings.donation
 					});
@@ -1047,16 +1067,18 @@ const paymentService = {
 					let donatorEmail = captureResult?.payment_source?.paypal?.email_address || null;
 
 					this.logger.info("6. handleDonationWebhookPayPal donatorEmail", donatorEmail);
-
-					let updateInvoiceStatusRes = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
-
+					const updateInvoiceStatusRes = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
+					const { firstName, lastName } = updateInvoiceStatusRes.payer; 
+					
 					this.logger.info("7. handleDonationWebhookPayPal updateInvoiceStatusRes", updateInvoiceStatusRes);
 
 					const payerEmail = webhookEvent.resource.payer.email_address;
-
+					
 					let donationDetails = {
 						amount: totalPrice,
-						orderId: orderId
+						orderId: orderId,
+						firstName: firstName,
+						lastName: lastName
 					};
 
 					this.logger.info("9. handleDonationWebhookPayPal donationDetails", donationDetails);

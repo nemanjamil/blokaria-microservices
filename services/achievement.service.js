@@ -120,6 +120,7 @@ const achievementService = {
 				}
 			}
 		},
+
 		getAchievementPostPreview: {
 			async handler(ctx) {
 				const user = ctx.meta.user;
@@ -369,8 +370,25 @@ const achievementService = {
 					});
 				}
 			}
-		}
+		},
+		generateDonationCertificate: {
+			params: {
+				firstName: { type: "string" },
+				lastName: { type: "string" },
+			},
+			async handler(ctx) {
+				try {
+					const { firstName, lastName } = ctx.params;
+					const path = await this.generateDonationCertificate({ firstName, lastName });
+					return path;
+				} catch (err) {
+					console.error("Error processing certificate generation:", err);
+				}
+			}
+		},
+		
 	},
+
 
 	methods: {
 		sendMailMethod: {
@@ -501,6 +519,105 @@ const achievementService = {
 			}
 		},	
 				
+
+		async generateDonationCertificate(user) {
+			try {
+				const { firstName, lastName } = user;
+				const dirPath = path.join(__dirname, "../public/achievements");
+				const certificatePath = path.join(__dirname, "../public/templates/Certificate.svg");
+				const templateData = fs.readFileSync(certificatePath, "utf8");
+		
+				if (!fs.existsSync(dirPath)) {
+					fs.mkdirSync(dirPath, { recursive: true });
+					console.log("Achievements directory created");
+				}
+		
+				const { body: templateBody } = require("../public/templates/en/donationCertificate.json");
+
+				const splitTextIntoLines = (text, maxLength) => {
+					return text.split(' ').reduce((lines, word) => {
+						const currentLine = lines[lines.length - 1];
+						if (currentLine.length + word.length + 1 <= maxLength) {
+							lines[lines.length - 1] += ` ${word}`;
+						} else {
+							lines.push(word);
+						}
+						return lines;
+					}, ['']);
+				};
+		
+				const splitLines = splitTextIntoLines(templateBody, 100);
+		
+				const $ = cheerio.load(templateData, { xmlMode: true });
+		
+				splitLines.forEach((line, index) => {
+					$(`#certificateParagraph${index + 1}`)
+						.text(line)
+						.attr('text-anchor', 'middle');
+				});
+		
+				$('#achievementName tspan')
+					.text("Carbon-Neutral Awareness")
+					.attr('text-anchor', 'middle');
+					
+				$('#userName')
+					.text(`${firstName} ${lastName}`)
+					.attr('text-anchor', 'middle');
+		
+					$('#achievementLink')
+					.attr('xlink:href', "")
+					.attr('target', '_self')
+					.find('text#certRef')
+					.text("")
+					.attr('text-anchor', 'middle');
+		
+				$('#date').first().text(new Date().toLocaleDateString("en-GB", { day: '2-digit', month: 'long', year: 'numeric' }));
+		
+				const achievementImagePath = path.join(__dirname, "../public", "levels/lvl-1.png");
+				const achievementImageBuffer = fs.readFileSync(achievementImagePath);
+				const base64Image = achievementImageBuffer.toString('base64');
+		
+				$('image[clip-path="url(#c8)"]')
+					.attr('href', `data:image/png;base64,${base64Image}`)
+					.attr('preserveAspectRatio', 'none')
+					.attr('x', '575')
+					.attr('y', '593');
+				
+				const randomId = Math.floor(Math.random() * 1000000);
+				const svgPath = `${dirPath}/certificate_${String(randomId)}.svg`;
+				fs.writeFileSync(svgPath, $.xml(), "utf8");
+		
+				const browser = await puppeteer.launch({
+					executablePath: '/usr/bin/chromium-browser', 
+					args: [ '--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote' ] 
+				});
+				const page = await browser.newPage();
+		
+				await page.goto(`file://${svgPath}`, { waitUntil: "networkidle0" });
+				const pdfPath = `${dirPath}/certificate_${String(randomId)}.pdf`;
+
+				const pdfBuffer = await page.pdf({
+					path: pdfPath,
+					format: "A4",
+					printBackground: true,
+					landscape: true,
+				});
+		
+		        const base64Pdf = pdfBuffer.toString('base64');
+
+				await browser.close();
+		
+				fs.unlinkSync(svgPath);
+		
+				
+				console.log("PDF generated and SVG removed successfully.");
+				// return base64Certificate;
+				return pdfPath;
+			} catch (err) {
+				console.error("Error processing certificate generation:", err);
+			}
+		},	
+
 		async generateCustomAchievement(fileName, user) {
 			try {
 				const firstName = user.userFullName.split(" ")[0];
