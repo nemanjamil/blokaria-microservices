@@ -1068,7 +1068,9 @@ const paymentService = {
 
 					this.logger.info("6. handleDonationWebhookPayPal donatorEmail", donatorEmail);
 					const updateInvoiceStatusRes = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
-					const { firstName, lastName } = updateInvoiceStatusRes.name; 
+					const firstNamelastName = updateInvoiceStatusRes.name.trim().split(" ");
+					const firstName = firstNamelastName[0] || ""; 
+					const lastName = firstNamelastName.length > 1 ? firstNamelastName.slice(1).join(" ") : ""; 
 					
 					this.logger.info("7. handleDonationWebhookPayPal updateInvoiceStatusRes", updateInvoiceStatusRes);
 
