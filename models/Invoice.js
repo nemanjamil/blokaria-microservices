@@ -15,6 +15,7 @@ const invoiceSchema = new mongoose.Schema(
 		invoiceId: { type: String, required: true },
 		donatorEmail: { type: String, lowercase: true, trim: true },
 		showInDonations: { type: Boolean, default: false },
+		name: { type: String, required: true },
 		quantity: { type: Number, default: false },
 		paymentSource: {
 			type: String,

@@ -429,10 +429,10 @@ const paymentService = {
 					this.logger.info("Creating Invoice with orderId");
 					const invoice = new Invoice({
 						amount: totalAmount,
-						showInDonations: showInDonations,
+						showInDonations: true,
 						invoiceId: orderId,
 						area: process.env.DONATION_AREA,
-						payer: `${firstName} ${lastName}`,
+						name: `${firstName} ${lastName}`,
 						paymentSource: "paypal",
 						paymentType: strings.donation
 					});
@@ -1068,7 +1068,7 @@ const paymentService = {
 
 					this.logger.info("6. handleDonationWebhookPayPal donatorEmail", donatorEmail);
 					const updateInvoiceStatusRes = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
-					const { firstName, lastName } = updateInvoiceStatusRes.payer; 
+					const { firstName, lastName } = updateInvoiceStatusRes.name; 
 					
 					this.logger.info("7. handleDonationWebhookPayPal updateInvoiceStatusRes", updateInvoiceStatusRes);
 
