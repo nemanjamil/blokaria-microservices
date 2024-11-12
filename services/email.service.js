@@ -436,7 +436,7 @@ module.exports = {
 			params: {
 				userLang: { type: "string" },
 				userEmail: { type: "string" },
-				donationDetails: { type: "object" }
+				donationDetails: { type: "object" },
 			},
 			async handler(ctx) {
 				try {
@@ -444,13 +444,14 @@ module.exports = {
 					const source = fs.readFileSync(`./public/templates/${userLang}/donationConfirmation.html`, "utf-8").toString();
 
 					const template = handlebars.compile(source);
-					const certPath = await ctx.call("v1.achievement.generateDonationCertificate", { firstName: donationDetails.firstName, lastName: donationDetails.lastName});
+					const certPath = await ctx.call("v1.achievement.generateDonationCertificate", { firstName: donationDetails.firstName, lastName: donationDetails.lastName, orderId: donationDetails.orderId});
 										
-					const achievementImagePath = path.join(__dirname, "../public", "levels/lvl-1.png");
+					const achievementImagePath = path.join(__dirname, "../public", "levels/carbonNeutralAwarness.png");
 					const achievementImageBuffer = fs.readFileSync(achievementImagePath);
 					const base64Badge = achievementImageBuffer.toString('base64');
 			
 					const replacements = {
+						firstName: donationDetails.firstName,
 						amount: donationDetails.amount,
 						orderId: donationDetails.orderId,
 						frontendUrl: process.env.BLOKARIA_WEBSITE,

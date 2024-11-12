@@ -375,11 +375,12 @@ const achievementService = {
 			params: {
 				firstName: { type: "string" },
 				lastName: { type: "string" },
+				orderId: { type: "string"}
 			},
 			async handler(ctx) {
 				try {
 					const { firstName, lastName } = ctx.params;
-					const path = await this.generateDonationCertificate({ firstName, lastName });
+					const path = await this.generateDonationCertificate({ firstName, lastName, orderId });
 					return path;
 				} catch (err) {
 					console.error("Error processing certificate generation:", err);
@@ -522,39 +523,17 @@ const achievementService = {
 
 		async generateDonationCertificate(user) {
 			try {
-				const { firstName, lastName } = user;
+				const { firstName, lastName, orderId } = user;
 				const dirPath = path.join(__dirname, "../public/achievements");
-				const certificatePath = path.join(__dirname, "../public/templates/Certificate.svg");
+				const certificatePath = path.join(__dirname, "../public/templates/DonatorCertificate.svg");
 				const templateData = fs.readFileSync(certificatePath, "utf8");
 		
 				if (!fs.existsSync(dirPath)) {
 					fs.mkdirSync(dirPath, { recursive: true });
 					console.log("Achievements directory created");
 				}
-		
-				const { body: templateBody } = require("../public/templates/en/donationCertificate.json");
-
-				const splitTextIntoLines = (text, maxLength) => {
-					return text.split(' ').reduce((lines, word) => {
-						const currentLine = lines[lines.length - 1];
-						if (currentLine.length + word.length + 1 <= maxLength) {
-							lines[lines.length - 1] += ` ${word}`;
-						} else {
-							lines.push(word);
-						}
-						return lines;
-					}, ['']);
-				};
-		
-				const splitLines = splitTextIntoLines(templateBody, 100);
-		
+				
 				const $ = cheerio.load(templateData, { xmlMode: true });
-		
-				splitLines.forEach((line, index) => {
-					$(`#certificateParagraph${index + 1}`)
-						.text(line)
-						.attr('text-anchor', 'middle');
-				});
 		
 				$('#achievementName tspan')
 					.text("Carbon-Neutral Awareness")
@@ -565,23 +544,13 @@ const achievementService = {
 					.attr('text-anchor', 'middle');
 		
 					$('#achievementLink')
-					.attr('xlink:href', "")
+					.attr('xlink:href', `${process.env.BLOKARIA_WEBSITE}/donators`)
 					.attr('target', '_self')
 					.find('text#certRef')
-					.text("")
+					.text(`Reference: ${orderId}`)
 					.attr('text-anchor', 'middle');
 		
 				$('#date').first().text(new Date().toLocaleDateString("en-GB", { day: '2-digit', month: 'long', year: 'numeric' }));
-		
-				const achievementImagePath = path.join(__dirname, "../public", "levels/lvl-1.png");
-				const achievementImageBuffer = fs.readFileSync(achievementImagePath);
-				const base64Image = achievementImageBuffer.toString('base64');
-		
-				$('image[clip-path="url(#c8)"]')
-					.attr('href', `data:image/png;base64,${base64Image}`)
-					.attr('preserveAspectRatio', 'none')
-					.attr('x', '575')
-					.attr('y', '593');
 				
 				const randomId = Math.floor(Math.random() * 1000000);
 				const svgPath = `${dirPath}/certificate_${String(randomId)}.svg`;

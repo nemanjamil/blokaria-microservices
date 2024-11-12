@@ -429,7 +429,7 @@ const paymentService = {
 					this.logger.info("Creating Invoice with orderId");
 					const invoice = new Invoice({
 						amount: totalAmount,
-						showInDonations: true,
+						showInDonations: showInDonations,
 						invoiceId: orderId,
 						area: process.env.DONATION_AREA,
 						name: `${firstName} ${lastName}`,
