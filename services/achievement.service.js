@@ -379,7 +379,7 @@ const achievementService = {
 			},
 			async handler(ctx) {
 				try {
-					const { firstName, lastName } = ctx.params;
+					const { firstName, lastName, orderId } = ctx.params;
 					const path = await this.generateDonationCertificate({ firstName, lastName, orderId });
 					return path;
 				} catch (err) {

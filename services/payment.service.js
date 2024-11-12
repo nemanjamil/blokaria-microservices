@@ -415,6 +415,14 @@ const paymentService = {
 						);
 					}
 
+					if (amount < 5) {
+						return {
+							status: 400,
+							errorCode: "INVALID_AMOUNT",
+							message: `Amount must be 5 or more.`
+						};
+					}					
+
 					const { approveLink, orderId, totalAmount } = await createOrder({
 						amount: amount,
 						itemName: strings.donation,
