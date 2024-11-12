@@ -456,7 +456,8 @@ module.exports = {
 						amount: donationDetails.amount,
 						orderId: donationDetails.orderId,
 						frontendUrl: process.env.BLOKARIA_WEBSITE,
-						domainEmail: process.env.ADMIN_EMAIL
+						domainEmail: process.env.ADMIN_EMAIL,
+						showDonationRecognition: donationDetails.showInDonations
 					};
 
 					const htmlToSend = template(replacements);

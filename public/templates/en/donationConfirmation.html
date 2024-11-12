@@ -115,10 +115,12 @@
                             <li><strong>Step 2:</strong> Open your profile, then scroll to the <strong>Tree Planting</strong> section.</li>
                             <li><strong>Step 3:</strong> Choose your preferred <strong>country</strong> and <strong>area</strong>, and select the <strong>number of trees</strong> you want to plant!</li>
                         </ul>
-                <p>Interested in celebrating your impact? Your donation is publicly recognized among our dedicated community of supporters in the
+                        
+                <p>{{#if showDonationRecognition}}
+                    Interested in celebrating your impact? Your donation is publicly recognized among our dedicated community of supporters in the 
                     <a href="{{frontendUrl}}/donators" class="button" style="color: #2c7744; text-decoration: none;" target="_blank">Donations Section</a>.
-                </p>
-
+                {{/if}}</p>
+                    
                 <p>Here’s your well-deserved badge:</p>
                 <img src="cid:badge" alt="badge" style="max-width: 100%; height: auto; margin: 0 auto;" />
 

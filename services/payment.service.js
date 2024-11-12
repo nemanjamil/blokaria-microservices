@@ -1079,7 +1079,7 @@ const paymentService = {
 					const firstNamelastName = updateInvoiceStatusRes.name.trim().split(" ");
 					const firstName = firstNamelastName[0] || ""; 
 					const lastName = firstNamelastName.length > 1 ? firstNamelastName.slice(1).join(" ") : ""; 
-					
+					const showInDonations = updateInvoiceStatusRes.showInDonations;
 					this.logger.info("7. handleDonationWebhookPayPal updateInvoiceStatusRes", updateInvoiceStatusRes);
 
 					const payerEmail = webhookEvent.resource.payer.email_address;
@@ -1088,7 +1088,8 @@ const paymentService = {
 						amount: totalPrice,
 						orderId: orderId,
 						firstName: firstName,
-						lastName: lastName
+						lastName: lastName,
+						showInDonations: showInDonations
 					};
 
 					this.logger.info("9. handleDonationWebhookPayPal donationDetails", donationDetails);
