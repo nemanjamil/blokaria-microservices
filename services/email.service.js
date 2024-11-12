@@ -468,7 +468,7 @@ module.exports = {
 						from: `"${this.metadata.nameOfWebSite} 🙌" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: `🌱 Donation Confirmation - Thank You, ${firstName}! 🙌 Your Impact Matters`,
+						subject: `🌱 Donation Confirmation - Thank You, ${donationDetails.firstName}! 🙌 Your Impact Matters`,
 						html: htmlToSend,
 						attachments: [
 							{
