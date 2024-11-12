@@ -525,15 +525,36 @@ const achievementService = {
 			try {
 				const { firstName, lastName, orderId } = user;
 				const dirPath = path.join(__dirname, "../public/achievements");
-				const certificatePath = path.join(__dirname, "../public/templates/DonatorCertificate.svg");
+				const certificatePath = path.join(__dirname, "../public/templates/Certificate.svg");
 				const templateData = fs.readFileSync(certificatePath, "utf8");
 		
 				if (!fs.existsSync(dirPath)) {
 					fs.mkdirSync(dirPath, { recursive: true });
 					console.log("Achievements directory created");
 				}
-				
+		
+				const { body: templateBody } = require("../public/templates/en/donationCertificate.json");
+				const splitTextIntoLines = (text, maxLength) => {
+					return text.split(' ').reduce((lines, word) => {
+						const currentLine = lines[lines.length - 1];
+						if (currentLine.length + word.length + 1 <= maxLength) {
+							lines[lines.length - 1] += ` ${word}`;
+						} else {
+							lines.push(word);
+						}
+						return lines;
+					}, ['']);
+				};
+		
+				const splitLines = splitTextIntoLines(templateBody, 100);
+		
 				const $ = cheerio.load(templateData, { xmlMode: true });
+		
+				splitLines.forEach((line, index) => {
+					$(`#certificateParagraph${index + 1}`)
+						.text(line)
+						.attr('text-anchor', 'middle');
+				});
 		
 				$('#achievementName tspan')
 					.text("Carbon-Neutral Awareness")
@@ -551,6 +572,16 @@ const achievementService = {
 					.attr('text-anchor', 'middle');
 		
 				$('#date').first().text(new Date().toLocaleDateString("en-GB", { day: '2-digit', month: 'long', year: 'numeric' }));
+		
+				const achievementImagePath = path.join(__dirname, "../public", "levels/carbonNeutralAwarness.png");
+				const achievementImageBuffer = fs.readFileSync(achievementImagePath);
+				const base64Image = achievementImageBuffer.toString('base64');
+		
+				$('image[clip-path="url(#c8)"]')
+					.attr('href', `data:image/png;base64,${base64Image}`)
+					.attr('preserveAspectRatio', 'none')
+					.attr('x', '575')
+					.attr('y', '593');
 				
 				const randomId = Math.floor(Math.random() * 1000000);
 				const svgPath = `${dirPath}/certificate_${String(randomId)}.svg`;
@@ -564,7 +595,6 @@ const achievementService = {
 		
 				await page.goto(`file://${svgPath}`, { waitUntil: "networkidle0" });
 				const pdfPath = `${dirPath}/certificate_${String(randomId)}.pdf`;
-
 				const pdfBuffer = await page.pdf({
 					path: pdfPath,
 					format: "A4",
@@ -573,7 +603,6 @@ const achievementService = {
 				});
 		
 		        const base64Pdf = pdfBuffer.toString('base64');
-
 				await browser.close();
 		
 				fs.unlinkSync(svgPath);
@@ -585,7 +614,7 @@ const achievementService = {
 			} catch (err) {
 				console.error("Error processing certificate generation:", err);
 			}
-		},	
+		},
 
 		async generateCustomAchievement(fileName, user) {
 			try {
