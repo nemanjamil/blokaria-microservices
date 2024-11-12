@@ -8,6 +8,7 @@ const Wallet = require("../models/Wallet");
 const Subscription = require("../models/Subscription");
 const User = require("../models/User");
 const path = require("path");
+const { first } = require("lodash");
 
 require("dotenv").config();
 
@@ -467,7 +468,7 @@ module.exports = {
 						from: `"${this.metadata.nameOfWebSite} 🙌" ${process.env.ADMIN_EMAIL}`,
 						to: `${userEmail}`,
 						bcc: `${this.metadata.bccemail}`,
-						subject: "Donation confirmation 🙌",
+						subject: `🌱 Donation Confirmation - Thank You, ${firstName}! 🙌 Your Impact Matters`,
 						html: htmlToSend,
 						attachments: [
 							{
