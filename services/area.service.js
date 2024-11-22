@@ -485,7 +485,8 @@ const areaService = {
 									isPlanted: wallet.isPlanted,
 									longText: wallet.longText,
 									walletQrId: wallet.walletQrId,
-									userFullName: wallet.userFullname
+									userFullName: wallet.userFullname,
+									dateOfPlanting: wallet.dateOfPlanting
 								};
 							});
 

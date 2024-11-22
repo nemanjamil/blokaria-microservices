@@ -567,10 +567,11 @@ module.exports = {
 				latitude: { type: "number", required: true },
 				longitude: { type: "number", required: true },
 				longText: { type: "string", required: true, max: 200 },
-				photo: { type: "string", optional: true }
+				photo: { type: "string", optional: true },
+				date: { type: "string", optional: true }
 			},
 			async handler(ctx) {
-				const { walletId, latitude, longitude, longText, photo } = ctx.params;
+				const { walletId, latitude, longitude, longText, photo, date } = ctx.params;
 				const user = ctx.meta.user;
 
 				try {
@@ -587,6 +588,11 @@ module.exports = {
 							wallet = await Wallet.findById(wallet._id);
 							wallet.geoLocation = `${latitude},${longitude}`;
 							wallet.longText = longText;
+							if (date) {
+								wallet.dateOfPlanting = new Date(date);
+							} else {
+								wallet.dateOfPlanting = new Date();
+							}
 							wallet.dateOfPlanting = new Date();
 							console.log(`Updated wallet location for walletId: ${walletId}`);
 
