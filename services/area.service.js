@@ -725,6 +725,7 @@ const areaService = {
 				}
 			],
 			name: "Mars Hidden Park",
+			availablePlantingSpots: 1000,
 			__v: 0
 		};
 
