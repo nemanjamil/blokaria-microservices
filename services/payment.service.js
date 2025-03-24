@@ -285,7 +285,6 @@ const paymentService = {
 				area: { type: "string" }
 			},
 			async handler(ctx) {
-				
 				this.logger.info("1. buyTreePayment STRIPE Buy Tree Payment triggered:", ctx.params);
 				const { quantity, userEmail, area } = ctx.params;
 
@@ -301,7 +300,7 @@ const paymentService = {
 						message: "User can't plant in this area"
 					});
 				}
-				
+
 				const userId = ctx.meta.user.userId;
 
 				const stripe = this.getStripe();
@@ -391,7 +390,7 @@ const paymentService = {
 			params: {
 				amount: { type: "number", required: true },
 				firstName: { type: "string", required: true },
-				lastName: { type: "string", required: true},
+				lastName: { type: "string", required: true }
 			},
 			async handler(ctx) {
 				try {
@@ -402,8 +401,14 @@ const paymentService = {
 					const maxNameLength = 20;
 
 					if (
-						!firstName || !lastName || !nameRegex.test(firstName) || !nameRegex.test(lastName) || firstName.length < minNameLength || 
-						firstName.length > maxNameLength || lastName.length < minNameLength || lastName.length > maxNameLength
+						!firstName ||
+						!lastName ||
+						!nameRegex.test(firstName) ||
+						!nameRegex.test(lastName) ||
+						firstName.length < minNameLength ||
+						firstName.length > maxNameLength ||
+						lastName.length < minNameLength ||
+						lastName.length > maxNameLength
 					) {
 						throw new MoleculerClientError(
 							`First name and last name are required and must contain only alphabetic characters, with length between ${minNameLength} and ${maxNameLength} characters.`,
@@ -421,7 +426,7 @@ const paymentService = {
 							errorCode: "INVALID_AMOUNT",
 							message: `Amount must be 5 or more.`
 						};
-					}					
+					}
 
 					const { approveLink, orderId, totalAmount } = await createOrder({
 						amount: amount,
@@ -491,7 +496,7 @@ const paymentService = {
 					const userId = ctx.meta.user.userId;
 					this.logger.info("2. paypalPurchaseCreateOrder userId", ctx.meta.user);
 					const { quantityOfTrees, area } = ctx.params;
-					
+
 					if (quantityOfTrees < 1 || quantityOfTrees > 10) {
 						throw new MoleculerClientError("Quantity of trees must be between 1 and 10", 400, "INVALID_QUANTITY", {
 							message: "Quantity of trees must be between 1 and 10"
@@ -530,6 +535,7 @@ const paymentService = {
 					let invoiceData = {
 						amount: totalAmount,
 						invoiceId: orderId,
+						name: ctx.meta.user.userFullName,
 						payer: userId,
 						quantity: quantityOfTrees,
 						area: areaObjectId,
@@ -1077,13 +1083,13 @@ const paymentService = {
 					this.logger.info("6. handleDonationWebhookPayPal donatorEmail", donatorEmail);
 					const updateInvoiceStatusRes = await updateInvoiceStatus(orderId, Invoice.InvoiceStatus.COMPLETED, donatorEmail);
 					const firstNamelastName = updateInvoiceStatusRes.name.trim().split(" ");
-					const firstName = firstNamelastName[0] || ""; 
-					const lastName = firstNamelastName.length > 1 ? firstNamelastName.slice(1).join(" ") : ""; 
+					const firstName = firstNamelastName[0] || "";
+					const lastName = firstNamelastName.length > 1 ? firstNamelastName.slice(1).join(" ") : "";
 					const showInDonations = updateInvoiceStatusRes.showInDonations;
 					this.logger.info("7. handleDonationWebhookPayPal updateInvoiceStatusRes", updateInvoiceStatusRes);
 
 					const payerEmail = webhookEvent.resource.payer.email_address;
-					
+
 					let donationDetails = {
 						amount: totalPrice,
 						orderId: orderId,
