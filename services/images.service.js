@@ -535,13 +535,16 @@ module.exports = {
 					let storedIntoDb = await ctx.call("wallet.storeWalletInDb", { ctx, user, wallet, image:treePhoto });
 					console.log("selfPlanting storedIntoDb", storedIntoDb);
 					let qrCodeImageForStatus = await this.generateQRCodeStatus(storedIntoDb);
-					await ctx.call("v1.email.generateQrCodeEmail", {emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
-					walletQrId: [wallet.walletQrId],
+					let emailData = {emailVerificationId: parseInt(process.env.EMAIL_VERIFICATION_ID),
+					walletQrId: [{ walletQrId: wallet.walletQrId}],
 					userFullname: ctx.meta.user.userFullName,
 					userEmail: userEmail,
-					productName: [treeName],
-					accessCode: [storedIntoDb.accessCode],
-					userLang: language});
+					productName: [{productName: treeName}],
+					accessCode: [{accessCode: storedIntoDb.accessCode}],
+					qrCodeImageForStatus,
+					userLang: language}
+					console.log("selfPlanting emailData", emailData);
+					await ctx.call("v1.email.generateQrCodeEmail", emailData);
 
 					this.logger.info("selfPlanting generateQrCodeEmail --- DONE ---");
 					// console.log("selfPlanting treePhoto", treePhoto,wallet,user);
