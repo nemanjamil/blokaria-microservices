@@ -39,16 +39,23 @@ module.exports = {
 			async handler(ctx) {
 				const { userId } = ctx.meta.user;
 				try {
-					return await User.findOne({ _id: userId }).populate({
+					const noOfWalletsPlanted = await Wallet.find({ userEmail: ctx.meta.user.userEmail, treePlanted: true }).exec();
+					let user = await User.findOne({ _id: userId }).populate({
 						path: "_projects",
 						populate: {
-							path: "_wallets",
-							// select: "productName _nfts",
-							populate: {
+								path: "_wallets",
+						// select: "productName _nfts",
+						populate: {
 								path: "_nfts"
 							}
 						}
 					});
+					// return user;
+					// Return user data with tree count as a separate property
+					return {
+						...user.toJSON(),
+						noOfTreesPlanted: noOfWalletsPlanted ? noOfWalletsPlanted.length : 0
+					};
 				} catch (error) {
 					throw new MoleculerError(error.message, 401, "ERROR Listing Projects", {
 						message: error.message,
@@ -578,16 +585,25 @@ module.exports = {
 
 				this.logger.info("1. userGet entity", entity);
 
+				const noOfWalletsPlanted = await Wallet.find({ userEmail: user.userEmail, treePlanted: true }).exec();
+
 				try {
-					const user = await User.find(entity, {
+					const userData = await User.find(entity, {
 						clearPassword: 0,
 						userPassword: 0
 					})
 						.populate("_achievements")
 						.populate("_level")
 						.exec();
-
-					return user;
+					
+					// Convert Mongoose document to plain object and add noOfWalletsPlanted
+					if (userData && userData.length > 0) {
+						const userObject = userData[0].toObject();
+						userObject.noOfTreesPlanted = noOfWalletsPlanted ? noOfWalletsPlanted.length : 0;
+						return [userObject];
+					}
+					
+					return userData;
 				} catch (error) {
 					throw new MoleculerError("User not found", 401, "USER_NOT_FOUND", {
 						message: "User Not Found",
@@ -618,6 +634,7 @@ module.exports = {
 					//this.logger.info("2. userMetrics user", user);
 
 					const noOfWallets = await Wallet.find({ userEmail: user.userEmail }).exec();
+					const noOfWalletsPlanted = await Wallet.find({ userEmail: user.userEmail, treePlanted: true }).exec();
 
 					this.logger.info("3. userMetrics noOfWallets.length", noOfWallets.length);
 					this.logger.info("4. userMetrics user._wallets?.length", user._wallets?.length);
@@ -656,6 +673,7 @@ module.exports = {
 						tonsUserConsume: value,
 						percentage: percentage,
 						noOfWallets: noOfWallets.length,
+						noOfTreesPlanted: noOfWalletsPlanted.length,
 						userWallets: user._wallets?.length
 					};
 				} catch (err) {

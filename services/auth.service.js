@@ -39,9 +39,11 @@ module.exports = {
 				}
 		
 				const { passwordHash: salt, userPassword: storedHashedPassword } = user;
-				
 				const passwordMatch = await bcrypt.compare(userPassword + salt, storedHashedPassword);
-
+				// Use ctx.call to access Wallet service 
+				const noOfWalletsPlanted = await ctx.call("wallet.count", { 
+					query: { userEmail: user.userEmail, treePlanted: true } 
+				});
 				if (!passwordMatch) {
 					throw new MoleculerClientError("Incorrect password.", 403, "COMPARE_PASSWORDS_ERROR", {
 						message: "password do not match",
@@ -64,7 +66,8 @@ module.exports = {
 				numberOfCoupons: user.numberOfCoupons,
 				level: user.level,
 				achievements: user._achievements,
-				wallets: user._wallets
+				wallets: user._wallets,
+				noOfTreesPlanted: noOfWalletsPlanted
 				};
 		
 				return { tokenData: response, user: copyUser };

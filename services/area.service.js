@@ -504,12 +504,17 @@ const areaService = {
 								wallet.longitude = null;
 								wallet.isPlanted = false;
 								if (wallet.geoLocation !== null && wallet.geoLocation !== "") {
-									wallet.isPlanted = true;
+									// wallet.isPlanted = true;
 									const [latitude, longitude] = wallet.geoLocation.split(",").map((coord) => parseFloat(coord.trim()));
 									wallet.latitude = latitude;
 									wallet.longitude = longitude;
 								}
-
+								console.log("isPlanted", wallet.isPlanted);
+								console.log("treePlanted", wallet.treePlanted);
+								if (wallet.treePlanted === true) {
+									wallet.isPlanted = true;
+								}
+								console.log("isPlanted2", wallet.isPlanted);
 								return {
 									_id: wallet._id.toString(),
 									name: wallet.productName,

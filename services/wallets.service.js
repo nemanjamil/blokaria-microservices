@@ -5,6 +5,8 @@ const { MoleculerError } = require("moleculer").Errors;
 const axiosMixin = require("../mixins/axios.mixin");
 const Wallet = require("../models/Wallet.js");
 const User = require("../models/User.js");
+const Achievement = require("../models/Achievement.js");
+const Level = require("../models/Level.js");
 const Utils = require("../utils/utils");
 const random = require("lodash/random");
 const { log } = require("handlebars");
@@ -89,7 +91,23 @@ module.exports = {
 				}
 			}
 		},
-
+		storeWalletInDb: {
+			params: {
+				wallet: { type: "object" },
+				image: { type: "string", optional: true, nullDefault: true }
+			},
+			async handler(ctx) {
+				try {
+					console.log("storeWalletInDb");
+					return this.plainInsertDataIntoDb({ctx, user: ctx.params.user, wallet: ctx.params.wallet, image: ctx.params.image});
+				} catch (error) {
+					throw new MoleculerError(error.message, 401, "TRANSACTION_ERROR", {
+						message: error.message,
+						internalErrorCode: error.internalErrorCode
+					});
+				}
+			}
+		},
 		initiateTransactionToClientWallet: {
 			params: {
 				userLang: { type: "string", min: 1, max: 5, default: "en", values: ["sr", "en"] },
@@ -572,7 +590,7 @@ module.exports = {
 			},
 			async handler(ctx) {
 				const { walletId, latitude, longitude, longText, photo, date } = ctx.params;
-				const user = ctx.meta.user;
+				let user = ctx.meta.user;
 
 				try {
 					const planter = await User.findOne({ _id: user.userId }).populate("accessibleAreas");
@@ -594,6 +612,7 @@ module.exports = {
 								wallet.dateOfPlanting = new Date();
 							}
 							wallet.dateOfPlanting = new Date();
+							wallet.treePlanted = true;
 							console.log(`Updated wallet location for walletId: ${walletId}`);
 
 							if (photo) {
@@ -601,6 +620,8 @@ module.exports = {
 							}
 							await wallet.save();
 
+							console.log("user.userEmail", user.userEmail);
+							console.log("wallet.userEmail", wallet.userEmail);
 							ctx.call("v1.email.sendTreePlantingConfirmationEmail", {
 								userLang: "en",
 								userEmails: [user.userEmail, wallet.userEmail],
@@ -619,6 +640,104 @@ module.exports = {
 							break;
 						}
 					}
+
+						/******************************* Update Achievement ******************************** */
+					user = await User.findOne({ userEmail: ctx.meta.user.userEmail })
+					let plantedCount = 0;
+					const walletIds = user?._wallets || [];	
+					this.logger.info("20. createItem user._wallets", walletIds);
+					if (walletIds.length > 0) {
+  						plantedCount = await Wallet.countDocuments({
+    						_id: { $in: walletIds },
+    						treePlanted: true
+						});
+					}
+					this.logger.info("22. createItem plantedCount", plantedCount);
+					const threshold = plantedCount;
+					// let threshold = isNaN(user?._wallets?.length) ? 1 : Number(user?._wallets?.length) + 1
+
+					if (isNaN(threshold)) {
+						threshold = 1;
+					}
+
+					this.logger.info("25. createItem threshold", threshold);
+
+					let achievements = await Achievement.find({}).populate({
+						path: "_level",
+						match: { required_trees: { $lte: threshold } }
+					});
+
+					this.logger.info("27. createItem achievements ALL", achievements);
+
+					achievements = achievements.filter((achievement) => achievement._level && achievement._level.required_trees <= threshold);
+
+					this.logger.info("29. createItem achievements filtered", achievements);
+
+					// Find and update user level
+					const levels = await Level.findOne({
+						required_trees: {
+							$lte: threshold
+						}
+					}).sort({ required_trees: -1 });
+					const userLevel = levels._id;
+
+					this.logger.info("30. createItem levels", levels);
+					this.logger.info("32. createItem userLevel", userLevel);
+
+					let iterationNumber = 0;
+
+					this.logger.info("\n\n\n ---- ACHIEVEMENTS START ---- \n\n\n");
+					this.logger.info("UserData", user);
+					// Add achievements to user, it will check if its there it won't add with addToSet
+					for (const element of achievements.filter((x) => x._level !== null)) {
+						this.logger.info(`35.${iterationNumber} createItem: element`, element);
+
+						if (element._level) {
+							this.logger.info(`37.${iterationNumber} createItem element._level`, element._id);
+							this.logger.info(`39.${iterationNumber} createItem user._achievements`, user._achievements);
+
+							if (!user._achievements.includes(element._id)) {
+								this.logger.info(`42.${iterationNumber} reduceNumberOfTransaction - New Achievement created.`);
+
+								const achievementUpdate = {
+									$addToSet: { _achievements: String(element._id) }
+								};
+
+								const updatedUser = await User.findOneAndUpdate({ userEmail: user.userEmail }, achievementUpdate, { new: true })
+									.populate("_achievements")
+									.exec();
+
+								let achPayload = {
+									userLang: "en",
+									userEmail: updatedUser.userEmail,
+									achievement: element
+								};
+								this.logger.info(`44.${iterationNumber} createItem achPayload`, achPayload);
+
+								let sendEmailAch = await ctx.call("v1.achievement.sendAchievementEmail", achPayload);
+
+								this.logger.info(`46.${iterationNumber} createItem sendEmailAch`, sendEmailAch);
+							} else {
+								this.logger.info(`48.${iterationNumber} createItem - Achievement already exists for user.`);
+							}
+						} else {
+							this.logger.info(`50.${iterationNumber} createItem - element._level does not exist.`);
+						}
+						iterationNumber++;
+
+						this.logger.info("\n\n\n");
+					}
+								// Update transactional data
+					const data = {
+						//$inc: { numberOfTransaction: -1 },
+						$set: { _level: String(userLevel) }
+					};
+
+					this.logger.info("60. createItem Update transactional data", data);
+
+					await User.findOneAndUpdate({ userEmail: user.userEmail }, data, { new: true }).populate("_achievements");
+
+					/*********************************************************************************** */
 
 					if (walletUpdated) {
 						return {
@@ -1062,10 +1181,11 @@ module.exports = {
 
 		// 80
 		async plainInsertDataIntoDb({ ctx, user, wallet, image }) {
+			console.log("plainInsertDataIntoDb ctx", user.userId);
 			const entity = {
 				walletQrId: wallet.walletQrId,
 				geoLocation: wallet.geoLocation,
-				userFullname: wallet.userFullname,
+				userFullname: wallet.userFullName,
 				userEmail: wallet.userEmail,
 				productName: wallet.productName,
 				publicQrCode: wallet.publicQrCode,
@@ -1073,9 +1193,11 @@ module.exports = {
 				contributorData: wallet.contributorData,
 				longText: wallet.longText,
 				hasstory: wallet.hasstory,
+				treePlanted: wallet.treePlanted,
 				accessCode: Utils.generatePass(),
 				_area: wallet.area,
-				_creator: user.userId
+				_creator: user.userId,
+				dateOfPlanting: new Date(wallet.dateOfPlanting)
 			};
 
 			image ? (entity._image = image._id) : "";
@@ -1083,6 +1205,7 @@ module.exports = {
 			if (wallet.productVideo) entity.productVideo = wallet.productVideo;
 
 			try {
+				console.log("plainInsertDataIntoDb entity", entity);
 				let wallet = new Wallet(entity);
 				await wallet.save();
 				//await wallet.populate("_creator").populate(String(user.userId)).execPopulate();
@@ -1192,6 +1315,7 @@ module.exports = {
 						_id: 1,
 						walletQrId: 1,
 						geoLocation: 1,
+						treePlanted: 1,
 						userFullname: 1,
 						userEmail: 1,
 						productName: 1
