@@ -28,7 +28,7 @@ module.exports = {
 	metadata: {
 		scalable: true,
 		priority: 5,
-		bccemail: "bcc@blokaria.com",
+		bccemail: "bcc@natureplant.org",
 		nameOfWebSite: "NaturePlant"
 	},
 	actions: {
