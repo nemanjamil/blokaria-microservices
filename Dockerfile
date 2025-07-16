@@ -1,5 +1,5 @@
 # Use the latest alpine-based Node.js image
-FROM node:20.15.1-alpine
+FROM node:22-alpine
 
 # Set environment variable
 ENV NODE_ENV=production
