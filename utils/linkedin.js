@@ -1,9 +1,10 @@
 const postTemplate = require("../public/templates/en/achievementPost.json");
 const axios = require("axios");
 const { MoleculerClientError } = require("moleculer").Errors;
+
 /**
- *
- * @param {string} code
+ * Exchange authorization code for access token
+ * @param {string} code - Authorization code from LinkedIn
  */
 const linkedInExchangeCode = async (code) => {
 	const LINKEDIN_CLIENT_ID = process.env["LINKEDIN_CLIENT_ID"];
@@ -17,22 +18,33 @@ const linkedInExchangeCode = async (code) => {
 	});
 
 	const url = "https://www.linkedin.com/oauth/v2/accessToken";
-	const body = {
-		grant_type: "authorization_code",
-		client_id: LINKEDIN_CLIENT_ID,
-		client_secret: LINKEDIN_CLIENT_SECRET,
-		redirect_uri: LINKEDIN_REDIRECT_URI,
-		code
-	};
+	const params = new URLSearchParams();
+	params.append("grant_type", "authorization_code");
+	params.append("code", code);
+	params.append("client_id", LINKEDIN_CLIENT_ID);
+	params.append("client_secret", LINKEDIN_CLIENT_SECRET);
+	params.append("redirect_uri", LINKEDIN_REDIRECT_URI);
 
-	const response = await axios.post(url, new URLSearchParams(body));
-
-	return response.data;
+	try {
+		const response = await axios.post(url, params, {
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded"
+			}
+		});
+		return response.data;
+	} catch (error) {
+		throw new MoleculerClientError(
+			error.response?.data?.error_description || "Failed to exchange code for token",
+			error.response?.status || 400,
+			"LINKEDIN_TOKEN_EXCHANGE_FAILED",
+			{ details: error.response?.data }
+		);
+	}
 };
 
 /**
- *
- * @param {string} accessToken
+ * Get user profile information
+ * @param {string} accessToken - LinkedIn access token
  */
 const linkedInGetUserProfile = async (accessToken, logger) => {
 	const apiUrl = "https://api.linkedin.com/v2/userinfo";
@@ -46,7 +58,7 @@ const linkedInGetUserProfile = async (accessToken, logger) => {
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
 				"X-Restli-Protocol-Version": "2.0.0",
-				"LinkedIn-Version": "202405"
+				"LinkedIn-Version": "202506" // Updated to latest version
 			}
 		});
 
@@ -59,7 +71,6 @@ const linkedInGetUserProfile = async (accessToken, logger) => {
 		return response.data;
 	} catch (error) {
 		logger.error("Error retrieving user ID:", error.response);
-
 		throw new MoleculerClientError(error.message, 404, "LIN_GET_USER_PROFILE", {
 			message: error.message,
 			internalErrorCode: "LIN_GET_USER_PROFILE"
@@ -67,6 +78,10 @@ const linkedInGetUserProfile = async (accessToken, logger) => {
 	}
 };
 
+/**
+ * Download file as stream
+ * @param {string} fileUrl - URL of the file to download
+ */
 const downloadFileAsStream = async (fileUrl, logger) => {
 	logger.info("1. downloadFileAsStream START");
 	logger.info("2. downloadFileAsStream fileUrl", fileUrl);
@@ -74,15 +89,14 @@ const downloadFileAsStream = async (fileUrl, logger) => {
 		const response = await axios({
 			method: "get",
 			url: fileUrl,
-			responseType: "stream" // Important: This tells axios to return the response as a stream
+			responseType: "stream"
 		});
 
 		logger.info("3. downloadFileAsStream --- DONE ---");
 
-		return response.data; // This is the stream
+		return response.data;
 	} catch (error) {
 		logger.error("5. downloadFileAsStream Error downloading the file:", error);
-
 		throw new MoleculerClientError("Failed to downloadFileAsStream", 404, "GET_FILE_AS_A_STREAM", {
 			message: "Failed to get image downloadFileAsStream",
 			internalErrorCode: "GET_FILE_AS_A_STREAM"
@@ -90,106 +104,80 @@ const downloadFileAsStream = async (fileUrl, logger) => {
 	}
 };
 
-const getLinkedInImage = async (imageUrn, accessToken, logger) => {
-	logger.info("1. getLinkedInImage START");
-
-	const linkedGetUrl = `https://api.linkedin.com/rest/images/${imageUrn}`;
-
-	logger.info("3. getLinkedInImage linkedGetUrl", linkedGetUrl);
-	logger.info("5. getLinkedInImage accessToken", accessToken);
-
-	try {
-		const imageRes = await axios.get(linkedGetUrl, {
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-				"LinkedIn-Version": "202405"
-			}
-		});
-
-		logger.info("7. getLinkedInImage imageRes.data", imageRes.data);
-
-		if (!imageRes || !imageRes.data) {
-			throw new MoleculerClientError("Failed to get image information from LinkedIn", 404, "GET_LINKEDIN_IMAGE", {
-				message: "Failed to get image information from LinkedIn",
-				internalErrorCode: "GET_LINKEDIN_IMAGE"
-			});
-		}
-
-		logger.info("9. getLinkedInImage ---- DONE ----");
-
-		return imageRes.data;
-	} catch (err) {
-		logger.error("0. getLinkedInImage err.message", err.message);
-		throw new MoleculerClientError(err.message, 404, "GET_LINKEDIN_IMAGE", {
-			message: "Error while getting image information from LinkedIn:",
-			internalErrorCode: "GET_LINKEDIN_IMAGE"
-		});
-	}
-};
-
+/**
+ * Register and upload image to LinkedIn
+ * @param {string} userId - LinkedIn user ID
+ * @param {string} imageUrl - URL of the image to upload
+ * @param {string} accessToken - LinkedIn access token
+ */
 const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 	logger.info("1. uploadLinkedInImage START");
 	logger.info("2. uploadLinkedInImage userId", userId);
 	logger.info("3. uploadLinkedInImage imageUrl", imageUrl);
 	logger.info("4. uploadLinkedInImage accessToken", accessToken);
 
-	const linkedInInitUrl = "https://api.linkedin.com/rest/images?action=initializeUpload";
+	const registerUploadUrl = "https://api.linkedin.com/rest/assets?action=registerUpload";
 
 	try {
-		const fileStream = await downloadFileAsStream(imageUrl, logger);
-
-		logger.info("6. uploadLinkedInImage fileStream");
-
-		const initResponse = await axios.post(
-			linkedInInitUrl,
+		logger.info("5. uploadLinkedInImage Registering upload...");
+		const registerResponse = await axios.post(
+			registerUploadUrl,
 			{
-				initializeUploadRequest: {
-					owner: `urn:li:person:${userId}`
+				registerUploadRequest: {
+					owner: `urn:li:person:${userId}`,
+					recipes: ["urn:li:digitalmediaRecipe:feedshare-image"],
+					serviceRelationships: [
+						{
+							relationshipType: "OWNER",
+							identifier: "urn:li:userGeneratedContent"
+						}
+					],
+					supportedUploadMechanism: ["SYNCHRONOUS_UPLOAD"]
 				}
 			},
 			{
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
-					"X-Restli-Protocol-Version": "2.0.0",
-					"LinkedIn-Version": "202405"
+					"LinkedIn-Version": "202506", // Updated to latest version
+					"X-Restli-Protocol-Version": "2.0.0"
 				}
 			}
 		);
 
-		if (!initResponse || !initResponse.data) {
-			throw new Error("Failed to initialize upload for image through LinkedIn");
+		if (!registerResponse.data?.value?.uploadMechanism?.com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest?.uploadUrl) {
+			throw new Error("Invalid response from LinkedIn image registration");
 		}
 
-		logger.info("7. uploadLinkedInImage initResponse", initResponse.data.value);
+		const uploadUrl = registerResponse.data.value.uploadMechanism.com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest.uploadUrl;
+		const asset = registerResponse.data.value.asset;
 
-		const imgUpload = await axios.default.put(initResponse.data.value.uploadUrl, fileStream, {
+		logger.info("6. uploadLinkedInImage fileStream");
+		logger.info("7. uploadLinkedInImage uploadUrl", uploadUrl);
+
+		const fileStream = await downloadFileAsStream(imageUrl, logger);
+
+		logger.info("8. uploadLinkedInImage Uploading file...");
+		const uploadResponse = await axios.put(uploadUrl, fileStream, {
 			headers: {
-				Authorization: `Bearer ${accessToken}`,
-				//"Content-Type": "application/json",
-				"Content-Type": "application/octet-stream",
-				"X-Restli-Protocol-Version": "2.0.0",
-				"LinkedIn-Version": "202405"
+				"Content-Type": "application/octet-stream"
 			}
 		});
 
-		logger.info("9. uploadLinkedInImage imgUpload");
-
-		if (imgUpload.status !== 201 && imgUpload.status !== 200) {
-			//throw new Error("Failed to upload image file stream");
+		if (uploadResponse.status !== 201 && uploadResponse.status !== 200) {
 			throw new MoleculerClientError("Failed to upload image file stream", 404, "UPLOAD_LINKEDIN_IMAGE", {
 				message: "Failed to upload image file stream",
 				internalErrorCode: "UPLOAD_LINKEDIN_IMAGE_13"
 			});
 		}
 
-		logger.info("10. uploadLinkedInImage initResponse.data.value.image", initResponse.data.value.image);
+		logger.info("9. uploadLinkedInImage Upload successful");
+		logger.info("10. uploadLinkedInImage asset URN:", asset);
 
-		//const imgInfo = await getLinkedInImage(initResponse.data.value.image, accessToken, logger);
-
-		logger.info("11. uploadLinkedInImage ----- DONE -----");
-
-		return { urn: initResponse.data.value.image };
+		return {
+			urn: asset,
+			uploadUrl: uploadUrl
+		};
 	} catch (err) {
 		logger.error("16. uploadLinkedInImage Error while uploading image to linkedin:", err.message || err);
 		throw new MoleculerClientError(err.message, 404, "UPLOAD_LINKEDIN_IMAGE", {
@@ -200,45 +188,56 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 };
 
 /**
- *
- * @param {string} userId User LinkedIn unique ID
- * @param {string} accessToken Access token LinkedIn APIs
- * @param {import("../models/Achievement")} achievement Achievement
+ * Create a LinkedIn post with the correct structure
+ * @param {string} userId - LinkedIn user ID
+ * @param {string} accessToken - LinkedIn access token
+ * @param {object} achievement - Achievement data
+ * @param {string} achievementUrl - URL to the achievement
+ * @param {string} imageUrl - URL of the image to include in the post
  */
 const createLinkedInPost = async (userId, accessToken, achievement, achievementUrl, imageUrl, logger) => {
 	const LINKEDIN_API_URL = "https://api.linkedin.com/rest/posts";
 
 	logger.info("1. createLinkedInPost START");
-
 	logger.info("2. createLinkedInPost imageUrl", imageUrl);
 
 	try {
 		const { urn } = await uploadLinkedInImage(userId, imageUrl, accessToken, logger);
-
 		logger.info("4. createLinkedInPost urn", urn);
 
 		const { subject, body, body1, body2, tags } = postTemplate;
-
-		const postContent = `${body}\n\n${body1.replace("{{achievement}}", achievement.name)}\n\n${body2.replace("{{achievementUrl}}", achievementUrl)}\n\n${tags}`;
+		const postContent = `${body}\n\n${body1.replace("{{achievement}}", achievement.name)}\n\n${body2.replace(
+			"{{achievementUrl}}",
+			achievementUrl
+		)}\n\n${tags}`;
 
 		const postData = {
 			author: `urn:li:person:${userId}`,
-			commentary: `${subject}\n\n${postContent}`,
-			visibility: "PUBLIC",
-
-			distribution: {
-				feedDistribution: "MAIN_FEED",
-				targetEntities: [],
-				thirdPartyDistributionChannels: []
-			},
-			content: {
-				media: {
-					title: achievement.name,
-					id: urn
+			lifecycleState: "PUBLISHED",
+			specificContent: {
+				"com.linkedin.ugc.ShareContent": {
+					shareCommentary: {
+						text: postContent,
+						attributes: []
+					},
+					shareMediaCategory: "IMAGE",
+					media: [
+						{
+							status: "READY",
+							description: {
+								text: subject
+							},
+							media: urn,
+							title: {
+								text: achievement.name
+							}
+						}
+					]
 				}
 			},
-			lifecycleState: "PUBLISHED",
-			isReshareDisabledByAuthor: false
+			visibility: {
+				"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+			}
 		};
 
 		logger.info("6. createLinkedInPost Post Data:", JSON.stringify(postData, null, 2));
@@ -247,21 +246,23 @@ const createLinkedInPost = async (userId, accessToken, achievement, achievementU
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
-				"X-Restli-Protocol-Version": "2.0.0",
-				"LinkedIn-Version": "202405"
+				"LinkedIn-Version": "202506", // Updated to latest version
+				"X-Restli-Protocol-Version": "2.0.0"
 			}
 		});
 
 		logger.info("8. createLinkedInPost Post created successfully ---- DONE ----:");
-
 		return response.data;
 	} catch (error) {
 		logger.error("12. createLinkedInPost ERROR", error.message);
-
 		throw new MoleculerClientError(error.message, 404, error.internalErrorCode, {
 			message: error.message
 		});
 	}
 };
 
-module.exports = { createLinkedInPost, linkedInExchangeCode, linkedInGetUserProfile };
+module.exports = {
+	createLinkedInPost,
+	linkedInExchangeCode,
+	linkedInGetUserProfile
+};

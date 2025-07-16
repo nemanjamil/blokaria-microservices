@@ -240,17 +240,18 @@ module.exports = {
 					"GET /area/getMyAreas": "v1.area.getMyAreas",
 					"GET area/getAllAreasDashboard": "v1.area.getAllAreasDashboard",
 					"GET achievement/getMyCertificate": "v1.achievement.getMyCertificate",
+					"POST image/self-planting": "image.selfPlanting",
 				},
 				callingOptions: {},
 
 				bodyParsers: {
 					json: {
 						strict: false,
-						limit: "1MB"
+						limit: "10MB"
 					},
 					urlencoded: {
 						extended: true,
-						limit: "1MB"
+						limit: "10MB"
 					}
 				},
 				logging: true

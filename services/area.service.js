@@ -29,13 +29,26 @@ const areaService = {
 				plantingTimeline: { type: "array", optional: true },
 				treeSpecies: { type: "array", optional: true },
 				plantingOrganization: { type: "string", optional: true },
-				availablePlantingSpots: { type: "number", optional: true },
+				availablePlantingSpots: { type: "number", optional: true }
 			},
 			async handler(ctx) {
-				const { _id, country, countryCode, address, 
-					longitude, latitude, name, areaPoints, 
-					active, photo, plantingTimeline, treeSpecies, 
-					plantingOrganization, availablePlantingSpots, treePrice} = ctx.params;
+				const {
+					_id,
+					country,
+					countryCode,
+					address,
+					longitude,
+					latitude,
+					name,
+					areaPoints,
+					active,
+					photo,
+					plantingTimeline,
+					treeSpecies,
+					plantingOrganization,
+					availablePlantingSpots,
+					treePrice
+				} = ctx.params;
 
 				let area = new Area({
 					country,
@@ -89,29 +102,51 @@ const areaService = {
 				plantingTimeline: { type: "array", optional: true },
 				treeSpecies: { type: "array", optional: true },
 				plantingOrganization: { type: "string", optional: true },
-				availablePlantingSpots: { type: "number", optional: true },
+				availablePlantingSpots: { type: "number", optional: true }
 			},
 			async handler(ctx) {
 				try {
-					const { id, country, countryCode, address, longitude, 
-						latitude, name, areaPoints, photo, treePrice,
-						plantingTimeline, treeSpecies, plantingOrganization, availablePlantingSpots} = ctx.params;
+					const {
+						id,
+						country,
+						countryCode,
+						address,
+						longitude,
+						latitude,
+						name,
+						areaPoints,
+						photo,
+						treePrice,
+						plantingTimeline,
+						treeSpecies,
+						plantingOrganization,
+						availablePlantingSpots
+					} = ctx.params;
 					const { user } = ctx.meta;
 					console.log(user);
-					if (user.userRole == 3)
-					{
+					if (user.userRole == 3) {
 						const planter = await User.findOne({ _id: user.userId, accessibleAreas: id }).populate("accessibleAreas");
 						if (!planter) {
-							throw new MoleculerError("User doesn't have the access to this area.", 403, "USER_ACCESS_DENIED");
+							throw new MoleculerClientError("User doesn't have the access to this area.", 403, "USER_ACCESS_DENIED");
 						}
 					}
 
 					const updatedArea = await Area.findByIdAndUpdate(
 						id,
-						{ country, countryCode, address, longitude, 
-							latitude, name, areaPoints, treePrice,
-							plantingTimeline, treeSpecies, plantingOrganization, 
-							availablePlantingSpots},
+						{
+							country,
+							countryCode,
+							address,
+							longitude,
+							latitude,
+							name,
+							areaPoints,
+							treePrice,
+							plantingTimeline,
+							treeSpecies,
+							plantingOrganization,
+							availablePlantingSpots
+						},
 						{ new: true, runValidators: true }
 					);
 
@@ -144,7 +179,7 @@ const areaService = {
 				const { id } = ctx.params;
 
 				try {
-					numberOfWalletsinArea = await Wallet.countDocuments({ _area: id });
+					let numberOfWalletsinArea = await Wallet.countDocuments({ _area: id });
 
 					if (numberOfWalletsinArea > 0) {
 						throw new MoleculerClientError("Area Deletion Failed", 403, "AREA_DELETION_FAILED", {
@@ -178,35 +213,35 @@ const areaService = {
 					if (!areas.length) {
 						return "No active areas";
 					}
-		
+
 					const walletsCountPerArea = await Wallet.aggregate([
 						{
 							$group: {
 								_id: "$_area",
-								totalTrees: { $sum: 1 }  
+								totalTrees: { $sum: 1 }
 							}
 						}
 					]);
-		
+
 					const treesWithGeolocationCount = await Wallet.aggregate([
 						{
 							$match: {
-								dateOfPlanting: { $exists: true, $ne: null }, 
+								dateOfPlanting: { $exists: true, $ne: null }
 							}
 						},
 						{
 							$group: {
 								_id: "$_area",
-								treesWithGeolocation: { $sum: 1 } 
+								treesWithGeolocation: { $sum: 1 }
 							}
 						}
 					]);
-		
-					return areas.map(area => {
+
+					return areas.map((area) => {
 						const areaData = area.toJSON();
-						const walletInfo = walletsCountPerArea.find(w => String(w._id) === String(area._id)) || { totalTrees: 0 };
-						const geoLocationInfo = treesWithGeolocationCount.find(w => String(w._id) === String(area._id)) || { treesWithGeolocation: 0 };
-		
+						const walletInfo = walletsCountPerArea.find((w) => String(w._id) === String(area._id)) || { totalTrees: 0 };
+						const geoLocationInfo = treesWithGeolocationCount.find((w) => String(w._id) === String(area._id)) || { treesWithGeolocation: 0 };
+
 						return {
 							...areaData,
 							totalTrees: walletInfo.totalTrees,
@@ -214,7 +249,6 @@ const areaService = {
 							treesInProgressCount: walletInfo.totalTrees - geoLocationInfo.treesWithGeolocation
 						};
 					});
-		
 				} catch (err) {
 					console.error("Error retrieving areas:", err);
 					throw new MoleculerClientError("Area Retrieval Failed", 500, "AREA_RETRIEVAL_FAILED", {
@@ -222,28 +256,28 @@ const areaService = {
 					});
 				}
 			}
-		},		
-		
+		},
+
 		getAllAreasDashboard: {
 			async handler(ctx) {
 				try {
 					const { user } = ctx.meta;
-		
+
 					const areas = await Area.find({ active: true });
 					console.log(areas);
-		
+
 					const { areaId, numberOfTrees } = ctx.params;
-		
+
 					const formattedAreas = await Promise.all(
 						areas.map(async (area) => {
 							const country = area.country;
 							const areaId = area._id.toString();
-		
+
 							const availablePlantingSpots = area.availablePlantingSpots;
-		
+
 							const treeCountInArea = await Wallet.countDocuments({ _area: areaId });
 							const remainingTrees = Math.max(0, availablePlantingSpots - treeCountInArea);
-									
+
 							return {
 								country,
 								id: area._id,
@@ -259,7 +293,7 @@ const areaService = {
 							};
 						})
 					);
-		
+
 					return formattedAreas.reduce((result, area) => {
 						if (!result[area.country]) {
 							result[area.country] = [];
@@ -267,7 +301,6 @@ const areaService = {
 						result[area.country].push(area);
 						return result;
 					}, {});
-		
 				} catch (err) {
 					console.error("Error retrieving areas:", err);
 					const message = "An error occurred while retrieving areas from db.";
@@ -276,18 +309,18 @@ const areaService = {
 					});
 				}
 			}
-		},		
+		},
 
 		canUserPlantInArea: {
 			async handler(ctx) {
 				try {
-					const { areaId, numberOfTrees } = ctx.params; 
+					const { areaId, numberOfTrees } = ctx.params;
 					console.log(numberOfTrees);
 					const area = await Area.findById(areaId).select("availablePlantingSpots");
 					console.log(area.availablePlantingSpots);
 					const treeCountInArea = await Wallet.countDocuments({ _area: areaId });
 					console.log(treeCountInArea);
-					const canPlant = (treeCountInArea + numberOfTrees) <= area.availablePlantingSpots;
+					const canPlant = treeCountInArea + numberOfTrees <= area.availablePlantingSpots;
 					console.log(canPlant);
 					return {
 						canPlant,
@@ -301,8 +334,8 @@ const areaService = {
 					});
 				}
 			}
-		},		
-		
+		},
+
 		getAreaById: {
 			params: {
 				id: { type: "string" },
@@ -471,12 +504,17 @@ const areaService = {
 								wallet.longitude = null;
 								wallet.isPlanted = false;
 								if (wallet.geoLocation !== null && wallet.geoLocation !== "") {
-									wallet.isPlanted = true;
+									// wallet.isPlanted = true;
 									const [latitude, longitude] = wallet.geoLocation.split(",").map((coord) => parseFloat(coord.trim()));
 									wallet.latitude = latitude;
 									wallet.longitude = longitude;
 								}
-
+								console.log("isPlanted", wallet.isPlanted);
+								console.log("treePlanted", wallet.treePlanted);
+								if (wallet.treePlanted === true) {
+									wallet.isPlanted = true;
+								}
+								console.log("isPlanted2", wallet.isPlanted);
 								return {
 									_id: wallet._id.toString(),
 									name: wallet.productName,
@@ -485,7 +523,8 @@ const areaService = {
 									isPlanted: wallet.isPlanted,
 									longText: wallet.longText,
 									walletQrId: wallet.walletQrId,
-									userFullName: wallet.userFullname
+									userFullName: wallet.userFullname,
+									dateOfPlanting: wallet.dateOfPlanting
 								};
 							});
 
@@ -585,7 +624,7 @@ const areaService = {
 			async handler(ctx) {
 				try {
 					// Retrieve distinct countries
-					const uniqueCountries = await Area.distinct("country", {active: true});
+					const uniqueCountries = await Area.distinct("country", { active: true });
 
 					// Format the result with id and name, indexing the countries
 					const formattedCountries = uniqueCountries.map((country, index) => ({
@@ -668,13 +707,13 @@ const areaService = {
 			async handler(ctx) {
 				try {
 					const { userEmail } = ctx.meta.user;
-			
+
 					const userWallets = await Wallet.find({ userEmail: userEmail }).populate("_area");
-			
+
 					const inactiveAreasWithOwnedWallets = userWallets
-						.filter(wallet => wallet._area.active === true) 
-						.map(wallet => ({
-							area: wallet._area,  
+						.filter((wallet) => wallet._area.active === true)
+						.map((wallet) => ({
+							area: wallet._area,
 							wallet: {
 								geoLocation: wallet.geoLocation,
 								productName: wallet.productName,
@@ -683,19 +722,18 @@ const areaService = {
 								walletQrId: wallet.walletQrId
 							}
 						}));
-			
+
 					console.log("Inactive areas with owned wallets", inactiveAreasWithOwnedWallets);
-					
+
 					return inactiveAreasWithOwnedWallets;
-				}
-				catch (err) {
+				} catch (err) {
 					this.logger.error("Error retrieving inactive areas with owned wallets:", err);
 					throw new MoleculerClientError(err.message, 500, "AREAS_RETRIEVAL_FAILED", {
 						err
 					});
 				}
-			}					
-		}					
+			}
+		}
 	},
 	async started() {
 		const area = {
@@ -724,6 +762,7 @@ const areaService = {
 				}
 			],
 			name: "Mars Hidden Park",
+			availablePlantingSpots: 1000,
 			__v: 0
 		};
 

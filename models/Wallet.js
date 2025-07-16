@@ -20,6 +20,7 @@ const walletSchema = new mongoose.Schema({
 	productVideo: { type: String },
 	contributorData: { type: String, default: null },
 	publicQrCode: { type: Boolean, default: true },
+	treePlanted: { type: Boolean, default: false },
 	costOfProduct: { type: Number, default: 0 },
 	accessCode: { type: String, required: true },
 	cbnftimage: { type: Boolean, default: false },
@@ -41,6 +42,10 @@ const walletSchema = new mongoose.Schema({
 		type: ObjectId,
 		required: true,
 		ref: "Area"
+	},
+	_user: {
+		type: ObjectId,
+		ref: "User"
 	},
 	_creator: {
 		type: ObjectId,

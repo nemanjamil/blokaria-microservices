@@ -32,7 +32,7 @@ const achievementService = {
 	metadata: {
 		scalable: true,
 		priority: 5,
-		bccemail: "bcc@blokaria.com",
+		bccemail: "bcc@natureplant.org",
 		nameOfWebSite: "NaturePlant"
 	},
 	mixins: [DbService],
@@ -406,7 +406,7 @@ const achievementService = {
 				this.logger.info("adminPassword", adminPassword);
 
 				return nodemailer.createTransport({
-					host: "mail.blokaria.com",
+					host: "mail.natureplant.org",
 					port: 465,
 					secure: true, // true for 465, false for other ports
 					auth: {
