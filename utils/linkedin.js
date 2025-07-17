@@ -220,7 +220,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, achievementU
 						text: postContent,
 						attributes: []
 					},
-					shareMediaCategory: "IMAGE",
+					shareMediaCategory: "ARTICLE",
 					media: [
 						{
 							status: "READY",
