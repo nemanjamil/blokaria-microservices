@@ -58,7 +58,7 @@ const linkedInGetUserProfile = async (accessToken, logger) => {
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
 				"X-Restli-Protocol-Version": "2.0.0",
-				"LinkedIn-Version": "202401" // Updated to latest version
+				"LinkedIn-Version": "202506" // Updated to latest version
 			}
 		});
 
@@ -132,18 +132,20 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 							identifier: "urn:li:userGeneratedContent"
 						}
 					],
-					supportedUploadMechanism: ["SYNCHRONOUS_UPLOAD"]
+					//supportedUploadMechanism: ["SYNCHRONOUS_UPLOAD"]
 				}
 			},
 			{
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
-					//"LinkedIn-Version": "202401", // Updated to latest version
+					"LinkedIn-Version": "202506", // Updated to latest version
 					"X-Restli-Protocol-Version": "2.0.0"
 				}
 			}
 		);
+
+		logger.info("5.1 uploadLinkedInImage Continues..."); 
 
 		if (!registerResponse.data?.value?.uploadMechanism?.com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest?.uploadUrl) {
 			throw new Error("Invalid response from LinkedIn image registration");
