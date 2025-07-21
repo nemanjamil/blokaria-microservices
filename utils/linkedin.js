@@ -139,7 +139,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
-					"LinkedIn-Version": "202401", // Updated to latest version
+					//"LinkedIn-Version": "202401", // Updated to latest version
 					"X-Restli-Protocol-Version": "2.0.0"
 				}
 			}
