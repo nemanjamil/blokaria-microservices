@@ -95,6 +95,8 @@ const achievementService = {
 					const userEmail = encrypt(ctx.meta.user.userEmail);
 					const achievementUrl = `${process.env.BLOKARIA_WEBSITE}/achievements/${userEmail}`;
 
+
+					return "aa";
 					const shareResponse = await createLinkedInPost(
 						userProfile.sub,
 						response.access_token,
