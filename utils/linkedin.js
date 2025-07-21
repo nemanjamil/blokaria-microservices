@@ -58,7 +58,7 @@ const linkedInGetUserProfile = async (accessToken, logger) => {
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
 				"X-Restli-Protocol-Version": "2.0.0",
-				"LinkedIn-Version": "202506" // Updated to latest version
+				"LinkedIn-Version": "202401" // Updated to latest version
 			}
 		});
 
@@ -139,7 +139,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
-					"LinkedIn-Version": "202506", // Updated to latest version
+					"LinkedIn-Version": "202401", // Updated to latest version
 					"X-Restli-Protocol-Version": "2.0.0"
 				}
 			}
@@ -246,7 +246,7 @@ const createLinkedInPost = async (userId, accessToken, achievement, achievementU
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
-				"LinkedIn-Version": "202506", // Updated to latest version
+				"LinkedIn-Version": "202401", // Updated to latest version
 				"X-Restli-Protocol-Version": "2.0.0"
 			}
 		});
