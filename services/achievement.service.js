@@ -79,6 +79,8 @@ const achievementService = {
 
 					this.logger.info("10. publishAchievementLinkedInPost exchange response", response);
 
+					console.log("11. publishAchievementLinkedInPost response.access_token", response.access_token);
+
 					const userProfile = await linkedInGetUserProfile(response.access_token, this.logger);
 
 					this.logger.info("12. publishAchievementLinkedInPost user profile", userProfile);
