@@ -542,7 +542,8 @@ module.exports = {
 					productName: [{productName: treeName}],
 					accessCode: [{accessCode: storedIntoDb.accessCode}],
 					qrCodeImageForStatus,
-					userLang: language}
+					userLang: language,
+					publicQrCode: storedIntoDb.publicQrCode}
 					console.log("selfPlanting emailData", emailData);
 					await ctx.call("v1.email.generateQrCodeEmail", emailData);
 

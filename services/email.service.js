@@ -164,13 +164,13 @@ module.exports = {
 
 					this.logger.info("1. generateQrCodeEmail userEmail", userEmail);
 					const replacements = {
-						walletQrId: ctx.params.walletQrId,
+						walletQrId: ctx.params.walletQrId[0].walletQrId,
 						firstName: ctx.params.userFullname.split(" ")[0],
 						userEmail: userEmail,
-						productName: ctx.params.productName,
-						accessCode: ctx.params.accessCode,
+						accessCode: ctx.params.accessCode[0].accessCode,
 						publicQrCode: ctx.params.publicQrCode,
-						frontendUrl: process.env.BLOKARIA_WEBSITE,
+						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						productName: ctx.params.productName[0].productName,
 						domainEmail: process.env.ADMIN_EMAIL
 					};
 
