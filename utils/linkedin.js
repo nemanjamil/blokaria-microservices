@@ -146,7 +146,8 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 			}
 		);
 
-		logger.info("5.1 uploadLinkedInImage Continues..."); 
+		
+		logger.info("5.1 uploadLinkedInImage registerResponse", registerResponse); 
 
 		if (!registerResponse.data?.value?.uploadMechanism?.com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest?.uploadUrl) {
 			throw new Error("Invalid response from LinkedIn image registration");
@@ -199,7 +200,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
  * @param {string} imageUrl - URL of the image to include in the post
  */
 const createLinkedInPost = async (userId, accessToken, achievement, achievementUrl, imageUrl, logger) => {
-	const LINKEDIN_API_URL = "https://api.linkedin.com/rest/posts";
+	const LINKEDIN_API_URL = "https://api.linkedin.com/v2/posts";
 
 	logger.info("1. createLinkedInPost START");
 	logger.info("2. createLinkedInPost imageUrl", imageUrl);
