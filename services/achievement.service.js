@@ -44,9 +44,12 @@ const achievementService = {
 			rest: "POST achievement/linkedin/post",
 			params: { code: "string" },
 			async handler(ctx) {
-				this.logger.info("1. publishAchievementLinkedInPost publish achievement on linkedin TODO:");
+				this.logger.info("0. publishAchievementLinkedInPost START ");
+	
 				const code = ctx.params.code;
 				const { userId } = ctx.meta.user;
+
+				this.logger.info("1. publishAchievementLinkedInPost CODE ", code);
 
 				try {
 					const user = await User.findById(userId, { _id: 1 }).populate({ path: "_level" }).exec();
