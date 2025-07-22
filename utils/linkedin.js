@@ -11,11 +11,10 @@ const linkedInExchangeCode = async (code) => {
 	const LINKEDIN_CLIENT_SECRET = process.env["LINKEDIN_CLIENT_SECRET"];
 	const LINKEDIN_REDIRECT_URI = process.env["LINKEDIN_REDIRECT_URI"];
 
-	console.log({
-		client_id: LINKEDIN_CLIENT_ID,
-		client_secret: LINKEDIN_CLIENT_SECRET,
-		redirect_uri: LINKEDIN_REDIRECT_URI
-	});
+	console.log("1. client_id", LINKEDIN_CLIENT_ID);
+	console.log("2. client_secret", LINKEDIN_CLIENT_SECRET);
+	console.log("3. redirect_uri", LINKEDIN_REDIRECT_URI);
+
 
 	const url = "https://www.linkedin.com/oauth/v2/accessToken";
 	const params = new URLSearchParams();
@@ -24,6 +23,8 @@ const linkedInExchangeCode = async (code) => {
 	params.append("client_id", LINKEDIN_CLIENT_ID);
 	params.append("client_secret", LINKEDIN_CLIENT_SECRET);
 	params.append("redirect_uri", LINKEDIN_REDIRECT_URI);
+
+	console.log("4. linkedInExchangeCode", params);
 
 	try {
 		const response = await axios.post(url, params, {
@@ -116,7 +117,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 	logger.info("3. uploadLinkedInImage imageUrl", imageUrl);
 	logger.info("4. uploadLinkedInImage accessToken", accessToken);
 
-	const registerUploadUrl = "https://api.linkedin.com/rest/assets?action=registerUpload";
+	const registerUploadUrl = "https://api.linkedin.com/v2/assets?action=registerUpload";
 
 	try {
 		logger.info("5. uploadLinkedInImage Registering upload...");
@@ -132,24 +133,27 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 							identifier: "urn:li:userGeneratedContent"
 						}
 					],
-					supportedUploadMechanism: ["SYNCHRONOUS_UPLOAD"]
+					//supportedUploadMechanism: ["SYNCHRONOUS_UPLOAD"]
 				}
 			},
 			{
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
 					"Content-Type": "application/json",
-					"LinkedIn-Version": "202506", // Updated to latest version
+					"LinkedIn-Version": "202506", 	
 					"X-Restli-Protocol-Version": "2.0.0"
 				}
 			}
 		);
 
-		if (!registerResponse.data?.value?.uploadMechanism?.com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest?.uploadUrl) {
+		
+		logger.info("5.1 uploadLinkedInImage registerResponse", registerResponse); 
+
+ 		if (!registerResponse.data?.value?.uploadMechanism?.["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"]?.uploadUrl) {
 			throw new Error("Invalid response from LinkedIn image registration");
 		}
 
-		const uploadUrl = registerResponse.data.value.uploadMechanism.com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest.uploadUrl;
+		const uploadUrl = registerResponse.data.value.uploadMechanism["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"].uploadUrl;
 		const asset = registerResponse.data.value.asset;
 
 		logger.info("6. uploadLinkedInImage fileStream");
@@ -196,7 +200,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
  * @param {string} imageUrl - URL of the image to include in the post
  */
 const createLinkedInPost = async (userId, accessToken, achievement, achievementUrl, imageUrl, logger) => {
-	const LINKEDIN_API_URL = "https://api.linkedin.com/rest/posts";
+	const LINKEDIN_API_URL = "https://api.linkedin.com/v2/ugcPosts";
 
 	logger.info("1. createLinkedInPost START");
 	logger.info("2. createLinkedInPost imageUrl", imageUrl);
@@ -218,9 +222,8 @@ const createLinkedInPost = async (userId, accessToken, achievement, achievementU
 				"com.linkedin.ugc.ShareContent": {
 					shareCommentary: {
 						text: postContent,
-						attributes: []
 					},
-					shareMediaCategory: "ARTICLE",
+					shareMediaCategory: "IMAGE",
 					media: [
 						{
 							status: "READY",
