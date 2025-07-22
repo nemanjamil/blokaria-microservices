@@ -509,7 +509,7 @@ module.exports = {
 						areaName: { type: "string" },
 						areaId: { type: "string" },
 						walletQrId: { type: "string" },
-						photo: { type: "string" } // base64 encoded photo
+						photo: { type: "string" } // URL to the photo
 					}
 				}
 			},
@@ -546,14 +546,7 @@ module.exports = {
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Tree Planting Confirmation 🌳",
 						html: htmlToSend,
-						attachments: [
-							{
-								filename: "tree_photo.png",
-								content: plantingDetails.photo,
-								encoding: "base64",
-								cid: "treePhoto"
-							}
-						]
+						attachments: []
 					};
 
 					let info = await transporter.sendMail(mailOptions);

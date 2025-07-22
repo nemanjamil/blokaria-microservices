@@ -615,14 +615,14 @@ module.exports = {
 							wallet.treePlanted = true;
 							console.log(`Updated wallet location for walletId: ${walletId}`);
 
-							if (photo) {
+							if (photo && photo !== "") {
 								wallet = await ctx.call("image.updateTreeImage", { wallet, photo, user });
 							}
 							await wallet.save();
 
 							console.log("user.userEmail", user.userEmail);
 							console.log("wallet.userEmail", wallet.userEmail);
-							ctx.call("v1.email.sendTreePlantingConfirmationEmail", {
+							let data = {
 								userLang: "en",
 								userEmails: [user.userEmail, wallet.userEmail],
 								userFullName: user.userFullName,
@@ -632,9 +632,10 @@ module.exports = {
 									areaName: area.name,
 									areaId: area._id.toString(),
 									walletQrId: wallet.walletQrId,
-									photo: photo
+									photo: process.env.MOLECULER_SERVICE_LOCATION + "__uploads/" + wallet.walletQrId + "/" + wallet._id + "_photo.jpg"
 								}
-							});
+							};
+							ctx.call("v1.email.sendTreePlantingConfirmationEmail", data);
 
 							walletUpdated = true;
 							break;
