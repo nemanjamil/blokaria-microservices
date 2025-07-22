@@ -153,7 +153,7 @@ const uploadLinkedInImage = async (userId, imageUrl, accessToken, logger) => {
 			throw new Error("Invalid response from LinkedIn image registration");
 		}
 
-		const uploadUrl = registerResponse.data.value.uploadMechanism.com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest.uploadUrl;
+		const uploadUrl = registerResponse.data.value.uploadMechanism["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"].uploadUrl;
 		const asset = registerResponse.data.value.asset;
 
 		logger.info("6. uploadLinkedInImage fileStream");
