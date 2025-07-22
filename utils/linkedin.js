@@ -11,11 +11,10 @@ const linkedInExchangeCode = async (code) => {
 	const LINKEDIN_CLIENT_SECRET = process.env["LINKEDIN_CLIENT_SECRET"];
 	const LINKEDIN_REDIRECT_URI = process.env["LINKEDIN_REDIRECT_URI"];
 
-	console.log({
-		client_id: LINKEDIN_CLIENT_ID,
-		client_secret: LINKEDIN_CLIENT_SECRET,
-		redirect_uri: LINKEDIN_REDIRECT_URI
-	});
+	console.log("1. client_id", LINKEDIN_CLIENT_ID);
+	console.log("2. client_secret", LINKEDIN_CLIENT_SECRET);
+	console.log("3. redirect_uri", LINKEDIN_REDIRECT_URI);
+
 
 	const url = "https://www.linkedin.com/oauth/v2/accessToken";
 	const params = new URLSearchParams();
@@ -24,6 +23,8 @@ const linkedInExchangeCode = async (code) => {
 	params.append("client_id", LINKEDIN_CLIENT_ID);
 	params.append("client_secret", LINKEDIN_CLIENT_SECRET);
 	params.append("redirect_uri", LINKEDIN_REDIRECT_URI);
+
+	console.log("4. linkedInExchangeCode", params);
 
 	try {
 		const response = await axios.post(url, params, {
