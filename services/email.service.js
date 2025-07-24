@@ -164,13 +164,13 @@ module.exports = {
 
 					this.logger.info("1. generateQrCodeEmail userEmail", userEmail);
 					const replacements = {
-						walletQrId: ctx.params.walletQrId,
+						walletQrId: ctx.params.walletQrId[0].walletQrId,
 						firstName: ctx.params.userFullname.split(" ")[0],
 						userEmail: userEmail,
-						productName: ctx.params.productName,
-						accessCode: ctx.params.accessCode,
+						accessCode: ctx.params.accessCode[0].accessCode,
 						publicQrCode: ctx.params.publicQrCode,
-						frontendUrl: process.env.BLOKARIA_WEBSITE,
+						webSiteLocation: process.env.BLOKARIA_WEBSITE,
+						productName: ctx.params.productName[0].productName,
 						domainEmail: process.env.ADMIN_EMAIL
 					};
 
@@ -509,7 +509,7 @@ module.exports = {
 						areaName: { type: "string" },
 						areaId: { type: "string" },
 						walletQrId: { type: "string" },
-						photo: { type: "string" } // base64 encoded photo
+						photo: { type: "string" } // URL to the photo
 					}
 				}
 			},
@@ -532,10 +532,10 @@ module.exports = {
 						frontendUrl: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL,
 						photo: plantingDetails.photo,
-						frontendUrl: process.env.BLOKARIA_WEBSITE,
+						webSiteLocation: process.env.MOLECULER_SERVICE_LOCATION,
 						userId: encrypt(userEmails[0])
 					};
-
+					console.log("sendTreePlantingConfirmationEmail replacements", replacements);
 					const htmlToSend = template(replacements);
 
 					let transporter = await this.getTransporter();
@@ -546,14 +546,7 @@ module.exports = {
 						bcc: `${this.metadata.bccemail}`,
 						subject: "Tree Planting Confirmation 🌳",
 						html: htmlToSend,
-						attachments: [
-							{
-								filename: "tree_photo.png",
-								content: plantingDetails.photo,
-								encoding: "base64",
-								cid: "treePhoto"
-							}
-						]
+						attachments: []
 					};
 
 					let info = await transporter.sendMail(mailOptions);

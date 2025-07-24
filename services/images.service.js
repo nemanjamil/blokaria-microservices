@@ -161,9 +161,9 @@ module.exports = {
 					console.log("updateTree imageSave START");
 
 					const { user, wallet, photo } = ctx.params;
-					const base64Data = photo.replace(/^data:image\/\w+;base64,/, "");
+					// const base64Data = photo.replace(/^data:image\/\w+;base64,/, "");
 					const uploadDir = path.join(__dirname, `../public/__uploads/${wallet.walletQrId}`);
-					const newFileBuffer = Buffer.from(base64Data, "base64");
+					const newFileBuffer = Buffer.from(photo, "base64");
 					const newFileName = `${wallet._id}_photo.jpg`;
 
 					const newImagePath = await this.replaceFile({
@@ -207,7 +207,7 @@ module.exports = {
 
 					const { area, photo } = ctx.params;
 					const uploadDir = path.join(__dirname, `../public/__uploads/areas`);
-					const newFileBuffer = Buffer.from(base64Data, "base64");
+					const newFileBuffer = Buffer.from(photo, "base64");
 					const newFileName = `${area._id}_photo.jpg`;
 
 					const newImagePath = await this.replaceFile({
@@ -485,7 +485,7 @@ module.exports = {
 				coordinates: { type: "string" },
 				plantingDate: { type: "string" },
 				treeName: { type: "string" },
-				// treePhoto: { type: "string" },
+				treePhoto: { type: "string" },
 				// treePhotoName: { type: "string" },
 				// treePhotoType: { type: "string" },
 				// treeSpecies: { type: "string" },
@@ -542,7 +542,8 @@ module.exports = {
 					productName: [{productName: treeName}],
 					accessCode: [{accessCode: storedIntoDb.accessCode}],
 					qrCodeImageForStatus,
-					userLang: language}
+					userLang: language,
+					publicQrCode: storedIntoDb.publicQrCode}
 					console.log("selfPlanting emailData", emailData);
 					await ctx.call("v1.email.generateQrCodeEmail", emailData);
 

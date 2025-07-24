@@ -197,19 +197,21 @@
 								<p>You can track your tree's impact using the following link:</p>
 							</td>
 						</tr>
-						{{#each walletQrId}}
+						{{#if publicQrCode}}
 						<tr>
 							<td>
-								<a
-									href="{{#if publicQrCode}}{{webSiteLocation}}/status/{{walletQrId}}{{else}}{{webSiteLocation}}/status/{{walletQrId}}/{{accessCode}}{{/if}}"
-									class="button"
-									target="_blank"
-								>
+								<a href="{{webSiteLocation}}/status/{{walletQrId}}" class="button" target="_blank"> View Details: {{productName}} </a>
+							</td>
+						</tr>
+						{{else}}
+						<tr>
+							<td>
+								<a href="{{webSiteLocation}}/status/{{walletQrId}}/{{accessCode}}" class="button" target="_blank">
 									View Details: {{productName}}
 								</a>
 							</td>
 						</tr>
-						{{/each}}
+						{{/if}}
 						<tr>
 							<td>
 								<h2>Your Contribution</h2>
@@ -217,7 +219,10 @@
 						</tr>
 						<tr>
 							<td>
-								<p>By planting trees, you’re contributing to reforestation efforts and helping combat climate change. Every tree planted improves the environment and supports local communities.</p>
+								<p>
+									By planting trees, you’re contributing to reforestation efforts and helping combat climate change. Every tree planted
+									improves the environment and supports local communities.
+								</p>
 							</td>
 						</tr>
 						<tr>
@@ -237,6 +242,4 @@
 			</tr>
 		</table>
 	</body>
-	
-
 </html>
