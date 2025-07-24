@@ -532,10 +532,10 @@ module.exports = {
 						frontendUrl: process.env.BLOKARIA_WEBSITE,
 						domainEmail: process.env.ADMIN_EMAIL,
 						photo: plantingDetails.photo,
-						frontendUrl: process.env.BLOKARIA_WEBSITE,
+						webSiteLocation: process.env.MOLECULER_SERVICE_LOCATION,
 						userId: encrypt(userEmails[0])
 					};
-
+					console.log("sendTreePlantingConfirmationEmail replacements", replacements);
 					const htmlToSend = template(replacements);
 
 					let transporter = await this.getTransporter();
